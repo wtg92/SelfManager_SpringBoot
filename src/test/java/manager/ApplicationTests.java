@@ -1,10 +1,10 @@
-package Scientific_Manager.springboot;
+package manager;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class ScientificManagerSpringbootApplicationTests {
+class ApplicationTests {
 
 	@Test
 	void contextLoads() {

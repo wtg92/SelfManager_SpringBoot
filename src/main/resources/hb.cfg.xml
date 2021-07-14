@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+                                         "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+ <!-- Fuck it ! Chinese characters cannot appear in this file because of 
+		hibernate bug. -->
+ <session-factory>
+  <property name="driverClassName">com.mysql.cj.jdbc.Driver</property>
+  <property name="url">jdbc:mysql://localhost:3306/scientific_manager?useUnicode=true&amp;characterEncoding=UTF-8&amp;serverTimezone=Asia/Shanghai&amp;autoReconnect=true</property>
+  <property name="username">root</property>
+  <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+  <property name="hibernate.connection.pool_size">9</property>
+  <property name="show_sql">false</property>
+  <property name="hibernate.format_sql">false</property>
+  <property name="hibernate.physical_naming_strategy">manager.util.HibernateNamingStrategy</property>
+  <property name="current_session_context_class">thread</property>
+  <property name="hibernate.connection.provider_class">com.alibaba.druid.support.hibernate.DruidConnectionProvider</property>
+  <property name="initialSize">1</property>
+  <property name="minIdle">1</property>
+  <property name="maxActive">20</property>
+  <!-- 配置获取连接等待超时的时间 -->
+  <property name="maxWait">60000</property>
+  <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+  <property name="timeBetweenEvictionRunsMillis">60000</property>
+  <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+  <property name="minEvictableIdleTimeMillis">300000</property>
+  <property name="validationQuery">SELECT 1</property>
+  <property name="testWhileIdle">true</property>
+  <property name="testOnBorrow">false</property>
+  <property name="testOnReturn">false</property>
+  <property name="poolPreparedStatements">true</property>
+  <property name="maxPoolPreparedStatementPerConnectionSize">20</property>
+  <mapping class="manager.entity.general.User"/>
+  <mapping class="manager.entity.general.UserGroup"/>
+  <mapping class="manager.entity.general.career.Plan"/>
+  <mapping class="manager.entity.general.career.WorkSheet"/>
+  <mapping class="manager.entity.general.career.PlanDept"/>
+  <mapping class="manager.entity.general.career.NoteBook"/>
+  <mapping class="manager.entity.general.career.Note"/>
+  <mapping class="manager.entity.general.career.Memo"/>
+  <mapping class="manager.entity.general.tool.ToolRecord"/>
+ </session-factory>
+</hibernate-configuration>
