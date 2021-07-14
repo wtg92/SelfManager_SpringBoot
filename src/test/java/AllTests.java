@@ -1,3 +1,4 @@
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -27,6 +28,11 @@ import manager.util.TimeUtilTest;
 	TimeUtilTest.class
 })
 public class AllTests {
+	
+	@Test
+	public void test1() {
+		System.out.println("allTests");
+	}
 	
 	
 }
