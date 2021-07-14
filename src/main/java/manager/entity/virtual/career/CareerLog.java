@@ -1,0 +1,87 @@
+package manager.entity.virtual.career;
+
+import java.util.Calendar;
+import java.util.LinkedList;
+
+import com.alibaba.fastjson.annotation.JSONField;
+
+import manager.entity.virtual.SMVirtualEntity;
+import manager.system.career.CareerLogAction;
+
+public class CareerLog extends SMVirtualEntity{
+	
+	private Integer id;
+	@JSONField(serialize = false)
+	private CareerLogAction action;
+	@JSONField(serialize = false)
+	private LinkedList<String> params = new LinkedList<String>();
+	@JSONField(serialize = false)
+	private Integer creatorId ;
+	
+	private Calendar createTime;
+	
+	 
+	
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public Calendar getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(Calendar createTime) {
+		this.createTime = createTime;
+	}
+
+	public void addParams(Object ...value) {
+		for(Object val:value) {
+			params.add(val.toString());
+		}
+	}
+	
+	public String pollParam() {
+		return params.poll();
+	}
+	
+	public String getParam(int index) {
+		return params.get(index);
+	}
+	
+	public CareerLog(CareerLogAction action, int creatorId) {
+		super();
+		this.action = action;
+		this.creatorId = creatorId;
+	}
+
+	public LinkedList<String> getParams() {
+		return params;
+	}
+
+	public void setParams(LinkedList<String> params) {
+		this.params = params;
+	}
+
+	public CareerLogAction getAction() {
+		return action;
+	}
+
+	public void setAction(CareerLogAction action) {
+		this.action = action;
+	}
+
+	public Integer getCreatorId() {
+		return creatorId;
+	}
+
+	public void setCreatorId(Integer creatorId) {
+		this.creatorId = creatorId;
+	}
+	
+	
+	
+}
