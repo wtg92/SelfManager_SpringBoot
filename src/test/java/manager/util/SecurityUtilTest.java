@@ -1,0 +1,55 @@
+package manager.util;
+
+import static manager.util.SecurityUtil.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+
+import org.junit.Test;
+
+import manager.entity.general.User;
+
+public class SecurityUtilTest {
+
+	@Test
+	public void testEncodeAndDecodePwd() throws Exception {
+		String salt = PBKDF2.getSalt();
+		String pwd = "110";
+		String rlt = PBKDF2.encodePassword(pwd, salt);
+		assertTrue(PBKDF2.verifyPassword("110", salt, rlt));
+		assertFalse(PBKDF2.verifyPassword("1101", salt, rlt));
+
+		User user = new User();
+		String pwd2 = "XXXXXXX222222222";
+		user.setPassword(pwd2);
+
+		encodeUserPwd(user);
+		assertTrue(verifyUserPwd(user, pwd2));
+	}
+
+	@Test
+	public void testEncodeAndDecodeInfo() throws Exception {
+		String s1 = "1";
+		String s2 = "lk xjy when it comes?";
+		
+		String keyForS1 = SecurityUtil.encodeInfo(s1);
+		String keyForS2 = SecurityUtil.encodeInfo(s2);
+		assertNotEquals(s1, keyForS1);
+		assertNotEquals(s2, keyForS2);
+		
+		assertEquals(s1, SecurityUtil.decodeInfo(keyForS1));
+		assertEquals(s2, SecurityUtil.decodeInfo(keyForS2));
+	}
+
+
+
+
+
+}
