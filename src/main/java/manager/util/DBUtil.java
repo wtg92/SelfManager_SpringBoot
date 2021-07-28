@@ -392,22 +392,26 @@ public abstract class DBUtil {
 	}
 	
 	public static DBException processDBExcpetion(Transaction trans,Session session,Exception e){
-		e.printStackTrace();
-		/*回滚一下*/
-		if (trans != null)
-			trans.rollback();
 		try {
-			detectDataTooLongExceptionAndThrowIfAny(e);
-		}catch(DBException dataTooLong) {
-			assert dataTooLong.type == SMError.DATA_TOO_LONG : dataTooLong.type;
-			return dataTooLong;
+			e.printStackTrace();
+			/*回滚一下*/
+			if (trans != null)
+				trans.rollback();
+			try {
+				detectDataTooLongExceptionAndThrowIfAny(e);
+			}catch(DBException dataTooLong) {
+				assert dataTooLong.type == SMError.DATA_TOO_LONG : dataTooLong.type;
+				return dataTooLong;
+			}
+
+			return new DBException(SMError.UNKNOWN_DB_ERROR, e.getMessage());
+		}finally {
+			/*trans.rollback() 可能出现异常*/
+			if (session != null) {
+				session.close();
+			}
 		}
 
-		/*假如是由于DataTooLong导致的 就不必关闭session了 反正也没什么影响*/
-		if (session != null)
-			session.close();
-		
-		return new DBException(SMError.UNKNOWN_DB_ERROR, e.getMessage());
 	}
 	
 	

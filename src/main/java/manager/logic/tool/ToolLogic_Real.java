@@ -104,7 +104,6 @@ public class ToolLogic_Real extends ToolLogic{
 	}
 
 	private final static String PPTX_SUFFIX = ".pptx";
-	private final static String PPT_SUFFIX = ".ppt";
 	
 	public synchronized void addToolRecordSucOnce(Tool tool) throws SMException {
 		ToolRecord record = tDAO.selectToolRecordByTool(tool);

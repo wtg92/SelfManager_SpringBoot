@@ -5,6 +5,8 @@ import static java.util.stream.Collectors.toList;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -23,6 +25,17 @@ public class StreamTest {
 			super();
 			this.value = value;
 		}
+
+		public int getValue() {
+			return value;
+		}
+
+		public void setValue(int value) {
+			this.value = value;
+		}
+		
+		
+		
 	}
 	private static boolean isEven(Num num) {
 		return isEven(num.value);
@@ -109,8 +122,20 @@ public class StreamTest {
 		MajorCategory selectedMajorCategory() {
 			return cat;
 		};
+		
+		public double getGPA() {
+			return 0;
+		}
+		
 	}
 	
+	
+	static class Class{
+		
+		int num;
+		List<Student> students;
+		
+	}
 	
 	
 	@Test
@@ -146,13 +171,13 @@ public class StreamTest {
 				.filter(student->student.selectedMajorCategory() == MajorCategory.SCIENCE)
 				.collect(toList());
 		
-		/* 谁能去理科实验班呢？ 理科班中，按历史成绩逆序排序，排名第一的同学 */
+		/* 谁能去理科实验班呢？ 理科班中，按历史成绩排名第一的同学 */
 		Student studentForExperimentalClass = studentsForScienceClass.stream()
-				.sorted(Comparator.comparing(student->{
+				.max(Comparator.comparing(student->{
 			double averageScore = student.historicalScore.stream()
 					.collect(Collectors.averagingDouble(i->i));
-			return -averageScore;
-		})).collect(toList()).get(0);
+			return averageScore;
+		})).orElse(null);
 		
 		/* 尽管被分到理科实验班的同学成绩很好，但他还是不会分身术 */
 		studentsForScienceClass.remove(studentForExperimentalClass);
@@ -163,9 +188,49 @@ public class StreamTest {
 		assignToExperimentalClass(studentForExperimentalClass);
 	}
 	
+	static class Grade{
+		/*本年级所有学生*/
+		List<Student> students;
+	}
+	
+	@Test
+	public void testGrantScholarships() {
+		
+		List<Grade> allGrades = getAllGrades();
+		
+		/*
+		 * 各年级的学生根据GPA逆序排序，前100名的学生，即为发放奖学金的名单。
+		 * 即将“年级”映射为“该年级GAP前100名的学生”
+		 */
+		List<Student> target = allGrades.stream().flatMap(grade->
+			grade.students.stream()
+			.sorted(Comparator.comparing(Student::getGPA).reversed())
+			.limit(100)
+		).collect(toList());
+				
+		target.forEach(this::grantScholarship);
+	}
 	
 	
+	@Test
+	public void testComparator() {
+		
+		List<Num> nums =List.of(new Num(1),new Num(2),new Num(3));
+		Num rlt = nums.stream().max(Comparator.comparing(a -> a.value)).get();
+		System.out.println(rlt.value);
+	}
 	
+	
+	private void grantScholarship(Student s) {
+		
+	}
+	
+	
+	private List<Grade> getAllGrades() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	private void assignToExperimentalClass(Student studentForExperimentalClass) {
 		// TODO Auto-generated method stub
 		
@@ -213,12 +278,46 @@ public class StreamTest {
 		return null;
 	}
 	
+	@Test
+	public void testReduce() {
+		final Stream<Integer> intStream = Stream.of(1,2,3,4);
+		final BinaryOperator<Integer> reducer = 
+				(accumulator, currentValue) -> accumulator + currentValue;
+		
+		/*打印 10*/
+		System.out.println(intStream.reduce(reducer).get());
+	}
 	
+	@Test
+	public void testReduce2() {
+		final Stream<Integer> intStream = Stream.of(1,2,3,4);
+		final BinaryOperator<Integer> reducer = 
+				(accumulator, currentValue) -> accumulator + currentValue;
+		
+		/*打印 15*/
+		System.out.println(intStream.reduce(5,reducer));
+	}
 	
+	@Test
+	public void testReduce3() {
+		final Stream<String> stringStream = Stream
+				.of("马尔科姆的一家","发展受阻","钢之炼金术师","傲骨贤妻","无问西东")
+				.parallel();
+		
+		int sumOfChars = stringStream.reduce(0,
+				(accumulator,currentValue)->accumulator+currentValue.length(),
+				//返回值为Null，由于普通流无需“连接”
+				(a,b)->a+b);
+		
+		//输出25
+		System.out.println(sumOfChars);
+	}
 	
-	
-	
-	
-	
-	
+	@Test
+	public void testNull() {
+		 Stream<Integer>  stream = Stream.of(1,2,3,null);
+		 
+		 stream.collect(Collectors.groupingBy(Function.identity()));
+		 
+	}
 }
