@@ -1,0 +1,37 @@
+#users_user_summary_container{
+    font-size: 18px;
+}
+
+.users_sign_up_users{
+    margin-right: 20px;
+}
+
+#users_user_and_group_detail_container{
+    margin-top: 20px;
+}
+
+#users_group_detail_container{
+    margin-top: 15px;
+}
+
+#users_group_controgroup_container{
+    margin-bottom: 10px;
+}
+
+
+#users_group_datatable_container{
+    margin-bottom: 5px;
+}
+
+.users_one_group_perms_container{
+    margin-bottom: 10px;
+}
+
+.users_one_group_perms_container:last-child{
+    margin-bottom: 0;
+}
+
+.users_title{
+    font-size: 18px;
+    margin-bottom: 5px;
+}

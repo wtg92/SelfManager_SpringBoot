@@ -64,6 +64,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 
 import com.alibaba.fastjson.JSON;
@@ -84,6 +85,7 @@ import manager.system.career.PlanState;
 import manager.system.career.WorkItemType;
 import manager.system.career.WorkSheetState;
 
+@WebServlet(name="CareerServlet",urlPatterns = "/CareerServlet")
 public class CareerServlet extends SMServlet{
 	private static final long serialVersionUID = -566721941701587967L;
 	

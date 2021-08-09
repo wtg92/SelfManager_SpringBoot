@@ -1,0 +1,260 @@
+.work_title{
+    font-size: 22px;
+    flex-grow: 1.1;
+}
+
+.work_header_container{
+    display: flex;
+    margin-bottom: 15px;
+}
+
+.work_switch_to_show_plan_sub_container,.work_switch_to_show_ws_sub_container{
+    cursor: pointer;
+}
+
+#work_open_ws_today_button{
+    display: inline-block;
+}
+
+
+#work_ws_sub_left_container_header{
+    padding: 10px;
+    font-size: 20px;
+    text-align: center;
+    border-bottom:  1px solid rgb(209, 209, 209);
+}
+
+.work_ws_date_cotnainer{
+    display: flex;
+    padding: 5px;
+    font-size: 16px;
+    justify-content: center;
+    border-bottom:  1px solid rgb(209, 209, 209);
+}
+
+#work_ws_count_ws_today_alert,#work_ws_count_ws_prev_day_alert{
+    display: none;
+    margin-bottom: 0;
+}
+
+#work_ws_count_ws_today_alert p,#work_ws_count_ws_prev_day_alert p{
+    margin-bottom: 0;
+}
+
+#work_ws_with_actual_content_container{
+    flex-grow: 1.1;
+}
+
+.work_ws_date_cotnainer.warning_date{
+    box-shadow: 0 0 5px #e48383;
+    transform:translate3d(0, 0, 0);
+}
+
+.work_ws_blank_container{
+    padding: 40px;
+    font-size: 26px;
+    color: gray;
+    text-align: center;
+    margin: auto;
+}
+
+#work_ws_sub_left_container_footer>div{
+    padding: 5px;
+    font-size: 16px;
+    text-align: center;
+}
+
+#work_ws_sub_left_container_footer .work_see_more_ws{
+    cursor: pointer;
+    border-bottom:  1px solid rgb(209, 209, 209);
+}
+
+#work_work_sheet_main_body{
+    margin-top: 20px;
+    border-radius: 6px;
+    display: flex;
+    border: 1px solid #dfdfe9;
+}
+#work_ws_sub_right_container{
+    flex-grow: 1.1;
+    display: flex;
+}
+
+#work_ws_sub_left_container{
+    width: 10%;
+    min-width: 150px;
+    border-right: 1px solid rgb(209, 209, 209);
+}
+
+#work_cards_controgroup,#work_work_sheet_main_controgroup{
+    text-align: right;
+}
+
+.work_create_plan_entity{
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+
+
+.work_second_title{
+    margin-bottom: 5px;
+}
+
+#work_create_plan_form [type="text"],#work_create_plan_form [type="date"],#work_create_plan_form textarea{
+    width: 100%;
+}
+
+.work_create_plan_date_header{
+    display: flex;
+
+}
+
+.work_second_title{
+    flex-grow: 1.1;
+}
+
+#work_set_start_date_today_for_create_plan{
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.work_end_date_null_container{
+    white-space: nowrap;
+}
+[for='work_end_date_null_for_create_plan']{
+    font-size: 14px;
+    cursor: pointer;
+}
+
+[name='end_date_null']{
+    cursor: pointer !important;
+    vertical-align: middle;
+}
+
+
+.work_create_plan_entity[test='false']{
+    margin-top: 5px;
+    color: #cb2431;
+}
+
+.work_create_plan_error_container{
+    font-size: 13px;
+}
+
+.work_create_plan_entity[test='false'] [type="text"],.work_create_plan_entity[test='date'] {
+    border-color: #cb2431;
+}
+
+
+.work_plan_card_container{
+    display: inline-block;
+    width: 18.4%;
+    margin-right: 2%;
+    margin-bottom: 10px;
+}
+.work_plan_card_container.work_right_Card{
+    margin-right: 0;
+}
+
+.work_plan_card_content{
+    border: 1px #fad46a solid;
+    border-radius: 8px;
+    padding: 8px;
+    background-color:#fed754;
+    cursor: pointer;
+}
+
+.work_plan_card_state{
+    margin-bottom: 10px;
+}
+
+#work_plan_cards_container{
+    margin-top: 20px;
+}
+
+.work_plan_card_name{
+    font-size: 18px;
+    margin-bottom: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.work_plan_card_start_date,.work_plan_card_end_date,.work_plan_card_create_time{
+    display: flex;
+    white-space: nowrap;
+}
+.work_plan_card_start_date_content,.work_plan_card_end_date_content,.work_plan_card_create_time_content{
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.work_plan_card_end_date_content em{
+    margin:0 !important;
+}
+
+.work_plan_card_date_title{
+    flex-grow: 1.1;
+}
+
+.work_plan_card_start_date{
+    margin-bottom: 5px;
+}
+
+.work_plan_card_end_date{
+    margin-bottom: 5px;
+}
+
+.work_plan_card_container[select='true'] .work_plan_card_content{
+    -moz-box-shadow: 0px 0px 10px #888888; /* 老的 Firefox */
+    box-shadow: 0px 0px 10px #888888;
+}
+
+.work_plan_card_footer{
+    opacity: 0;
+    pointer-events: none;
+    text-align: right;
+    font-size: 14px;
+}
+
+.work_plan_card_container[select='true'] .work_plan_card_footer{
+    opacity: 1;
+    pointer-events: inherit;
+}
+
+.work_plan_card_footer>span{
+    cursor: pointer;
+    margin-right: 1%;
+}
+
+.work_plan_card_footer>span:hover{
+    opacity: 0.9;
+}
+
+.work_plan_card_footer>span:last-child{
+    margin-right: 0;
+}
+
+
+.work_create_plan_entity.end_date_null [type='date']{
+    pointer-events: none;
+    background-color: rgb(240, 240, 240);
+}
+#work_plan_mes_when_zero_plan{
+    display: none;
+}
+#work_plan_mes_when_zero_plan p{
+    margin-bottom: 0 !important;
+}
+
+#work_getting_start_dialog p{
+    text-indent: 2em;
+    font-size: 16px;
+}
+
+#work_getting_start_dialog img{
+    max-width: 300px;
+}
+#work_getting_start_dialog img.right_float_img{
+    margin-left: 30px;
+}

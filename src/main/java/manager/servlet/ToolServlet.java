@@ -9,6 +9,7 @@ import static manager.util.UIUtil.getNonNullParamInInt;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 
 import com.alibaba.fastjson.JSON;
@@ -21,6 +22,7 @@ import manager.system.SMError;
 import manager.system.SMOP;
 import manager.system.tool.Tool;
 
+@WebServlet(name="ToolServlet",urlPatterns = "/ToolServlet")
 public class ToolServlet extends SMServlet{
 	private static final long serialVersionUID = -566721941701587967L;
 	

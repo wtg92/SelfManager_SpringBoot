@@ -1,0 +1,687 @@
+#work_sheet_main_container{
+    padding: 20px;
+
+}
+
+#ws_statistics_dialog_line_and_bar_chart_container{
+    width: 795px;
+    height: 400px;
+}
+
+#ws_statistics_dialog .modal-footer{
+    z-index: 99999;
+}
+
+
+#ws_statistics_dialog_introduction_for_chart{
+    text-align: right;
+    color: gray;
+    font-size: 12px;
+    margin-top: -150px;
+}
+
+.work_sheet_work_item_unit_container_for_phone{
+    margin-bottom: 5px;
+    font-size: 1.1em;
+}
+#ws_statistics_dialog_bar_chart_container{
+    width: 465px;
+    height: 300px;
+    flex-grow: 1.1;
+}
+#ws_statistics_dialog_charts_container{
+    display: flex;
+}
+
+
+#ws_statistics_dialog_pie_chart_container{
+    width: 300px;
+    height: 300px;
+}
+
+
+
+.work_sheet_work_item_container_mood_body{
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    display: inline-block;
+    text-align: center;
+    line-height: 25px;
+}
+
+.work_sheet_today_plan_items_error_mes{
+    font-size: 14px;
+    color:#cb2431;
+    margin-top: -5px;
+    margin-bottom: 10px;
+}
+
+#work_sheet_work_items_container_main_body_save_hint em{
+    margin: 0;
+}
+
+
+#work_sheet_main_container_header .work_sheet_work_item_container_mood_body{
+    cursor: default !important;
+}
+#work_sheet_main_container_header .work_sheet_work_item_container_mood_body[mood='0.0']{
+    display: none;
+}
+
+.work_sheet_logs_switch_container_visibility{
+    cursor: pointer;
+}
+
+
+#work_sheet_main_container_header,#work_sheet_work_items_container_header,.work_sheet_logs_header{
+    display: flex;
+    align-items: center;
+}
+
+.work_sheet_main_container_header_date_title,.work_sheet_logs_title,.work_sheet_main_container_today_plan_title,.work_sheet_work_items_container_title{
+    font-size: 22px;
+    flex-grow: 1.1;
+}
+
+#work_sheet_main_container_header,.work_sheet_logs_header,#work_sheet_main_container_for_basic_info,#work_sheet_container_with_header_and_content,#work_sheet_work_items_container_with_header_and_body{
+    margin-bottom: 20px;
+}
+
+
+.work_sheet_main_ctrogroup_buttons,.work_sheet_work_items_container_control_buttons{
+    font-size: 16px;
+}
+.work_sheet_main_ctrogroup_buttons>span,.work_sheet_work_items_container_control_buttons>span{
+    margin-right: 10px;
+    cursor: pointer;
+}
+.work_sheet_main_ctrogroup_buttons>span:last-child,.work_sheet_work_items_container_control_buttons>span:last-child{
+    margin-right: 0;
+}
+
+.work_sheet_main_container_swtich_edit_mode{
+    font-size: 16px;
+}
+
+
+.work_sheet_main_container_swtich_edit_mode,.work_sheet_switch_to_show_today_plan_main_container{
+    font-size: 16px;
+    cursor: pointer;
+}
+.work_sheet_main_container_header_state{
+    margin-right: 20px;
+}
+
+.work_sheet_main_container_today_plan_right_body>span{
+    cursor: pointer;
+    margin-right: 10px;
+}
+.work_sheet_main_container_today_plan_right_body>span:last-child{
+    margin-right: 0;
+}
+
+.work_sheet_main_container_header_mood{
+    margin-right: 20px;
+}
+/*2代表次数*/
+.work_sheet_work_item_container[plan_item_type='2'] .work_sheet_work_item_calculate_end_time_by_val_btn{
+    display: none;
+}
+
+.work_sheet_main_container_header_right_body,.work_sheet_main_container_today_plan_right_body{
+    display: flex;
+    align-items: center;
+}
+.work_sheet_main_container_header_mood>.work_sheet_work_item_container_mood_body{
+    width: 33px;
+    height: 33px;
+    line-height: 33px;
+}
+
+.work_sheet_main_container_header_base_plan{
+    margin-right: 40px;
+}
+
+
+
+#work_note_textarea{
+    width: 100%;
+    min-height: 150px;
+}
+
+.work_sheet_today_plan_items_controgroup_container{
+    display: flex;
+    margin-top: 20px;
+}
+#work_sheet_today_plan_save_or_add_item_hint_mes{
+    flex-grow: 1.1;
+}
+
+.work_sheet_plan_item_container_body,.work_sheet_plan_item_completion_body{
+    display: inline-block;
+    background-color: #28a745;
+    border-color: #28a745;
+    color: #fff;
+    border-radius: 6px;
+    padding: 5px;
+    margin-right: 5px;
+    white-space: nowrap;
+}
+
+
+#work_sheet_today_plan_items_cards_container{
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    overflow-x:auto;
+}
+
+.work_sheet_plan_item_container_root_container{
+    padding-left: 10px;
+    color: #28a745;
+    display: flex;
+    margin-bottom: -10px;
+}
+
+.work_sheet_plan_item_container_first_level_header,.work_sheet_plan_item_container_unit_header{
+    min-width: 50px;
+    display: flex;
+    border-left: 4px solid #28a745;
+}
+.work_sheet_plan_item_container_first_level_header>div:nth-child(1),.work_sheet_plan_item_container_unit_header>div:nth-child(1){
+    border-bottom: 4px solid #28a745;
+    width: 100%;
+    height: 30.5px;
+    align-self: baseline;
+}
+
+little{
+    font-size: 0.9em;
+    margin-left: 5px;
+}
+
+
+
+.work_sheet_plan_item_container_first_level{
+    display: flex;
+    padding-left: 18px;
+}
+
+.work_sheet_plan_item_container_unit_level{
+    display: flex;   
+    padding-left: 30px;
+}
+
+.work_sheet_plan_item_container_wrap{
+    padding-top: 10px;
+}
+
+.work_sheet_plan_item_container_first_level.last_one>.work_sheet_plan_item_container_first_level_header,.work_sheet_plan_item_container_unit_level.last_one>.work_sheet_plan_item_container_unit_header{
+    border-left: 0;
+}
+
+.work_sheet_plan_item_container_first_level.last_one>.work_sheet_plan_item_container_first_level_header>div:nth-child(1),.work_sheet_plan_item_container_unit_level.last_one>.work_sheet_plan_item_container_unit_header>div:nth-child(1){
+    border-bottom-left-radius: 6px;
+    border-left: 4px solid #28a745;
+}
+
+.work_sheet_plan_item_container_sub_container{
+    display: flex;
+    align-items: center;
+}
+.work_sheet_plan_item_container_footer{
+    display: flex;
+    color: #28a745;
+}
+.work_sheet_plan_item_container_footer svg{
+    cursor: pointer;
+}
+.work_sheet_plan_item_container_footer svg:hover{
+    opacity: 0.8;
+}
+
+.work_sheet_plan_item_container_footer>div{
+    margin-right: 5px;
+}
+
+
+.work_sheet_plan_item_container_footer>div:last-child{
+    margin-right: 0;
+}
+
+.work_sheet_plan_item_container_root_controlgroup svg{
+    cursor: pointer;
+}
+
+.work_sheet_plan_item_container_root_controlgroup svg:hover{
+    opacity: 0.8;
+}
+
+.work_sheet_today_plan_unit_container{
+    align-items: center;
+}
+
+
+#work_sheet_today_plan_control_group_container{
+    padding: 10px;
+    border-radius: 6px;
+    background-color: #fdfdff;
+    overflow-x: auto;
+    font-size: 18px;
+}
+
+#work_sheet_today_play_main_container[controlgroup_mode='save'] [name='cat_name']{
+    display: none;
+}
+#work_sheet_today_play_main_container[controlgroup_mode='save'] .work_sheet_today_plan_type_chooser{
+    display: none;
+}
+#work_sheet_today_play_main_container[controlgroup_mode='save'] [name='father_relation']{
+    display: none;
+}
+#work_sheet_today_play_main_container[controlgroup_mode='save'] #work_sheet_today_plan_add_item_button{
+    display: none;
+}
+
+#work_sheet_today_play_main_container[controlgroup_mode='add'] [name='cat_name_when_modify']{
+    display: none;
+}
+
+#work_sheet_today_play_main_container[controlgroup_mode='add'] .work_sheet_today_plan_type_when_modifying{
+    display: none;
+}
+
+#work_sheet_today_play_main_container[controlgroup_mode='add'] .work_sheet_today_plan_subordinate_when_modifying{
+    display: none;
+}
+
+#work_sheet_today_play_main_container[controlgroup_mode='add'] #work_sheet_today_plan_save_item_button{
+    display: none;
+}
+
+#work_sheet_container_with_header_and_content[open_edit_mode='false'] .work_sheet_main_container_sync_all_plan_item{
+    display: none;
+}
+
+#work_sheet_container_with_header_and_content[open_edit_mode='false'] #work_sheet_today_plan_control_group_container{
+    display: none;
+}
+
+#work_sheet_container_with_header_and_content[open_edit_mode='false'] .work_sheet_plan_item_container_root_controlgroup,#work_sheet_container_with_header_and_content[open_edit_mode='false'] .work_sheet_plan_item_container_footer{
+    display: none;
+}
+
+
+.work_sheet_today_plan_items_for_one_row{
+    display: flex;
+    margin-bottom: 10px;
+    white-space: nowrap;
+}
+
+.work_sheet_today_plan_items_for_one_row:last-child{
+    margin-bottom: 0;
+}
+
+#work_sheet_today_plan_items_inputs_for_same_type_mapping_of_minutes [type='text'],#work_sheet_today_plan_items_inputs_for_same_type_mapping_of_times [type='text'],#work_sheet_today_plan_items_inputs_for_different_type_mapping [type='text']{
+    margin-left: 10px;
+    margin-right: 2%;
+}
+
+#work_sheet_today_plan_items_inputs_for_times_type>.work_sheet_today_plan_items_unit:nth-child(1){
+    flex-grow: 1.1;
+}
+
+#work_sheet_today_plan_items_inputs_for_times_type{
+    width: 100%;
+}
+
+.work_sheet_today_plan_items_values_container{
+    display: block !important;
+}
+
+.work_sheet_today_plan_unit_container:nth-child(1){
+    width: 37%;
+    display: flex;
+    margin-right: 2%;
+}
+
+.work_sheet_today_plan_unit_container:nth-child(2){
+    display: flex;
+    width: 37%;
+}
+.work_sheet_today_plan_items_unit{
+    display: flex;
+}
+
+.work_sheet_today_plan_items_for_one_row [name='note']{
+    flex-grow: 1.1;
+}
+
+.work_sheet_today_plan_items_inputs_by_type_container.work_sheet_today_plan_unit_container{
+    display: flex;
+    width: 100% !important;
+    align-items: center;
+}
+
+.work_sheet_today_plan_unit_container[test='false']{
+    color: #cb2431;
+}
+
+.work_sheet_today_plan_unit_container[test='false'] [type="text"]{
+    border-color: #cb2431;
+}
+
+.work_sheet_today_plan_unit_container{
+    align-items: center;
+}
+
+.work_sheet_today_plan_items_sub_title,.work_sheet_today_plan_items_prefix_title{
+    margin-right: 10px;
+    line-height: 36px;
+}
+
+#work_sheet_today_plan_control_group_container .dropdown-menu{
+    overflow-y: auto;
+    max-height: 160px;
+}
+
+#work_sheet_today_plan_father_and_son_relationship_container{
+    display: flex;
+    white-space: nowrap;
+    justify-content: flex-end;
+}
+
+.work_sheet_today_plan_unit_container:nth-child(3){
+    flex-grow: 1.1;
+    text-align: right;
+}
+
+.work_sheet_today_plan_items_for_hint{
+    margin-top: 15px;
+    margin-bottom: 10px;
+    font-size: 1rem;
+    font-family: cursive;
+    text-align: right;
+}
+
+#work_sheet_container_with_header_and_content[plan_mode='completion'] .work_sheet_plan_item_container_root_controlgroup{
+    display: none;
+}
+
+#work_sheet_container_with_header_and_content[plan_mode='completion'] .work_sheet_plan_item_add_mark{
+    display: none;
+}
+#work_sheet_container_with_header_and_content[plan_mode='completion'] .work_sheet_plan_item_delete_mark{
+    display: none;
+}
+#work_sheet_container_with_header_and_content[plan_mode='completion'] .work_sheet_plan_item_modify_mark{
+    display: none;
+}
+#work_sheet_container_with_header_and_content[plan_mode='completion'] #work_sheet_today_plan_control_group_container{
+    display: none;
+}
+
+#work_sheet_container_with_header_and_content[plan_mode='completion'] .work_sheet_main_container_switch_to_completion_mode{
+    display: none;
+}
+
+#work_sheet_container_with_header_and_content[plan_mode='completion'] .work_sheet_plan_item_container_body{
+    display: none;
+}
+
+#work_sheet_container_with_header_and_content[plan_mode='plan'] #work_sheet_plan_completion_hint{
+    display: none;
+}
+
+#work_sheet_container_with_header_and_content[plan_mode='plan'] .work_sheet_main_container_switch_to_plan_mode{
+    display: none;
+}
+
+
+#work_sheet_container_with_header_and_content[plan_mode='plan'] .work_sheet_plan_sync_completion_to_dept{
+    display: none;
+}
+
+#work_sheet_container_with_header_and_content[plan_mode='plan'] .work_sheet_main_container_sync_all_plan_item{
+    display: none;
+}
+
+
+#work_sheet_container_with_header_and_content[plan_mode='plan'] .work_sheet_plan_item_completion_body{
+    display: none;
+}
+
+
+ .work_sheet_plan_sync_completion_to_dept{
+    cursor: pointer;
+}
+.work_sheet_work_item_container_delete_button{
+    cursor: pointer;
+}
+
+#work_sheet_work_items_container_main_body_save_hint,#work_sheet_plan_completion_hint{
+    text-align: right;
+    color: gray;
+    font-size: 14px;
+}
+
+
+#work_sheet_work_items_container_main_body_controgroup{
+    text-align: right;
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.work_sheet_work_items_container_main_body_controgroup_hint{
+    margin-right: 10px;
+    font-size: 14px;
+    color: gray;
+}
+
+#work_sheet_main_container[open_ws_edit_mode='true'] .work_sheet_work_item_container_mood_body{
+    cursor: pointer;
+}
+
+#work_sheet_main_container[open_ws_edit_mode='false'] .work_sheet_work_item_container_mood_body{
+    pointer-events: none;
+}
+
+#work_sheet_main_container[open_ws_edit_mode='false'] .work_sheet_work_item_container_mood_body[mood='0']{
+    display: none;
+}
+
+
+#work_sheet_main_container[open_ws_edit_mode='true'] .work_sheet_work_item_container_calculate_info_mark{
+    padding: 5px;
+    background-color: #fff;
+    cursor: pointer;
+    font-size: 20px;
+    border-radius: 6px;
+}
+
+
+#work_sheet_main_container[open_ws_edit_mode='false'] .work_sheet_work_item_container_calculate_info_mark{
+    pointer-events: none;
+}
+
+#work_sheet_main_container[open_ws_edit_mode='false'] #work_sheet_work_items_container_main_body_save_hint{
+    display: none;
+}
+
+#work_sheet_main_container[open_ws_edit_mode='false'] #work_sheet_work_items_container_main_body_controgroup{
+    display: none;
+}
+
+#work_sheet_main_container[open_ws_edit_mode='false'] .work_sheet_plan_item_container_body,#work_sheet_main_container[open_ws_edit_mode='false'] .work_sheet_plan_item_completion_body{
+    pointer-events: none;
+}
+
+#work_sheet_main_container[open_ws_edit_mode='false'] .work_sheet_work_item_unit_left_container [type='text'],#work_sheet_main_container[open_ws_edit_mode='false'] .work_sheet_work_item_unit_left_container [type='time']{
+    display: none;
+}
+
+#work_sheet_main_container[open_ws_edit_mode='false'] .work_sheet_work_item_container [name='note']{
+    display: none;
+}
+
+#work_sheet_main_container[open_ws_edit_mode='false'] .work_sheet_work_item_calculate_val_by_end_time_btn{
+    display: none;
+}
+#work_sheet_main_container[open_ws_edit_mode='false'] .work_sheet_work_item_calculate_end_time_by_val_btn,#work_sheet_main_container[open_ws_edit_mode='false'] .work_sheet_work_item_calculate_end_time_by_now{
+    display: none;
+}
+#work_sheet_main_container[open_ws_edit_mode='false'] .work_sheet_work_item_container_delete_button{
+    display: none;
+}
+
+#work_sheet_main_container[open_ws_edit_mode='true'] .work_sheet_plan_item_container_body,#work_sheet_main_container[open_ws_edit_mode='true'] .work_sheet_plan_item_completion_body{
+    cursor: pointer;
+}
+
+#work_sheet_main_container[open_ws_edit_mode='true'] .work_sheet_work_item_container_note_container{
+    display: none;
+}
+#work_sheet_main_container[open_ws_edit_mode='true'] .work_sheet_plan_item_container_body:hover,#work_sheet_main_container[open_ws_edit_mode='true'] .work_sheet_plan_item_completion_body:hover{
+    opacity: 0.9;
+}
+
+#work_sheet_main_container[open_ws_edit_mode='true'] .work_sheet_work_item_container_start_time_span{
+    display: none;
+}
+#work_sheet_main_container[open_ws_edit_mode='true'] .work_sheet_work_item_container_calculate_info_val{
+    display: none;
+}
+#work_sheet_main_container[open_ws_edit_mode='true'] .work_sheet_work_item_container_end_time_span{
+    display: none;
+}
+
+.work_sheet_work_item_calculate_val_by_end_time_btn,.work_sheet_work_item_calculate_end_time_by_val_btn,.work_sheet_work_item_calculate_end_time_by_now{
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+.work_sheet_work_item_calculate_val_by_end_time_btn,.work_sheet_work_item_calculate_end_time_by_now {
+    margin-right: 15px;
+}
+
+.work_sheet_work_item_container_note_container{
+    display: flex;
+}
+
+.hide_ws_btn{
+    display: none;
+}
+
+.hide_work_item_unit{
+    display: none;
+}
+
+.hide_work_item_note{
+    display: none;
+}
+
+.work_sheet_work_item_container_note{
+    width: 100%;
+}
+
+.work_sheet_work_item_container,.work_sheet_work_item_of_dept_container{
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+
+
+
+.work_sheet_work_item_unit_left_container [name='val']{
+    max-width: 50px;
+}
+
+.work_sheet_work_item_unit_container,.work_sheet_work_item_of_dept_container{
+    display: flex;
+    overflow-x: auto;
+    margin-bottom: 5px;
+    white-space: nowrap;
+    align-items: center;
+}
+
+.work_sheet_work_item_container_start_time_span,.work_sheet_work_item_of_dept_time,.work_sheet_work_item_container_calculate_info,.work_sheet_work_item_of_dept_plan_item,.work_sheet_work_item_container_plan_item,.work_sheet_work_item_end_time_container{
+    margin-right: 1em;
+}
+
+.work_sheet_work_item_of_dept_time{
+    min-width: 10em;
+}
+.work_sheet_work_item_end_time_container{
+    min-width: 10em;
+}
+.work_sheet_work_item_container_start_time_span{
+    min-width: 4.5em;
+}
+.work_sheet_work_item_container_calculate_info{
+    min-width: 15em;
+}
+
+.work_sheet_work_item_container_mood_title{
+    color: gray;
+}
+.work_sheet_work_item_of_dept_plan_item_mark{
+    min-width: 10.5em;
+}
+
+.work_sheet_work_item_of_dept_plan_item_mark>span{
+    padding: 0 5px;
+    border-radius: 6px;
+    color:  rgb(102, 102, 102);
+    border:1px solid grey;
+}
+
+.work_sheet_work_item_container_plan_item,.work_sheet_work_item_of_dept_plan_item{
+    font-size: 18px;
+    min-width: 9em;
+}
+.work_sheet_work_item_end_time_container,.work_sheet_work_item_container_calculate_info{
+    display: flex;
+    align-items: center;
+}
+
+.work_sheet_work_item_container_calculate_info_mark{
+    line-height: 3px;
+}
+
+.work_sheet_work_item_unit_left_container{
+    flex-grow: 1.1;
+    white-space: nowrap;
+    overflow: auto;
+    display: flex;
+    align-items: center;
+}
+
+.work_sheet_work_item_container_math_mark{
+    margin-left: 3px;
+    margin-right: 3px;
+}
+
+
+.work_sheet_work_item_container_switch_to_show_note{
+    cursor: pointer;
+    margin-right: 10px;
+    font-size: 16px;
+}
+
+.work_sheet_work_item_container_end_time_span em{
+    margin:0;
+}
+
+#work_sheet_latest_update_time{
+    font-size: 14px;
+    color: gray;
+    margin-top: 20px;
+    text-align: right;
+    padding: 10px;
+}
+
+.ws_items_saving{
+    pointer-events: none;
+    color: gray;
+}

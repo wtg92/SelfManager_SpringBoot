@@ -1,0 +1,74 @@
+#header_main_container{
+    padding: 10px;
+}
+#header_sign_out_container{
+    display: flex;
+}
+
+#header_sign_in_container{
+    display: flex;
+    align-items: center;
+}
+
+#middle_flex_header_sign_in_container{
+    flex-grow: 1.1;
+    flex-shrink: 2;
+    display: flex;
+}
+
+#middle_flex_header_sign_in_container>span{
+    flex-grow: 1.1;
+    max-width: 150px;
+    text-align: center;
+}
+
+
+
+#middle_flex_header_sign_in_container>span>span{
+    cursor: pointer;
+}
+
+#header_user_actions_container>span{
+    cursor: pointer;    
+}
+#right_flex_header_sign_in_container{
+    display: flex;
+    align-items: center;
+}
+
+#header_main_container img{
+    height: 40px;
+    cursor: pointer;
+}
+#right_flex_header_sign_in_container .spirit_img{
+    margin-right: 70px;
+}
+
+
+#left_flex_header_sign_out_container {
+    flex-grow: 1.1;
+}
+#right_flex_header_sign_out_container{
+    text-align: right;
+    display: flex;
+}
+
+.web_logo{
+    margin-right: 20px;
+}
+
+#header_avator_container{
+    cursor: pointer;
+}
+
+#header_avator_container svg{
+    font-size: 30px;
+    margin-left: 15px;
+    vertical-align: text-top;
+}
+
+
+.web_logo{
+    cursor: pointer;
+}
+

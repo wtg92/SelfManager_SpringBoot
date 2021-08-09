@@ -1,0 +1,194 @@
+#index_sub_main_container{
+    display: flex;
+}
+
+.index_entity_for_sign_in{
+    margin-bottom: 10px;
+    font-size: 20px;
+}
+
+#index_send_tel_verify_code_btn,#index_send_email_verify_code_btn{
+    font-size: 16px;
+}
+
+.index_pwd_sign_in_container{
+    align-items: center;
+}
+
+.index_entity_for_sign_in>div:first-child{
+    margin-bottom: 5px;
+}
+
+.sign_in_lock_send_verify_code{
+    pointer-events: none;
+    color: rgb(161, 161, 161) !important;
+}
+
+.index_entity_for_sign_in input{
+    width: 100%;
+}
+
+#index_text_info_container>p:first-child{
+    font-size: 36px;
+}
+
+#index_sign_in_info_container{
+    flex-grow: 1.1;
+    margin-left: 25%;
+    background-color: #fafbfc;
+    padding: 24px;
+    border-radius: 6px;
+    color: #24292e;
+}
+
+#index_switch_log_in_method_container{
+    text-align: right;
+}
+
+#index_sign_in_main_container{
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+#index_sign_in_button{
+    color: white;
+    text-align: center;
+    background: #2ebc4f;
+    border-color: #2ebc4f;
+    font-size: 20px;
+    border-radius: 6px;
+    padding: 8px 10px;
+    cursor: pointer;
+}
+
+#commit_reset_pwd_btn{
+    color: white;
+    text-align: center;
+    background: #2ebc4f;
+    border-color: #2ebc4f;
+    font-size: 18px;
+    border-radius: 5px;
+    padding: 6px 8px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+#reset_pwd_dialog_step_two_container{
+    display: flex;
+}
+#reset_pwd_dialog_step_two_container [name='verify_code']{
+    width: 30%;
+    margin-right: 10px;
+}
+
+[name='reset_pwd_val']{
+    flex-grow: 1.1;
+}
+#commit_reset_pwd_btn.lock_for_reset_pwd{
+    background-color:grey !important;
+    pointer-events: none;
+}
+
+#reset_pwd_dialog_step_one_container.lock_for_reset_pwd #one_row_of_reset_pwd_title_container{
+    pointer-events: none;
+}
+
+.lock_for_reset_pwd [type='text'],.lock_for_reset_pwd [type='password']{
+    pointer-events: none;
+    background-color: rgb(240, 240, 240);
+}
+
+.intex_control_reset_pwd_visibility_container{
+    cursor: pointer;
+}
+
+#index_sign_in_button:hover,#commit_reset_pwd_btn:hover{
+    background-color:#15a837;
+}
+
+#sign_up_container{
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 18px;
+    text-align: right;
+
+}
+
+
+
+#index_select_remember_me_info [name='remember_me']{
+    width: 18px;
+    height: 18px;
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+#index_select_remember_me_info>span{
+    vertical-align: text-bottom;
+}
+
+.one_row_of_find_acount_title,.one_row_of_reset_pwd_title{
+    font-size: 18px;
+    flex-grow: 1.1;
+}
+.send_account_for_find_account_btn_container,.send_verify_code_for_reset_pwd_btn_container{
+    flex-grow: 1.1;
+    text-align: right;
+}
+
+.one_row_of_find_acount:last-child{
+    margin-bottom: 0;
+}
+.index_reset_pwd_container{
+    margin-bottom: 5px;
+    margin-top: 10px;
+}
+
+.one_row_of_find_acount,.one_row_of_reset_pwd{
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.index_pwd_sign_in_container{
+    display: flex;
+}
+
+.index_pwd_sign_in_container>span:first-child{
+    flex-grow: 1.1;
+}
+
+.index_forgot_container{
+    font-size: 14px;
+    text-align: right;
+    margin-top: 5px;
+}
+
+.index_forgot_container>span{
+    margin-right: 5px;
+}
+
+.index_forgot_container>span:last-child{
+    margin-right: 0;
+}
+
+.sign_up_hint_for_email_or_tel{
+    font-size: 14px;
+}
+
+.index_entity_for_sign_in[test='false']{
+    color: #cb2431;
+}
+.index_entity_for_sign_in[test='false'] [type="text"]{
+    border-color: #cb2431;
+}
+.index_sign_in_error_container{
+    font-size: 13px;
+}
+
+
+.index_reset_pwd_container{
+    display: flex;
+}
+
+.index_reset_pwd_container>span:first-child{
+    flex-grow: 1.1;
+}

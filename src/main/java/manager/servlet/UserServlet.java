@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.util.List;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 
 import com.alibaba.fastjson.JSON;
@@ -54,7 +55,7 @@ import manager.system.SMPerm;
 import manager.system.UserUniqueField;
 import manager.system.VerifyUserMethod;
 
-
+@WebServlet(name="UserServlet",urlPatterns = "/UserServlet")
 public class UserServlet extends SMServlet{
 	
 	private UserLogic uL = UserLogic.getInstance();

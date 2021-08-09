@@ -1,0 +1,114 @@
+#web_info_sub_main_container{
+    display: flex;
+}
+
+#web_info_main_invagation_container{
+    max-width: 20%;
+    white-space: nowrap;
+}
+
+.footer_web_info_what_sm_to_do{
+    text-align: right;
+    font-size: 14px;
+    color: gray;
+}
+
+#web_info_what_project_to_do>span,.web_info_title{
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+#web_info_what_project_to_do{
+    margin-bottom: 20px;
+}
+
+.web_info_items>span{
+    display: block;
+}
+#web_info_main_invagation_container,#web_info_main_context_container{
+    padding: 10px;
+}
+#web_info_main_context_container{
+    flex-grow: 1.1;
+    padding-left: 20px;
+}
+.web_info_sub_header_body p{
+    text-indent: 2em;
+}
+.web_info_sub_header_body em{
+    margin: 0;
+}
+.web_info_sub_header_body img{
+    max-width: 300px;
+    margin-left: 20px;
+}
+
+.web_info_sub_header_title{
+    font-size: 22px;
+    margin-bottom: 2rem;
+}
+
+.web_info_title_container{
+    margin-bottom: 15px;
+}
+
+#web_info_main_invagation_container{
+    padding-right: 20px;
+    border-right: 1px solid gray;
+}
+
+
+#web_info_what_project_to_do>span,.web_info_items>span{
+    cursor: pointer;
+
+}
+#web_info_what_project_to_do>span:hover,.web_info_items>span:hover{
+    opacity: 0.9;
+}
+
+
+.web_info_connect_unit{
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+.web_info_connect_unit>span{
+    display: inline-block;
+}
+.web_info_connect_unit>span:nth-child(1){
+    min-width: 7em;
+}
+
+.web_info_connect_unit>span:nth-child(2){
+    min-width: 10em;
+}
+
+.web_info_copy_hint{
+    font-size: 14px;
+}
+.web_info_my_work_container .web_info_my_work_content{
+    margin-bottom: 5px;
+}
+.web_info_my_work_container .web_info_my_work_content:last-child{
+    margin-bottom: 0;
+}
+
+.web_info_my_work_title,.web_info_about_work_title{
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.web_info_my_work_container{
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.web_info_zhifu_container{
+    display: flex;
+    justify-content: center;
+}
+
+.web_spirit_title{
+    font-size: 20px;
+    margin-top: 20px;
+    margin-bottom: 5px;
+}

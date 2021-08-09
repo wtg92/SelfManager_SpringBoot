@@ -14,6 +14,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,6 +24,7 @@ import manager.system.SM;
 import manager.system.SMError;
 import manager.system.SMOP;
 
+@WebServlet(name="PDFServlet",urlPatterns = "/PDFServlet")
 public class PDFServlet extends HttpServlet{
 
 	private static final long serialVersionUID = 3781555755626946527L;

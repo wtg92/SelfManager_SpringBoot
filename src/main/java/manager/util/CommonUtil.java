@@ -6,6 +6,7 @@ import static manager.system.SM.logger;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -19,7 +20,7 @@ import javax.persistence.Table;
 import manager.system.SM;
 
 public abstract class CommonUtil {
-	
+	private static final Random random = new SecureRandom();
 	
 	/*TODO 研究了好长时间 怎么取得resources目录下文件的方法 最后研究出这种方法 看起来古怪 应该有更合适的方法吧*/
 	public static InputStream getFileInResourcesDirectoryBufferedly(String fileName) {
@@ -101,7 +102,7 @@ public abstract class CommonUtil {
 	
 	/*获得在[min,max)之间的值 */
 	public static int getByRandom(int min,int max) {
-		Random random = new Random();
+
 		return min + random.nextInt(max-min);
 	}
 	

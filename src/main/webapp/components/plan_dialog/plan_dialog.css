@@ -1,0 +1,489 @@
+#plan_dialog_basic_info_main_container{
+    margin-bottom: 20px;
+    border-bottom: 1px solid #d2d2d7;
+    padding-bottom: 10px;
+}
+
+
+
+#plan_dialog_items_main_container{
+    margin-bottom: 20px;
+    border-bottom: 1px solid #d2d2d7;
+    padding-bottom: 10px;
+
+}
+#plan_dialog_items_cards_container{
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    overflow-x:auto;
+    font-size: 16px;
+}
+
+.plan_dialog_basic_info_sub_seq_weight_hint{
+    color: grey;
+    font-size: 14px;  
+    margin-left: 10px;
+}
+
+.plan_dialog_basic_info_sub_title_seq_weight_span{
+    color: rgb(38, 38, 255);
+}
+
+#plan_dialog_items_control_group_container .dropdown-menu{
+    overflow-y: auto;
+    max-height: 160px;
+}
+
+
+.plan_dialog_title{
+    font-size: 20px;
+    flex-grow: 1.1;
+}
+
+.plan_dialog_header{
+    display: flex;
+    margin-bottom: 15px;
+}
+
+.plan_dialog_switch_container_visibility{
+    cursor: pointer;
+}
+
+.plan_dialog_basic_info_form_one_row,.plan_dialog_items_form_one_row{
+    display: flex;
+    margin-bottom: 15px;
+    white-space: nowrap;
+}
+
+.plan_dialog_basic_info_form_one_row:last-child,.plan_dialog_items_form_one_row:last-child{
+    margin-bottom: 0;
+}
+
+#plan_dialog_basic_info_sub_container{
+    margin-bottom: 20px;
+}
+
+.plan_dialog_items_inputs_by_type_container.plan_dialog_items_unit_container{
+    display: flex;
+    width: 100% !important;
+    align-items: center;
+}
+
+#plan_dialog_items_inputs_for_same_type_mapping_of_minutes [type='text'],#plan_dialog_items_inputs_for_same_type_mapping_of_times [type='text'],#plan_dialog_items_inputs_for_different_type_mapping [type='text']{
+    margin-left: 10px;
+    margin-right: 2%;
+}
+
+#plan_dialog_items_inputs_for_times_type>.plan_dialog_items_unit:nth-child(1){
+    flex-grow: 1.1;
+}
+
+#plan_dialog_items_inputs_for_times_type{
+    width: 100%;
+}
+
+.plan_dialog_items_values_container{
+    display: block !important;
+}
+
+
+
+.plan_dialog_basic_unit_container{
+    align-items: center;
+}
+
+
+.plan_dialog_basic_unit_container.copy_plan_items_relative{
+    align-items: center;
+}
+
+.plan_dialog_basic_info_form_one_row>div:nth-child(1),.plan_dialog_items_unit_container:nth-child(1){
+    min-width: 45%;
+    display: flex;
+    margin-right: 2%;
+}
+
+.plan_dialog_basic_info_copy_hint{
+    font-size: 14px;
+}
+
+.plan_dialog_basic_info_form_one_row>div:nth-child(2),.plan_dialog_items_unit_container:nth-child(2){
+    display: flex;
+}
+
+.plan_dialog_items_unit{
+    display: flex;
+    align-items: center;
+}
+.plan_dialog_items_note{
+    align-items: initial;
+}
+
+.plan_dialog_items_form_one_row [name='note']{
+    flex-grow: 1.1;
+    font-size: 16px;
+}
+
+.plan_dialog_basic_info_form_one_row>div:nth-child(3),.plan_dialog_items_unit_container:nth-child(3){
+    flex-grow: 1.1;
+    text-align: right;
+}
+
+#plan_dialog_items_father_and_son_relationship_container{
+    display: flex;
+    white-space: nowrap;
+    justify-content: flex-end;
+}
+
+#work_end_date_null_for_save_plan{
+    cursor: pointer;
+}
+
+.plan_dialog_basic_info_sub_title,.plan_dialog_items_sub_title,.plan_dialog_items_prefix_title{
+    margin-right: 10px;
+    min-width: 2em;
+}
+
+.plan_dialog_basic_info_decoded_id{
+    margin-right: 0.5em;
+}
+
+.plan_dialog_items_suffix_title{
+    line-height: 36px;
+    margin-left: 5px;
+}
+
+.plan_dialog_basic_info_form_one_row [name='note']{
+    flex-grow: 1.1;
+    flex-shrink: 2;
+    font-size: 16px;
+}
+
+.plan_dialog_basic_info_form_one_row [type='text'],.plan_dialog_basic_info_form_one_row [type='date']{
+    flex-grow: 1.1;
+    flex-shrink: 2;
+}
+
+#plan_dialog_save_basic_controgroup{
+    display: flex;
+    justify-content: flex-end;
+
+}
+
+#plan_dialog_save_basic_controgroup>div:first-child{
+    margin-right: 10px;
+}
+
+.plan_dialog_basic_unit_container[switch_to_null='true']{
+    color: gray;
+}
+
+.plan_dialog_basic_unit_container[switch_to_null='true'] [type='date']{
+    pointer-events: none;
+    background-color: rgb(240, 240, 240);
+}
+
+.plan_dialog_basic_info_form_error_mes,.plan_dialog_items_error_mes{
+    font-size: 14px;
+    color:#cb2431;
+    margin-top: -5px;
+    margin-bottom: 10px;
+}
+.plan_dialog_basic_info_decoded_id,.plan_dialog_basic_info_copy_btn{
+    font-size: 16px;
+}
+.plan_dialog_basic_info_copy_btn{
+    cursor: pointer;
+}
+
+
+
+.plan_dialog_basic_unit_container[test='false'],.plan_dialog_items_unit_container[test='false']{
+    color: #cb2431;
+}
+
+.plan_dialog_basic_unit_container[test='false'] [type="text"],.plan_dialog_basic_unit_container[test='date'] ,.plan_dialog_items_unit_container[test='false'] [type="text"]{
+    border-color: #cb2431;
+}
+
+.plan_dialog_save_basic_recalculate_controgroup{
+    margin-right: 20px;
+}
+
+#plan_dialog_save_basic_hint_mes,#plan_dialog_save_or_add_item_hint_mes{
+    font-size: 18px;
+    flex-grow: 1.1;
+    line-height: 36px;
+}
+
+.plan_dialog_main_container[open_container='false']{
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+    border: 0 !important;
+}
+#plan_dialog [p_setting='true']{
+    color: rgb(40, 167, 69);
+}
+#plan_dialog [p_setting='false']{
+    color:rgb(38, 38, 255);
+}
+
+.plan_dialog_copy_plan_items_container{
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+    font-size: 16px;
+}
+
+.plan_dialog_copy_plan_items_container>span{
+    margin-right: 10px;
+}
+.plan_dialog_copy_plan_items_container>input{
+    margin-right: 10px;
+}
+.plan_dialog_copy_plan_items_container>span:last-child{
+    margin-right: 0;
+}
+
+.plan_dialog_basic_info_copy_hint{
+    margin-left: 5px;
+}
+
+#plan_dialog_copy_plan_btn{
+    cursor: pointer;
+}
+
+#plan_dialog[open_edit_mode='true'] .plan_dialog_basic_info_sub_title_seq_weight_span{
+    display: none;
+}
+
+#plan_dialog[open_edit_mode='false'] .plan_dialog_items_sub_title.plan_note{
+    display: none;
+}
+
+
+#plan_dialog[open_edit_mode='false'] [name='seq_weight']{
+    display: none;
+}
+
+
+#plan_dialog[open_edit_mode='false'] .plan_dialog_basic_info_sub_seq_weight_hint{
+    display: none;
+}
+
+#plan_dialog[open_edit_mode='false'] .plan_dialog_copy_plan_items_container{
+    display: none;
+}
+
+#plan_dialog[open_edit_mode='false'] [type='text'],#plan_dialog[open_edit_mode='false'] textarea{
+    border: 0;
+    pointer-events: none;
+    padding:0;
+}
+
+#plan_dialog[open_edit_mode='false'] #plan_dialog_save_basic_controgroup{
+    display: none;
+}
+
+#plan_dialog[open_edit_mode='false'] [name='plan_setting']{
+    display: none;
+}
+
+#plan_dialog[open_edit_mode='true'] .plan_dialog_basic_allow_others_copy_plan_items_rlt{
+    display: none;
+}
+
+
+#plan_dialog[open_edit_mode='false'] .plan_item_container_root_controlgroup,#plan_dialog[open_edit_mode='false'] .plan_item_container_footer{
+    display: none;
+}
+
+#plan_dialog[open_edit_mode='false'] #work_end_date_null_for_save_plan{
+    display: none;
+}
+
+
+#plan_dialog[open_edit_mode='false'] #plan_dialog_items_control_group_container{
+    display: none;
+}
+
+#plan_dialog_items_control_group_container{
+    padding: 10px;
+    border-radius: 6px;
+    background-color: #f5f5f7;
+    overflow-x: auto;
+}
+
+
+
+
+.plan_dialog_items_form_hint{
+    margin-top: 15px;
+    margin-bottom: 10px;
+    font-size: 1rem;
+    font-family: cursive;
+    text-align: right;
+}
+
+.plan_dialog_save_basic_recalculate_controgroup{
+    display: flex;
+    align-items: center;
+}
+.plan_dialog_save_basic_recalculate_controgroup>[type='checkbox']:first-child{
+    margin-right: 5px;
+    width: 18px;
+    height: 18px;
+}
+
+.plan_dialog_save_basic_recalculate_controgroup label{
+    margin-bottom: 0 !important;
+    font-size: 18px;
+}
+
+.plan_dialog_items_controgroup_container{
+    display: flex;
+    margin-top: 20px;
+}
+#plan_dialog_save_or_add_item_hint_mes{
+    flex-grow: 1.1;
+}
+
+.plan_item_container_body{
+    display: inline-block;
+    background-color: #28a745;
+    border-color: #28a745;
+    color: #fff;
+    border-radius: 6px;
+    padding: 5px;
+    margin-right: 5px;
+    white-space: nowrap;
+}
+
+.plan_item_container_root_container{
+    padding-left: 10px;
+    color: #28a745;
+    display: flex;
+    margin-bottom: -10px;
+}
+
+.plan_item_container_first_level_header,.plan_item_container_unit_header{
+    min-width: 50px;
+    display: flex;
+    border-left: 4px solid #28a745;
+}
+.plan_item_container_first_level_header>div:nth-child(1),.plan_item_container_unit_header>div:nth-child(1){
+    border-bottom: 4px solid #28a745;
+    width: 100%;
+    height: 30.5px;
+    align-self: baseline;
+}
+
+little{
+    font-size: 0.9em;
+    margin-left: 5px;
+}
+
+.plan_item_container_first_level{
+    display: flex;
+    padding-left: 18px;
+}
+
+.plan_item_container_unit_level{
+    display: flex;   
+    padding-left: 30px;
+}
+
+.plan_item_container_wrap{
+    padding-top: 10px;
+}
+
+.plan_item_container_first_level.last_one>.plan_item_container_first_level_header,.plan_item_container_unit_level.last_one>.plan_item_container_unit_header{
+    border-left: 0;
+}
+
+.plan_item_container_first_level.last_one>.plan_item_container_first_level_header>div:nth-child(1),.plan_item_container_unit_level.last_one>.plan_item_container_unit_header>div:nth-child(1){
+    border-bottom-left-radius: 6px;
+    border-left: 4px solid #28a745;
+}
+
+.plan_item_container_sub_container{
+    display: flex;
+    align-items: center;
+}
+.plan_item_container_footer{
+    display: flex;
+    color: #28a745;
+}
+.plan_item_container_footer svg{
+    cursor: pointer;
+}
+.plan_item_container_footer svg:hover{
+    opacity: 0.8;
+}
+
+.plan_item_container_footer>div{
+    margin-right: 5px;
+}
+
+
+.plan_item_container_footer>div:last-child{
+    margin-right: 0;
+}
+
+.plan_item_container_root_controlgroup svg{
+    cursor: pointer;
+}
+
+.plan_item_container_root_controlgroup svg:hover{
+    opacity: 0.8;
+}
+
+.plan_dialog_items_unit_container{
+    align-items: center;
+}
+
+#plan_dialog_items_control_group_container[controgroup_mode='save'] [name='cat_name']{
+    display: none;
+}
+#plan_dialog_items_control_group_container[controgroup_mode='save'] .plan_dialog_type_chooser{
+    display: none;
+}
+#plan_dialog_items_control_group_container[controgroup_mode='save'] [name='father_relation']{
+    display: none;
+}
+#plan_dialog_items_control_group_container[controgroup_mode='save'] #plan_dialog_add_item_button{
+    display: none;
+}
+
+#plan_dialog_items_control_group_container[controgroup_mode='add'] [name='cat_name_when_modify']{
+    display: none;
+}
+
+#plan_dialog_items_control_group_container[controgroup_mode='add'] .plan_dialog_type_when_modifying{
+    display: none;
+}
+
+#plan_dialog_items_control_group_container[controgroup_mode='add'] .plan_dialog_subordinate_when_modifying{
+    display: none;
+
+}
+
+#plan_dialog_items_control_group_container[controgroup_mode='add'] #plan_dialog_save_item_button{
+    display: none;
+}
+
+
+[name="plan_setting"]{
+    width: 18px;
+    height: 18px;
+}
+
+
+
+#plan_dialog_plan_latest_update_time{
+    font-size: 14px;
+    color: gray;
+    margin-top: 20px;
+    text-align: right;
+    padding: 10px;
+}

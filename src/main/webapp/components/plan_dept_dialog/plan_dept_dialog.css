@@ -1,0 +1,115 @@
+
+.plan_dept_dialog_title{
+    font-size: 20px;
+    flex-grow: 1.1;
+}
+.plan_dept_dialog_header{
+    display: flex;
+    margin-bottom: 15px;
+}
+
+.plan_dept_dialog_switch_container_visibility{
+    cursor: pointer;
+}
+
+.plan_dept_item_container{
+    font-size: 16px;
+    white-space: nowrap;
+    overflow: auto;
+}
+
+#plan_dept_dialog_credit_main_container .plan_dept_item_val_and_type{
+    color: red;
+}
+#plan_dept_dialog_surplus_main_container .plan_dept_item_val_and_type{
+    color: #28a745;
+}
+.plan_dept_item_container{
+    color: rgb(38, 38, 255);
+}
+
+.plan_dept_dialog_content>.plan_dept_item_container{
+    margin-bottom: 10px;
+}
+.plan_dept_dialog_content>.plan_dept_item_container:last-child{
+    margin-bottom: 0;
+}
+.plan_dept_item_container>span{
+    display: inline-block;
+}
+.plan_dept_item_container>span:last-child{
+    margin-right: 0
+}
+
+.plan_dept_item_name{
+    min-width: 12em;
+    margin-right: 1em
+}
+.plan_dept_dialog_main_container{
+    margin-bottom: 20px;
+}
+
+.plan_dept_dialog_main_container:last-child{
+    margin-bottom: 0;
+}
+
+.plan_dept_item_container{
+    display: flex;
+    overflow: auto;
+}
+.plan_dept_item_val_and_type{
+    min-width: 8em;
+}
+
+.plan_dept_item_modify_container{
+    display: flex;
+    align-items: center;
+}
+
+.plan_dept_item_modify_container [name='plan_dept_item_name']{
+    margin-right: 5px;
+}
+
+.plan_dept_item_modify_container [name='plan_dept_item_val']{
+    margin-right: 5px;
+    max-width: 5em;
+}
+
+#plan_dept_dialog_plan_latest_update_time{
+    font-size: 14px;
+    color: gray;
+    margin-top: 20px;
+    text-align: right;
+    padding: 10px;
+}
+
+.plan_dept_dialog_for_modify_plan_dept_item{
+    text-align: right;
+    font-size: 16px;
+    color:gray;
+    margin-bottom: 30px;
+}
+
+#plan_dept_dialog[open_edit_mode="true"] #open_plan_dept_edit_mode_btn{
+    display: none;
+}
+
+#plan_dept_dialog[open_edit_mode="false"] .plan_dept_item_modify_container{
+    display: none;
+}
+
+#plan_dept_dialog[open_edit_mode="false"] .plan_dept_dialog_for_modify_plan_dept_item{
+    display: none;
+}
+
+#plan_dept_dialog[open_edit_mode="false"] #close_plan_dept_edit_mode_btn{
+    display: none;
+}
+
+.plan_dept_save_modify_item_btn{
+    cursor: pointer;
+}
+
+.plan_dept_modify_item_type{
+    min-width:3em;
+}

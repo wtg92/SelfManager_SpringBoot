@@ -1,0 +1,64 @@
+.all_plans_state_unit_container{
+    cursor: pointer;
+    color: #fff;
+    background-color: #007bff;
+    border: 5px solid #005abb;
+    width: 80px;
+    height: 80px;
+    border-radius: 60px;
+    text-align: center;
+    box-shadow: 0 0 4px 0 rgb(130, 130, 130);
+    padding-top: 12px;
+}
+
+.all_plans_unit_title{
+    white-space: nowrap;
+}
+
+#all_plans_state_statistics_container{
+    display: flex;
+    width: 30%;
+}
+
+.all_plans_verticle_line{
+    border:4px solid #005abb;
+    height: 30px;
+    width: 1px;
+    margin: auto;
+}
+
+.all_plans_align_line{
+    flex-grow: 1.1;
+    vertical-align: top;
+    display: inline-block;
+}
+.all_plans_align_line>div{
+    border:4px solid #005abb;
+    margin-top: 37px;
+    width: 110%;
+    margin-left: -3%;
+}
+
+#all_plans_header_container{
+    display: flex;
+}
+
+.selected_state{
+    border-color: rgb(190, 61, 22) !important;
+    background-color: #ff1717 !important;
+}
+.all_plans_unit_count{
+    white-space: nowrap;
+}
+
+#all_plans_hint_when_loading{
+    display: none;
+}
+
+#all_plans_statics{
+    margin-top: 20px;
+}
+
+#all_plans_statics tbody tr{
+    cursor: pointer;
+}

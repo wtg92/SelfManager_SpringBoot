@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -33,10 +34,8 @@ public class StreamTest {
 		public void setValue(int value) {
 			this.value = value;
 		}
-		
-		
-		
 	}
+	
 	private static boolean isEven(Num num) {
 		return isEven(num.value);
 	}
@@ -91,12 +90,39 @@ public class StreamTest {
 	
 	@Test
 	public void testDropWhile() {
-		
-		Stream.of("1","11","111","1111","123","12","1").dropWhile(a->a.length()<3).forEach(z->{
-			System.out.println(z);
+		Stream.of(1,2,3,4,5,4,3,2,1)
+		.dropWhile(num->num<4).forEach(num->{
+			/*输出4、5、4、3、2、1*/
+			System.out.println(num);
 		});
 	}
 	
+	@Test
+	public void testTakeWhile() {
+		Stream.of(1,2,3,4,5,4,3,2,1)
+		.takeWhile(num->num<4).forEach(num->{
+			/*输出1、2、3*/
+			System.out.println(num);
+		});
+	}
+	
+	public<T> List<T> takeWhile(List<T> src,Predicate<T> tester) {
+		
+		List<T> rlt = new ArrayList<>();
+		
+		for(int i=0;i<src.size();i++) {
+			T cur = src.get(i);
+			if(tester.test(cur)) {
+				rlt.add(cur);
+			}else {
+				break;
+			}
+		}
+		
+		return rlt;
+	}
+	
+
 	@Test
 	public void testMatch() {
 		
@@ -177,7 +203,7 @@ public class StreamTest {
 			double averageScore = student.historicalScore.stream()
 					.collect(Collectors.averagingDouble(i->i));
 			return averageScore;
-		})).orElse(null);
+		})).get();
 		
 		/* 尽管被分到理科实验班的同学成绩很好，但他还是不会分身术 */
 		studentsForScienceClass.remove(studentForExperimentalClass);
@@ -214,11 +240,17 @@ public class StreamTest {
 	
 	@Test
 	public void testComparator() {
-		
-		List<Num> nums =List.of(new Num(1),new Num(2),new Num(3));
-		Num rlt = nums.stream().max(Comparator.comparing(a -> a.value)).get();
+		List<Num> nums =List.of(new Num(1)
+				,new Num(2)
+				,new Num(3));
+		Comparator<Num> com = Comparator.comparing(a -> a.value);
+		Num rlt = nums.stream()
+				.max(com.reversed())
+				.get();
 		System.out.println(rlt.value);
 	}
+	
+	
 	
 	
 	private void grantScholarship(Student s) {
@@ -294,6 +326,7 @@ public class StreamTest {
 		final BinaryOperator<Integer> reducer = 
 				(accumulator, currentValue) -> accumulator + currentValue;
 		
+				
 		/*打印 15*/
 		System.out.println(intStream.reduce(5,reducer));
 	}
@@ -315,9 +348,7 @@ public class StreamTest {
 	
 	@Test
 	public void testNull() {
-		 Stream<Integer>  stream = Stream.of(1,2,3,null);
-		 
-		 stream.collect(Collectors.groupingBy(Function.identity()));
-		 
+		Stream<Integer>  stream = Stream.of(1,2,3,null);
+		stream.collect(Collectors.groupingBy(Function.identity()));
 	}
 }

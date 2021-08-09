@@ -1,0 +1,15 @@
+.tools_tool_statictics_row>span:nth-child(1){
+    margin-right: 10px;
+}
+.tools_tool_statictics_row{
+    display: flex;
+}
+
+.tool_opreation_btns_container>span{
+    margin-right: 10px;    
+}
+
+#file_upload_btns_container{
+    display: none;
+}
+

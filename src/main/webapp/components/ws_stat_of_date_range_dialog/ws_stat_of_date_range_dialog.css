@@ -1,0 +1,54 @@
+#ws_stat_controlgroup_container_real_terms{
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+}
+
+#ws_stat_controlgroup_container_real_terms_lefter>span{
+    margin: 0 15px;
+}
+
+
+#ws_stat_controlgroup_container_real_terms_lefter{
+    flex-grow: 1.1;
+    display: flex;
+    align-items: center;
+    margin-right: 70px;
+}
+
+#ws_stat_controlgroup_container_real_terms_lefter [type='date']{
+    flex-grow: 1.1;
+    flex-shrink: 1.1;
+}
+
+#ws_stat_controlgroup_container_quick_terms{
+    margin-top: 10px;
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+#ws_stat_controlgroup_container_quick_terms>span{
+    margin-right: 10px;
+}
+
+#ws_stat_content_container{
+    margin-top: 20px;
+}
+
+#ws_stat_content_container_of_charts_for_plan_and_state_distribution,#ws_stat_content_container_of_charts_for_type_count_finish_situation{
+    display: flex;
+    margin-top: 10px;
+}
+
+#ws_stat_content_container_of_charts_for_plan_distribution,#ws_stat_content_container_of_charts_for_ws_state_distribution,#ws_stat_content_container_of_charts_for_finish_situation,#ws_stat_content_container_of_charts_for_type_count{
+    margin-top: 15px;
+    margin-bottom: 15px;
+    width: 50%;
+    height: 380px;
+}
+
+#ws_stat_content_container_of_charts_average_moods{
+    width: 100%;
+    height: 600px;
+}
+

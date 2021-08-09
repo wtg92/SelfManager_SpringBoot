@@ -1,0 +1,91 @@
+.all_ws_state_unit_container{
+    cursor: pointer;
+    color: #fff;
+    background-color: #007bff;
+    border: 5px solid #005abb;
+    width: 80px;
+    height: 80px;
+    border-radius: 60px;
+    text-align: center;
+    box-shadow: 0 0 4px 0 rgb(130, 130, 130);
+    padding-top: 12px;
+}
+/*备注*/
+tr>td:nth-child(5){
+    max-width: 300px;
+}
+
+#all_ws_genral_btn_groups{
+    margin-top: 40px;
+}
+
+td{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.all_ws_unit_title{
+    white-space: nowrap;
+}
+
+#all_ws_state_statistics_container{
+    display: flex;
+    width: 30%;
+}
+
+.all_ws_verticle_line{
+    border:4px solid #005abb;
+    height: 30px;
+    width: 1px;
+    margin: auto;
+}
+
+.all_ws_align_line{
+    flex-grow: 1.1;
+    vertical-align: top;
+    display: inline-block;
+}
+.all_ws_align_line>div:first-child{
+    border:4px solid #005abb;
+    margin-top: 37px;
+    width: 105%;
+    margin-left: -2%;
+}
+.hidden_line{
+    opacity: 0;
+}
+.all_ws_align_line>div:nth-child(2){
+    width: 100%;
+    height: 100px;
+    background: linear-gradient(to top right ,white,white 48%, #003670 , white 52%,white);
+}
+.all_ws_align_line>div:nth-child(3){
+    border:4px solid #005abb;
+    width: 105%;
+    margin-left: -2%;
+}
+
+#all_ws_header_container{
+    display: flex;
+}
+
+.selected_state{
+    border-color: rgb(190, 61, 22) !important;
+    background-color: #ff1717 !important;
+}
+.all_ws_unit_count{
+    white-space: nowrap;
+}
+
+#all_ws_hint_when_loading{
+    display: none;
+}
+
+#all_ws_statics{
+    margin-top: 20px;
+}
+
+#all_ws_statics tbody tr{
+    cursor: pointer;
+}

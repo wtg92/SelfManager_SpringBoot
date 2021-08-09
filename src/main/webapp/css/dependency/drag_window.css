@@ -1,0 +1,149 @@
+.custom-drag-control{
+		background: #fff;
+		width: 600px;
+		height: 500px; 
+		border-radius: 5px; 
+		position: fixed; 
+		bottom: calc(50vh - 250px); 
+		right: calc(50vw - 200px);
+		z-index: 10;
+		box-shadow: rgba(0, 0, 0, 0.21) 0px 4px 16px 0px;
+		font-size: 12px;
+		color: #111;
+	}
+	.custom-drag-control .head{
+		background: #f1f1f1; 
+		cursor: move; 
+		height: 50px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		font-size: 14px;
+		margin-top: 4px;
+		font-weight: bold;
+		position: relative;
+		padding-right: 20px;
+	}
+	.title_for_drag_window{
+		flex-grow: 1.1;
+		font-size: 18px;
+		padding-left: 20px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	
+	.delete_mark_for_drag_window{
+		right: 25px;
+		padding: 2px 5px;
+		top: 10px;
+		z-index: 1;
+		cursor: default;
+		min-width: 20px;
+		line-height: 20px;
+		min-height: 20px;
+		text-align: center;
+		border-radius: 20px;
+		font-size: 18px;
+	}
+	.delete_mark_for_drag_window:hover{
+		background-color: rgb(197, 197, 197);
+	}
+
+
+
+
+
+	.custom-drag-control .head:before{
+		position: absolute;
+		top: 20px;
+		left: 0;
+		background: #f1f1f1;
+		content: "";
+		width: 10px;
+		height: 30px;
+		z-index: 1;
+		pointer-events: none;
+	}
+	.custom-drag-control .head:after{
+		position: absolute;
+		top: 20px;
+		right: 0;
+		background: #f1f1f1;
+		content: "";
+		width: 10px;
+		height: 30px;
+		z-index: 1;
+		pointer-events: none;
+	}
+	.custom-drag-control .body{
+		padding: 0 10px 0px 20px;
+		overflow: auto;
+		height: calc(100% - 110px);
+		margin-right: 10px;
+		margin-top: 10px;
+		margin-bottom: 0;
+		overflow-x: hidden;
+	}
+	.custom-drag-control .drager {
+		position: absolute;
+		display: inline-block;
+		width: 20px;
+		height: 20px;
+		z-index: 1;
+		background: #fff;
+		border: none !important;
+	}
+	.custom-drag-control .top-left{top: 0; left: 0; cursor: nw-resize; background-color: #f1f1f1;}
+	.custom-drag-control .top-right{top: 0; right: 0; cursor: ne-resize; background-color: #f1f1f1;}
+	.custom-drag-control .bottom-left{bottom: 0; left: 0; cursor: ne-resize; background-color: #fff;}
+	.custom-drag-control .bottom-right{bottom: 0; right: 0; cursor: nw-resize; background-color: #fff;}
+	.custom-drag-control .top{top: 0; left: 25px; width: calc(100% - 50px); height: 10px; cursor: n-resize; background-color: #f1f1f1;}
+	.custom-drag-control .right{top: 25px; right: 0; width: 10px; height: calc(100% - 50px); cursor: e-resize;}
+	.custom-drag-control .bottom{bottom: 0; left: 25px; width: calc(100% - 50px); height: 10px; background-color: #fff; cursor: n-resize;}
+	.custom-drag-control .left{top: 25px; left: 0; width: 10px; height: calc(100% - 50px); cursor: e-resize;}
+	
+	.custom-drag-control ul.result-list li{margin: 5px 0; font-size: 14px; color: #8b91a0; cursor: pointer; text-decoration: underline;}
+	.custom-drag-control ul.result-list li:hover{color: #111;}
+	
+	.custom-drag-control .foot{
+		position: absolute;
+	    bottom: 10px;
+	    left: 10px;
+	    width: calc(100% - 20px);
+	    background-color: #f5f5f5;
+	    z-index: 1;
+	    height: 30px;
+	    font-size: 14px;
+	    text-align: center;
+	    padding-top: 10px;
+	    color: #337ab7;
+	    cursor: pointer;
+	}
+	
+	.custom-drag-control .foot:hover{
+		color: #23527c;
+	}
+	
+	.custom-drag-control .foot:before{
+		position: absolute;
+		bottom: 10px;
+		left: -10px;
+		width: 10px;
+		height: 20px;
+		content: "";
+		z-index: 1;
+		background-color: #f5f5f5;
+		pointer-events: none;
+	}
+	.custom-drag-control .foot:after{
+		position: absolute;
+		bottom: 10px;
+		right: -10px;
+		width: 10px;
+		height: 20px;
+		content: "";
+		z-index: 1;
+		background-color: #f5f5f5;
+		pointer-events: none;
+	}

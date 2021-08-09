@@ -1,0 +1,229 @@
+#sign_up_main_container{
+    text-align: center;
+}
+
+#sign_up_information_container{
+    background-color: #fafbfc;
+    padding: 24px;
+    border-radius: 6px;
+    color: #24292e;
+    border: 1px solid #e1e2e2;
+    margin: auto;
+    max-width: 420px;
+    text-align: left;
+}
+
+.sign_up_entity_for_sign_up.gender{
+    display: flex;
+}
+
+.sign_up_entity_for_sign_up.gender>div:first-child{
+    flex-grow: 1.1;
+}
+
+.sign_up_entity_for_sign_up{
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+.sign_up_entity_for_sign_up>div:first-child{
+    margin-bottom: 5px;
+}
+.sign_up_entity_for_sign_up input:not([type='checkbox']){
+    width: 100%;
+}
+
+#sign_up_header_container{
+    margin-bottom: 30px;
+    font-size: 24px;
+}
+
+.sign_up_pwd_container{
+    display: flex;
+}
+
+.sign_up_pwd_container>span:first-child{
+    flex-grow: 1.1;
+}
+
+.email_or_tel_inputs_container{
+    display: flex;
+    white-space: nowrap;
+
+}
+.email_or_tel_inputs_container>div:first-child{
+    flex-grow: 1.1;
+}
+.email_or_tel_inputs_container [type='checkbox']{
+    vertical-align: middle;
+}
+
+.sign_up_hint_for_email_or_tel{
+    font-size: 14px;
+}
+
+
+
+#sign_up_commit_button{
+    color: white;
+    text-align: center;
+    background: #2ebc4f;
+    border-color: #2ebc4f;
+    font-size: 20px;
+    border-radius: 6px;
+    padding: 8px 10px;
+    cursor: pointer;
+}
+
+#sign_up_commit_button:hover{
+    background-color:#15a837;
+}
+
+.sign_up_lock [type='text']{
+    pointer-events: none;
+    background-color: rgb(240, 240, 240);
+}
+
+.sign_up_lock_send_verify_code{
+    pointer-events: none;
+    color: rgb(161, 161, 161) !important;
+}
+
+.sign_up_lock>span:first-child{
+    pointer-events: none;
+    color: rgb(161, 161, 161) !important;
+}
+
+.sign_up_entity_for_sign_up.eamil_or_tel.email_or_tel_null [type='text']{
+    pointer-events: none;
+    background-color: rgb(240, 240, 240);
+}
+.sign_up_entity_for_sign_up.eamil_or_tel.email_or_tel_null .sign_up_send_verify_code_container>span:first-child{
+    pointer-events: none;
+    color: rgb(161, 161, 161);
+}
+
+.sign_up_send_verify_code_container{
+    display: flex;
+    margin-top: 5px;
+    font-size: 0.8em;
+}
+
+.sign_up_send_verify_code_container input{
+    width: auto !important;
+    flex-grow: 1.1;
+}
+
+.sign_up_send_verify_code_container>span:first-child{
+    white-space: nowrap;
+    margin-right: 2%;
+    cursor: pointer;
+    color: #007bff;
+}
+
+.sign_up_option_for_email_or_tel [type="checkbox"],.sign_up_option_for_email_or_tel label{
+    cursor: pointer !important;
+}
+
+.sign_up_entity_for_sign_up[test='false'],.sign_up_entity_for_sign_up[verify_code_test='false']{
+    margin-top: 5px;
+    color: #cb2431;
+}
+.sign_up_error_container,.sign_up_error_container_for_verify_code{
+    font-size: 13px;
+}
+
+
+.sign_up_entity_for_sign_up[test='false'] [type="text"],.sign_up_entity_for_sign_up[verify_code_test='false'] [type="text"]{
+    border-color: #cb2431;
+}
+
+#sign_up_yzm_cut_img{
+    z-index: 100;
+    position: relative;
+}
+
+
+
+#sign_up_rignt_arrow{
+    width: 40px;
+    height: 35px;
+}
+.verify-bar-area.start_moving .verify-move-block{
+    background-color: #337ab7,
+
+}
+
+.verify-bar-area.start_moving .verify-left-bar{
+    background-color:#337AB7,
+
+}
+
+#sign_up_rignt_arrow{
+    vertical-align: middle;
+    z-index: 3;
+    color: #fff;
+}
+
+#sign_up_rignt_arrow.wrong{
+    background-color: #d9534f !important;
+}
+
+#sign_up_rignt_arrow.right{
+    background-color: #2ebc4f !important;
+}
+
+
+.verify-left-bar{
+    height: 35px;
+}
+
+.verify-bar-area.start_moving #sign_up_rignt_arrow{
+    color: #fff;
+}
+
+.verify-bar-area {
+    position: relative;
+    background: #FFFFFF;
+   	text-align: center;
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+   	border: 1px solid #ddd;
+    -webkit-border-radius: 4px;
+    line-height: 35px;
+    height: 35px;
+}
+
+.verify-bar-area .verify-msg {
+	z-index : 3;
+}
+
+.verify-bar-area .verify-move-block {
+    position: absolute;
+    top: 0px;
+    left: 0;
+    background: #fff;
+    cursor: pointer;
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+    box-shadow: 0 0 2px #888888;
+    -webkit-border-radius: 1px;
+}
+
+.verify-bar-area .verify-move-block:hover {
+    background-color: #337ab7;
+    color: #FFFFFF;
+}
+
+.verify-bar-area .verify-left-bar {
+    position: absolute;
+    top: -1px;
+    left: -1px;
+   	background: #f0fff0;
+    cursor: pointer;
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+    border: 1px solid #ddd;
+}
