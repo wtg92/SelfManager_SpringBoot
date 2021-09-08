@@ -22,7 +22,6 @@ import manager.system.SM;
 public abstract class CommonUtil {
 	private static final Random random = new SecureRandom();
 	
-	/*TODO 研究了好长时间 怎么取得resources目录下文件的方法 最后研究出这种方法 看起来古怪 应该有更合适的方法吧*/
 	public static InputStream getFileInResourcesDirectoryBufferedly(String fileName) {
 		try {
 			return new BufferedInputStream(SM.class.getResourceAsStream("/"+fileName),5000) ;

@@ -178,31 +178,16 @@ function showForAWhile(message,$cotainer, lastingTime){
 
 
 function commmonAjaxErrorHandler(event, data, setting, thrownError){
-    	
-    if (thrownError == "timeout") {
-        alertInfo("网络请求超时...");
-        return;
+    
+    try{
+        alertInfo(data.responseJSON.message);
+    }catch(e){
+        try{
+            alertInfo("未知错误 " + data.responseJSON.error);
+        }catch(e2){
+            alertInfo("连接超时，请刷新页面");
+        }
     }
-
-    /* 两种寻找text 的方法 */
-    /* 未找到对应例子*/
-    let text = $(data.responseText).filter('p:eq(1)').find('u').text();
-    if (text.length == 0) {
-        text = $(data.responseText).filter('p:eq(1)').text();
-        text = text.substring(text.indexOf(" ") + 1).trim();
-    }
-
-    if (text.length != 0) {
-        alertInfo(text + " " + thrownError);
-        return;
-    }
-
-    if (data.readyState == "0") {
-        alertInfo("网络不佳，请刷新页面重试" + thrownError);
-        return;
-    }
-
-    alertInfo("发生未知错误，99%的可能性是服务器正在进行维护升级，耗费不了太长时间，请保存好页面信息，稍候再试。");
 }
 
 

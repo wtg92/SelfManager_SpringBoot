@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.BinaryOperator;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -189,8 +188,8 @@ public class StreamTest {
 		
 		/* 将要去文科班的，是选择了主修文科的同学 */
 		List<Student> studentsForLiberalArtsClass = studentsOfBothClass.stream()
-				.filter(student->student.selectedMajorCategory() == MajorCategory.LIBERAL_ARTS)
-				.collect(toList());
+				.collect(Collectors.filtering(student->student.selectedMajorCategory() == MajorCategory.LIBERAL_ARTS
+				, toList()));
 		
 		/* 将要去理科班的，是选择了主修理科的同学 */
 		List<Student> studentsForScienceClass = studentsOfBothClass.stream()
@@ -228,11 +227,11 @@ public class StreamTest {
 		 * 各年级的学生根据GPA逆序排序，前100名的学生，即为发放奖学金的名单。
 		 * 即将“年级”映射为“该年级GAP前100名的学生”
 		 */
-		List<Student> target = allGrades.stream().flatMap(grade->
+		List<Student> target = allGrades.stream()
+				.collect(Collectors.flatMapping(grade->
 			grade.students.stream()
 			.sorted(Comparator.comparing(Student::getGPA).reversed())
-			.limit(100)
-		).collect(toList());
+			.limit(100), toList()));
 				
 		target.forEach(this::grantScholarship);
 	}
@@ -347,8 +346,27 @@ public class StreamTest {
 	}
 	
 	@Test
+	public void testArray() {
+		final Stream<String> stringStream = Stream
+				.of("马尔科姆的一家","发展受阻","钢之炼金术师","傲骨贤妻","无问西东");
+		
+		String[] rlt = (String[])stringStream.toArray();
+		
+		for(String s:rlt) {
+			System.out.println(s);
+		}
+	}
+	
+	
+	
+	@Test
 	public void testNull() {
 		Stream<Integer>  stream = Stream.of(1,2,3,null);
-		stream.collect(Collectors.groupingBy(Function.identity()));
+		long s = stream.collect(Collectors.counting());
 	}
+	
+	@Test
+	public void testCollect() {
+	}
+	
 }
