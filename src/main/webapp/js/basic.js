@@ -12,7 +12,7 @@ const BASIC_NAMESPACE = {
             "name" : "其它",
             "items":[
                 createInformationItem("手机端使用",5,"web_info_system_info_for_phone"),
-                createInformationItem("联系方式",4,"web_info_connect_with_us")
+                createInformationItem("联系方式及作品列表",4,"web_info_connect_with_us")
             ]
         }
         ],

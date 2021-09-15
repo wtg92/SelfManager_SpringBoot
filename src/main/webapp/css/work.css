@@ -8,6 +8,11 @@
     margin-bottom: 15px;
 }
 
+.over_finished_date{
+    box-shadow:0 0 5px #f5dc00e8;
+}
+
+
 .work_switch_to_show_plan_sub_container,.work_switch_to_show_ws_sub_container{
     cursor: pointer;
 }

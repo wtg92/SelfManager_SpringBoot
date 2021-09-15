@@ -17,15 +17,15 @@
  			<div class="work_sheet_main_container_header_base_plan">基于<em></em></div>
 
  			<div class="work_sheet_main_ctrogroup_buttons">
- 				<span class="work_sheet_main_container_assume_finsihed common_blue_font common_hover"><%=WorkSheetState.ASSUMEND_FINISHED.getName() %></span>
- 				<span class="work_sheet_main_container_cancel_assumen_finished common_blue_font common_hover">取消<%=WorkSheetState.ASSUMEND_FINISHED.getName() %></span>
+ 				<span class="work_sheet_main_container_assume_finsihed common_blue_font common_hover"><%=WorkSheetState.NO_MONITOR.getName()%></span>
+ 				<span class="work_sheet_main_container_cancel_assumen_finished common_blue_font common_hover">取消<%=WorkSheetState.NO_MONITOR.getName()%></span>
  				<span class="work_sheet_main_container_delete_button common_blue_font common_hover">删除</span>
  			 	<span class="work_sheet_switch_to_show_ws_note common_blue_font common_hover"></span>
  			 </div>
  		</div>
  	</div>
 	<div id="work_sheet_main_container_for_basic_info">
-		<textarea id="work_note_textarea" title="随便写点今天的目标吧"></textarea>
+		<textarea id="work_note_textarea"></textarea>
 		<div id="work_save_ws_rlt_container"></div>
 	</div>
 	<div id="work_sheet_container_with_header_and_content">
@@ -34,7 +34,7 @@
  		<div class="work_sheet_main_container_today_plan_right_body">
  			<span class="work_sheet_main_container_switch_to_completion_mode common_blue_font common_hover">看<span>完成情况</span></span>
  			<span class="work_sheet_main_container_switch_to_plan_mode common_blue_font common_hover">看<span>计划</span></span>
- 			<span class="work_sheet_main_container_sync_all_plan_item common_blue_font common_hover">同步所有计划项</span>
+ 			<span class="work_sheet_main_container_sync_all_plan_item common_blue_font common_hover">同步所有</span>
  			<span class="work_sheet_main_container_open_plan_edit_mode common_blue_font common_hover">编辑</span>
  			<span class="work_sheet_main_container_close_plan_edit_mode common_blue_font common_hover">仅查看</span>
  			<span class="work_sheet_switch_to_show_today_plan_main_container common_blue_font common_hover"></span>

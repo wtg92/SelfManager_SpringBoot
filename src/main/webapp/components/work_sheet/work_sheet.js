@@ -2,6 +2,7 @@ const WS_NAMESPACE = {
     WS_STATE_OF_OVERDUE : 4 ,
     WS_STATE_OF_ASSUME_FINISHED : 3,
     WS_STATE_OF_ACTIVE:1,
+    WS_STATE_OF_OVER_FINISHED:5,
     SAVE_WORK_ITEM_OP_TIMEOUT_ID :"",
     SAVE_WORK_ITEM_OP_TIMEOUT_SECONDS:3,
     WORK_ITEM_MOOD_MIN_VAL:1,
@@ -1380,7 +1381,8 @@ function loadWorkSheetDetail_render(data) {
 
         $(".work_sheet_main_container_cancel_assumen_finished").toggle(data.ws.state.dbCode == WS_NAMESPACE.WS_STATE_OF_ASSUME_FINISHED);
         $(".work_sheet_main_container_assume_finsihed").toggle(data.ws.state.dbCode == WS_NAMESPACE.WS_STATE_OF_OVERDUE
-                                                                || data.ws.state.dbCode == WS_NAMESPACE.WS_STATE_OF_ACTIVE);
+                                                                || data.ws.state.dbCode == WS_NAMESPACE.WS_STATE_OF_ACTIVE
+                                                                || data.ws.state.dbCode == WS_NAMESPACE.WS_STATE_OF_OVER_FINISHED);
     
         $("#work_sheet_work_items_container_main_body_save_hint").find(".save_hint_seconds").text(WS_NAMESPACE.SAVE_WORK_ITEM_OP_TIMEOUT_SECONDS).end()
                 .find(".save_hint_update_time").text(new Date(data.ws.updateTime).toSmartString());

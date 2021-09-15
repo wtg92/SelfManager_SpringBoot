@@ -8,8 +8,9 @@ public enum WorkSheetState {
 	UNDECIDED(0,""),
 	ACTIVE(1,"进行中"),
 	FINISHED(2,"完成"),
-	ASSUMEND_FINISHED(3,"假定完成"),
-	OVERDUE(4,"超期")
+	NO_MONITOR(3,"不监控"),
+	OVERDUE(4,"超期"),
+	OVER_FINISHED(5,"超额完成")
 	;
 	
 	private int dbCode;

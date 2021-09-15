@@ -206,7 +206,7 @@ public abstract class WorkLogic{
 	 * @return 返回是否修改了状态并添加了Log
 	 */
 	protected static boolean refreshStateAfterItemModified(WorkSheet workSheet) throws LogicException {
-		if(workSheet.getState() == WorkSheetState.ASSUMEND_FINISHED) {
+		if(workSheet.getState() == WorkSheetState.NO_MONITOR) {
 			return false;
 		}
 		
@@ -225,24 +225,30 @@ public abstract class WorkLogic{
 	}
 	
 	/**
-	  *  先算完成 完成了则完成 否则 看时间 今天过了date 则 Overdue 没过则 active
 	 *  假如今天比date还早 报一条errorLog（古怪数据）
-	 *  假如这一天所有的planItem的remaingVal都小于等于0 即认为完成
+	 *  假如这一天所有的planItem的remaingVal等于0 认为完成
+	 *  >0  今天超过 则超期 <0 则进行中
+	 *  
+	 *   
 	 * @throws LogicException 
 	 */
 	protected static WorkSheetState calculateStateByNow(WorkSheet workSheet,WorkSheetContent contentWithDetail) throws LogicException {
-		if(contentWithDetail.planItems.stream().allMatch(planItem->planItem.remainingValForCur<=0)) {
+		if(contentWithDetail.planItems.stream().allMatch(planItem->planItem.remainingValForCur == 0)) {
 			return WorkSheetState.FINISHED;
 		}
-		Calendar today = TimeUtil.getCurrentDate();
-		if(TimeUtil.isAfterByDate(today, workSheet.getDate())) {
-			return WorkSheetState.OVERDUE;
-		}
-		if(TimeUtil.isBeforeByDate(today, workSheet.getDate())) {
-			logger.errorLog("诡异的数据，今天在workSheet的date之前",TimeUtil.parseDate(today)+" vs "+TimeUtil.parseDate(workSheet.getDate()));
+		if(contentWithDetail.planItems.stream().anyMatch(planItem->planItem.remainingValForCur > 0)) {
+			Calendar today = TimeUtil.getCurrentDate();
+			if(TimeUtil.isAfterByDate(today, workSheet.getDate())) {
+				return WorkSheetState.OVERDUE;
+			}
+			if(TimeUtil.isBeforeByDate(today, workSheet.getDate())) {
+				logger.errorLog("诡异的数据，今天在workSheet的date之前",TimeUtil.parseDate(today)+" vs "+TimeUtil.parseDate(workSheet.getDate()));
+			}
+			
+			return WorkSheetState.ACTIVE;
 		}
 		
-		return WorkSheetState.ACTIVE;
+		return WorkSheetState.OVER_FINISHED;
 	}
 	
 	/**

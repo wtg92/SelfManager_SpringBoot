@@ -20,7 +20,9 @@ public abstract class ColorUtil {
 		/*红色*/
 		mapper.put("超期", "#e48383");
 		/*黄色*/
-		mapper.put("假定完成", "#ffc107");
+		mapper.put("不监控", "#ffc107");
+		/*橙色*/
+		mapper.put("超额完成", "rgb(245, 235, 0)");
 		return mapper;
 	}
 	

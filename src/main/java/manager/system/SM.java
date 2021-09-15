@@ -8,7 +8,7 @@ import manager.util.Logger;
 
 public abstract class SM {
 
-	public final static String VERSION = "0.31";
+	public final static String VERSION = "1.1";
 	
 	public final static Logger logger = Logger.getInstance("sm", "logger_setting");
 	

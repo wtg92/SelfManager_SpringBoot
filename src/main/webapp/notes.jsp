@@ -20,7 +20,7 @@
 		<div id="notes_sub_main_container" class="common_sub_main_container">
 			<div id="note_books_main_container">
 				<div class="note_books_header_container">
-					<span class="notes_title">笔记本</span>
+					<span class="notes_title"></span>
 					<span><span class="note_books_switch_to_show_note_books_content_container common_blue_font common_hover"></span></span>
 				</div>
 				<div id="note_books_content_container">

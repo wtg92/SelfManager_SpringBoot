@@ -18,31 +18,42 @@
 	<div class="common_main_container">
 		<div id="all_ws_sub_main_container" class="common_sub_main_container">
 			<div id="all_ws_header_container">
-				<div id="all_ws_state_statistics_container" title="由宁松设计">
+				<div id="all_ws_state_statistics_container">
 					<div class="all_ws_state_circle_container">
+						<div class="all_ws_state_unit_container hidden_pie">
+							<div class="all_ws_unit_title"></div>
+							<div class="all_ws_unit_count"></div>
+						</div>
+						<div class="all_ws_verticle_line hidden_line" ></div>
 						<div class="all_ws_state_unit_container common_hover"  title="按状态搜索"  state_code='<%=WorkSheetState.ACTIVE.getDbCode() %>'>
 							<div class="all_ws_unit_title"><%=WorkSheetState.ACTIVE.getName() %></div>
 							<div class="all_ws_unit_count">0</div>
 						</div>
-						<div class="all_ws_verticle_line" title="过了当天但未完成计划"></div>
+						<div class="all_ws_verticle_line" title="自动计算"></div>
 						<div class="all_ws_state_unit_container common_hover"  title="按状态搜索"  state_code='<%=WorkSheetState.OVERDUE.getDbCode() %>'>
 							<div class="all_ws_unit_title"><%=WorkSheetState.OVERDUE.getName() %></div>
 							<div class="all_ws_unit_count">0</div>
 						</div>
 					</div>				
 					<div class="all_ws_align_line">
-						<div title="完成了所有计划项"></div>
+						<div title="自动计算"></div>
+						<div title="自动计算"></div>
 						<div title="手动操作"></div>
 						<div title="手动操作"></div>
 					</div>
 					<div class="all_ws_state_circle_container">
+						<div class="all_ws_state_unit_container common_hover"  title="按状态搜索"  state_code='<%=WorkSheetState.OVER_FINISHED.getDbCode() %>'>
+							<div class="all_ws_unit_title"><%=WorkSheetState.OVER_FINISHED.getName() %></div>
+							<div class="all_ws_unit_count">0</div>
+						</div>
+						<div class="all_ws_verticle_line" title="同步"></div>
 						<div class="all_ws_state_unit_container common_hover"  title="按状态搜索"  state_code='<%=WorkSheetState.FINISHED.getDbCode() %>'>
 							<div class="all_ws_unit_title"><%=WorkSheetState.FINISHED.getName() %></div>
 							<div class="all_ws_unit_count">0</div>
 						</div>
-						<div class="all_ws_verticle_line hidden_line" ></div>
-						<div class="all_ws_state_unit_container common_hover"  title="按状态搜索"  state_code='<%=WorkSheetState.ASSUMEND_FINISHED.getDbCode() %>'>
-							<div class="all_ws_unit_title"><%=WorkSheetState.ASSUMEND_FINISHED.getName() %></div>
+						<div class="all_ws_verticle_line" title="同步"></div>
+						<div class="all_ws_state_unit_container common_hover"  title="按状态搜索"  state_code='<%=WorkSheetState.NO_MONITOR.getDbCode()%>'>
+							<div class="all_ws_unit_title"><%=WorkSheetState.NO_MONITOR.getName()%></div>
 							<div class="all_ws_unit_count">0</div>
 						</div>
 					</div>

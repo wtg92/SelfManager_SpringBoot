@@ -178,6 +178,8 @@ function fillWorkListUnit(ws,$unit){
     }).find(".work_ws_date_cotnainer_title").text(new Date(ws.date).toChineseDate())
         .end().toggleClass("warning_date",ws.state.dbCode==WS_NAMESPACE.WS_STATE_OF_OVERDUE)
         .prop("title",ws.state.dbCode==WS_NAMESPACE.WS_STATE_OF_OVERDUE ? "该日工作存在未完成项，请尽快处理或同步进历史欠账":"")
+        .toggleClass("over_finished_date",ws.state.dbCode==WS_NAMESPACE.WS_STATE_OF_OVER_FINISHED)
+        .prop("title",ws.state.dbCode==WS_NAMESPACE.WS_STATE_OF_OVER_FINISHED ? "该日工作超额完成，可同步进历史欠账":"")
 }
 
 function refreshWokrListUnitForExternalInvoker(ws){

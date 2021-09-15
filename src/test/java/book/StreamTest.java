@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -13,6 +14,119 @@ import java.util.stream.Stream;
 import org.junit.Test;
 
 public class StreamTest {
+	
+	@Test
+	public void testFairness() {
+		
+		/*越南有一位姓货名拉拉的女子发生了一件事*/
+		Thing something = appear();
+		
+		/*事情冲突的双方一开始涉及的是一男一女*/
+		assert something.conflictParties.size() == 2;
+		assert something.conflictParties.get(0).getClass() == People.class; 
+		assert something.conflictParties.get(1).getClass() == People.class;
+		
+		/*有很多人了解到了这件事*/
+		List<People> peopleKnowingTheThing = learnAbout(something);
+		
+		/*这些人虽然都说越南语，但由于各种原因，对这件事大致产生了三种态度*/
+		Map<Position,List<People>> peopleWithSelfPosition = peopleKnowingTheThing
+				.stream().collect(Collectors.groupingBy(people->
+			people.producePosition(something)
+		));
+		
+		/*漠不关心、男方、女方*/
+		assert peopleWithSelfPosition.size() == 3;
+		assert peopleWithSelfPosition.containsKey(Position.DONT_CARE);
+		assert peopleWithSelfPosition.containsKey(Position.THE_MAN);
+		assert peopleWithSelfPosition.containsKey(Position.THE_WOMAN);
+		
+		/*无关乎持各自态度的人群多少，但事情由此而发酵，冲突程度在加深*/
+		long before = something.conflictDegree;
+		something.influencedBy(peopleWithSelfPosition);
+		long after = something.conflictDegree;
+		assert after > before;
+		
+		/*但任何事情，都存在一个程度阈值*/
+		final long limitInFirstLevel = getFirstLevel(something);
+		assert after > limitInFirstLevel;
+
+		/*当冲突加深到一个阈值后，相关的一切都发生了变化，即量变引起质变*/
+		assert something.conflictParties.size() == 2;
+		
+		/*不止是冲突双方发生了变化*/
+		assert something.conflictParties.get(0).getClass() != People.class; 
+		assert something.conflictParties.get(1).getClass() != People.class;
+		assert something.conflictParties.get(0).getClass() == Gender.class; 
+		assert something.conflictParties.get(1).getClass() == Gender.class;
+		
+		/*还有牵涉到的不同态度的人*/
+		List<People> peopleKnowingTheThingAfterFirstLevel = learnAbout(something);
+		Map<Position,List<People>> peopleWithSelfPositionAfterFirstLevel
+		= peopleKnowingTheThingAfterFirstLevel
+				.stream().collect(Collectors.groupingBy(people->
+			people.producePosition(something)
+		));
+		assert peopleWithSelfPosition.size() == 3;
+		assert peopleWithSelfPosition.containsKey(Position.DONT_CARE);
+		assert peopleWithSelfPosition.containsKey(Position.MEN);
+		assert peopleWithSelfPosition.containsKey(Position.WOMEN);
+		
+		
+		assert peopleKnowingTheThingAfterFirstLevel.size() > peopleKnowingTheThing.size();
+		assert peopleWithSelfPositionAfterFirstLevel.get(Position.DONT_CARE).size() >
+			peopleWithSelfPosition.get(Position.DONT_CARE).size();
+		
+		/*如果没有达到公平，则事情冲突的加剧不会停止*/
+		before = something.conflictDegree;	
+		something.influencedBy(peopleWithSelfPositionAfterFirstLevel);
+		after = something.conflictDegree;
+		assert after > before;
+		
+		/*终于，冲突达到了第二个阈值*/
+		final long limitInSecondLevel = getSecondLevel(something);
+		assert after > limitInSecondLevel;
+		
+		/*同样，和冲突相关的一切事情又都发生了变化*/
+		List<People> peopleKnowingTheThingAfterSecondLevel = learnAbout(something);
+		Map<Position,List<People>> peopleWithSelfPositionAfterSecondLevel
+		= peopleKnowingTheThingAfterSecondLevel
+			.stream().collect(Collectors.groupingBy(people->
+			people.producePosition(something)
+		));
+		
+		assert something.conflictParties.get(0).getClass() != People.class; 
+		assert something.conflictParties.get(0).getClass() != Gender.class; 
+		assert something.conflictParties.get(1).getClass() != People.class; 
+		assert something.conflictParties.get(1).getClass() != Gender.class; 
+		assert peopleKnowingTheThingAfterSecondLevel.size() > 
+			peopleKnowingTheThingAfterFirstLevel.size();
+		assert peopleWithSelfPositionAfterSecondLevel.get(Position.DONT_CARE).size() >
+			peopleWithSelfPositionAfterFirstLevel.get(Position.DONT_CARE).size();
+		
+		/*那么，现在是什么样子呢？*/
+		/*我知道它还是个对象*/	
+		assert something.conflictParties.get(0).getClass().getSuperclass() == Object.class; 
+		assert something.conflictParties.get(1).getClass().getSuperclass() == Object.class; 
+		
+		/*我知道当冲突来到了第三个阈值，我已无法再置身事外*/
+		assert !peopleWithSelfPositionAfterSecondLevel.get(Position.DONT_CARE).contains(me);
+		
+		/*我知道当事情如果不公平，冲突永远在加剧，或隐性或显性*/
+		before = something.conflictDegree;	
+		something.influencedBy(peopleWithSelfPositionAfterSecondLevel);
+		after = something.conflictDegree;
+		assert after > before;
+		
+		/*我知道永远有第三个阈值、第四个阈值.....*/
+		assert getThirdLevel(something) != null;
+		assert getFourthLevel(something) != null;
+		
+		/*至于其它、我不知道，不敢问，不敢想，我只能看*/
+		me.observe();
+	}
+	
+	
 	
 	private static boolean isEven(int num) {
 		return num%2 == 0;
@@ -368,5 +482,87 @@ public class StreamTest {
 	@Test
 	public void testCollect() {
 	}
+	
+	People me;
+	
+	
+	
+	
+	
+	
+	private Object getFourthLevel(Thing something) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	private Object getThirdLevel(Thing something) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	private long getSecondLevel(Thing something) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	private static long getFirstLevel(Thing something) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public static enum Position{
+		DONT_CARE,
+		THE_MAN,
+		THE_WOMAN, MEN, WOMEN;
+	}
+	
+	
+	
+	public static class Gender{
+		
+	}
+	
+	
+	
+	
+	private static List<People> learnAbout(Thing huolala) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	public static Thing appear() {
+
+		
+		return null;
+	}
+
+	public static class People{
+		
+		public Position producePosition(Thing thing) {
+			return null;
+		}
+
+		public void observe() {
+			// TODO Auto-generated method stub
+			
+		}
+	}
+	
+	
+	
+	public static class Thing{
+		
+		long conflictDegree;
+		
+		List<Object> conflictParties = null;
+
+		public void influencedBy(Map<Position, List<People>> peopleWithSelfPosition) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	}
+	
+	
 	
 }

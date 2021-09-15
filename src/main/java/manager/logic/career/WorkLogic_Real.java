@@ -548,7 +548,7 @@ public class WorkLogic_Real extends WorkLogic{
 			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS,opreatorId+" vs "+ws.getOwnerId());
 		}
 		
-		ws.setState(WorkSheetState.ASSUMEND_FINISHED);
+		ws.setState(WorkSheetState.NO_MONITOR);
 		CacheScheduler.saveEntityAndUpdateCache(ws, one->wDAO.updateExistedWorkSheet(one));
 	}
 
@@ -558,7 +558,7 @@ public class WorkLogic_Real extends WorkLogic{
 		if(opreatorId != ws.getOwnerId()) {
 			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS,opreatorId+" vs "+ws.getOwnerId());
 		}
-		if(ws.getState() != WorkSheetState.ASSUMEND_FINISHED) {
+		if(ws.getState() != WorkSheetState.NO_MONITOR) {
 			throw new LogicException(SMError.CANNOT_CANCEL_WS_WHICH_NOT_ASSUMED,ws.getState().getName());
 		}
 		ws.setState(calculateStateByNow(ws));
