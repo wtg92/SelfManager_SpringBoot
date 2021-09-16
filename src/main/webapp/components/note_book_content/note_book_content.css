@@ -4,6 +4,7 @@
 sm_label[label_name="EM"],.one_note_label_of_manager_introduction[label_name="EM"],.one_note_sm_label_unit_of_manager[label_name="EM"] .one_note_sm_label_unit_tag_name_of_manager,.one_note_sm_label_unit_of_manager[label_name="EM"] .one_note_sm_label_unit_content_of_manager,
 .one_memo_item_unit_container[label_name="EM"] .one_memo_item_unit_label_name,.one_memo_item_unit_container[label_name="EM"] .one_memo_item_unit_content{
     color: rgb(38, 38, 255);
+    cursor: pointer !important;
 }
 
 sm_label{

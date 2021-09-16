@@ -13,7 +13,7 @@ import manager.util.SystemUtil;
  * */
 public enum NoteLabel {
 	UNDECIDED("",""),
-	EM("EM","强调，突出"),
+	EM("EM","强调，点击复制"),
 	IDEA("IDEA","想法，灵感"),
 	TODO("TODO","待办，点击变成DONE"),
 	DONE("DONE","待办的完成态，点击退回为TODO"),

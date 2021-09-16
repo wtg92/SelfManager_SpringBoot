@@ -51,18 +51,9 @@ function drawMoodStat(data){
 
     let timeData = rlt.map(e=>e.date.toChineseDate());
     getOrInitEcharts("ws_stat_content_container_of_charts_average_moods").setOption({
-
-        visualMap: {
-            show: false,
-            type: 'continuous',
-            seriesIndex: 0,
-            min: 0,
-            max: 5
-        },
-
         title: {
             left: 'center',
-            text: '平均心情/总工作时长变化'
+            text: '总工作时长/平均心情变化'
         },
 
         tooltip: {
@@ -70,7 +61,7 @@ function drawMoodStat(data){
         },
 
         legend: {
-            data: ['平均心情', '总工作时长/min'],
+            data: ['总工作时长/小时','平均心情'],
             left: 10
         },
         toolbox: {
@@ -79,7 +70,8 @@ function drawMoodStat(data){
                     yAxisIndex: 'none'
                 },
                 restore: {},
-                saveAsImage: {}
+                saveAsImage: {},
+                magicType: {type: ['line', 'bar']}
             }
         },
         axisPointer: {
@@ -129,38 +121,49 @@ function drawMoodStat(data){
         ],
         yAxis: [
             {
-                name: '平均心情',
                 type: 'value',
-                max: 5
+                max:24
             },
             {
                 gridIndex: 1,
-                name: '总工作时长',
+                max: 5,
                 type: 'value',
                 inverse: true
-            }
+            },
         ],
         series: [
             {
-                name: '平均心情',
+                name: '总工作时长/小时',
                 type: 'line',
                 symbolSize: 8,
                 hoverAnimation: false,
-                data: rlt.map(e=>{
-                    return e.ws == null ? 0 : e.ws.mood.toText(2);
-                })
+                data:rlt.map(e=>{
+                    return e.ws == null ? 0 : (mergeWorkItemsExceptUndone(e.ws.content).reduce((accum,current)=>{
+                        return accum+current.costMinutes;           
+                    },0)/60).toFixed(2);
+                }),
+                markPoint: {
+                    data: [
+                        {type: 'max', name: '最大'},
+                    ]
+                },
+                markLine: {
+                    data: [
+                        {type: 'average', name: '平均'},
+                        {yAxis:8,name:"八小时工作线"},
+                        {yAxis:5,name:"正常工作线"},
+                    ]
+                }
             },
             {
-                name: '总工作时长/min',
+                name: '平均心情',
                 type: 'line',
                 xAxisIndex: 1,
                 yAxisIndex: 1,
                 symbolSize: 8,
                 hoverAnimation: false,
                 data: rlt.map(e=>{
-                    return e.ws == null ? 0 : mergeWorkItemsExceptUndone(e.ws.content).reduce((accum,current)=>{
-                        return accum+current.costMinutes;           
-                    },0);
+                    return e.ws == null ? 0 : e.ws.mood.toText(2);
                 })
             }
         ]

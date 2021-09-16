@@ -46,6 +46,7 @@ $(function(){
         .on("click",".one_note_book_content_unit_delete_mark",closeNotePageByDeleteMark)
         .on("click","sm_label[label_name='TODO']",changeTODOToDONE)
         .on("click","sm_label[label_name='DONE']",changeDONEToTODO)
+        .on("click","sm_label[label_name='EM']",copyEMContent)
         .on("click",".note_book_call_out_labels_manager_btn",callOutLabelsManager)
         .on("click",".one_note_book_content_unit_page_control_mark_important,.one_note_book_content_unit_page_control_mark_general",changeNoteImportant)
         .on("click",".one_note_book_content_unit_page_control_delete_btn",deleteNoteByClickBtnInPage)
@@ -61,7 +62,10 @@ $(function(){
 
     $("#note_book_close_all_book_content").click(closeAllBookWindows);
 });
-
+function copyEMContent(){
+    let text = $(this).text();
+    copyToClipboardInDefault(text);
+}
 
 function banDraggingMemoItems(){
     $("#memo_dialog_body_items_container").find(".one_memo_item_unit_container").prop("draggable",false);
