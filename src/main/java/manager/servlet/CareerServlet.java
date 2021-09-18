@@ -9,6 +9,7 @@ import static manager.system.SMParm.DATE;
 import static manager.system.SMParm.END_DATE;
 import static manager.system.SMParm.END_TIME;
 import static manager.system.SMParm.FATHER_ID;
+import static manager.system.SMParm.FOLD;
 import static manager.system.SMParm.FOR_ADD;
 import static manager.system.SMParm.IDS;
 import static manager.system.SMParm.IMPORTANT;
@@ -132,6 +133,8 @@ public class CareerServlet extends SMServlet{
 			return savePlan(request);
 		case C_SAVE_PLAN_ITEM:
 			return savePlanItem(request);
+		case C_SAVE_PLAN_ITEM_FOLD:
+			return savePlanItemFold(request);
 		case C_ABANDON_PLAN:
 			return abandonPlan(request);
 		case C_FINISH_PLAN:
@@ -612,8 +615,18 @@ public class CareerServlet extends SMServlet{
 		wL.abandonPlan(loginerId, planId);
 		return getNullObjJSON();
 	}
+	
+	private String savePlanItemFold(HttpServletRequest request) throws SMException {
+		int loginerId = getLoginerId(request);
+		int planId = getNonNullParamInInt(request, PLAN_ID);
+		int itemId = getNonNullParamInInt(request, ITEM_ID);
+		boolean fold = getNonNullParamInBool(request, FOLD);
+		wL.savePlanItemFold(loginerId, planId, itemId, fold);
+		return getNullObjJSON();
+	}
+	
 
-	private String savePlanItem(HttpServletRequest request) throws LogicException, DBException {
+	private String savePlanItem(HttpServletRequest request) throws SMException {
 		int loginerId = getLoginerId(request);
 		int planId = getNonNullParamInInt(request, PLAN_ID);
 		String catName = getNonNullParam(request, CAT_NAME);

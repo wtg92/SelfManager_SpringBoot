@@ -195,8 +195,8 @@
       	</div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" id="plan_dialog_close_edit_mode">关闭编辑模式</button>
-        <button type="button" class="btn btn-primary" id="plan_dialog_open_edit_mode">开启编辑模式</button>
+        <button type="button" class="btn btn-primary" id="plan_dialog_close_edit_mode">取消编辑</button>
+        <button type="button" class="btn btn-primary" id="plan_dialog_open_edit_mode">编辑</button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
       </div>
     </div>
@@ -215,6 +215,14 @@
 					<div class="plan_item_delete_mark" title="删除"></div>
 					<div class="plan_item_modify_mark" title="修改"></div>
 				</div>
+				
+				<div class="plan_item_container_fold_info_container">
+					<div class="plan_item_fold_btn" title="折叠"></div>
+					<div class="plan_item_unfold_btn" title="打开"></div>
+					<div class="plan_item_save_fold_info common_blue_font common_hover">保存</div>
+					<div class="plan_item_save_fold_hint"></div>
+				</div>
+				
 			</div>
 		</div>
 	</div>
@@ -231,6 +239,13 @@
 					<div class="plan_item_add_mark" title="添加"></div>
 					<div class="plan_item_delete_mark" title="删除"></div>
 					<div class="plan_item_modify_mark" title="修改"></div>
+				</div>
+
+				<div class="plan_item_container_fold_info_container">
+					<div class="plan_item_fold_btn" title="折叠"></div>
+					<div class="plan_item_unfold_btn" title="打开"></div>
+					<div class="plan_item_save_fold_info common_blue_font common_hover">保存</div>
+					<div class="plan_item_save_fold_hint"></div>
 				</div>
 			</div>
 		</div>

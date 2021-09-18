@@ -1,8 +1,9 @@
 package manager.logic.career;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 import static manager.system.SM.logger;
-import static manager.util.XMLUtil.*;
+import static manager.util.XMLUtil.findAllByTagWithFather;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,7 +15,6 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.dom4j.Node;
 
 import manager.data.career.PlanContent;
 import manager.data.career.PlanDeptContent;
@@ -38,6 +38,7 @@ import manager.system.career.PlanItemType;
 import manager.system.career.WorkItemType;
 import manager.util.CommonUtil;
 import manager.util.TimeUtil;
+import manager.util.XMLUtil.ElementWithFather;
 
 /**
   *  处理WorkSheet Plan content的解析及生成  
@@ -96,6 +97,7 @@ public abstract class WorkContentConverter {
 	private final static String A_ID = "id";
 	private final static String A_NAME = "name";
 	private final static String A_MAPPING_VAL= "mapping_val";
+	private final static String A_FOLD = "fold";
 	private final static String A_TYPE = "type";
 	private final static String A_VALUE = "val";
 	private final static String A_FOR_ADD = "f_add";
@@ -176,6 +178,10 @@ public abstract class WorkContentConverter {
 		item.setName(element.attributeValue(A_NAME));
 		item.setMappingValue(Double.parseDouble(element.attributeValue(A_MAPPING_VAL)));
 		item.setType(PlanItemType.valueOfDBCode(Integer.parseInt(element.attributeValue(A_TYPE))));
+		
+		String foldAttr = element.attributeValue(A_FOLD);
+		item.setFold(foldAttr == null ? false : Boolean.parseBoolean(foldAttr));
+		
 		return item;
 	}
 	
@@ -419,6 +425,7 @@ public abstract class WorkContentConverter {
 		cur.addAttribute(A_NAME, item.getName());
 		cur.addAttribute(A_MAPPING_VAL,item.getMappingValue().toString());
 		cur.addAttribute(A_TYPE, String.valueOf(item.getType().getDbCode()));
+		cur.addAttribute(A_FOLD, String.valueOf(item.isFold()));
 	}
 	
 	private static void fillAttrsExceptId(WorkItem item,Element cur) {
@@ -697,6 +704,21 @@ public abstract class WorkContentConverter {
 		
 		fillAttrsExceptId(origin, planItem.cur);
 		
+	}
+	
+	
+	public static void updatePlanItemFold(Plan one, int loginerId, int itemId, boolean fold) throws LogicException {
+		Document content = getDefinateDocument(one);
+		Element itemsElement= content.getRootElement().element(T_ITEMS);
+		ElementWithFather planItem = getPlanItemById(itemsElement, itemId);
+		
+		assert planItem.father != null;
+		
+		PlanItem origin = parsePlanItem(planItem.cur);
+		origin.setFold(fold);
+		fillAttrsExceptId(origin, planItem.cur);
+		
+		one.setContent(content.asXML());
 	}
 	
 	protected static void updatePlanItem(Plan one,int updaterId,int itemId, String categoryName, int value, String note, double mappingVal) throws LogicException{
@@ -1039,4 +1061,6 @@ public abstract class WorkContentConverter {
 		item.setValue(item.getValue() * -1);
 		assert item.getValue() > 0;
 	}
+
+
 }

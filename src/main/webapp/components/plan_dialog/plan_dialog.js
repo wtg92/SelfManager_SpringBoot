@@ -13,6 +13,10 @@ $(function(){
     drawCommonIcon("inluding_circle_mark",$("#plan_dialog_pattern_container .plan_item_circle_container"));
     drawCommonIcon("inluding_circle_with_left_line_mark",$("#plan_dialog_pattern_container .plan_item_root_add_mark"));
 
+    drawCommonIcon("inluding_open_folder_mark",$("#plan_dialog_pattern_container .plan_item_unfold_btn"));
+    drawCommonIcon("inluding_close_folder_mark",$("#plan_dialog_pattern_container .plan_item_fold_btn"));
+
+
     $("#plan_dialog_basic_info_main_container")
         .find(".plan_dialog_switch_container_visibility").click(function(){
             switchToShowPlanDialogContainer(this,showPlanDialogBasicInfoContainer,hidePlanDialogBasicInfoContainer)
@@ -68,7 +72,10 @@ $(function(){
     $("#plan_dialog_items_cards_container").on("click",".plan_item_root_add_mark",addRootItemByClickMark)
         .on("click",".plan_item_add_mark",addItemByClickMark)
         .on("click",".plan_item_delete_mark",deleteItemByClickMark)
-        .on("click",".plan_item_modify_mark",modifyItemByClickMark);
+        .on("click",".plan_item_modify_mark",modifyItemByClickMark)
+        .on("click",".plan_item_fold_btn",foldPlanItemFoldBtn)
+        .on("click",".plan_item_unfold_btn",unfoldPlanItemFoldBtn)
+        .on("click",".plan_item_save_fold_info",savePlanItemFoldInfo);
 
 
     $(".plan_dialog_basic_info_copy_btn").click(() => {
@@ -79,6 +86,50 @@ $(function(){
     $("#plan_dialog_copy_plan_btn").click(copyPlanItemsById);
 
 })
+
+function foldPlanItemFoldBtn(){
+    let $parentContainer =  getSelfContainerForFoldBtns(this);
+    $parentContainer.attr("fold",true);
+}
+
+function getSelfContainerForFoldBtns(dom){
+    return $(dom).parent().parent().parent().parent(".plan_item_container_first_level,.plan_item_container_unit_level")
+}
+
+function unfoldPlanItemFoldBtn(){
+    let $parentContainer =  getSelfContainerForFoldBtns(this);
+    $parentContainer.attr("fold",false);
+}
+
+function savePlanItemFoldInfo(){
+    let planId = $("#plan_dialog").attr("plan_id");
+    let fold = getSelfContainerForFoldBtns(this).attr("fold");
+    let itemId = $(this).parent().siblings(".plan_item_container_footer").attr("item_id");
+
+    $(this).addClass("common_prevent_double_click");
+
+    sendAjaxBySmartParams("CareerServlet","c_save_plan_item_fold",{
+        "plan_id":planId,
+        "item_id":itemId,
+        "fold": fold,
+    },()=>{
+        showForAWhile("已保存",$(this).siblings(".plan_item_save_fold_hint"),5000,()=>{
+            $(this).hide();
+        },()=>{
+            $(this).show();
+        })
+    },()=>{
+        $(this).removeClass("common_prevent_double_click");
+    })
+}
+
+
+
+
+
+
+
+
 
 function copyPlanItemsById(){
     let planId = $("#plan_dialog").attr("plan_id");
@@ -640,7 +691,9 @@ function drawPlanItemsFromCache(){
     let $firstLevelContainer
     for(let i=0 ; i<items.length ;i++){
         $firstLevelContainer = $pattern.find(".plan_item_container_first_level").clone();
-        $firstLevelContainer.find(".plan_item_container_footer").attr({
+        $firstLevelContainer.attr({
+            "fold" : items[i].fold
+        }).find(".plan_item_container_footer").attr({
             "item_id":items[i].id,
             "father_id" : 0,
             "cat_name" : items[i].name,
@@ -669,10 +722,15 @@ function drawPlanItemsFromCache(){
 function drawSonPlanItemCards(fatherItem,$container){
     let items  = fatherItem.descendants;
     let fatherId =  $container.find(".plan_item_container_footer").attr("item_id");
+
+    $container.attr("has_next_level",items.length>0);
+
     let $firstLevelContainer
     for(let i=0 ; i<items.length ;i++){
         $firstLevelContainer = $("#plan_dialog_pattern_container").find(".plan_item_container_unit_level").clone();
-        $firstLevelContainer.find(".plan_item_container_footer").attr({
+        $firstLevelContainer.attr({
+            "fold" : items[i].fold
+        }).find(".plan_item_container_footer").attr({
             "item_id":items[i].id,
             "father_id" :fatherId,
             "cat_name" : items[i].name,

@@ -292,7 +292,9 @@
 #plan_dialog[open_edit_mode='true'] .plan_dialog_basic_allow_others_copy_plan_items_rlt{
     display: none;
 }
-
+#plan_dialog[open_edit_mode='false'] .plan_item_save_fold_info {
+    display: none;
+}
 
 #plan_dialog[open_edit_mode='false'] .plan_item_container_root_controlgroup,#plan_dialog[open_edit_mode='false'] .plan_item_container_footer{
     display: none;
@@ -313,8 +315,20 @@
     background-color: #f5f5f7;
     overflow-x: auto;
 }
+.plan_item_container_first_level[has_next_level='false']>div>div>.plan_item_container_fold_info_container,.plan_item_container_unit_level[has_next_level='false']>div>div>.plan_item_container_fold_info_container{
+    display: none;
+}
 
+.plan_item_container_first_level[fold='true']>div>div>div>.plan_item_fold_btn,.plan_item_container_unit_level[fold='true']>div>div>div>.plan_item_fold_btn{
+    display: none;
+}
+.plan_item_container_first_level[fold='false']>div>div>div>.plan_item_unfold_btn,.plan_item_container_unit_level[fold='false']>div>div>div>.plan_item_unfold_btn{
+    display: none;
+}
 
+.plan_item_container_first_level[fold='true']>.plan_item_container_wrap>.plan_item_container_unit_level,.plan_item_container_unit_level[fold='true']>.plan_item_container_wrap>.plan_item_container_unit_level{
+    display: none;
+}
 
 
 .plan_dialog_items_form_hint{
@@ -411,22 +425,27 @@ little{
     align-items: center;
 }
 .plan_item_container_footer{
+    margin-right: 10px;
+}
+
+.plan_item_container_footer,.plan_item_container_fold_info_container{
     display: flex;
     color: #28a745;
 }
-.plan_item_container_footer svg{
+
+.plan_item_container_footer svg,.plan_item_container_fold_info_container svg{
     cursor: pointer;
 }
-.plan_item_container_footer svg:hover{
+.plan_item_container_footer svg:hover,.plan_item_container_fold_info_container svg:hover{
     opacity: 0.8;
 }
 
-.plan_item_container_footer>div{
+.plan_item_container_footer>div,.plan_item_container_fold_info_container>div{
     margin-right: 5px;
 }
 
 
-.plan_item_container_footer>div:last-child{
+.plan_item_container_footer>div:last-child,.plan_item_container_fold_info_container>div:last-child{
     margin-right: 0;
 }
 

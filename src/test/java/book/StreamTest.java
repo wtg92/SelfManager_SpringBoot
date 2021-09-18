@@ -6,12 +6,15 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.Test;
+
+import manager.exception.LogicException;
 
 public class StreamTest {
 	
@@ -547,6 +550,67 @@ public class StreamTest {
 			
 		}
 	}
+	
+	
+	
+	interface MyOptional<T>{
+		
+		T orElse(Runnable doIfNull);
+		
+	}
+	
+	
+	
+	
+	
+	
+	@Test
+	public void testOptional() {
+		
+		/*根据Java10的API，不必try-catch*/
+		Stream.of(1,2,3).filter(i->i>3).findAny()
+				.orElseThrow();
+		
+		Integer rlt = Stream.of(1,2,3).filter(i->i>3).findAny()
+				.orElse(null);
+		if(rlt == null) {
+			/*当找不到时的处理*/
+		}
+		
+		MyOptional<Integer> myOptional = null;
+		rlt =  myOptional.orElse(()->{
+			/*当找不到时的处理*/
+		});
+		
+		
+	}
+	
+	@Test
+	public void testException() throws Exception {
+		
+		List<Exception> excps = new ArrayList<Exception>();
+		
+		Stream.of(1,2,3).forEach(e->{
+			try {
+				doSomething(e);
+			} catch (LogicException e1) {
+				excps.add(e1);
+			}
+		});
+		
+		if(excps.size() > 0) {
+			throw excps.get(0);
+		}
+		
+		Callable<Integer> cal =null;
+		cal.call();
+	}
+	
+	
+	public static void doSomething(int i) throws LogicException{
+		
+	}
+	
 	
 	
 	

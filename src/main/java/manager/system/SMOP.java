@@ -38,6 +38,7 @@ public enum SMOP {
 	C_LOAD_PLAN("c_load_plan"),
 	C_SAVE_PLAN("c_save_plan"),
 	C_SAVE_PLAN_ITEM("c_save_plan_item"),
+	C_SAVE_PLAN_ITEM_FOLD("c_save_plan_item_fold"),
 	C_SAVE_WS_PLAN_ITEM("c_save_ws_plan_item"),
 	C_ABANDON_PLAN("c_abandon_plan"),
 	C_FINISH_PLAN("c_finish_plan"),

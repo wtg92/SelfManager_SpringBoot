@@ -207,6 +207,18 @@ public class WorkLogic_Real extends WorkLogic{
 		WorkContentConverter.updatePlanItem(plan, loginerId, itemId, catName, value, note, mappingVal);
 		CacheScheduler.saveEntityAndUpdateCache(plan,p->wDAO.updateExistedPlan(p));
 	}
+	
+	@Override
+	public void savePlanItemFold(int loginerId, int planId, int itemId, boolean fold) throws LogicException, DBException {
+		Plan plan = CacheScheduler.getOne(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
+		if(plan.getOwnerId() != loginerId) {
+			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
+		}
+		
+		WorkContentConverter.updatePlanItemFold(plan, loginerId, itemId, fold);
+		CacheScheduler.saveEntityAndUpdateCache(plan,p->wDAO.updateExistedPlan(p));
+	}
+	
 
 	@Override
 	public synchronized void saveWSPlanItem(int loginerId, int wsId, int itemId, String catName, int value, String note,
@@ -714,6 +726,8 @@ public class WorkLogic_Real extends WorkLogic{
 		
 		CacheScheduler.saveEntityAndUpdateCache(target,p->wDAO.updateExistedPlan(p));
 	}
+
+
 
 
 

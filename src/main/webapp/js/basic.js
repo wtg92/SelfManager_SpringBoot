@@ -166,13 +166,21 @@ function initCommonUI(){
     $("input[name='name']").prop("autocomplete","off");
 }
 
-function showForAWhile(message,$cotainer, lastingTime){
+function showForAWhile(message,$cotainer, lastingTime,preFunc,endFunc){
     const defaultLastingTime = 3000;
     let time = lastingTime == undefined ? defaultLastingTime : lastingTime
 
     $cotainer.addClass("common_hint_message").html(message);
+
+    if(preFunc != null){
+        preFunc();
+    }
+
     setTimeout(() => {
         $cotainer.html("").removeClass("common_hint_message");
+        if(endFunc != null){
+            endFunc();
+        }
     }, time);
 }
 

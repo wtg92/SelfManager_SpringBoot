@@ -26,6 +26,8 @@ public class PlanItem extends SMVirtualEntity{
 	/*表明分钟/次数*/
 	private PlanItemType type;
 	
+	private boolean fold;
+	
 	@Override
 	public PlanItem clone(){
 		try {
@@ -39,6 +41,14 @@ public class PlanItem extends SMVirtualEntity{
 	}
 	
 	
+	public boolean isFold() {
+		return fold;
+	}
+
+	public void setFold(boolean fold) {
+		this.fold = fold;
+	}
+
 	public String getName() {
 		return name;
 	}

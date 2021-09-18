@@ -48,8 +48,8 @@
       	</div>
       </div>
       <div class="modal-footer">
-      	<button type="button" class="btn btn-primary" id="close_plan_dept_edit_mode_btn">关闭编辑模式</button>
-       	<button type="button" class="btn btn-primary" id="open_plan_dept_edit_mode_btn">开启编辑模式</button>
+      	<button type="button" class="btn btn-primary" id="close_plan_dept_edit_mode_btn">取消编辑</button>
+       	<button type="button" class="btn btn-primary" id="open_plan_dept_edit_mode_btn">编辑</button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
       </div>
     </div>

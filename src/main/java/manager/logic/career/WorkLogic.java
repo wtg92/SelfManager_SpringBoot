@@ -134,6 +134,7 @@ public abstract class WorkLogic{
 	
 	public abstract void saveWorkItem(int updaterId,int wsId,int workItemId, int value, String note, int mood,boolean forAdd,Calendar startTime,Calendar endTime) throws LogicException, DBException;
 	public abstract void savePlanItem(int loginerId, int planId,int itemId,String catName,int value,String note,double mappingVal) throws LogicException, DBException;
+	public abstract void savePlanItemFold(int loginerId, int planId, int itemId, boolean fold) throws LogicException, DBException;
 	public abstract void saveWSPlanItem(int loginerId, int wsId,int itemId,String catName,int value,String note,double mappingVal) throws LogicException, DBException;
 	public abstract void savePlan(int loginerId, int planId, String name, Calendar startDate, Calendar endDate,
 			String note, boolean recalculateState, List<PlanSetting> settings,int seqWeight) throws LogicException, DBException;
@@ -445,5 +446,7 @@ public abstract class WorkLogic{
 			}
 		}
 	}
+	
+
 
 }
