@@ -25,6 +25,9 @@ $(function(){
     drawCommonIcon("inluding_circle_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_circle_container"));
     drawCommonIcon("inluding_circle_with_left_line_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_root_add_mark"));
 
+    drawCommonIcon("inluding_open_folder_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_unfold_btn"));
+    drawCommonIcon("inluding_close_folder_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_fold_btn"));
+
     $("body").on("keydown",monitorHotKeys);
 
     $(".work_sheet_switch_to_show_ws_note").click(switchToShowWSNote);
@@ -77,6 +80,9 @@ $(function(){
         .on("click",".work_sheet_plan_item_add_mark",addWSPlanItemClickMark)
         .on("click",".work_sheet_plan_item_delete_mark",deleteWSPlanItemByClickMark)
         .on("click",".work_sheet_plan_item_modify_mark",modifyWSPlanItemByClickMark)
+        .on("click",".work_sheet_plan_item_fold_btn",foldWSPlanItemFoldBtn)
+        .on("click",".work_sheet_plan_item_unfold_btn",unfoldWSPlanItemFoldBtn)
+        .on("click",".work_sheet_plan_item_save_fold_info",saveWSPlanItemFoldInfo)
         .on("click",".work_sheet_plan_item_container_body,.work_sheet_plan_item_completion_body",addItemToWSByClickLabel)
         .on("click",".work_sheet_plan_sync_completion_to_dept",syncToPlanDept);
 
@@ -100,6 +106,41 @@ $(function(){
 });
 
 
+function foldWSPlanItemFoldBtn(){
+    let $parentContainer =  getSelfWSPlanItemContainerForFoldBtns(this);
+    $parentContainer.attr("fold",true);
+}
+
+function getSelfWSPlanItemContainerForFoldBtns(dom){
+    return $(dom).parent().parent().parent().parent(".work_sheet_plan_item_container_first_level,.work_sheet_plan_item_container_unit_level")
+}
+
+function unfoldWSPlanItemFoldBtn(){
+    let $parentContainer =  getSelfWSPlanItemContainerForFoldBtns(this);
+    $parentContainer.attr("fold",false);
+}
+
+function saveWSPlanItemFoldInfo(){
+    let wsId = $("#work_sheet_main_container").attr("ws_id");
+    let fold = getSelfWSPlanItemContainerForFoldBtns(this).attr("fold");
+    let itemId = $(this).parent().siblings(".work_sheet_plan_item_container_footer").attr("item_id");
+
+    $(this).addClass("common_prevent_double_click");
+
+    sendAjaxBySmartParams("CareerServlet","c_save_ws_plan_item_fold",{
+        "ws_id":wsId,
+        "item_id":itemId,
+        "fold": fold,
+    },()=>{
+        showForAWhile("已保存",$(this).siblings(".work_sheet_plan_item_save_fold_hint"),5000,()=>{
+            $(this).hide();
+        },()=>{
+            $(this).show();
+        })
+    },()=>{
+        $(this).removeClass("common_prevent_double_click");
+    })
+}
 
 
 /**
@@ -1477,7 +1518,9 @@ function drawWSPlan(planItems){
    let $firstLevelContainer
    for(let i=0 ; i<planItems.length ;i++){
        $firstLevelContainer = $pattern.find(".work_sheet_plan_item_container_first_level").clone();
-       $firstLevelContainer.find(".work_sheet_plan_item_container_footer").attr({
+       $firstLevelContainer.attr({
+        "fold" : planItems[i].item.fold
+        }).find(".work_sheet_plan_item_container_footer").attr({
            "item_id":planItems[i].item.id,
            "father_id" : 0,
            "cat_name" : planItems[i].item.name,
@@ -1540,10 +1583,15 @@ function fillCompetionInfo($contianer,plan){
 function drawSonWSPlanItemCards(fatherItem,$container){
     let items  = fatherItem.descendants;
     let fatherId =  $container.find(".work_sheet_plan_item_container_footer").attr("item_id");
+    
+    $container.attr("has_next_level",items.length>0);
+    
     let $unitLevelContainer
     for(let i=0 ; i<items.length ;i++){
         $unitLevelContainer = $("#work_sheet_pattern_container").find(".work_sheet_plan_item_container_unit_level").clone();
-        $unitLevelContainer.find(".work_sheet_plan_item_container_footer").attr({
+        $unitLevelContainer.attr({
+            "fold" : items[i].item.fold
+        }).find(".work_sheet_plan_item_container_footer").attr({
             "item_id":items[i].item.id,
             "father_id" :fatherId,
             "cat_name" : items[i].item.name,

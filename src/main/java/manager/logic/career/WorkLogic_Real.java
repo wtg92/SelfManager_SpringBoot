@@ -221,7 +221,7 @@ public class WorkLogic_Real extends WorkLogic{
 	
 
 	@Override
-	public synchronized void saveWSPlanItem(int loginerId, int wsId, int itemId, String catName, int value, String note,
+	public void saveWSPlanItem(int loginerId, int wsId, int itemId, String catName, int value, String note,
 			double mappingVal) throws LogicException, DBException {
 		WorkSheet ws = CacheScheduler.getOne(CacheMode.E_ID,wsId, WorkSheet.class, ()->wDAO.selectExistedWorkSheet(wsId));
 		if(loginerId != ws.getOwnerId()) {
@@ -235,6 +235,18 @@ public class WorkLogic_Real extends WorkLogic{
 		CacheScheduler.saveEntityAndUpdateCache(ws,w->wDAO.updateExistedWorkSheet(w));
 	}
 
+	@Override
+	public void saveWSPlanItemFold(int loginerId, int wsId, int itemId, boolean fold) throws DBException, LogicException {
+		WorkSheet ws = CacheScheduler.getOne(CacheMode.E_ID,wsId, WorkSheet.class, ()->wDAO.selectExistedWorkSheet(wsId));
+		if(loginerId != ws.getOwnerId()) {
+			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS,loginerId+" vs "+ws.getOwnerId());
+		}
+		
+		WorkContentConverter.updateWSPlanItemFold(ws, loginerId, itemId, fold);
+		
+		CacheScheduler.saveEntityAndUpdateCache(ws,w->wDAO.updateExistedWorkSheet(w));
+	}
+	
 	@Override
 	public void savePlanDeptItem(int updaterId, int itemId, String name, double val)
 			throws LogicException, DBException {
@@ -344,7 +356,7 @@ public class WorkLogic_Real extends WorkLogic{
 			ws.content = content;
 		}
 		
-		return rlt;
+		return clearUnnecessaryInfo(rlt);
 	}
 
 	@Override
@@ -364,7 +376,7 @@ public class WorkLogic_Real extends WorkLogic{
 		
 		fill(rlt.content.logs); 
 		
-		return rlt;
+		return clearUnnecessaryInfo(rlt);
 	}
 	
 	@Override
@@ -680,7 +692,7 @@ public class WorkLogic_Real extends WorkLogic{
 		if(stateZT == WorkSheetState.UNDECIDED) {
 			return fillPlanNames(wDAO.selectWorkSheetByField(SMDB.F_OWNER_ID, loginerId));
 		}
-		return fillPlanNames(wDAO.selectWorkSheetByOwnerAndStates(loginerId, Arrays.asList(stateZT)));
+		return clearUnnecessaryInfo(fillPlanNames(wDAO.selectWorkSheetByOwnerAndStates(loginerId, Arrays.asList(stateZT))));
 	}
 	
 	private List<WorkSheetProxy> fillPlanNames(List<WorkSheet> src) throws DBException{
@@ -726,6 +738,8 @@ public class WorkLogic_Real extends WorkLogic{
 		
 		CacheScheduler.saveEntityAndUpdateCache(target,p->wDAO.updateExistedPlan(p));
 	}
+
+
 
 
 

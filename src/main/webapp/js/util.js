@@ -202,6 +202,16 @@ Date.prototype.toSmartString = function(){
     return this.format("yyyy-MM-dd")+" "+this.toHoursAndMinutesOnly();
 }
 
+
+Date.prototype.isSunday = function(){
+    return this.getDay() == 0;
+}
+
+Date.prototype.isSaturday = function(){
+    return this.getDay() == 6;
+}
+
+
 Date.prototype.isBlank = function(){
     return this.format("yyyy-MM-dd") == "1970-01-01";
 }
@@ -278,6 +288,8 @@ Number.prototype.transferToHoursMesIfPossible = function(decimal){
     }
     return prefix+absNum.toText(decimal)+"分钟";
 }
+
+
 /*==============================Number End==========================================*/
 
 
@@ -326,6 +338,33 @@ String.prototype.replaceAll = function(s1,s2){
 
     return rlt;    
 }
+
+/**
+ * rlt keys属性 将记录有哪些可能
+ * classifier 暂时只允许生成字符串吧
+ */
+Array.prototype.groupBy = function(classifier){
+    let rlt = {
+        keys:[]
+    };
+
+    this.forEach((e)=>{
+        let key = classifier(e);
+        if(!rlt.keys.contains(key)){
+            rlt[key] = [];
+            rlt.keys.push(key);
+        }
+        rlt[key].push(e);
+    })
+
+    return rlt;
+}
+
+Array.prototype.contains = function(e){
+    return this.find(m=>m==e) != null;
+}
+
+
 
 /**
  * 排序，假设项太多，则合并少数项

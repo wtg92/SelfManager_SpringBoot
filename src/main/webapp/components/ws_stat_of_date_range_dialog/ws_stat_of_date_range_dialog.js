@@ -24,8 +24,68 @@ $(function(){
     });
 
     $("#ws_stat_analyze_ws_btn").click(analyzeWSsOfDateRange);
+
+
+    $("#ws_stat_content_container_of_text .ws_stat_switch_to_show_more_info").click(switchToShowMoreInfo);
+
+    $("#ws_stat_content_container_of_more_info_container").on("click",".ws_stat_unit_for_one_plan_header_switch_to_show_btn",switchToShowOnePlanStatDetail);
+
+
+
 })
 
+function switchToShowOnePlanStatDetail(){
+    let open = parseToBool($(this).attr("open"));
+
+    let $unit = $(this).parents(".ws_stat_unit_for_one_plan");
+
+    if(open){
+        closeDetailStatByPlanContainer($unit);
+    }else{
+        openDetailStatByPlanContainer($unit);
+    }
+}
+
+
+
+function switchToShowMoreInfo(){
+    let open = parseToBool($(this).attr("open"));
+    if(open){
+        closeMoreInfoContainer();
+    }else{
+        openMoreInfoContainer();
+    }
+}
+
+
+function closeDetailStatByPlanContainer($unit){
+
+
+    $unit.find(".ws_stat_unit_for_one_plan_body").hide().end()
+        .find(".ws_stat_unit_for_one_plan_header_switch_to_show_btn").text("详情").attr("open",false);
+}
+
+function openDetailStatByPlanContainer($unit){
+    $unit.find(".ws_stat_unit_for_one_plan_body").show().end()
+        .find(".ws_stat_unit_for_one_plan_header_switch_to_show_btn").text("收起").attr("open",true);
+}
+
+
+
+
+
+
+
+
+function closeMoreInfoContainer(){
+    $("#ws_stat_content_container_of_more_info_container").hide();
+    $("#ws_stat_content_container_of_text .ws_stat_switch_to_show_more_info").text("分计划统计").attr("open",false);
+}
+
+function openMoreInfoContainer(){
+    $("#ws_stat_content_container_of_more_info_container").show();
+    $("#ws_stat_content_container_of_text .ws_stat_switch_to_show_more_info").text("收起").attr("open",true);
+}
 
 function drawMoodStat(data){
 
@@ -140,7 +200,7 @@ function drawMoodStat(data){
                 data:rlt.map(e=>{
                     return e.ws == null ? 0 : (mergeWorkItemsExceptUndone(e.ws.content).reduce((accum,current)=>{
                         return accum+current.costMinutes;           
-                    },0)/60).toFixed(2);
+                    },0)/60).toText(2);
                 }),
                 markPoint: {
                     data: [
@@ -195,6 +255,9 @@ function analyzeWSsOfDateRange(){
         "start_date":startDate,
         "end_date":endDate
     },(data)=>{
+
+        closeMoreInfoContainer();
+
         $("#ws_stat_content_container").show();
         let text = "<em>"+new Date(startDate).toChineseDate()+"</em>"+"到<em>"+new Date(endDate).toChineseDate()+"</em>";
         $(".stat_date_range").html(text);
@@ -215,10 +278,66 @@ function analyzeWSsOfDateRange(){
         drawCommonBarChart("ws_stat_content_container_of_charts_for_finish_situation",data.sumBySpecificField(item=>item.finishPlanWithoutDeptItems ? "完成（除同步项）" : "未完成（除同步项）").sortAndMergeSumRlt(),"实际完成/天",2);
 
         drawMoodStat(data);
+        drawStatByPlan(data);
     },()=>{
         $(this).removeClass("common_prevent_double_click");
     })
 }
+/**根据名字分组的意义在于，假设重名 在前台本就无意义，谁也看不到ID */
+function drawStatByPlan(data){
+    let dataByPlan = data.groupBy(item=>item.basePlanName);
+
+    dataByPlan.keys.sort((a,b)=>dataByPlan[b].length - dataByPlan[a].length);
+
+    let $container = $("#ws_stat_content_container_of_more_info_container");
+    $container.empty();
+
+    dataByPlan.keys.forEach(key=>{
+        let $unit = $("#ws_stat_pattern_container").find(".ws_stat_unit_for_one_plan").clone();
+        console.log(dataByPlan[key]);
+        let sumDays = dataByPlan[key].length;
+
+        console.log(dataByPlan[key]);
+
+        $unit.find(".ws_stat_unit_for_one_plan_header_plan_name").text(key).end()
+            .find(".ws_stat_unit_for_one_plan_header_count_days em").text(sumDays).end()
+            .find(".count_days_for_saturday").text(dataByPlan[key].filter(e=>new Date(e.ws.date).isSaturday()).length).end()
+            .find(".count_days_for_sunday").text(dataByPlan[key].filter(e=>new Date(e.ws.date).isSunday()).length).end()
+
+
+        let sumMinutes = 0;
+
+        dataByPlan[key].flatMap((e)=>{
+                return mergeWorkItemsExceptUndone(e.content).map((ee)=>{
+                    return {"name": ee.pItem.item.name,
+                         "value": ee.costMinutes
+                    };
+                })
+             }).sumBySpecificField(item=>item.name,item=>item.value).sortAndMergeSumRlt(3).forEach(e=>{
+                let $planStatUnit = $("#ws_stat_pattern_container").find(".ws_stat_unit_for_one_plan_item").clone();
+                
+                sumMinutes += e.value;
+
+                $planStatUnit.find(".ws_stat_unit_for_one_plan_item_name").text(e.name).end()
+                    .find(".ws_stat_unit_for_one_plan_item_value").text((e.value/sumDays).transferToHoursMesIfPossible());
+                $unit.find(".ws_stat_container_for_one_plan_items").append($planStatUnit);
+             })
+        
+        let $planStatUnit = $("#ws_stat_pattern_container").find(".ws_stat_unit_for_one_plan_item").clone();
+                
+        $planStatUnit.addClass("sum_for_plan_item_stat").find(".ws_stat_unit_for_one_plan_item_name").text("总计").end()
+                 .find(".ws_stat_unit_for_one_plan_item_value").text((sumMinutes/sumDays).transferToHoursMesIfPossible());
+        $unit.find(".ws_stat_container_for_one_plan_items").append($planStatUnit);        
+            
+        $container.append($unit);
+
+        closeDetailStatByPlanContainer($unit);   
+    })
+}
+
+
+
+
 
 
 

@@ -4,6 +4,68 @@
     font-size: 18px;
 }
 
+.ws_stat_unit_for_one_plan_item{
+    display: flex;
+    margin-bottom: 5px;
+}
+.ws_stat_unit_for_one_plan_item:last-child{
+    margin-bottom: 0;
+}
+
+
+.ws_stat_unit_for_one_plan_item.sum_for_plan_item_stat{
+    border-top: solid 1px rgb(197, 197, 197);
+    margin-top: 5px;
+    padding-top: 5px;
+}
+
+.ws_stat_unit_for_one_plan_item_name{
+    width: 45%;
+    margin-right: 5%;
+}
+
+
+.ws_stat_unit_for_one_plan_body{
+    font-size: 0.9em;
+}
+
+
+.ws_stat_unit_for_one_plan_header_count_days{
+    flex-grow: 1.1;
+}
+
+
+#ws_stat_content_container_of_text{
+    display: flex;
+    font-size: 1.1em;
+}
+
+.ws_stat_content_container_of_text_lefter{
+    flex-grow: 1.1;
+}
+
+.ws_stat_unit_for_one_plan_header{
+    display: flex;
+}
+
+.ws_stat_unit_for_one_plan_header_plan_name{
+    width: 50%;
+}
+
+.ws_stat_unit_for_one_plan{
+    margin-bottom: 5px;
+}
+
+.ws_stat_unit_for_one_plan:last-child{
+    margin-bottom: 0;
+}
+
+#ws_stat_content_container_of_more_info_container{
+    padding-left: 10px;
+    padding-top: 10px;
+}
+
+
 #ws_stat_controlgroup_container_real_terms_lefter>span{
     margin: 0 15px;
 }
@@ -25,6 +87,15 @@
     margin-top: 10px;
     margin-bottom: 15px;
     font-size: 16px;
+}
+
+.ws_stat_unit_for_one_plan_body_week_info{
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+.ws_stat_container_for_one_plan_items_parent{
+    margin-bottom: 15px;
 }
 
 #ws_stat_controlgroup_container_quick_terms>span{

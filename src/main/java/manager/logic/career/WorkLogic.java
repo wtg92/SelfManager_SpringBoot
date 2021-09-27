@@ -111,6 +111,7 @@ public abstract class WorkLogic{
 	
 	public abstract WorkSheetProxy loadWorkSheet(int loginerId,int wsId) throws DBException, LogicException;
 	
+	
 	/**
 	 *   闭区间
 	 * @param loginerId
@@ -136,6 +137,7 @@ public abstract class WorkLogic{
 	public abstract void savePlanItem(int loginerId, int planId,int itemId,String catName,int value,String note,double mappingVal) throws LogicException, DBException;
 	public abstract void savePlanItemFold(int loginerId, int planId, int itemId, boolean fold) throws LogicException, DBException;
 	public abstract void saveWSPlanItem(int loginerId, int wsId,int itemId,String catName,int value,String note,double mappingVal) throws LogicException, DBException;
+	public abstract void saveWSPlanItemFold(int loginerId, int wsId, int itemId, boolean fold) throws DBException, LogicException;
 	public abstract void savePlan(int loginerId, int planId, String name, Calendar startDate, Calendar endDate,
 			String note, boolean recalculateState, List<PlanSetting> settings,int seqWeight) throws LogicException, DBException;
 	public abstract void saveWorkSheet(int updaterId,int wsId,String note) throws LogicException, DBException;	
@@ -167,6 +169,18 @@ public abstract class WorkLogic{
 			instance = new WorkLogic_Real();
 		}
 		return instance;
+	}
+	
+	
+	protected static List<WorkSheetProxy> clearUnnecessaryInfo(List<WorkSheetProxy> base){
+		base.forEach(WorkLogic::clearUnnecessaryInfo);
+		return base;
+	}
+	
+	protected static WorkSheetProxy clearUnnecessaryInfo(WorkSheetProxy base) {
+		base.ws.setContent(null);
+		base.ws.setPlan(null);
+		return base;
 	}
 	
 	
@@ -446,7 +460,7 @@ public abstract class WorkLogic{
 			}
 		}
 	}
-	
+
 
 
 }

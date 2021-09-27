@@ -36,7 +36,7 @@
  			<span class="work_sheet_main_container_switch_to_plan_mode common_blue_font common_hover">看<span>计划</span></span>
  			<span class="work_sheet_main_container_sync_all_plan_item common_blue_font common_hover">同步所有</span>
  			<span class="work_sheet_main_container_open_plan_edit_mode common_blue_font common_hover">编辑</span>
- 			<span class="work_sheet_main_container_close_plan_edit_mode common_blue_font common_hover">仅查看</span>
+ 			<span class="work_sheet_main_container_close_plan_edit_mode common_blue_font common_hover">取消编辑</span>
  			<span class="work_sheet_switch_to_show_today_plan_main_container common_blue_font common_hover"></span>
  		</div>
  	</div>
@@ -132,7 +132,7 @@
  				<span class="work_sheet_main_container_hide_all_work_items_note common_blue_font common_hover">隐藏所有备注</span>
  				
  				<span class="work_sheet_main_container_open_work_items_edit_mode common_blue_font common_hover">编辑（ctrl+q）</span>
- 				<span class="work_sheet_main_container_close_work_items_edit_mode common_blue_font common_hover">仅查看（ctrl+q）</span>
+ 				<span class="work_sheet_main_container_close_work_items_edit_mode common_blue_font common_hover">取消编辑（ctrl+q）</span>
  				<span class="work_sheet_switch_to_show_work_items_main_body common_blue_font common_hover"></span>
  			</div>
  		</div>
@@ -238,6 +238,14 @@
 					<div class="work_sheet_plan_item_modify_mark" title="修改"></div>
 					<div class="work_sheet_plan_sync_completion_to_dept common_hover common_blue_font">同步历史欠账</div>
 				</div>
+				
+				<div class="work_sheet_plan_item_container_fold_info_container">
+					<div class="work_sheet_plan_item_fold_btn" title="折叠"></div>
+					<div class="work_sheet_plan_item_unfold_btn" title="打开"></div>
+					<div class="work_sheet_plan_item_save_fold_info common_blue_font common_hover">保存</div>
+					<div class="work_sheet_plan_item_save_fold_hint"></div>
+				</div>
+				
 			</div>
 		</div>
 	</div>
@@ -255,6 +263,14 @@
 					<div class="work_sheet_plan_item_modify_mark" title="修改"></div>
 					<div class="work_sheet_plan_sync_completion_to_dept common_hover common_blue_font">同步历史欠账</div>
 				</div>
+				
+				<div class="work_sheet_plan_item_container_fold_info_container">
+					<div class="work_sheet_plan_item_fold_btn" title="折叠"></div>
+					<div class="work_sheet_plan_item_unfold_btn" title="打开"></div>
+					<div class="work_sheet_plan_item_save_fold_info common_blue_font common_hover">保存</div>
+					<div class="work_sheet_plan_item_save_fold_hint"></div>
+				</div>
+				
 			</div>
 		</div>
 	</div>

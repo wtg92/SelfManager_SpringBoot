@@ -124,13 +124,6 @@ function savePlanItemFoldInfo(){
 }
 
 
-
-
-
-
-
-
-
 function copyPlanItemsById(){
     let planId = $("#plan_dialog").attr("plan_id");
     let templeId = $(".plan_dialog_copy_plan_items_container").find("[name='copy_plan_id']").val();

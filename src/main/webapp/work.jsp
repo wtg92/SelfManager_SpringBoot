@@ -190,54 +190,39 @@
         </button>
       </div>
       <div class="modal-body">
-      	<a href="<%=SM.BASIC_FILES_FOLDER%>start_business.jpg" data-fancybox data-caption="我在2020.9.1-2020.10.31期间的计划" >
-    		<img src="<%=SM.BASIC_FILES_FOLDER%>start_business.jpg"  class="right_float_img"/>
+      	<a href="<%=SM.BASIC_FILES_FOLDER%>plan_example1.jpg" data-fancybox data-caption="2021.9.18" >
+    		<img src="<%=SM.BASIC_FILES_FOLDER%>plan_example1.jpg"  class="right_float_img"/>
   		</a>
       	<p>
-  			我认为完成一个困难事情的最有效的方法，是制定一个漂亮的计划并且诚实地执行它。
+  			本模块根据<em>工作表</em>来记录每天的工作，而工作表一定是基于<em>计划</em>的。
   		</p>
   		<p>	
-  			工作表模块就是基于这个理念设计的，<em>它每一天的工作，一定是基于一个计划</em>之上的。
+  			如右图，计划是<em>树型结构</em>，第一层确定每天需要达到的分钟/次数，第二层之后确定和前一层的<em>换算关系</em>。
       	</p>	
-      	<p> 
-      		右图，就是我在创业期间为自己制定的计划，它能够很好说明工作表的使用方式：
-      	</p>
 		<p>
-			a.它采取了一种<em>树结构</em>，这让人尽可能表达心目中的计划。
+		   当有了计划后，就可以生成一份工作表，然后登记工作了。
 		</p>
-		<p>
-			b.它将计划项分为<em>次数</em>和<em>分钟</em>两种类型，并可以随心所欲地设置换算方法。
-		</p>
-		<a href="<%=SM.BASIC_FILES_FOLDER%>ws_example_2.jpg" data-fancybox data-caption="我在2020.10.28 7点左右的工作表" >
-    		<img src="<%=SM.BASIC_FILES_FOLDER%>ws_example_2.jpg"  class="right_float_img"/>
+  		<p>
+  			另外，工作表里的计划、是预设计划的<em>副本</em>，因此，你可以随便编辑每日工作表里的计划、而不会影响到预设的计划——这通常适用于计划临时变动的情况。
+  		</p>
+      	<br/>
+		<a href="<%=SM.BASIC_FILES_FOLDER%>plan_example1_ws.jpg" data-fancybox data-caption="2021.9.18" >
+    		<img src="<%=SM.BASIC_FILES_FOLDER%>plan_example1_ws.jpg" />
   		</a>
-		<p>
-		   当有了计划后，就可以开始一天的工作了，右图，就是我首次把系统部署到服务器当天、晚上7点左右的工作情况。
-		</p>
-		<p>
-		   这天，我由于终于用起来系统的激动，在部署成功（早上8:21）后，其实没怎么工作，以至于到了晚上7点，我才只不过写了67分钟的代码，处理了199分钟服务器相关的事情，而此时我离计划的目标还剩下93.8分钟。
-		</p>
+  		<br/>
   		<p>
-  		   不久，我的朋友找我去下棋......最终导致这一天，我只工作了这么长时间——并没将计划完成。
+  			当登记完工作之后，系统会根据登记的工作，生成可供分析的报表，无论是每日的工作统计，还是在一段时间内的工作统计。
   		</p>
-  		<p>
-  			而对于<em>未完成的计划项</em>，它们的去处有两个：
-  		</p>
-  		<p>
-  			a.将这天的工作表<em>假定完成</em>（这代表着系统将认为这天的工作完成）。
-  		</p>
-  		<p>
-  		    b.以名称为标识<em>与历史欠账同步</em>(同步意味着未完成的作为赊欠，多完成的作为盈余)。
-  		</p>
-  		<p>
-  		   	我选择了后者，期待未来某天能够再努力一点，把欠账的计划项都消掉。
-  		</p>
-  		<p>
-  			另外多提一点的是，<em>每日工作表的计划同样可以编辑，它实际上是工作表基于的计划的一份复制</em>，如果有临时的变动，完全可以修改当日工作表的计划，它只影响当日的工作表计算。
-  		</p>
-  		<p>
+  		 <p>
   			以上就是对工作表的简单介绍，祝您使用愉快。
   		</p>
+		<a href="<%=SM.BASIC_FILES_FOLDER%>plan_example1_report.jpg" data-fancybox data-caption="2021.9.18" >
+    		<img src="<%=SM.BASIC_FILES_FOLDER%>plan_example1_report.jpg" />
+  		</a>
+		<a href="<%=SM.BASIC_FILES_FOLDER%>plan_example1_report_by_month.jpg" data-fancybox data-caption="2021.9.18" >
+    		<img src="<%=SM.BASIC_FILES_FOLDER%>plan_example1_report_by_month.jpg"  class="right_float_img"/>
+  		</a>
+
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>

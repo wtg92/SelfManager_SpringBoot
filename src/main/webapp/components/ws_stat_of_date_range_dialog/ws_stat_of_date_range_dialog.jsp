@@ -33,13 +33,18 @@
       		</div>
       		<div id="ws_stat_content_container">
       			<div id="ws_stat_content_container_of_text">
-      				<span class="stat_date_range"></span>共有<em class="count_for_search_date_range"></em>天，其中<em class="count_for_stat_days"></em>天开启了工作表。 
+      				<div class="ws_stat_content_container_of_text_lefter">
+      					<span class="stat_date_range"></span>共有<em class="count_for_search_date_range"></em>天，其中<em class="count_for_stat_days"></em>天开启了工作表。 
+      				</div>
+      				<div class="ws_stat_content_container_of_text_righter" >
+      					<span class="ws_stat_switch_to_show_more_info common_blue_font common_hover"></span>
+      				</div>
       			</div>
+      			<div id="ws_stat_content_container_of_more_info_container"></div>
       			<div id="ws_stat_content_container_of_charts_for_plan_and_state_distribution">
       			    <div id="ws_stat_content_container_of_charts_for_ws_state_distribution" title="工作表状态分布情况"></div>
       				<div id="ws_stat_content_container_of_charts_for_finish_situation" title="工作实际完成情况（刨除同步项）"></div>
       			</div>
-      			
       			<div id="ws_stat_content_container_of_charts_for_type_count_finish_situation">
       				<div id="ws_stat_content_container_of_charts_for_plan_distribution" title="工作表使用计划分布情况"></div>
       				<div id="ws_stat_content_container_of_charts_for_type_count"  title="工作项总计时分布情况"></div>
@@ -53,15 +58,28 @@
     </div>
   </div>
 </div>
-<div id="plan_dept_dialog_pattern_container" class="common_pattern_container">
-	<div class="plan_dept_item_container">
-		<span class="plan_dept_item_name"></span>
-		<div class="plan_dept_item_val_and_type"></div>
-		<div class="plan_dept_item_modify_container">
-			<input name="plan_dept_item_name" type="text" placeholder="修改名称"/>
-			<input name="plan_dept_item_val"  type="text" placeholder="修改值"/>
-			<span class="plan_dept_modify_item_type"></span>
-			<span class="common_blue_font common_hover plan_dept_save_modify_item_btn">保存</span>
+<div id="ws_stat_pattern_container" class="common_pattern_container">
+	
+	<div class="ws_stat_unit_for_one_plan">
+		<div class="ws_stat_unit_for_one_plan_header">
+			<div class="ws_stat_unit_for_one_plan_header_plan_name"></div>
+			<div class="ws_stat_unit_for_one_plan_header_count_days"><em></em>天</div>
+			<div class="ws_stat_unit_for_one_plan_header_switch_to_show_btn common_blue_font common_hover"></div>
+		</div>
+		<div class="ws_stat_unit_for_one_plan_body">
+			<div class="ws_stat_unit_for_one_plan_body_week_info"><em class="count_days_for_saturday"></em>个星期六，<em class="count_days_for_sunday"></em>个星期天</div>
+			<div class="ws_stat_container_for_one_plan_items_parent">
+				<div class="ws_stat_container_for_one_plan_items">
+					
+				</div>
+			</div>
+		
 		</div>
 	</div>
+	
+	<div class="ws_stat_unit_for_one_plan_item">
+		<div class="ws_stat_unit_for_one_plan_item_name"></div>
+		<em class="ws_stat_unit_for_one_plan_item_value"></em>
+	</div>
+	
 </div>

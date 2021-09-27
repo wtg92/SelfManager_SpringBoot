@@ -8,16 +8,16 @@
 <div id="header_main_container"  class="common_dark_background common_light_font">
 	<div id="header_sign_out_container" class="common_sub_main_container">
 		<div id="left_flex_header_sign_out_container">
-			<img class="web_logo" src="<%=SM.BASIC_FILES_FOLDER %>web_logo_white.png" title="点击返回首页，图标由李皓天制作"/>
+			<img class="web_logo" src="<%=SM.BASIC_FILES_FOLDER %>web_logo_white.png" title="返回首页"/>
 		<a class="what_software_do common_dark_white_font common_hover_font" href="web_info.jsp?container=web_info_what_sm_to_do">Self 能做什么？</a>
 		</div>
 		<div id="right_flex_header_sign_out_container">
-			<img src="<%=SM.BASIC_FILES_FOLDER %>web_spirit.png" class="spirit_img" title="网站精神，文字由李皓天制作"/>
+			<img src="<%=SM.BASIC_FILES_FOLDER %>web_spirit.png" class="spirit_img" title="精神"/>
 		</div>
 	</div>
 	<div id="header_sign_in_container" class="common_sub_main_container">
 		<div id="left_flex_header_sign_in_container">
-	<img class="web_logo" src="<%=SM.BASIC_FILES_FOLDER %>web_logo_white.png" title="点击返回首页，图标由李皓天制作"/> 
+	<img class="web_logo" src="<%=SM.BASIC_FILES_FOLDER %>web_logo_white.png" title="返回首页"/> 
 
 	
 		</div>
@@ -34,10 +34,9 @@
 			<span class="tools_module_button">
 				<span page="tools.jsp" class="common_hover_font">工具</span>
 			</span>
-			
 		</div>
 		<div id="right_flex_header_sign_in_container">
-			<img src="<%=SM.BASIC_FILES_FOLDER %>web_spirit.png" class="spirit_img" title="网站精神，文字由李皓天制作"/>
+			<img src="<%=SM.BASIC_FILES_FOLDER %>web_spirit.png" class="spirit_img" title="精神"/>
 			<div id="header_avator_container"data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></div>
 			 <div class="dropdown-menu" aria-labelledby="header_avator_container" id="header_user_actions_container">
    	 			<span class="dropdown-item" id="header_sign_out">退出登录</span>

@@ -7,6 +7,13 @@
     display: flex;
     margin-bottom: 15px;
 }
+#work_getting_start_dialog p{
+    margin-top: 1rem;
+}
+#work_getting_start_dialog p:first-child{
+    margin-top: 0;
+}
+
 
 .over_finished_date{
     box-shadow:0 0 5px #f5dc00e8;

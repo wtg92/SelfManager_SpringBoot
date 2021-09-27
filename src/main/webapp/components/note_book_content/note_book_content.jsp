@@ -48,7 +48,7 @@
       			<span class="common_blue_font common_hover" id="show_all_memo_items_footer_btn">显示所有备注</span>
       			<span class="common_blue_font common_hover" id="hide_all_memo_items_footer_btn">隐藏所有备注</span>
  				<span class="common_blue_font common_hover" id="open_notes_memo_edit_mode_btn">编辑（拖动调整顺序）</span>
- 				<span class="common_blue_font common_hover" id="close_notes_memo_edit_mode_btn">仅查看</span>
+ 				<span class="common_blue_font common_hover" id="close_notes_memo_edit_mode_btn">取消编辑</span>
       		</div>
       		<div id="memo_dialog_body_items_fitler">
 				<input id="memo_dialog_body_items_filter_key_words" type="text" placeholder="关键词"/>
@@ -129,9 +129,9 @@
 			 <span class="note_book_main_info_swtich_spliting_page_mode common_blue_font common_hover">分页显示</span>
 			 
 			 <span class="note_book_main_info_open_note_page_edit_mode common_blue_font common_hover" >编辑笔记页（ctrl+q）</span>
-			 <span class="note_book_main_info_close_note_page_edit_mode common_blue_font common_hover" >仅查看笔记页（ctrl+q）</span>
+			 <span class="note_book_main_info_close_note_page_edit_mode common_blue_font common_hover" >取消编辑笔记页（ctrl+q）</span>
 			 <span class="note_book_main_info_open_note_list_edit_mode common_blue_font common_hover">编辑目录（拖动调整顺序）</span>
-			 <span class="note_book_main_info_close_note_list_edit_mode common_blue_font common_hover">仅查看目录</span>
+			 <span class="note_book_main_info_close_note_list_edit_mode common_blue_font common_hover">取消编辑目录</span>
 			 <span class="note_book_baisc_info_infos_list_main_container common_blue_font common_hover"></span>
 			 <span class="note_book_baisc_info_switch_container_visibility common_blue_font common_hover"></span>
 		</div>
@@ -140,7 +140,7 @@
       			<div class="note_book_baisc_info_title">笔记本信息</div>
       			<div class="note_book_baisc_info_controlgroup">
       			    <span class="note_book_baisc_info_open_edit_mode common_blue_font common_hover">编辑</span>
-      			    <span class="note_book_baisc_info_close_edit_mode common_blue_font common_hover">仅查看</span>
+      			    <span class="note_book_baisc_info_close_edit_mode common_blue_font common_hover">取消编辑</span>
       			</div>
       		</div>
       		<div class="note_book_baisc_info_header_content">
@@ -315,7 +315,7 @@
 						b.<em>语法</em>：[标签名][空格]标签内容[换行或者以）或)结尾]   
 					</p>
 					<p> 
-						c.笔记页有编辑模式和仅查看模式，当在编辑模式时输入包含标签语法的文本，切换到仅查看模式时，会自动将其转化为对应标签。
+						c.笔记页有编辑模式和取消编辑模式，当在编辑模式时输入包含标签语法的文本，切换到取消编辑模式时，会自动将其转化为对应标签。
 					</p>
 					<p>
 						d.当需要在标签内<em>换行</em>时，使用<em>&r</em>的语法，例如输入文本为 TODO 哈&r哈 时，它转化后的标签中，“哈”字将分别占据一行。

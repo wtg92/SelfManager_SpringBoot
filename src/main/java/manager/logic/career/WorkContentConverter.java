@@ -706,9 +706,18 @@ public abstract class WorkContentConverter {
 		
 	}
 	
-	
+	protected static void updatePlanItem(Plan one,int updaterId,int itemId, String categoryName, int value, String note, double mappingVal) throws LogicException{
+		Document content = getDefinateDocument(one);
+		updatePlanItem(content, content, updaterId, itemId, categoryName, value, note, mappingVal);
+		one.setContent(content.asXML());
+	}
 	public static void updatePlanItemFold(Plan one, int loginerId, int itemId, boolean fold) throws LogicException {
 		Document content = getDefinateDocument(one);
+		updatePlanItemFold(content,itemId,fold);
+		one.setContent(content.asXML());
+	}
+	
+	private static void updatePlanItemFold(Document content, int itemId, boolean fold) throws LogicException {
 		Element itemsElement= content.getRootElement().element(T_ITEMS);
 		ElementWithFather planItem = getPlanItemById(itemsElement, itemId);
 		
@@ -717,16 +726,8 @@ public abstract class WorkContentConverter {
 		PlanItem origin = parsePlanItem(planItem.cur);
 		origin.setFold(fold);
 		fillAttrsExceptId(origin, planItem.cur);
-		
-		one.setContent(content.asXML());
 	}
-	
-	protected static void updatePlanItem(Plan one,int updaterId,int itemId, String categoryName, int value, String note, double mappingVal) throws LogicException{
-		Document content = getDefinateDocument(one);
-		updatePlanItem(content, content, updaterId, itemId, categoryName, value, note, mappingVal);
-		one.setContent(content.asXML());
-	}
-	
+
 	protected static void updateWSPlanItem(WorkSheet one,int updaterId,int itemId, String categoryName, int value, String note, double mappingVal) throws LogicException{
 		Document ws = getDocumentOrInitIfNotExists(one);
 		Document plan = getDefinatePlanDocument(one);
@@ -734,6 +735,15 @@ public abstract class WorkContentConverter {
 		one.setContent(ws.asXML());
 		one.setPlan(plan.asXML());
 	}
+	
+	public static void updateWSPlanItemFold(WorkSheet one, int loginerId, int itemId, boolean fold) throws LogicException {
+		Document ws = getDocumentOrInitIfNotExists(one);
+		Document plan = getDefinatePlanDocument(one);
+		updatePlanItemFold(plan, itemId, fold);
+		one.setContent(ws.asXML());
+		one.setPlan(plan.asXML());
+	}
+
 	
 	protected static void updateWorkItem(WorkSheet one,int updaterId,int workItemId, int value, String note, int mood,boolean forAdd,Calendar startTime,Calendar endTime) throws LogicException{
 		Document ws = getDefinateDocument(one);
@@ -1061,6 +1071,8 @@ public abstract class WorkContentConverter {
 		item.setValue(item.getValue() * -1);
 		assert item.getValue() > 0;
 	}
+
+	
 
 
 }

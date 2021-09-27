@@ -230,22 +230,26 @@ little{
     align-items: center;
 }
 .work_sheet_plan_item_container_footer{
+    margin-right: 10px;
+}
+
+.work_sheet_plan_item_container_footer,.work_sheet_plan_item_container_fold_info_container{
     display: flex;
     color: #28a745;
 }
-.work_sheet_plan_item_container_footer svg{
+.work_sheet_plan_item_container_footer svg,.work_sheet_plan_item_container_fold_info_container svg{
     cursor: pointer;
 }
-.work_sheet_plan_item_container_footer svg:hover{
+.work_sheet_plan_item_container_footer svg:hover,.work_sheet_plan_item_container_fold_info_container svg:hover{
     opacity: 0.8;
 }
 
-.work_sheet_plan_item_container_footer>div{
+.work_sheet_plan_item_container_footer>div,.work_sheet_plan_item_container_fold_info_container>div{
     margin-right: 5px;
 }
 
 
-.work_sheet_plan_item_container_footer>div:last-child{
+.work_sheet_plan_item_container_footer>div:last-child,.work_sheet_plan_item_container_fold_info_container>div:last-child{
     margin-right: 0;
 }
 
@@ -311,6 +315,25 @@ little{
     display: none;
 }
 
+#work_sheet_container_with_header_and_content[open_edit_mode='false'] .work_sheet_plan_item_save_fold_info{
+    display: none !important;
+}
+
+.work_sheet_plan_item_container_first_level[has_next_level='false']>div>div>.work_sheet_plan_item_container_fold_info_container,.work_sheet_plan_item_container_unit_level[has_next_level='false']>div>div>.work_sheet_plan_item_container_fold_info_container{
+    display: none;
+}
+
+.work_sheet_plan_item_container_first_level[fold='true']>div>div>div>.work_sheet_plan_item_fold_btn,.work_sheet_plan_item_container_unit_level[fold='true']>div>div>div>.work_sheet_plan_item_fold_btn{
+    display: none;
+}
+
+.work_sheet_plan_item_container_first_level[fold='false']>div>div>div>.work_sheet_plan_item_unfold_btn,.work_sheet_plan_item_container_unit_level[fold='false']>div>div>div>.work_sheet_plan_item_unfold_btn{
+    display: none;
+}
+
+.work_sheet_plan_item_container_first_level[fold='true']>.work_sheet_plan_item_container_wrap>.work_sheet_plan_item_container_unit_level,.work_sheet_plan_item_container_unit_level[fold='true']>.work_sheet_plan_item_container_wrap>.work_sheet_plan_item_container_unit_level{
+    display: none;
+}
 
 .work_sheet_today_plan_items_for_one_row{
     display: flex;

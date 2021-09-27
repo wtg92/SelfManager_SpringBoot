@@ -234,7 +234,7 @@
 		</div>
 		<div  class="plan_item_container_wrap">
 			<div class="plan_item_container_sub_container">
-				<div class="plan_item_container_body"> </div>
+				<div class="plan_item_container_body"></div>
 				<div class="plan_item_container_footer">
 					<div class="plan_item_add_mark" title="添加"></div>
 					<div class="plan_item_delete_mark" title="删除"></div>

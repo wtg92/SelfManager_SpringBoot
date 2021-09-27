@@ -402,7 +402,6 @@
 							<div class="web_info_my_work_content"><span class="common_open_new_window" href="https://www.xrzww.com/index.html#/bookdetail?novel_id=27200">低俗家庭（未完成-长篇小说-搞笑）</span></div>
 							<div class="web_info_my_work_content"><span class="common_open_new_window" href="https://www.xrzww.com/index.html#/bookdetail?novel_id=19237">换天记（未完成-长篇小说-玄幻）</span></div>
 							<div class="web_info_my_work_content"><pdf pdf="理想之剑">理想之剑（已完成-剧本）</pdf></div>
-							<div class="web_info_my_work_content"><pdf pdf="33岁裸辞转行程序员">33岁裸辞转行程序员（未完成，理想之剑的小说版）</pdf></div>
 							<div class="web_info_my_work_content"><pdf pdf="如水的青春年华_剧本">如水的青春年华（已完成-剧本）</pdf></div>
 							<div class="web_info_my_work_content"><pdf pdf="如水的青春年华_小说">如水的青春年华（已完成-小说）</pdf></div>
 							<div class="web_info_my_work_content"><pdf pdf="许氏异闻-新租客">许氏异闻-新租客（已完成-剧本）</pdf></div>

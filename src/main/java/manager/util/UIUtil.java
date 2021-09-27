@@ -10,6 +10,12 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.tomcat.util.http.fileupload.FileItem;
+import org.apache.tomcat.util.http.fileupload.FileUploadException;
+import org.apache.tomcat.util.http.fileupload.disk.DiskFileItemFactory;
+import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
+import org.apache.tomcat.util.http.fileupload.servlet.ServletRequestContext;
+
 import manager.data.SingleFileUnit;
 import manager.exception.LogicException;
 import manager.exception.NoSuchElement;
@@ -241,38 +247,34 @@ public abstract class UIUtil {
 	
 	private final static double MAX_SIZE_OF_MB_FOR_SINGLE_FILE = 20;
 	
-	/**
-	 * 
-	 */
-	@Deprecated
 	public static SingleFileUnit parseSingleFile(HttpServletRequest request) throws LogicException{
-//		DiskFileItemFactory factory = new DiskFileItemFactory();
-//		ServletFileUpload uploader = new ServletFileUpload(factory);
-//		List<FileItem> items = null;
-//		try {
-//			items = uploader.parseRequest(request.getAsyncContext().).stream()
-//					.filter(item->!item.isFormField()).collect(toList());
-//		} catch (FileUploadException e) {
-//			e.printStackTrace();
-//			throw new LogicException(SMError.FIEL_UPLOADING_ERROR,"解析失败");
-//		}
-//		if(items.size() == 0) {
-//			throw new LogicException(SMError.FIEL_UPLOADING_ERROR,"上传文件失败");
-//		}
-//		if(items.size()>1) {
-//			throw new LogicException(SMError.FIEL_UPLOADING_ERROR,"一次上传了多个文件 "+items.size());
-//		}
-//		
-//		FileItem item = items.get(0);
-//		if(FileUtil.getMBBySize(item.getSize())>MAX_SIZE_OF_MB_FOR_SINGLE_FILE) {
-//			throw new LogicException(SMError.FIEL_UPLOADING_ERROR,"文件大小超过"+MAX_SIZE_OF_MB_FOR_SINGLE_FILE+"MB的限制 文件大小为"+String.format("%.2f", FileUtil.getMBBySize(item.getSize()))+"MB");
-//		};
-//		
-//		SingleFileUnit unit = new SingleFileUnit();
-//		unit.fileName = item.getName();
-//		unit.data = item.get();
+		DiskFileItemFactory factory = new DiskFileItemFactory();
+		ServletFileUpload uploader = new ServletFileUpload(factory);
+		List<FileItem> items = null;
+		try {
+			items = uploader.parseRequest(new ServletRequestContext(request)).stream()
+					.filter(item->!item.isFormField()).collect(toList());
+		} catch (FileUploadException e) {
+			e.printStackTrace();
+			throw new LogicException(SMError.FIEL_UPLOADING_ERROR,"解析失败");
+		}
+		if(items.size() == 0) {
+			throw new LogicException(SMError.FIEL_UPLOADING_ERROR,"上传文件失败");
+		}
+		if(items.size()>1) {
+			throw new LogicException(SMError.FIEL_UPLOADING_ERROR,"一次上传了多个文件 "+items.size());
+		}
 		
-		return null;
+		FileItem item = items.get(0);
+		if(FileUtil.getMBBySize(item.getSize())>MAX_SIZE_OF_MB_FOR_SINGLE_FILE) {
+			throw new LogicException(SMError.FIEL_UPLOADING_ERROR,"文件大小超过"+MAX_SIZE_OF_MB_FOR_SINGLE_FILE+"MB的限制 文件大小为"+String.format("%.2f", FileUtil.getMBBySize(item.getSize()))+"MB");
+		};
+		
+		SingleFileUnit unit = new SingleFileUnit();
+		unit.fileName = item.getName();
+		unit.data = item.get();
+		
+		return unit;
 	}
 	
 	

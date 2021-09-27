@@ -167,6 +167,8 @@ public class CareerServlet extends SMServlet{
 			return addItemToWSPlan(request);
 		case C_SAVE_WS_PLAN_ITEM:
 			return saveWSPlanItem(request);
+		case C_SAVE_WS_PLAN_ITEM_FOLD:
+			return saveWSPlanItemFold(request);
 		case C_REMOVE_ITEM_FROM_WS_PLAN:
 			return removeItemFromWSPlan(request);
 		case C_REMOVE_ITEM_FROM_WORK_SHEET:
@@ -238,6 +240,7 @@ public class CareerServlet extends SMServlet{
 			throw new LogicException(SMError.UNKOWN_OP,getNonNullParam(request,OP));
 		}
 	}
+	
 	
 	private String loadWorkSheetsByDateScope(HttpServletRequest request) throws SMException {
 		int loginerId = getLoginerId(request);
@@ -522,6 +525,16 @@ public class CareerServlet extends SMServlet{
 		double mappingVal = getParamOrZeroDefaultInDouble(request, MAPPING_VAL);
 		wL.saveWSPlanItem(loginerId, wsId, itemId, catName, val, note, mappingVal);
 		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId),workConf);
+	}
+	
+	
+	private String saveWSPlanItemFold(HttpServletRequest request) throws SMException{
+		int loginerId = getLoginerId(request);
+		int wsId = getNonNullParamInInt(request, WS_ID);
+		int itemId = getNonNullParamInInt(request, ITEM_ID);
+		boolean fold = getNonNullParamInBool(request, FOLD);
+		wL.saveWSPlanItemFold(loginerId, wsId, itemId, fold);
+		return getNullObjJSON();
 	}
 
 	private String addItemToWSPlan(HttpServletRequest request) throws LogicException, DBException {
