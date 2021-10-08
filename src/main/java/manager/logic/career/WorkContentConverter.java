@@ -989,7 +989,7 @@ public abstract class WorkContentConverter {
 	 *  假设sync为0，则销毁掉这条DeptItem 同时加Log
 	*/
 	protected static void syncToPlanDept(WorkSheet ws, PlanDept dept, PlanItemProxy planItem,int opreatorId) throws LogicException {
-		assert planItem.remainingValForCur > 0;
+		assert planItem.remainingValForCur != 0;
 
 		Document deptDoc = getDefinateDocument(dept);
 		

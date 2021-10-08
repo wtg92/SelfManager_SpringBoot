@@ -52,6 +52,7 @@
 				<div id="work_ws_sub_container">
 					<div id="work_work_sheet_main_controgroup">
 						<span class="btn btn-outline-primary" id="switch_to_show_ws_infos_recently"></span>
+						<span class="btn btn-outline-primary" id="batch_sync_wss_in_ws_infos_recently">同步列表内工作表</span>
 						<span class="btn btn-outline-primary" id="work_open_ws_stat_of_date_range_dialog_btn">时间范围分析</span>
 						<span class="btn btn-outline-primary" id="work_open_plan_dept_dialog_btn">历史欠账</span>
 						<span class="btn btn-outline-primary common_go_to_page" href="all_ws.jsp" >查看所有</span>

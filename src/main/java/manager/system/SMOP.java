@@ -58,6 +58,7 @@ public enum SMOP {
 	C_SAVE_WORK_ITEM("c_save_work_item"),
 	C_SYNC_TO_PLAN_DEPT("c_sync_to_plan_dept"),
 	C_SYNC_ALL_TO_PLAN_DEPT("c_sync_all_to_plan_dept"),
+	C_SYNC_ALL_TO_PLAN_DEPT_BATCH("c_sync_all_to_plan_dept_batch"),
 	C_LOAD_PLAN_DEPT("c_load_plan_dept"),
 	C_LOAD_PLAN_DEPT_ITEM_NAMES("c_load_plan_dept_item_names"),
 	C_SAVE_DEPT_ITEM("c_save_dept_item"),

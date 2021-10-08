@@ -686,6 +686,14 @@ public class WorkLogic_Real extends WorkLogic{
 		CacheScheduler.saveEntityAndUpdateCache(dept,d->wDAO.updateExistedPlanDept(d));
 	}
 	
+	
+	@Override
+	public void syncAllToPlanDeptBatch(int logienrId, List<Integer> wsIds) throws SMException {
+		for(int wsId:wsIds) {
+			syncAllToPlanDept(logienrId, wsId);
+		}
+	}
+	
 	@Override
 	public List<WorkSheetProxy> loadWorkSheetByState(int loginerId, WorkSheetState stateZT)
 			throws LogicException, DBException {
@@ -738,6 +746,8 @@ public class WorkLogic_Real extends WorkLogic{
 		
 		CacheScheduler.saveEntityAndUpdateCache(target,p->wDAO.updateExistedPlan(p));
 	}
+
+
 
 
 

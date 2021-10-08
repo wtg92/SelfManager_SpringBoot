@@ -40,6 +40,7 @@ import static manager.system.SMParm.VAL;
 import static manager.system.SMParm.WITH_TODOS;
 import static manager.system.SMParm.WORK_ITEM_ID;
 import static manager.system.SMParm.WS_ID;
+import static manager.system.SMParm.WS_IDS;
 import static manager.util.UIUtil.getBiParamsWithoutQuotationJSON;
 import static manager.util.UIUtil.getLoginerId;
 import static manager.util.UIUtil.getNonNullParam;
@@ -181,6 +182,8 @@ public class CareerServlet extends SMServlet{
 			return syncToPlanDept(request);
 		case C_SYNC_ALL_TO_PLAN_DEPT:
 			return syncAllToPlanDept(request);
+		case C_SYNC_ALL_TO_PLAN_DEPT_BATCH:
+			return syncAllToPlanDeptBatch(request);
 		case C_LOAD_PLAN_DEPT:
 			return loadPlanDept(request);
 		case C_LOAD_PLAN_DEPT_ITEM_NAMES:
@@ -242,6 +245,8 @@ public class CareerServlet extends SMServlet{
 	}
 	
 	
+
+
 	private String loadWorkSheetsByDateScope(HttpServletRequest request) throws SMException {
 		int loginerId = getLoginerId(request);
 		Calendar startDate = getNonNullParamInDate(request, START_DATE);
@@ -441,7 +446,16 @@ public class CareerServlet extends SMServlet{
 		wL.syncAllToPlanDept(loginerId, wsId);
 		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId),workConf);
 	}
-
+	
+	private String syncAllToPlanDeptBatch(HttpServletRequest request) throws SMException {
+		int loginerId = getLoginerId(request);
+		List<Integer> wsIds = getNonNullParamsInInt(request, WS_IDS);
+		int wsIdForRefresh = getNonNullParamInInt(request, WS_ID);
+		wL.syncAllToPlanDeptBatch(loginerId, wsIds);
+		/*0 means no refresh*/
+		return wsIdForRefresh == 0 ? getNullObjJSON() : JSON.toJSONString(wL.loadWorkSheet(loginerId, wsIdForRefresh),workConf);
+	}
+	
 	private String loadPlanDeptItemNames(HttpServletRequest request) throws LogicException, DBException {
 		int loginerId = getLoginerId(request);
 		return JSON.toJSONString(wL.loadPlanDeptItemNames(loginerId),workConf);

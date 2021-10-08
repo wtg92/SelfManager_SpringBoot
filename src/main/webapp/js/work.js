@@ -48,7 +48,36 @@ $(function(){
     $("#work_open_plan_dept_dialog_btn").click(openPlanDeptDialog);
 
     $("#work_open_ws_stat_of_date_range_dialog_btn").click(openWSOfDateRangeDialog);
+
+    $("#batch_sync_wss_in_ws_infos_recently").click(batchSyncAllToPlanDept);
+
 });
+
+function loadWorkSheetInfosRecently(){
+    sendAjax("CareerServlet","c_load_work_sheet_infos_recently",{
+        "page":0
+    },(data)=>loadWorkSheetInfosRecently_render(data));
+}
+
+function batchSyncAllToPlanDept(){
+    let wsIds = $("#work_ws_sub_left_container_body").find(".over_finished_date,.warning_date").get().map(e=>parseInt($(e).attr("ws_id")));
+    let wsId = $("#work_sheet_main_container").attr("ws_id");
+    /*0代表不需要回显*/
+    let notOpenWS = wsId == undefined ;
+    wsId = notOpenWS ? 0 : wsId;
+
+    confirmInfo("确定同步列表内<em>超期完成</em>或<em>超期</em>的工作表吗？（涉及<em>"+wsIds.length+"</em>天）",()=>{
+        sendAjax("CareerServlet","c_sync_all_to_plan_dept_batch",{
+            "ws_id" : wsId,
+            "ws_ids":wsIds
+        },(data)=>{
+            if(!notOpenWS){
+                loadWorkSheetDetail_render(data);
+            }
+            loadWorkSheetInfosRecently();
+        });
+    });
+}
 
 function showWsDetail(){
     openWsActualContainer();
@@ -162,6 +191,8 @@ function closeWsActualContainer(){
 
 function loadWorkSheetInfosRecently_render(data,page){
     let pageOfData = page == undefined ? 0 : page;
+    /*兼容之前写的不严谨的地方*/
+    pageOfData = isNaN(pageOfData) ? 0 : pageOfData;
 
     let hasTodayWS = data.some((one)=>{
         let today = new Date();
@@ -199,7 +230,7 @@ function fillWsDateInfosContainer(data,pageOfData){
     })
 
     let wsSheetOfOnPage =  parseInt($("#default_ws_limit_of_one_page").val());
-    
+
     $("#work_ws_sub_left_container_footer .work_see_more_ws").attr("start_page",parseInt(pageOfData)+1).toggle(wsSheetOfOnPage == data.length);
     $("#work_ws_sub_left_container_footer .work_no_more_ws").toggle(wsSheetOfOnPage > data.length);
     if(wsSheetOfOnPage < data.length){

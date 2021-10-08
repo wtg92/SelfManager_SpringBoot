@@ -567,11 +567,6 @@ function syncAllToPlanDept(){
             },(data)=>{
                 loadWorkSheetDetail_render(data);
                 reloadForExternalModule();
-                if($("#work_sub_main_container").length>0){
-                    /*工作表模块*/
-                    confirmInfoSecond("同步成功，您想查看历史欠账吗？",openPlanDeptDialog);
-                }
-        
             });
         },false);
     })
@@ -589,11 +584,6 @@ function syncToPlanDept(){
             },(data)=>{
                 loadWorkSheetDetail_render(data);
                 reloadForExternalModule();
-                if($("#work_sub_main_container").length>0){
-                    /*工作表模块*/
-                    confirmInfoSecond("同步成功，您想查看历史欠账吗？",openPlanDeptDialog);
-                }
-        
             });
         },false);
     })
@@ -602,9 +592,7 @@ function syncToPlanDept(){
 function reloadForExternalModule(){
     if($("#work_sub_main_container").length>0){
         /*工作表模块*/
-        sendAjax("CareerServlet","c_load_work_sheet_infos_recently",{
-            "page":0
-        },loadWorkSheetInfosRecently_render);
+        loadWorkSheetInfosRecently();
     }
 
     if($("#all_ws_sub_main_container").length>0){
@@ -1544,7 +1532,8 @@ function drawWSPlan(planItems){
        $firstLevelContainer.addClass("last_one");
    }
 
-   $(".work_sheet_main_container_sync_all_plan_item").toggleClass("hide_ws_btn",$("#work_sheet_today_plan_items_cards_container .work_sheet_plan_sync_completion_to_dept").length == 0);
+   $(".work_sheet_main_container_sync_all_plan_item")
+        .toggleClass("hide_ws_btn",$("#work_sheet_today_plan_items_cards_container .work_sheet_plan_sync_completion_to_dept:not(.hide_ws_btn)").length == 0);
 }
 
 
@@ -1570,10 +1559,8 @@ function fillCompetionInfo($contianer,plan){
         +remaining.toText()+"</little></span>";
     }
 
-    $contianer.find(".work_sheet_plan_item_completion_body").html(html);
-    if(remaining == 0){
-        $contianer.find(".work_sheet_plan_sync_completion_to_dept").remove();
-    }
+    $contianer.find(".work_sheet_plan_item_completion_body").html(html).end()
+        .find(".work_sheet_plan_sync_completion_to_dept").toggleClass("hide_ws_btn",remaining == 0);
 }
 
 
