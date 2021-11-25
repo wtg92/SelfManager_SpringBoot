@@ -134,6 +134,17 @@ function resetTextAreaHeight($content){
     });
 }
 
+function adaptDivForTextare(text){
+    
+    let str = "";
+    text.split("\r").forEach(e=>{
+        str += "<p>"+e+"</p>";
+    });
+
+    return str;
+}
+
+
 function getUrlParam(key) {
     let params = {};
     if (window.location.search.indexOf("?") == 0 && window.location.search.indexOf("=") > 1) {
@@ -441,7 +452,7 @@ function preventDoubleClick(dom){
 /** 
  * positiveButtonText 可缺省 默认为 确定
  * negativeButtonText 可缺省 默认为 取消
-*/
+ */
 function confirmInfo(text,positiveFunc,positiveButtonText,negativeButtonText,negativeFunc){
     confirmInfoUnit($("#including_confirm_dialog"),text,positiveFunc,positiveButtonText,negativeButtonText,negativeFunc);
 }
@@ -459,6 +470,8 @@ function confirmInfoUnit($dialog,text,positiveFunc,positiveButtonText,negativeBu
 
     if(!isPC()){
         /*手机端*/
+        text = clearLabels(text);
+
         if(confirm(text)){
             positiveFunc();
         }else{
@@ -468,8 +481,6 @@ function confirmInfoUnit($dialog,text,positiveFunc,positiveButtonText,negativeBu
         }
         return;
     }
-
-
 
     let positiveButton = positiveButtonText == undefined ? "确定" : positiveButtonText;
     let negativeButton = negativeButtonText == undefined ? "取消" : negativeButtonText;
@@ -486,12 +497,20 @@ function confirmInfoUnit($dialog,text,positiveFunc,positiveButtonText,negativeBu
         .modal("show");
 }
 
+function clearLabels(text){
+    /**
+     * 先取巧 默认text只可能出现<em>标签
+     */
+    return text.replaceAll("<em>","").replaceAll("</em>","");
+}
+
+
 
 function alertInfo(text){
     if(isPC()){
-        $("#including_alert_dialog").find(".modal-body").text(text).end().modal("show");
+        $("#including_alert_dialog").find(".modal-body").html(text).end().modal("show");
     }else{
-        alert(text);
+        alert(clearLabels(text));
     }
 }
 

@@ -19,6 +19,24 @@ import manager.exception.LogicException;
 public class StreamTest {
 	
 	@Test
+	/**
+	 * 寻找1-10中最大的偶数值
+	 */
+	public void finxMaxEvenNum() {
+		
+		int[] nums = new int[] {1,2,3,4,5,6,7,8,9,10};
+		int maxEvenNum = 0;
+		
+		for(int i=0;i<nums.length;i++) {
+			if(nums[i]%2 == 0) {
+				maxEvenNum = nums[i];
+			}
+		}
+		
+		System.out.println(maxEvenNum);
+	}
+	
+	@Test
 	public void testFairness() {
 		
 		/*越南有一位姓货名拉拉的女子发生了一件事*/

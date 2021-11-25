@@ -135,7 +135,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="work_create_plan_dialog_label">定制您的专属计划</h5>
+        <h5 class="modal-title" id="work_create_plan_dialog_label">定制专属计划</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -174,7 +174,7 @@
       	</form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" id="work_commit_create_plan_button">创建</button>
+        <button type="button" class="btn btn-primary" id="work_commit_create_plan_button">创建</button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
       </div>
     </div>

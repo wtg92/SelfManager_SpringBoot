@@ -93,13 +93,10 @@ function bindUploadEventsForTools() {
 }
 
 
-
-
-
 function calcualteToolOpreations(record){
     let $div = $("<div>");
     $div.addClass("tool_opreation_btns_container")
-        .attr("tool",record.record.tool.dbCode).append(getTopPopoverBtn(record.record.tool.desc,"基本介绍"))
+        .attr("tool",record.record.tool.dbCode).append(getTopPopoverBtn(record.record.tool.desc,"说明"))
     switch(record.record.tool.dbCode){
         case TOOLS_NAMESPACE.DBCODE_FOR_IMGS_EXTRACTOR_OF_PPT:
             initPPTExtractor($div);

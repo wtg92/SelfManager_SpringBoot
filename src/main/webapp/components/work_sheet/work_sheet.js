@@ -14,6 +14,7 @@ const WS_NAMESPACE = {
     MAX_LIMIT_TO_SEND_SAVING_IN_QUEUE:30,
     SAVING_LOCK:false,
     COUNT_SAVING_ASKING:0,
+    REMINDER_INTERVAL_MINUTES:1
 }
 
 /**为了解耦，这里关于WS.planItems的部分多数是从plan_dialog.js copy过来的 当修改时，应当修改两处地方 */
@@ -24,10 +25,9 @@ $(function(){
     drawCommonIcon("inluding_minus_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_delete_mark"));
     drawCommonIcon("inluding_circle_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_circle_container"));
     drawCommonIcon("inluding_circle_with_left_line_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_root_add_mark"));
-
     drawCommonIcon("inluding_open_folder_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_unfold_btn"));
     drawCommonIcon("inluding_close_folder_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_fold_btn"));
-
+    drawCommonIcon("inluding_trashcan_mark",$("#work_sheet_pattern_container .work_sheet_work_item_container_delete_button"));
     $("body").on("keydown",monitorHotKeys);
 
     $(".work_sheet_switch_to_show_ws_note").click(switchToShowWSNote);
@@ -103,7 +103,31 @@ $(function(){
     $(".work_sheet_main_container_hide_all_work_items_note").click(hideAllWorkItemsNote);
 
     $(".work_sheet_main_container_sync_all_plan_item").click(syncAllToPlanDept);
+
+
+    /* === 每一个整分钟 进行reminder code start===*/
+    let now = new Date();
+    let copy = cloneObj(now);
+    copy.setMilliseconds(0);
+    copy.setSeconds(0);
+    copy.setMinutes(now.getMinutes()+1);
+    setTimeout(()=>{
+           reminderMonitoring();
+           setInterval(reminderMonitoring,WS_NAMESPACE.REMINDER_INTERVAL_MINUTES*60*1000);
+       },copy.getTime()-now.getTime());
+    /* === 每一个整分钟 进行reminder code end ===*/
+
 });
+
+
+function reminderMonitoring(){
+    let flag = $("#work_sheet_open_work_sheet_reminder_btn").prop("checked");
+    if(!flag){
+        return;
+    }
+    alertInfo("！！！");
+}
+
 
 
 function foldWSPlanItemFoldBtn(){

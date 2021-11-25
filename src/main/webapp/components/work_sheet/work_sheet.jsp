@@ -137,8 +137,14 @@
  			</div>
  		</div>
  		<div id="work_sheet_work_items_container_main_body">
- 			<div id="work_sheet_work_items_container_main_body_ws_items">
+ 			<div id="work_sheet_work_sheet_reminder_container">
+ 				 <div id="work_sheet_reminder_righter">
+ 				 	<div id="work_sheet_reminder_desc" class="common_hover" data-placement="top" data-toggle="popover" title="到时提醒的判断逻辑" data-html="true"
+ 				 data-content="a.勾选了右侧选择框，表明<em>启用</em>到时提醒功能<br/>b.工作项填写了开始时间与持续时间，但<em>未填写</em>结束时间<br/>c.当实际时间大于开始时间+持续时间，系统会到时提醒">到时提醒说明</div>
+				 	<input type="checkbox" id="work_sheet_open_work_sheet_reminder_btn" name="work_sheet_open_work_sheet_reminder"/>
+ 				</div>
  			</div>
+ 			<div id="work_sheet_work_items_container_main_body_ws_items"></div>
  			<div id="work_sheet_work_items_container_main_body_save_hint">修改完成后，<em><span class="save_hint_seconds"></span>秒内自动保存工作项信息</em>，保存前请不要切换工作表，以防丢失信息。最新保存时间 <span class="save_hint_update_time"></span></div>
  			<div id="work_sheet_work_items_container_main_body_controgroup">
  				<div class="work_sheet_work_items_container_main_body_controgroup_hint">您还可以通过<em>点击上方计划项</em>来添加工作项</div>
@@ -175,7 +181,7 @@
 				<span class="work_sheet_work_item_container_calculate_info_start" title="工作项开始时，计划项的剩余值"></span>
 				<span class="work_sheet_work_item_container_calculate_info_mark work_sheet_work_item_container_math_mark" title="当认为做了不该做的事时，可以增加计划值"></span>
 				<span class="work_sheet_work_item_container_calculate_info_val" title="用于消耗计划的值"></span>
-				<input type="text" name="val" title="用于消耗计划的值" autocomplete="off" />
+				<input type="text" name="val" title="用于消耗计划的值" autocomplete="off" title="持续时间" />
 				<span class="work_sheet_work_item_container_math_mark">=</span>
 				<span class="work_sheet_work_item_container_calculate_info_rlt" title="工作项结束时，计划项的剩余值"></span>
 				<span class="work_sheet_work_item_container_calculate_info_type_name"></span>
@@ -191,7 +197,7 @@
 			<span class="work_sheet_work_item_container_mood" title="心情"></span>
 			</div>
 			<span class="work_sheet_work_item_container_switch_to_show_note common_blue_font common_hover"></span>
-			<span class="work_sheet_work_item_container_delete_button close">&times;</span>
+			<span class="work_sheet_work_item_container_delete_button close"></span>
 		</div>
 		<textarea class="work_sheet_work_item_container_note" name="note"></textarea>
 		<div class="work_sheet_work_item_container_note_container">

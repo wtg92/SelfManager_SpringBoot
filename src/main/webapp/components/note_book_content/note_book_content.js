@@ -61,7 +61,29 @@ $(function(){
     
 
     $("#note_book_close_all_book_content").click(closeAllBookWindows);
+    
+
+    /**
+     * 每一个整分钟 进行reminder
+     */
+    let now = new Date();
+    let copy = cloneObj(now);
+    copy.setMilliseconds(0);
+    copy.setSeconds(now.getSeconds()+1);
+    console.log(copy.getTime()-now.getTime());
+    setTimeout(()=>{
+        reminderMonitoring();
+        setInterval(reminderMonitoring,NOTE_BOOK_NAMESPACE.REMINDER_INTERVAL_MINUTES*60*1000);
+    },copy.getTime()-now.getTime())
 });
+
+
+function reminderMonitoring(){
+    console.log("到时提醒："+new Date().toString());
+}
+
+
+
 function copyEMContent(){
     let text = $(this).text();
     copyToClipboardInDefault(text);
@@ -1725,7 +1747,7 @@ function fillNoteBookBasicInfo($container,book){
     .find(".one_note_book_unit_pattern .note_book_name").text(book.name).end()
     .find(".note_book_baisc_info_sub_title_seq_weight_span").text(book.seqWeight).end()
     .find("[name='seq_weight']").val(book.seqWeight).end()
-    .find(".note_book_baisc_info_note_div").text(book.note).end();
+    .find(".note_book_baisc_info_note_div").html(adaptDivForTextare(book.note)).end();
 
     /*TODO 说实话我不知道为啥在第一次加载的时候 这里的scrollHeight为0 为此我才专门加了特殊处理*/
     fillTextareaVal(book.note,$container.find("[name='note']"));

@@ -569,6 +569,10 @@ sm_label[label_name="DONE"],.one_note_label_of_manager_introduction[label_name="
     min-width: 2em;
 }
 
+.note_book_baisc_info_note_div{
+    white-space: normal;
+}
+
 
 .note_book_baisc_info_for_unit_body_container[open_edit_mode="false"] .note_book_baisc_info_close_edit_mode{
     display: none;

@@ -81,7 +81,7 @@
       	<jsp:include page="components/work_sheet/work_sheet.jsp" flush="false" />
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" data-dismiss="modal" >关闭</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" >关闭</button>
       </div>
     </div>
   </div>

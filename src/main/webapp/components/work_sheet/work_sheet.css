@@ -3,6 +3,41 @@
 
 }
 
+.work_sheet_work_item_container_delete_button svg{
+    vertical-align: auto !important;
+}
+
+#work_sheet_work_sheet_reminder_container{
+    display: flex;
+    justify-content: end;
+    margin-top: 25px;
+    margin-bottom: 15px;
+    align-items: center;
+}
+#work_sheet_reminder_desc{
+    color: gray;
+    margin-right: 10px;
+    font-size: 0.9em;
+}
+
+#work_sheet_work_sheet_reminder_text_container{
+    margin-right: 5px;
+}
+
+#work_sheet_reminder_righter{
+    display: flex;
+    align-items: center;
+}
+
+#work_sheet_open_work_sheet_reminder_btn{
+    height: 18px;
+    width: 15px;
+}
+
+#work_sheet_work_sheet_reminder_container label{
+    margin-bottom: 0;
+}
+
 #ws_statistics_dialog_line_and_bar_chart_container{
     width: 795px;
     height: 400px;
@@ -474,12 +509,12 @@ little{
     display: none;
 }
 
-
- .work_sheet_plan_sync_completion_to_dept{
+.work_sheet_plan_sync_completion_to_dept{
     cursor: pointer;
 }
 .work_sheet_work_item_container_delete_button{
     cursor: pointer;
+    margin-left: 10px;
 }
 
 #work_sheet_work_items_container_main_body_save_hint,#work_sheet_plan_completion_hint{
@@ -610,7 +645,6 @@ little{
 }
 
 .work_sheet_work_item_container,.work_sheet_work_item_of_dept_container{
-    margin-top: 15px;
     margin-bottom: 10px;
 }
 
@@ -688,7 +722,6 @@ little{
 
 .work_sheet_work_item_container_switch_to_show_note{
     cursor: pointer;
-    margin-right: 10px;
     font-size: 16px;
 }
 

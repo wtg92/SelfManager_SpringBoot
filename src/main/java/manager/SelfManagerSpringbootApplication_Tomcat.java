@@ -21,7 +21,7 @@ public class SelfManagerSpringbootApplication_Tomcat  extends SpringBootServletI
         return builder.sources(SelfManagerSpringbootApplication_Tomcat.class);
     }
     
-	 private static final Logger log = LoggerFactory.getLogger(SelfManagerSpringbootApplication_Tomcat.class);
+	private static final Logger log = LoggerFactory.getLogger(SelfManagerSpringbootApplication_Tomcat.class);
 	
 	public static void main(String[] args) throws UnknownHostException {
 		Environment env = SpringApplication.run(SelfManagerSpringbootApplication_Tomcat.class, args).getEnvironment();
