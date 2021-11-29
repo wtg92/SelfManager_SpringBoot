@@ -139,9 +139,10 @@
  		<div id="work_sheet_work_items_container_main_body">
  			<div id="work_sheet_work_sheet_reminder_container">
  				 <div id="work_sheet_reminder_righter">
- 				 	<div id="work_sheet_reminder_desc" class="common_hover" data-placement="top" data-toggle="popover" title="到时提醒的判断逻辑" data-html="true"
- 				 data-content="a.勾选了右侧选择框，表明<em>启用</em>到时提醒功能<br/>b.工作项填写了开始时间与持续时间，但<em>未填写</em>结束时间<br/>c.当实际时间大于开始时间+持续时间，系统会到时提醒">到时提醒说明</div>
-				 	<input type="checkbox" id="work_sheet_open_work_sheet_reminder_btn" name="work_sheet_open_work_sheet_reminder"/>
+ 				 	<label id="work_sheet_work_sheet_reminder_text_container" for="work_sheet_open_work_sheet_reminder_btn" class="common_blue_font">到时提醒</label>
+ 				 	<input type="checkbox" id="work_sheet_open_work_sheet_reminder_btn" name="work_sheet_open_work_sheet_reminder"/>
+					<div id="work_sheet_reminder_desc" class="common_hover" data-placement="top" data-toggle="popover" title="到时提醒的判断逻辑" data-html="true"
+ 				 data-content="a.勾选了左侧选择框，表明<em>启用</em>到时提醒功能<br/>b.工作项填写了开始时间与持续时间，但<em>未填写</em>结束时间<br/>c.当真实时间大于开始时间+持续时间，系统会到时提醒">说明</div>
  				</div>
  			</div>
  			<div id="work_sheet_work_items_container_main_body_ws_items"></div>
@@ -158,16 +159,62 @@
  		</div>
 	</div>
 	<div id="work_sheet_logs_main_container">
-      	     <div class="work_sheet_logs_header">
-      			<div class="work_sheet_logs_title">日志</div>
-      			<span class="work_sheet_logs_switch_container_visibility common_blue_font"></span>
-      		</div>
-      		<div class="work_sheet_logs_content">
-      			<div id="work_sheet_logs_container"></div>
-      			<div id="work_sheet_latest_update_time">更新于<span></span></div>
-      		</div>
+    	     <div class="work_sheet_logs_header">
+    			<div class="work_sheet_logs_title">日志</div>
+    			<span class="work_sheet_logs_switch_container_visibility common_blue_font"></span>
+    		</div>
+    		<div class="work_sheet_logs_content">
+    			<div id="work_sheet_logs_container"></div>
+    			<div id="work_sheet_latest_update_time">更新于<span></span></div>
+    		</div>
     </div>
 </div>
+
+
+<div class="modal fade" id="ws_warning_work_item_dialog" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="ws_warning_work_item_dialog_label" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="ws_warning_work_item_dialog_label"></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      	<div id="ws_warning_work_items_container">
+      		
+      	</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+      </div>
+    </div>
+  </div>
+  <div id="ws_warning_work_item_dialog_pattern_container" class="common_pattern_container">
+  	<div class="ws_warning_work_item_unit_container">
+  		<div class="ws_warning_work_item_unit_content">
+  			<span>开始于</span><em class="warning_work_item_start_time"></em>
+  			<span>计划用时</span><em class="warning_work_item_lasting_time"></em><span>分钟</span>
+  			的<em class="warning_work_item_name"></em>已超时<em class="warning_work_item_overdue_time"></em>
+  		</div>
+		<div class="ws_warning_work_item_unit_controlgroup">
+			<div class="ws_warning_work_item_unit_controlgroup_lefter"></div>
+			<div class="ws_warning_work_item_unit_controlgroup_samples">
+				<span class='common_blue_font common_hover' extension_minutates='5'>延长5分钟</span>
+				<span class='common_blue_font common_hover' extension_minutates='15'>延长15分钟</span>
+				<span class='common_blue_font common_hover' extension_minutates='30'>延长半小时</span>
+			</div>
+			<div class="ws_warning_work_item_unit_controlgroup_customize">
+				<div>延长<input type="text" name='extensition_customize_minutes'/>分钟</div>
+				<div class='common_blue_font common_hover ws_warning_work_item_unit_confirm_extension_minutates'>确定</div>
+			</div>
+		</div>
+  	</div>
+  </div>
+</div>
+
+
+
 
 <div id="work_sheet_pattern_container" class="common_pattern_container">
 	<div class="work_sheet_work_item_container">

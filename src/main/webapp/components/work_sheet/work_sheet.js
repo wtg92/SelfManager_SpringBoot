@@ -104,6 +104,11 @@ $(function(){
 
     $(".work_sheet_main_container_sync_all_plan_item").click(syncAllToPlanDept);
 
+    $("#work_sheet_open_work_sheet_reminder_btn").click(checkIfEnable);
+    $("#ws_warning_work_items_container").on("input","[name='extensition_customize_minutes']",inputOnlyAllowInt)
+        .on("click",".ws_warning_work_item_unit_controlgroup_samples [extension_minutates]",extensionWorkItemVal)
+        .on("click",".ws_warning_work_item_unit_confirm_extension_minutates",confirmCustomizeExtensionWorkItemVal)
+
 
     /* === 每一个整分钟 进行reminder code start===*/
     let now = new Date();
@@ -118,6 +123,90 @@ $(function(){
     /* === 每一个整分钟 进行reminder code end ===*/
 
 });
+function confirmCustomizeExtensionWorkItemVal(){
+    let val = $(this).parents(".ws_warning_work_item_unit_controlgroup_customize").find("[name='extensition_customize_minutes']").val();
+    let valInt = parseInt(val);
+    if(isNaN(valInt)){
+        alertInfo("请填写延长时间");
+        return;
+    }
+    extensionWorkItem(valInt,this);
+}
+
+function extensionWorkItem(extensionMinutates,dom){
+    let wsId = $(dom).parents(".ws_warning_work_item_unit_container").attr("item_id");
+    let $target = $("#work_sheet_work_items_container_main_body_ws_items").find(".work_sheet_work_item_container[item_id='"+wsId+"']");
+    $target.find("[name='val']").val(extensionMinutates+parseInt($target.find("[name='val']").val()));
+
+    let $contorgroup = $(dom).parents(".ws_warning_work_item_unit_controlgroup");
+    $contorgroup.addClass("common_prevent_double_click");
+
+    pushSaveWorkItemOpToQueue($target);  
+    saveChangedWorkItemUnits(null,true,()=>{
+        calculateWorkItemsWhetherOvertime();
+        $contorgroup.removeClass("common_prevent_double_click");
+    });
+}
+
+
+function extensionWorkItemVal(){
+    let extensionMinutates = parseInt($(this).attr("extension_minutates"));
+    extensionWorkItem(extensionMinutates,this);
+}
+
+
+
+function checkIfEnable(){
+    if($(this).prop("checked")){
+        calculateWorkItemsWhetherOvertime();
+    }
+}
+
+function calculateWorkItemsWhetherOvertime(){
+    let baseTime = new Date(parseInt($("#work_sheet_main_container").attr("abs_date")));
+    let now = new Date();
+    
+    let matchedWorkItems = $("#work_sheet_work_items_container_main_body_ws_items").find(".work_sheet_work_item_container").get().filter(e=>
+        parseInt($(e).attr("plan_item_type"))==BASIC_NAMESPACE.WS_ITEM_CAT_TYPE_OF_MINUTES
+        && $(e).find("[name='start_time']").val().trim().length>0 && parseInt($(e).find(".work_sheet_work_item_container_calculate_info_val").text())>0 &&
+            $(e).find("[name='end_time']").val().trim().length==0
+    ).filter(e=>{
+        let startTimeVal = $(e).find("[name='start_time']").val();
+        let warningTime =  cloneObj(baseTime);
+        warningTime.overrideTimeInput(startTimeVal);
+        warningTime.addMinutes(parseInt($(e).find(".work_sheet_work_item_container_calculate_info_val").text()));
+        return now.isAfter(warningTime);
+    })
+
+    let $container = $("#ws_warning_work_items_container");
+    $container.empty();
+    if(matchedWorkItems.length == 0){
+        $("#ws_warning_work_item_dialog").modal("hide");
+        return;
+    }
+
+    $("#ws_warning_work_item_dialog").modal("show");
+
+    matchedWorkItems.forEach(e=>{
+        let $unit = $("#ws_warning_work_item_dialog_pattern_container").find(".ws_warning_work_item_unit_container").clone();
+        let startTimeVal = $(e).find("[name='start_time']").val();
+        let startTimeObj =  cloneObj(baseTime);
+        startTimeObj.overrideTimeInput(startTimeVal);
+        let lastingMinutes = parseInt($(e).find(".work_sheet_work_item_container_calculate_info_val").text());
+        let planEndTime = cloneObj(startTimeObj);
+        planEndTime.addMinutes(lastingMinutes);
+
+        $unit.attr({
+            "item_id":$(e).attr("item_id")
+        })
+        .find(".warning_work_item_start_time").text(startTimeObj.toSmartString()).end()
+        .find(".warning_work_item_name").text($(e).find(".work_sheet_work_item_container_plan_item").text()).end()
+        .find(".warning_work_item_lasting_time").text(lastingMinutes).end()
+        .find(".warning_work_item_overdue_time").text(now.countMinutesDiffer(planEndTime).transferToHoursMesIfPossible()).end()
+
+        $container.append($unit);
+    });
+}
 
 
 function reminderMonitoring(){
@@ -125,7 +214,8 @@ function reminderMonitoring(){
     if(!flag){
         return;
     }
-    alertInfo("！！！");
+
+    calculateWorkItemsWhetherOvertime();
 }
 
 
@@ -1166,12 +1256,13 @@ function pushSaveWorkItemOpToQueue($ws){
  * 它会检验一下Saving 是否上锁，在上锁的情况下 会进行自旋 到最大值 仍不能save掉,则此时无论如何都会save
  * @returns 返回是否发了OP 假如为true 那么dom元素的更新 应当由该函数接管 而不是loadWorkSheetDetail_render
 */
-function saveChangedWorkItemUnits(sunFunc,reloadWorkSheetAfterSave){
+function saveChangedWorkItemUnits(sunFunc,reloadWorkSheetAfterSave,suncFuncAfterReload){
     clearTimeout(WS_NAMESPACE.SAVE_WORK_ITEM_OP_TIMEOUT_ID);
 
     let wsId = $("#work_sheet_main_container").attr("ws_id");
     let $forSave = $("#work_sheet_work_items_container_main_body_ws_items .work_sheet_work_item_container[to_save='"+true+"']");
     let count = 0;
+    console.log($forSave.length)
 
     if($forSave.length == 0){
         if(sunFunc != undefined){
@@ -1203,13 +1294,15 @@ function saveChangedWorkItemUnits(sunFunc,reloadWorkSheetAfterSave){
                 if(sunFunc != undefined){
                     sunFunc();
                 }
-    
                 if (reloadWorkSheetAfterSave == undefined || reloadWorkSheetAfterSave) {
                     /*表明所有都保存成功 重新加载一次workSheet*/
                     sendAjaxBySmartParams("CareerServlet", "c_load_work_sheet", {
                         "ws_id": wsId,
                     }, (data) => {
                         loadWorkSheetDetail_render(data);
+                        if(suncFuncAfterReload){
+                            suncFuncAfterReload();
+                        }
                     },()=>{
                         $workItemsDom.removeClass("ws_items_saving");
                     });

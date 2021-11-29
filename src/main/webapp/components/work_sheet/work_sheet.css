@@ -16,7 +16,7 @@
 }
 #work_sheet_reminder_desc{
     color: gray;
-    margin-right: 10px;
+    margin-left: 8px;
     font-size: 0.9em;
 }
 
@@ -741,3 +741,77 @@ little{
     pointer-events: none;
     color: gray;
 }
+
+
+
+
+/* ============Warning Dialog ==========================*/
+.ws_warning_work_item_unit_content{
+    display: flex;
+}
+
+.warning_work_item_start_time{
+    min-width: 80px;
+    text-align: center;
+}
+
+.warning_work_item_lasting_time{
+    min-width: 20px;
+    text-align: center;
+}
+
+.warning_work_item_overdue_time{
+    min-width: 40px;
+    text-align: center;
+}
+
+.warning_work_item_name{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 90px;
+    text-align: center;
+
+}
+
+[name='extensition_customize_minutes']{
+    width: 40px;
+    margin: 0 5px;
+}
+
+.ws_warning_work_item_unit_container:nth-child(odd){
+    background-color: #e4e4e4d5;
+}
+
+.ws_warning_work_item_unit_container{
+    margin-bottom: 5px;
+    border-radius: 8px;
+    padding: 8px;
+}
+
+
+.ws_warning_work_item_unit_controlgroup_customize{
+    display: flex;
+    align-items: center;
+}
+
+
+.ws_warning_work_item_unit_controlgroup{
+    display: flex;
+    margin-top: 5px;
+}
+
+.ws_warning_work_item_unit_controlgroup_samples{
+    flex-grow: 1.1;
+    display: flex;
+    align-items: center;
+}
+
+.ws_warning_work_item_unit_controlgroup_samples>span{
+    margin-right: 15px;
+}
+
+.ws_warning_work_item_unit_confirm_extension_minutates{
+    margin-left: 10px;
+}
+
+/* ============Warning Dialog ==========================*/

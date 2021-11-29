@@ -215,6 +215,11 @@ Date.prototype.isSaturday = function(){
 Date.prototype.isBlank = function(){
     return this.format("yyyy-MM-dd") == "1970-01-01";
 }
+Date.prototype.isAfter = function(otherDate){
+    return this>otherDate;
+}
+
+
 
 Date.prototype.countDaysDiffer = function(otherDate){
     return Math.round((this-otherDate)/(1*24*60*60*1000));
