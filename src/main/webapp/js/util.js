@@ -261,9 +261,11 @@ Date.prototype.toChineseDate = function(defaultValWhenBlank){
             return "前天";
         default:
             if(today.getFullYear() == this.getFullYear()){
-                return (this.getMonth()+1)+"月"+this.getDate()+"日";
+                return (this.getMonth()+1)
+                    +"月"+this.getDate()+"日";
             }else{
-                return this.getFullYear()+"年"+(this.getMonth()+1)+"月"+this.getDate()+"日";
+                return this.getFullYear()+"年"
+                    +(this.getMonth()+1)+"月"+this.getDate()+"日";
             }
     }
 }

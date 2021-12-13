@@ -1,11 +1,25 @@
 package book;
 
 import java.util.Calendar;
+import java.util.Date;
 
 import manager.util.TimeUtil;
 
 
-public class Test {
+public class Test { 
+	
+	public static String toChineseDate(Date date) {
+		//逻辑
+		return null;
+	}
+	
+	public void test1() {
+		
+		Date date = new Date();
+		System.out.println(toChineseDate(date));
+		
+	}
+	
 	
 	
 	

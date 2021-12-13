@@ -409,6 +409,7 @@
 							<div class="web_info_my_work_content"><pdf pdf="死无对证_剧本">死无对证（已完成-剧本）</pdf></div>
 							<div class="web_info_my_work_content"><pdf pdf="死无对证_小说">死无对证（已完成-小说）</pdf></div>
 							<div class="web_info_my_work_content"><pdf pdf="最佳损友的爱情故事">最佳损友的爱情故事（已完成-剧本）</pdf></div>
+							<div class="web_info_my_work_content"><pdf pdf="中国设施农业现状、基于五天的实习经历">中国设施农业现状、基于五天的实习经历（学术，大三写的实习报告）</pdf></div>
 						</div>
 						<div class="web_info_about_work_title">关于作品</div>
 						<p>
