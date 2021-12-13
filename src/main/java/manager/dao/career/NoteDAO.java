@@ -22,7 +22,6 @@ public interface NoteDAO {
 	void updateExistedNoteBook(NoteBook book) throws DBException;
 	void updateExistedNote(Note note) throws DBException;
 	void updateNoteNameAndContentAndWithTodos(Note note) throws DBException;
-	void updateNotePrevId(int noteId,int prevId) throws DBException;
 	
 	void updateExistedMemo(Memo memo) throws DBException;
 	
@@ -37,11 +36,6 @@ public interface NoteDAO {
 	
 	List<Note> selectNotesWithIdAndNameByIds(List<Integer> ids) throws DBException;
 	List<NoteBook> selectBooksWithIdAndNameByIds(List<Integer> ids) throws DBException;
-	
-	
-	int selectNoteIdByBookAndPrevIdAndImportant(int noteBookId,int prevId,boolean important) throws DBException,NoSuchElement;
-	
-
 	
 	Long countNotesByBook(int noteBookId) throws DBException;
 	

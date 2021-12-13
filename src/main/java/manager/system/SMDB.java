@@ -52,7 +52,6 @@ public abstract class SMDB {
 	public static final String F_DATE = "date";
 	public static final String F_PLAN_ID = "plan_id";
 	public static final String F_NOTE_BOOK_ID = "note_book_id";
-	public static final String F_PREV_NOTE_ID = "prev_note_id";
 	public static final String F_WITH_TODOS = "with_todos";
 	public static final String F_UPDATE_TIME = "update_time";
 	public static final String F_CREATE_TIME = "create_time";

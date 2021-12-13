@@ -42,7 +42,20 @@ public class NoteBook extends SMGeneralEntity {
 	@Column
 	private Integer seqWeight;
 	
+	@Column
+	private String notesSeq;
 	
+	
+	
+	
+	public String getNotesSeq() {
+		return notesSeq;
+	}
+
+	public void setNotesSeq(String notesSeq) {
+		this.notesSeq = notesSeq;
+	}
+
 	public BookStyle getStyle() {
 		return style;
 	}

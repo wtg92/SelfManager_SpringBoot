@@ -1,45 +1,39 @@
 package manager.util;
-import static manager.system.SM.logger;
 import java.awt.Color;
 import java.awt.Image;
-import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
 import javax.imageio.ImageTypeSpecifier;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.metadata.IIOInvalidTreeException;
 import javax.imageio.metadata.IIOMetadata;
-import javax.imageio.metadata.IIOMetadataFormatImpl;
 import javax.imageio.metadata.IIOMetadataNode;
-import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 import manager.exception.LogicException;
 import manager.system.SMError;
 
 public abstract class ImageUtil {
+
+	final private static Logger logger = Logger.getLogger(ImageUtil.class.getName());
 	
 	public static BufferedImage copyRagionFrom(BufferedImage src,int startX,int startY,int width,int height) {
 		BufferedImage rlt = new BufferedImage(width, height, src.getType());
@@ -136,7 +130,7 @@ public abstract class ImageUtil {
 		ImageTypeSpecifier typeSpecifier = ImageTypeSpecifier.createFromBufferedImageType(BufferedImage.TYPE_INT_RGB);
 		IIOMetadata metadata = writer.getDefaultImageMetadata(typeSpecifier, writeParam);
 		if (metadata.isReadOnly() || !metadata.isStandardMetadataFormatSupported()) {
-			logger.errorLog("不能转化的图片类型？？");
+			logger.log(Level.WARNING,"不能转化的图片类型？？");
 			assert false;
 			throw new RuntimeException("Unknown Type");
 		}
@@ -192,7 +186,7 @@ public abstract class ImageUtil {
 					img.getGraphics().dispose();
 			}
 		}catch(Exception e) {
-			logger.errorLog("disposeBufferedImage error:\n"+e.getMessage());
+			logger.log(Level.SEVERE,"disposeBufferedImage error:\n"+e.getMessage());
 		}
 	}
 	

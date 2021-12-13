@@ -7,6 +7,6 @@ import manager.entity.general.career.NoteBook;
 
 public class BookContent {
 	public NoteBook book;
-	public List<Note> notes;
-	
+	public List<Note> importantNotes;
+	public List<Note> generalNotes;
 }

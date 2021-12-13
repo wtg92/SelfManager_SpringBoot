@@ -14,7 +14,7 @@ public class DEBUG_NoteLogic {
 		int userId = 1;
 		int bookId = 18;
 		BookContent content =  nL.loadBookContent(userId, bookId);
-		content.notes.forEach(note->{
+		content.importantNotes.forEach(note->{
 			new Thread(()->{
 				try {
 					nL.deleteNote(userId, note.getId());
@@ -33,51 +33,8 @@ public class DEBUG_NoteLogic {
 		content =  nL.loadBookContent(userId, bookId);
 		
 		final BookContent finalContent = content;
-		new Thread(()->{
-			try {
-				nL.saveNotesSeq(userId, finalContent.notes.get(5).getNoteBookId(), finalContent.notes.get(3).getNoteBookId());
-			}catch(Exception e) {
-				e.printStackTrace();
-				assert false;
-			}
-		}).start();
-		new Thread(()->{
-			try {
-				nL.saveNotesSeq(userId, finalContent.notes.get(2).getNoteBookId(), finalContent.notes.get(1).getNoteBookId());
-			}catch(Exception e) {
-				e.printStackTrace();
-				assert false;
-			}
-		}).start();
 		
-		new Thread(()->{
-			try {
-				nL.saveNotesSeq(userId, finalContent.notes.get(0).getNoteBookId(), finalContent.notes.get(3).getNoteBookId());
-			}catch(Exception e) {
-				e.printStackTrace();
-				assert false;
-			}
-		}).start();
-		
-		new Thread(()->{
-			try {
-				nL.saveNotesSeq(userId, finalContent.notes.get(5).getNoteBookId(), finalContent.notes.get(8).getNoteBookId());
-			}catch(Exception e) {
-				e.printStackTrace();
-				assert false;
-			}
-		}).start();
-		
-		new Thread(()->{
-			try {
-				nL.saveNotesSeq(userId, finalContent.notes.get(1).getNoteBookId(), finalContent.notes.get(7).getNoteBookId());
-			}catch(Exception e) {
-				e.printStackTrace();
-				assert false;
-			}
-		}).start();
-		
-		content.notes.forEach(note->{
+		content.generalNotes.forEach(note->{
 			new Thread(()->{
 				try {
 					nL.deleteNote(userId, note.getId());

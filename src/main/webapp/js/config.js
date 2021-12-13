@@ -36,7 +36,9 @@
             "sLast" : "尾页",
             "sFirst":"首页"
         }
-    }
+    },
+
+    DEFAULT_WS_REMINDER_OPEN_KEY : "ws_reminder_open"
 
 };
 

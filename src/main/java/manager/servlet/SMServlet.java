@@ -1,11 +1,12 @@
 package manager.servlet;
-import static manager.system.SM.logger;
 import static manager.system.SMParm.OP;
 import static manager.util.UIUtil.getNonNullParam;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -17,6 +18,7 @@ import manager.exception.SMException;
 import manager.system.SMOP;
 
 public abstract class SMServlet extends HttpServlet{
+	final private static Logger logger = Logger.getLogger(SMServlet.class.getName());
 
 	private static final long serialVersionUID = 2442482414960821919L;
 	
@@ -24,7 +26,7 @@ public abstract class SMServlet extends HttpServlet{
 	    
 	    @Override
 	    protected final void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-	    	logger.errorLog("Shouldn't use GET!");
+	    	logger.log(Level.WARNING,"Shouldn't use GET!");
 	        doPost(request, response);
 	    }
 	    
@@ -44,7 +46,7 @@ public abstract class SMServlet extends HttpServlet{
 	            try(Writer writer = new BufferedWriter(response.getWriter(),1000)) {
 	            	writer.write(jsonResult);
 	            } catch (IOException e) {
-	            	logger.errorLog("Shouldn't happen.  IOException during doPost:" + e.getMessage());
+	            	logger.log(Level.SEVERE,"Shouldn't happen.  IOException during doPost:" + e.getMessage());
 	    		}
 	        } catch (SMException e) {
 	            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
@@ -55,10 +57,10 @@ public abstract class SMServlet extends HttpServlet{
 	            if(t2 - t1 >= 3000) {
 					try {
 						SMOP op = SMOP.valueOfName(getNonNullParam(request,OP));
-						logger.errorLog("Found SLOW op: " + op.name() + "\t" + (t2-t1)+"ms.");
+						logger.log(Level.WARNING, "Found SLOW op: " + op.name() + "\t" + (t2-t1)+"ms.");
 					} catch (LogicException e) {
 						assert false;
-						logger.errorLog("超时+没配置OP "+(t2-t1)+"ms.");
+						logger.log(Level.SEVERE,"超时+没配置OP "+(t2-t1)+"ms.");
 					}
 	              
 	            }

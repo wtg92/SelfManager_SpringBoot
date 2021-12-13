@@ -19,13 +19,13 @@ import static manager.system.SMParm.MAPPING_VAL;
 import static manager.system.SMParm.MOOD;
 import static manager.system.SMParm.NAME;
 import static manager.system.SMParm.NOTE;
+import static manager.system.SMParm.NOTES_SEQ;
 import static manager.system.SMParm.NOTE_ID;
 import static manager.system.SMParm.OP;
 import static manager.system.SMParm.PAGE;
 import static manager.system.SMParm.PLAN_ID;
 import static manager.system.SMParm.PLAN_ITEM_ID;
 import static manager.system.SMParm.PLAN_SETTING;
-import static manager.system.SMParm.PREV_ID;
 import static manager.system.SMParm.RECALCULATE_STATE;
 import static manager.system.SMParm.SEQ_WEIGHT;
 import static manager.system.SMParm.SRC_NOTE_ID;
@@ -212,8 +212,8 @@ public class CareerServlet extends SMServlet{
 			return deleteBook(request);
 		case C_DELETE_NOTE:
 			return deleteNote(request);
-		case C_SAVE_NOTE_SEQ:
-			return saveNoteSeq(request);
+		case C_SAVE_NOTES_SEQ:
+			return saveNotesSeq(request);
 		case C_LOAD_NOTE:
 			return loadNote(request);
 		case C_SAVE_NOTE:
@@ -341,11 +341,11 @@ public class CareerServlet extends SMServlet{
 		return JSON.toJSONString(nL.loadNote(loginerId, noteId),noteConf);
 	}
 
-	private String saveNoteSeq(HttpServletRequest request) throws DBException, LogicException {
+	private String saveNotesSeq(HttpServletRequest request) throws SMException {
 		int loginerId = getLoginerId(request);
-		int targetNoteId = getNonNullParamInInt(request, TARGET_ID);
-		int prevNoteIdForTarget = getNonNullParamInInt(request, PREV_ID);
-		nL.saveNotesSeq(loginerId, targetNoteId, prevNoteIdForTarget);
+		int bookId = getNonNullParamInInt(request, TARGET_ID);
+		List<Integer> notesSeq = getNonNullParamsInInt(request, NOTES_SEQ);
+		nL.saveNotesSeq(loginerId, bookId, notesSeq);
 		return getNullObjJSON();
 	}
 

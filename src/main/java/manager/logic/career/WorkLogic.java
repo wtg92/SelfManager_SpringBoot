@@ -2,7 +2,6 @@ package manager.logic.career;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
-import static manager.system.SM.logger;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -11,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import manager.data.career.WorkSheetContent;
@@ -41,7 +42,8 @@ import manager.util.TimeUtil;
 
 public abstract class WorkLogic{
 	
-	
+	final private static Logger logger = Logger.getLogger(WorkLogic.class.getName());
+
 	private static WorkLogic instance = null;
 	
 	UserLogic uL = UserLogic.getInstance();
@@ -258,7 +260,7 @@ public abstract class WorkLogic{
 				return WorkSheetState.OVERDUE;
 			}
 			if(TimeUtil.isBeforeByDate(today, workSheet.getDate())) {
-				logger.errorLog("诡异的数据，今天在workSheet的date之前",TimeUtil.parseDate(today)+" vs "+TimeUtil.parseDate(workSheet.getDate()));
+				logger.log(Level.WARNING,"诡异的数据，今天在workSheet的date之前",TimeUtil.parseDate(today)+" vs "+TimeUtil.parseDate(workSheet.getDate()));
 			}
 			
 			return WorkSheetState.ACTIVE;

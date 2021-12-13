@@ -1,15 +1,11 @@
 package manager.logic.career;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -94,160 +90,18 @@ public class NoteLogicTest {
 		
 		Note noteEntity = nL.loadNote(1, 1).note;
 		assertEquals(noteName, noteEntity.getName());
-		assertTrue(noteEntity.isRoot());
 		
 		assert 2 == nL.createNote(1, 2, noteName);
 		noteEntity = nL.loadNote(1, 2).note;
 		assertEquals(noteName, noteEntity.getName());
-		assertTrue(noteEntity.isRoot());
 		
 		noteEntity = nL.loadNote(1, 1).note;
-		assertFalse(noteEntity.isRoot());
-		assertTrue(2 == noteEntity.getPrevNoteId());
 		
 		assert 3 == nL.createNote(1, 2, noteName);
 		
-		/*最后一个放到了第一个*/
-		nL.saveNotesSeq(1, 1, 0);
-		
 		noteEntity = nL.loadNote(1, 1).note;
-		assertTrue(noteEntity.isRoot());
 		noteEntity = nL.loadNote(1, 2).note;
-		assertTrue(3 == noteEntity.getPrevNoteId());
 		noteEntity = nL.loadNote(1, 3).note;
-		assertTrue(1 == noteEntity.getPrevNoteId());
-		
-	}
-	
-	
-	@Test
-	public void testNotesSeq() throws Exception{
-		UserLogic uL = UserLogic.getInstance();
-		NoteLogic nL = NoteLogic.getInstance();
-		
-		/*表明admin已经存在 之后可以直接用userId==1了*/
-		uL.getUser(1);
-		
-		String name="笔记本";
-		String note="随便写点备注";
-		BookStyle style = BookStyle.CYAN_BLUE;
-		assert 1 == nL.createNoteBook(1, name, note,style);
-		
-		assert 1 == nL.createNote(1, 1, "xx");
-		assert 2 == nL.createNote(1, 1, "xx");
-		assert 3 == nL.createNote(1, 1, "xx");
-		assert 4 == nL.createNote(1, 1, "xx");
-		assert 5 == nL.createNote(1, 1, "xx");
-		
-		/*1->2->3->4->5*/
-		List<Note> notes = nL.loadBookContent(1, 1).notes;
-		testSeqLegal(notes);
-		/*1->3->4->2->5*/
-		nL.saveNotesSeq(1, 2, 5);
-		notes = nL.loadBookContent(1, 1).notes;
-		testSeqLegal(notes);
-		
-		nL.saveNotesSeq(1, 5, 1);
-		notes = nL.loadBookContent(1, 1).notes;
-		testSeqLegal(notes);
-		
-		nL.saveNotesSeq(1, 1, 5);
-		notes = nL.loadBookContent(1, 1).notes;
-		testSeqLegal(notes);
-		
-		nL.saveNotesSeq(1, 5, 1);
-		notes = nL.loadBookContent(1, 1).notes;
-		testSeqLegal(notes);
-		
-		nL.saveNotesSeq(1, 3, 2);
-		notes = nL.loadBookContent(1, 1).notes;
-		testSeqLegal(notes);
-		
-		nL.saveNotesSeq(1, 2, 3);
-		notes = nL.loadBookContent(1, 1).notes;
-		testSeqLegal(notes);
-		
-		assert 6 == nL.createNote(1, 1, "www");
-		notes = nL.loadBookContent(1, 1).notes;
-		testSeqLegal(notes);
-		
-		nL.deleteNote(1, 1);
-		notes = nL.loadBookContent(1, 1).notes;
-		testSeqLegal(notes);
-		
-		nL.deleteNote(1, 6);
-		notes = nL.loadBookContent(1, 1).notes;
-		testSeqLegal(notes);
-		/*现在只剩下 2345*/
-		nL.saveNotesSeq(1, 2, 3);
-		notes = nL.loadBookContent(1, 1).notes;
-		testSeqLegal(notes);
-		
-		nL.saveNotesSeq(1, 4, 5);
-		notes = nL.loadBookContent(1, 1).notes;
-		testSeqLegal(notes);
-		
-		
-		nL.saveNotesSeq(1, 5, 4);
-		notes = nL.loadBookContent(1, 1).notes;
-		testSeqLegal(notes);
-		
-		nL.saveNotesSeq(1, 3, 5);
-		notes = nL.loadBookContent(1, 1).notes;
-		testSeqLegal(notes);
-		
-		nL.saveNotesSeq(1, 2, 3);
-		notes = nL.loadBookContent(1, 1).notes;
-		testSeqLegal(notes);
-		
-		nL.saveNoteImportant(1, 2, true);
-		notes = nL.loadBookContent(1, 1).notes;
-		testSeqLegal(notes);
-		
-		nL.saveNoteImportant(1, 2, false);
-		notes = nL.loadBookContent(1, 1).notes;
-		testSeqLegal(notes);
-		
-		nL.saveNoteImportant(1, 3, true);
-		notes = nL.loadBookContent(1, 1).notes;
-		testSeqLegal(notes);
-		
-		nL.saveNoteImportant(1, 4, true);
-		notes = nL.loadBookContent(1, 1).notes;
-		testSeqLegal(notes);
-		
-		nL.saveNoteImportant(1, 2, true);
-		notes = nL.loadBookContent(1, 1).notes;
-		testSeqLegal(notes);
-		
-		assert 7 == nL.createNote(1, 1, "www");
-		notes = nL.loadBookContent(1, 1).notes;
-		testSeqLegal(notes);
-		
-		nL.deleteNote(1, 3);
-		notes = nL.loadBookContent(1, 1).notes;
-		testSeqLegal(notes);
-	}
-	
-	private static void testSeqLegal(List<Note> notesWithImportantAndNotImportant) {
-		notesWithImportantAndNotImportant.stream().collect(partitioningBy(Note::getImportant)).values().forEach(notes->{
-		    List<Note> afterCalculatedSeq = new ArrayList<>();
-		    Map<String,Integer> curId = new HashMap<String, Integer>();
-		    curId.put("id", 0);
-		    Note nextNode;
-		    while((nextNode=notes.stream().filter(n->n.getPrevNoteId()== curId.get("id")).findAny().orElse(null))!=null){
-		    	afterCalculatedSeq.add(nextNode);
-		        curId.put("id", nextNode.getId());
-		    }
-		    try {
-		    	 assertEquals(notes.size(), afterCalculatedSeq.size());
-		    }catch (AssertionError e) {
-		    	CommonUtil.printList(notes);
-		    	CommonUtil.printList(afterCalculatedSeq);
-		    	throw e;
-		    }
-		   
-		});
 	}
 	
 	@Test

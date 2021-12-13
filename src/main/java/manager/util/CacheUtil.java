@@ -1,13 +1,14 @@
 package manager.util;
 
 import static java.util.stream.Collectors.toList;
-import static manager.system.SM.logger;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import manager.exception.NoSuchElement;
 import manager.system.NoSuchElementType;
@@ -33,6 +34,8 @@ import redis.clients.jedis.ScanResult;
 public abstract class CacheUtil {
 
 	public static JedisPool POOL = initPool();
+	
+	private static Logger logger = Logger.getLogger(CacheUtil.class.getName());
 	
 	public final static int ALIVE_SECONDS = CommonUtil.getIntValFromPropertiesFileInResource("redis_cache_alive_seconds");
 	private final static int SCANNER_COUNT = CommonUtil.getIntValFromPropertiesFileInResource("redis_scanner_count");
@@ -189,7 +192,7 @@ public abstract class CacheUtil {
 			if(rlt ==0) {
 				return false;
 			}
-			logger.errorLog("redis 出现了bug : hset添加一个key 却返回了多个？ "+rlt);
+			logger.log(Level.SEVERE,"redis 出现了bug : hset添加一个key 却返回了多个？ "+rlt);
 			return false;
 		}
 	}
@@ -1072,7 +1075,7 @@ public abstract class CacheUtil {
             jedis = POOL.getResource();
         } catch (Exception e) {
         	e.printStackTrace();
-            logger.errorLog("获取Jedis实例异常:"+e.getMessage());
+            logger.log(Level.SEVERE,"获取Jedis实例异常:"+e.getMessage());
             if(jedis != null)
             	jedis.close();
         }

@@ -2,7 +2,6 @@ package manager.logic.career;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
-import static manager.system.SM.logger;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -10,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import manager.dao.DAOFactory;
 import manager.dao.career.WorkDAO;
@@ -44,6 +45,8 @@ import manager.util.TimeUtil;
 
 public class WorkLogic_Real extends WorkLogic{
 	
+	final private static Logger logger = Logger.getLogger(WorkLogic_Real.class.getName());
+
 	private WorkDAO wDAO = DAOFactory.getWorkDAO();
 	
 	@Override
@@ -668,9 +671,8 @@ public class WorkLogic_Real extends WorkLogic{
 		List<PlanItemProxy> needingToSync = content.planItems.stream()
 				.filter(item->item.remainingValForCur!=0).collect(toList());
 		
-		
 		if(needingToSync.size() == 0) {
-			logger.errorLog("同步所有却没有需要同步的，前台出现问题了？"+wsId);
+			logger.log(Level.WARNING,"同步所有却没有需要同步的，前台出现问题了？"+wsId);
 		}
 		
 		PlanDept dept = CacheScheduler.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginerId, PlanDept.class, 

@@ -1,6 +1,5 @@
 package manager.servlet;
 
-import static manager.system.SM.logger;
 import static manager.system.SMParm.OP;
 import static manager.util.UIUtil.getNonNullParam;
 import static manager.util.UIUtil.parseSingleFile;
@@ -11,6 +10,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -30,6 +31,7 @@ import manager.util.UIUtil;
 
 @WebServlet(name="DownloadServlet",urlPatterns = "/DownloadServlet")
 public class DownloadServlet extends HttpServlet{
+	final private static Logger logger = Logger.getLogger(DownloadServlet.class.getName());
 
 	private static final long serialVersionUID = 5397538742188394627L;
 	
@@ -81,7 +83,7 @@ public class DownloadServlet extends HttpServlet{
 					tL.addToolRecordFailOnce(target);
 				} catch (SMException e1) {
 					e1.printStackTrace();
-					logger.errorLog("add tool fail error");
+					logger.log(Level.SEVERE,"add tool fail error");
 				}
 			}
 			e.printStackTrace();
@@ -92,10 +94,10 @@ public class DownloadServlet extends HttpServlet{
 	            if(t2 - t1 >= 5000) {
 					try {
 						SMOP op = SMOP.valueOfName(getNonNullParam(request,OP));
-						logger.errorLog("Found SLOW op: " + op.name() + "\t" + (t2-t1)+"ms.");
+						logger.log(Level.WARNING,"Found SLOW op: " + op.name() + "\t" + (t2-t1)+"ms.");
 					} catch (LogicException e) {
 						assert false;
-						logger.errorLog("超时+没配置OP "+(t2-t1)+"ms.");
+						logger.log(Level.SEVERE,"超时+没配置OP "+(t2-t1)+"ms.");
 					}
 	              
 	            }

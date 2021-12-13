@@ -2,7 +2,6 @@ package manager.logic.tool;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
-import static manager.system.SM.logger;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -16,6 +15,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -42,6 +43,8 @@ import manager.util.POIUtil;
  * @author 王天戈
  */
 public class ToolLogic_Real extends ToolLogic{
+	
+	final private static Logger logger = Logger.getLogger(ToolLogic_Real.class.getName());
 
 	private ToolDAO tDAO = DAOFactory.getToolDAO();
 	
@@ -79,7 +82,7 @@ public class ToolLogic_Real extends ToolLogic{
 		try {
 			records = tDAO.selectAllToolRecords().stream().collect(toMap(ToolRecord::getTool, Function.identity()));
 		}catch(IllegalStateException e) {
-			logger.errorLog("ToolRecords 出现重复项了？？？");
+			logger.log(Level.WARNING,"ToolRecords 出现重复项了？？？");
 			return calculateSummary(tDAO.selectAllToolRecords());
 		}
 		 

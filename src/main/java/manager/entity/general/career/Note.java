@@ -31,43 +31,16 @@ public class Note extends SMGeneralEntity {
 	@Column
 	private Boolean withTodos;
 	
-	/**
-	  * 用来调整顺序
-	 */
-	@Column
-	private Integer prevNoteId;
-	
-	
 	@Column
 	private Boolean important;
 
-	@Override
-	public String toString() {
-		return String.format(" {'id':%s,'prevNoteId':%s,'import':%s}",
-				getId(),prevNoteId,important);
-	}
-
-
-	public boolean isRoot() {
-		return prevNoteId == 0 ;
-	}
 	
 	public Boolean getImportant() {
 		return important;
 	}
 
-
 	public void setImportant(Boolean important) {
 		this.important = important;
-	}
-
-
-	public Integer getPrevNoteId() {
-		return prevNoteId;
-	}
-
-	public void setPrevNoteId(Integer prevNoteId) {
-		this.prevNoteId = prevNoteId;
 	}
 
 	public String getContent() {

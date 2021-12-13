@@ -40,7 +40,7 @@ public abstract class SMParm {
 	public final static String IMPORTANT = "important";
 	
 	public final static String TARGET_ID = "target_id";
-	public final static String PREV_ID = "prev_id";
+	public final static String NOTES_SEQ = "notes_seq";
 	
 	public final static String CAT_NAME= "cat_name";
 	public final static String NOTE = "note";

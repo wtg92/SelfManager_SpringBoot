@@ -1,7 +1,6 @@
 package manager.util;
 
 
-import static manager.system.SM.logger;
 
 import java.math.BigInteger;
 import java.sql.PreparedStatement;
@@ -11,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -43,6 +44,8 @@ import manager.system.SMError;
 public abstract class DBUtil {
 	private static final SessionFactory hibernateSessionFactory = buildSessionFactory();
 
+	private static Logger logger = Logger.getLogger(DBUtil.class.getName());
+	
 	private static SessionFactory buildSessionFactory() {
 
 		try {
@@ -593,7 +596,7 @@ public abstract class DBUtil {
 	public static<T extends SMEntity> void deleteEntity(Class<T> cla, int id,SessionFactory hbFactory) throws DBException {
 		int deleteRows = deleteEntitiesByField(cla, SMDB.F_ID, id, hbFactory);
 		if(deleteRows == 0) {
-			logger.errorLog("delete by id zero"+ CommonUtil.getEntityTableName(cla)+":"+id);
+			logger.log(Level.WARNING,"delete by id zero"+ CommonUtil.getEntityTableName(cla)+":"+id);
 			assert false;
 		}
 	}

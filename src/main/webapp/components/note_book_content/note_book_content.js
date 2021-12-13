@@ -63,24 +63,8 @@ $(function(){
     $("#note_book_close_all_book_content").click(closeAllBookWindows);
     
 
-    /**
-     * 每一个整分钟 进行reminder
-     */
-    let now = new Date();
-    let copy = cloneObj(now);
-    copy.setMilliseconds(0);
-    copy.setSeconds(now.getSeconds()+1);
-    console.log(copy.getTime()-now.getTime());
-    setTimeout(()=>{
-        reminderMonitoring();
-        setInterval(reminderMonitoring,NOTE_BOOK_NAMESPACE.REMINDER_INTERVAL_MINUTES*60*1000);
-    },copy.getTime()-now.getTime())
 });
 
-
-function reminderMonitoring(){
-    console.log("到时提醒："+new Date().toString());
-}
 
 
 
@@ -485,7 +469,7 @@ function changeNoteImportant(){
             "important" : $(this).attr("note_important")
         }, (data) => {
             fillNotePageByData($page,data.firstRlt);
-            refillNoteList($bookContainer,data.secondRlt.notes);
+            refillNoteList($bookContainer,data.secondRlt);
         }, () => {
             removeBookNavagtionLoadingState(bookId);
             $(this).removeClass("common_prevent_double_click");
@@ -1212,19 +1196,20 @@ function bindDragNoteListUnitEvents(){
         }else{
             $dragDiv.insertBefore($(this));
         }
-        let $prev = $dragDiv.prev(dragTargetClass);
-        let prevId = $prev.length == 0 ? 0 : $prev.attr("note_id");
+ 
         let $container = $(this).parents(".note_book_for_unit_body_container");
         let bookId = $container.attr("book_id");
+
+        let notesSeq = $(".note_book_note_infos_list").find(".note_book_title_item_cotnainer").get().map(e=>parseInt($(e).attr("note_id")));
 
         banDraggingNoteItems($container);
 
         addBookNavagtionLoadingState(bookId);
         let param = {
-            "target_id":srcId,
-            "prev_id" : prevId
+            "target_id":bookId,
+            "notes_seq" : notesSeq
         }
-        sendAjaxBySmartParams("CareerServlet", "c_save_note_seq", param, () => {}, () => {
+        sendAjaxBySmartParams("CareerServlet", "c_save_notes_seq", param, () => {}, () => {
             removeBookNavagtionLoadingState(bookId);
             unbanDraggingNoteItems($container);
         });
@@ -1403,7 +1388,7 @@ function createNoteByClick(){
     addBookNavagtionLoadingState(bookId);
 
     sendAjax("CareerServlet", "c_create_note", param, (data) => {
-        refillNoteList($container,data.firstRlt.notes);
+        refillNoteList($container,data.firstRlt);
         openNotePageEditMode($container);
         let noteId = data.secondRlt;
         $container.find(".note_book_title_item_cotnainer[note_id='"+noteId+"']").click();
@@ -1427,7 +1412,7 @@ function fillNoteNavagationByData($note,note){
 
 function refillNoteListForOneKind($list,notes,selectedNotesIds){
     $list.empty();
-    sortNotesByPrevId(notes).forEach(note=>{
+    notes.forEach(note=>{
         let $note = $("#note_book_content_pattern_container .note_book_title_item_cotnainer").clone();
 
         fillNoteNavagationByData($note,note);
@@ -1447,8 +1432,8 @@ function refillNoteList($container,notes){
     let $genralList = $container.find(".note_book_general_note_infos_list");
     let selectedNotesIds = $container.find(".selected_page_btn").get().map(e=>parseInt($(e).attr("note_id")));
 
-    refillNoteListForOneKind($importantList,notes.filter(e=>e.important),selectedNotesIds);
-    refillNoteListForOneKind($genralList,notes.filter(e=>!e.important),selectedNotesIds);
+    refillNoteListForOneKind($importantList,notes.importantNotes,selectedNotesIds);
+    refillNoteListForOneKind($genralList,notes.generalNotes,selectedNotesIds);
 
    
     if(parseToBool($container.attr("open_note_list_edit_mode"))){
@@ -1457,23 +1442,7 @@ function refillNoteList($container,notes){
         banDraggingNoteItems($container);
     }
 }
-function sortNotesByPrevId(notes){
-    let rlt = [];
-    let curId = 0;
-    let nextNode;
-    while((nextNode=notes.find(n=>n.prevNoteId == curId))!=undefined){
-        rlt.push(nextNode);
-        curId = nextNode.id;
-    }
 
-    if(rlt.length != notes.length){
-        console.error("目录加载异常，数量不一致");
-        console.error(rlt);
-        console.error(notes);
-        return notes.reverse();
-    }
-    return rlt;
-}
 
 
 function commitSaveNoteBookBasicInfo(){
@@ -1760,7 +1729,7 @@ function fillNoteBookBasicInfo($container,book){
 function fillNoteBookContent($container,data){
     let book = data.book;
     fillNoteBookBasicInfo($container,book);
-    refillNoteList($container,data.notes);
+    refillNoteList($container,data);
 }
 
 

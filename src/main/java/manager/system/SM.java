@@ -4,13 +4,9 @@ import static manager.util.CommonUtil.getValFromPropertiesFileInResource;
 
 import java.io.File;
 
-import manager.util.Logger;
-
 public abstract class SM {
 
 	public final static String VERSION = "1.1";
-	
-	public final static Logger logger = Logger.getInstance("sm", "logger_setting");
 	
 	public final static String PROPERTIES_FILE_NAME = "sm.properties";
 
@@ -33,5 +29,7 @@ public abstract class SM {
 	/*系统的Id 用在一些Log上 表明是系统的动作*/
 	public final static int SYSTEM_ID = 0;
 	public final static String SYSTEM_NAME ="系统";
+	
+	public final static String ARRAY_SPLIT_MARK=";;;";
 	
 }

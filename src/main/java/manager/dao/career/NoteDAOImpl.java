@@ -29,7 +29,6 @@ import manager.entity.general.career.NoteBook;
 import manager.exception.DBException;
 import manager.exception.NoSuchElement;
 import manager.system.SMDB;
-import manager.system.SMError;
 import manager.util.TimeUtil;
 
 public class NoteDAOImpl implements NoteDAO {
@@ -81,29 +80,6 @@ public class NoteDAOImpl implements NoteDAO {
 	@Override
 	public void updateExistedMemo(Memo memo) throws DBException {
 		updateExistedEntity(memo, hbFactory);
-	}
-	
-	@Override
-	public void updateNotePrevId(int noteId, int prevId) throws DBException {
-		Session session = null;
-		Transaction trans = null;
-		try {
-			session = hbFactory.getCurrentSession();
-			trans = session.beginTransaction();
-			session.doWork(conn -> {
-				String sql = String.format("UPDATE %s SET %s = ? WHERE %s=?",
-						SMDB.T_NOTE,SMDB.F_PREV_NOTE_ID,SMDB.F_ID);
-				try (PreparedStatement ps = conn.prepareStatement(sql)) {
-					ps.setInt(1, prevId);
-					ps.setInt(2, noteId);
-					int modifedNum = ps.executeUpdate();
-					assert modifedNum == 1;
-				}
-			});
-			trans.commit();
-		} catch (Exception e) {
-			throw processDBExcpetion(trans, session, e);
-		}
 	}
 	
 	@Override
@@ -159,8 +135,8 @@ public class NoteDAOImpl implements NoteDAO {
 			session = hbFactory.getCurrentSession();
 			trans = session.beginTransaction();
 			session.doWork(conn -> {
-				String sql = String.format("SELECT %s,%s,%s,%s FROM %s WHERE %s=? and %s=?",
-						SMDB.F_ID,SMDB.F_PREV_NOTE_ID,SMDB.F_NAME,SMDB.F_WITH_TODOS,SMDB.T_NOTE,SMDB.F_NOTE_BOOK_ID,SMDB.F_IMPORTANT);
+				String sql = String.format("SELECT %s,%s,%s FROM %s WHERE %s=? and %s=?",
+						SMDB.F_ID,SMDB.F_NAME,SMDB.F_WITH_TODOS,SMDB.T_NOTE,SMDB.F_NOTE_BOOK_ID,SMDB.F_IMPORTANT);
 				try (PreparedStatement ps = conn.prepareStatement(sql)) {
 					ps.setInt(1, noteBookId);
 					ps.setBoolean(2, important);
@@ -168,7 +144,6 @@ public class NoteDAOImpl implements NoteDAO {
 					while(rs.next()) {
 						Note note = new Note();
 						note.setId(rs.getInt(1));
-						note.setPrevNoteId(rs.getInt(2));
 						note.setName(rs.getString(3));
 						note.setWithTodos(rs.getBoolean(4));
 						/*为了保持一致 set上 虽然理论上讲 上层不该用到*/
@@ -194,8 +169,8 @@ public class NoteDAOImpl implements NoteDAO {
 			session = hbFactory.getCurrentSession();
 			trans = session.beginTransaction();
 			session.doWork(conn -> {
-				String sql = String.format("SELECT %s,%s,%s,%s,%s FROM %s WHERE %s=?",
-						SMDB.F_ID,SMDB.F_PREV_NOTE_ID,SMDB.F_NAME,SMDB.F_WITH_TODOS,SMDB.F_IMPORTANT,SMDB.T_NOTE,SMDB.F_NOTE_BOOK_ID);
+				String sql = String.format("SELECT %s,%s,%s,%s FROM %s WHERE %s=?",
+						SMDB.F_ID,SMDB.F_NAME,SMDB.F_WITH_TODOS,SMDB.F_IMPORTANT,SMDB.T_NOTE,SMDB.F_NOTE_BOOK_ID);
 				try (PreparedStatement ps = conn.prepareStatement(sql)) {
 					ps.setInt(1, noteBookId);
 					
@@ -203,10 +178,9 @@ public class NoteDAOImpl implements NoteDAO {
 					while(rs.next()) {
 						Note note = new Note();
 						note.setId(rs.getInt(1));
-						note.setPrevNoteId(rs.getInt(2));
-						note.setName(rs.getString(3));
-						note.setWithTodos(rs.getBoolean(4));
-						note.setImportant(rs.getBoolean(5));
+						note.setName(rs.getString(2));
+						note.setWithTodos(rs.getBoolean(3));
+						note.setImportant(rs.getBoolean(4));
 						note.setNoteBookId(noteBookId);
 						rlt.add(note);
 					}
@@ -215,50 +189,6 @@ public class NoteDAOImpl implements NoteDAO {
 			trans.commit();
 			return rlt;
 		} catch (Exception e) {
-			throw processDBExcpetion(trans, session, e);
-		}
-	}
-
-
-	
-
-	@Override
-	public int selectNoteIdByBookAndPrevIdAndImportant(int noteBookId,int prevId,boolean important) throws DBException, NoSuchElement {
-		List<Integer> rlt = new ArrayList<>();
-		Session session = null;
-		Transaction trans = null;
-		try {
-			session = hbFactory.getCurrentSession();
-			trans = session.beginTransaction();
-			session.doWork(conn -> {
-				String sql = String.format("SELECT %s FROM %s WHERE %s=? and %s=? and %s=?",
-						SMDB.F_ID, SMDB.T_NOTE,SMDB.F_NOTE_BOOK_ID,SMDB.F_PREV_NOTE_ID,SMDB.F_IMPORTANT);
-				try (PreparedStatement ps = conn.prepareStatement(sql)) {
-					ps.setInt(1, noteBookId);
-					ps.setInt(2, prevId);
-					ps.setBoolean(3, important);
-					ResultSet rs = ps.executeQuery();
-					while(rs.next()) {
-						rlt.add(rs.getInt(1));
-					}
-				}
-			});
-			trans.commit();
-			
-			if (rlt.size() == 0)
-				throw new NoSuchElement();
-
-			if (rlt.size() == 1)
-				return rlt.get(0);
-			
-			throw new DBException(SMError.INCONSISTANT_DB_ERROR, SMDB.F_NOTE_BOOK_ID + ":" + noteBookId + ":" + rlt.size());
-		}catch (DBException e) {
-			e.printStackTrace();
-			assert false;
-			throw e;
-		}catch(NoSuchElement e) {
-			throw e;
-		}catch (Exception e) {
 			throw processDBExcpetion(trans, session, e);
 		}
 	}

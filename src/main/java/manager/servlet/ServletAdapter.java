@@ -1,14 +1,16 @@
 package manager.servlet;
 
-import static manager.util.TokenUtil.*;
+import static manager.util.TokenUtil.getData;
+import static manager.util.TokenUtil.setData;
 
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.Base64.Encoder;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
@@ -17,13 +19,10 @@ import com.auth0.jwt.interfaces.Claim;
 import manager.data.LoginInfo;
 import manager.data.proxy.UserProxy;
 import manager.data.proxy.career.PlanProxy;
-import manager.entity.general.User;
 import manager.exception.LogicException;
 import manager.system.SMError;
 import manager.util.SecurityUtil;
 import manager.util.YZMUtil.YZMInfo;
-
-import static manager.system.SM.logger;
 
 /**
  * Servlet和前台通信的一个适配器
@@ -36,7 +35,8 @@ import static manager.system.SM.logger;
  * @author 王天戈
  */
 public class ServletAdapter {
-	
+	final private static Logger logger = Logger.getLogger(ServletAdapter.class.getName());
+
 	private static final String USER_ID = "user_id";
 	private static final String USER_PWD = "user_pwd";
 	
@@ -50,7 +50,7 @@ public class ServletAdapter {
 	public static int getUserId(String token) throws LogicException {
 		Claim rlt = getData(token, USER_ID);
 		if (rlt.asString() == null) {
-			logger.errorLog("token 无 user_id\n" + token);
+			logger.log(Level.SEVERE,"token 无 user_id\n" + token);
 			throw new LogicException(SMError.ILLEGAL_USER_TOKEN, "无user id");
 		}
 		try {

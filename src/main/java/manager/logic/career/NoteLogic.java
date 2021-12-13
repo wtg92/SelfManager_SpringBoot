@@ -1,15 +1,24 @@
 package manager.logic.career;
 
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import manager.data.career.BookContent;
 import manager.data.proxy.career.MemoProxy;
 import manager.data.proxy.career.NoteBookProxy;
 import manager.data.proxy.career.NoteProxy;
+import manager.entity.general.career.Note;
 import manager.exception.DBException;
 import manager.exception.LogicException;
+import manager.exception.SMException;
 import manager.logic.UserLogic;
+import manager.system.SM;
 import manager.system.career.BookStyle;
 import manager.system.career.NoteLabel;
 
@@ -34,7 +43,8 @@ public abstract class NoteLogic{
 	 * @return bookId 方便Servlet
 	 */
 	public abstract int saveNoteImportant(int saverId,int noteId,boolean important) throws DBException,LogicException;
-	public abstract void saveNotesSeq (int saverId,int targetNoteId,int prevNoteIdForTarget) throws DBException,LogicException;
+	
+	public abstract void saveNotesSeq (int saverId,int bookId,List<Integer> notesSeq) throws SMException;
 	
 	
 	public abstract List<NoteBookProxy> loadBooks(int loginerId) throws DBException,LogicException;
@@ -52,9 +62,6 @@ public abstract class NoteLogic{
 	 */
 	public abstract void deleteNoteBook(int deletorId,int id) throws DBException, LogicException;
 	
-	/**
-	 * 这个方法还要维护prevNoteId的连贯性
-	 */
 	public abstract void deleteNote(int deletorId,int id) throws DBException, LogicException;
 	
 	public abstract void addItemToMemo(int adderId,String content,NoteLabel label,String note,int srcNoteId) throws LogicException, DBException;
@@ -74,8 +81,45 @@ public abstract class NoteLogic{
 	public abstract void closeNoteBook(int closerId,int bookId) throws DBException, LogicException;
 	public abstract void openNoteBook(int closerId,int bookId) throws DBException, LogicException;
 	
-/*=================================================NOT ABSTRACT ==============================================================*/	
-	
+/*=================================================NOT ABSTRACT ==============================================================*/
+
+	/**
+	 * 处理顺序，有一定容错性：
+	 * a.notesSeq可能为null 旧数据，此时顺序按输入
+	 * b.可能存在ID 不在notesSeq中的情况 此刻是由于保存时意外发生得错误导致的,也有可能是新增的，把这部分摘出来，放到最前面，根据ID倒序
+	 * c.可能存在NotesSeq有，但ID没的情况，此时是由于删除或异常情况 过掉。
+	 * d.由于笔记页根据是否重要分组，因此，NotesSeq有，但ID没的情况还可能是由于数据不在所在分组里
+	 * @param selectNoteInfosByBook
+	 * @param notesSeq
+	 * @return
+	 */
+	protected static List<Note> sortBy(List<Note> target, String notesSeq) {
+		if(notesSeq == null) {
+			return target;
+		}
+		List<Integer> seq = Arrays.stream(notesSeq.split(SM.ARRAY_SPLIT_MARK)).map(Integer::parseInt).collect(Collectors.toList());
+		
+		List<Note> rlt = new ArrayList<Note>();
+		
+		Comparator<Note> comp = Comparator.comparing(Note::getId).reversed();
+		
+		List<Note> notIncluded = target.stream().filter(t->!seq.contains(t.getId())).sorted(comp).collect(Collectors.toList());
+		
+		rlt.addAll(notIncluded);
+		
+		Map<Integer,Note> notesById =  target.stream().collect(Collectors.toMap(Note::getId, Function.identity()));
+		
+		seq.forEach(id->{
+			
+			if(!notesById.containsKey(id)) {
+				return;
+			}
+			
+			rlt.add(notesById.get(id));
+		});
+		
+		return rlt;
+	}
 	
 	public static synchronized NoteLogic getInstance() {
 		if(instance == null) {

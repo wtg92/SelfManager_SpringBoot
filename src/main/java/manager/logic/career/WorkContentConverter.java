@@ -2,7 +2,6 @@ package manager.logic.career;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
-import static manager.system.SM.logger;
 import static manager.util.XMLUtil.findAllByTagWithFather;
 
 import java.util.ArrayList;
@@ -10,6 +9,8 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -77,6 +78,9 @@ import manager.util.XMLUtil.ElementWithFather;
  *  
  */
 public abstract class WorkContentConverter {
+	
+	final private static Logger logger = Logger.getLogger(WorkContentConverter.class.getName());
+	
 	/**
 	 * 简写 T tag
 	 *    A attribution
@@ -218,7 +222,7 @@ public abstract class WorkContentConverter {
 		List<PlanDeptItem> rlt = new ArrayList<>();
 		for(Element ele : items.elements()) {
 			if(!ele.getName().equals(T_ITEM)) {
-				logger.errorLog("PlanDeptItem 出现了非 Item的tag"+ele.getName());
+				logger.log(Level.SEVERE,"PlanDeptItem 出现了非 Item的tag"+ele.getName());
 				continue;
 			}
 			PlanDeptItem item = parsePlanDeptItem(ele);

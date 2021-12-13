@@ -122,7 +122,31 @@ $(function(){
        },copy.getTime()-now.getTime());
     /* === 每一个整分钟 进行reminder code end ===*/
 
+    initReminderBtnByLocalStorage();
+
+    $("#work_sheet_open_work_sheet_reminder_btn").click(function(e){
+        let prop = $(this).prop("checked");
+        localStorage[CONFIG.DEFAULT_WS_REMINDER_OPEN_KEY]=prop;
+    })
 });
+
+
+function initReminderBtnByLocalStorage(){
+
+    let selected;
+    
+    if(localStorage[CONFIG.DEFAULT_WS_REMINDER_OPEN_KEY]){
+        selected = parseToBool(localStorage[CONFIG.DEFAULT_WS_REMINDER_OPEN_KEY]);
+    }else{
+        selected = true;
+    }
+
+    $("#work_sheet_open_work_sheet_reminder_btn").prop("checked",selected);
+}
+
+
+
+
 function confirmCustomizeExtensionWorkItemVal(){
     let val = $(this).parents(".ws_warning_work_item_unit_controlgroup_customize").find("[name='extensition_customize_minutes']").val();
     let valInt = parseInt(val);

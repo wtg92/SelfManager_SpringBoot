@@ -2,7 +2,6 @@ package manager.logic;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
-import static manager.system.SM.logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,6 +9,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import manager.dao.DAOFactory;
 import manager.dao.UserDAO;
@@ -40,7 +41,8 @@ import manager.util.YZMUtil;
 import manager.util.YZMUtil.YZMInfo;
 
 public class UserLogic_Real extends UserLogic {
-	
+	final private static Logger logger = Logger.getLogger(UserLogic_Real.class.getName());
+
 	private final UserDAO uDAO = DAOFactory.getUserDAO();
 	
 	UserLogic_Real() {}
@@ -261,7 +263,7 @@ public class UserLogic_Real extends UserLogic {
 		List<Integer> distinctUsers = usersId.stream().filter(uId->!usersForThisGroup.contains(uId)).collect(toList());
 		
 		if(distinctUsers.size() == 0) {
-			logger.debugLog("添加的user全是已存在在组里的 "+groupId,"uL.addUsersToGroup");
+			logger.log(Level.WARNING,"添加的user全是已存在在组里的 "+groupId,"uL.addUsersToGroup");
 			return;
 		}
 		
@@ -319,7 +321,7 @@ public class UserLogic_Real extends UserLogic {
 			if(CacheScheduler.setTempMapOnlyIfKeyNotExists(CacheMode.T_USER,uuId,"","")) {
 				break;
 			}else {
-				logger.errorLog("遇到了UUID的BUG?出现了重复的UUID？"+uuId);
+				logger.log(Level.WARNING,"遇到了UUID的BUG?出现了重复的UUID？"+uuId);
 			}
 		}
 		return uuId;

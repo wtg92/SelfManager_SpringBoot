@@ -1,6 +1,5 @@
 package manager.servlet;
 
-import static manager.system.SM.logger;
 import static manager.system.SMParm.OP;
 import static manager.system.SMParm.PDF;
 import static manager.util.UIUtil.getNonNullParam;
@@ -12,6 +11,8 @@ import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -26,6 +27,7 @@ import manager.system.SMOP;
 
 @WebServlet(name="PDFServlet",urlPatterns = "/PDFServlet")
 public class PDFServlet extends HttpServlet{
+	final private static Logger logger = Logger.getLogger(PDFServlet.class.getName());
 
 	private static final long serialVersionUID = 3781555755626946527L;
 
@@ -75,10 +77,10 @@ public class PDFServlet extends HttpServlet{
 			if (t2 - t1 >= 5000) {
 				try {
 					SMOP op = SMOP.valueOfName(getNonNullParam(request, OP));
-					logger.errorLog("Found SLOW op: " + op.name() + "\t" + (t2 - t1) + "ms.");
+					logger.log(Level.WARNING,"Found SLOW op: " + op.name() + "\t" + (t2 - t1) + "ms.");
 				} catch (LogicException e) {
 					assert false;
-					logger.errorLog("超时+没配置OP " + (t2 - t1) + "ms.");
+					logger.log(Level.SEVERE,"超时+没配置OP " + (t2 - t1) + "ms.");
 				}
 
 			}

@@ -2,7 +2,6 @@ package manager.util;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
-import static manager.system.SM.logger;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
@@ -14,6 +13,8 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.persistence.Table;
 
@@ -21,6 +22,8 @@ import manager.system.SM;
 
 public abstract class CommonUtil {
 	private static final Random random = new SecureRandom();
+	
+	private static Logger logger = Logger.getLogger(CommonUtil.class.getName());
 	
 	public static InputStream getFileInResourcesDirectoryBufferedly(String fileName) {
 		try {
@@ -111,10 +114,10 @@ public abstract class CommonUtil {
 	}
 	
 	public static void printList(List<?> rlt) {
-		logger.debugLog(createPrintStr(rlt, Object::toString, ","));
+		logger.log(Level.INFO,createPrintStr(rlt, Object::toString, ","));
 	}
 	public static void printList(List<?> rlt,String loggerKey) {
-		logger.debugLog(createPrintStr(rlt, Object::toString, ","),loggerKey);
+		logger.log(Level.INFO,createPrintStr(rlt, Object::toString, ","),loggerKey);
 	}
 	
 	public static String createPrintStr(List<?> rlt,Function<Object, String> converter,String split) {

@@ -4,6 +4,8 @@ import static java.util.stream.Collectors.toList;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public enum SMOP {
 	UNDECIDED(""),
@@ -67,7 +69,7 @@ public enum SMOP {
 	C_CREATE_NOTE("c_create_note"),
 	C_SAVE_NOTE_BOOK("c_save_note_book"),
 	C_SAVE_NOTE("c_save_note"),
-	C_SAVE_NOTE_SEQ("c_save_note_seq"),
+	C_SAVE_NOTES_SEQ("c_save_notes_seq"),
 	C_LOAD_BOOKS("c_load_books"),
 	C_LOAD_BOOK("c_load_book"),
 	C_LOAD_BOOK_CONTENT("c_load_book_content"),
@@ -108,6 +110,8 @@ public enum SMOP {
 		this.name = name;
 	}
 
+	private final static Logger logger = Logger.getLogger(SMOP.class.getName());
+	
 	public static SMOP valueOfName(String name) {
 		List<SMOP> rlt = Arrays.stream(SMOP.values()).filter(e -> e.name.equals(name)).collect(toList());
 
@@ -115,7 +119,7 @@ public enum SMOP {
 			throw new RuntimeException("dup op" + name);
 
 		if (rlt.size() == 0) {
-			SM.logger.errorLog("unkown op" + name);
+			logger.log(Level.SEVERE,"unkown op" + name);
 			assert false : name;
 			return UNDECIDED;
 		}
