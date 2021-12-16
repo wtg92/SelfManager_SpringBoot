@@ -13,6 +13,7 @@ import manager.entity.general.UserGroup;
 import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.logic.CacheScheduler;
+import manager.system.Gender;
 import manager.system.SM;
 import manager.system.SMDB;
 import manager.util.SecurityUtil;
@@ -29,7 +30,8 @@ public abstract class TestUtil {
 		User user = new User();
 		user.setAccount(SM.ADMIN_ACCOUNT);
 		user.setNickName("admin");
-		user.setPassword("12345678");
+		user.setPassword("123456789");
+		user.setGender(Gender.OTHERS);
 		SecurityUtil.encodeUserPwd(user);
 		return uDAO.insertUser(user);
 	}

@@ -5,13 +5,16 @@ import java.util.Calendar;
 import org.junit.Test;
 
 import manager.dao.career.WorkDAO;
+import manager.entity.general.User;
 import manager.exception.DBException;
+import manager.system.Gender;
+import manager.util.SecurityUtil;
 import manager.util.TimeUtil;
 
 public class DEBUG_DAOTest {
 	
 	private WorkDAO wDAO = DAOFactory.getWorkDAO();
-	
+	private UserDAO uDAO = DAOFactory.getUserDAO();
 	@Test
 	public void testSelectWorkSheetsByOwnerAndDateScope() throws DBException {
 		
@@ -26,6 +29,18 @@ public class DEBUG_DAOTest {
 		endDate.set(Calendar.DAY_OF_MONTH,30);
 		
 		System.out.println(wDAO.selectWorkSheetsByOwnerAndDateScope(1, startDate, endDate).size());
+	}
+	
+	
+	@Test
+	public void addUser() throws Exception{
+		User user = new User();
+		user.setAccount("sample");
+		user.setNickName("sample");
+		user.setPassword("123456789");
+		SecurityUtil.encodeUserPwd(user);
+		user.setGender(Gender.OTHERS);
+		uDAO.insertUser(user);
 	}
 	
 }
