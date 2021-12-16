@@ -20,7 +20,7 @@ hb.cfg.xml是数据库相关的配置，假设你想起个不一样的schema名�
 
 这三个文件配置好之后，用任何一个你喜欢的IDE，打开manager.SelfManagerSpringbootApplication 运行里边的main方法即可。
 默认的访问网址是，http://localhost:8080/index.jsp
-
+默认的管理员账户/密码： admin   123456789
 
 三、项目涉及到的框架、库
 后台：redis，SpringBoot，Hibernate
