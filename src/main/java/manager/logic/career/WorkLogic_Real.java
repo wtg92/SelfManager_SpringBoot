@@ -607,8 +607,21 @@ public class WorkLogic_Real extends WorkLogic{
 		
 		CacheScheduler.saveEntityAndUpdateCache(ws,w->wDAO.updateExistedWorkSheet(w));
 	}
-
-
+	
+	@Override
+	public synchronized void saveWorkItemPlanItemId(int updaterId, int wsId, int workItemId, int planItemId)
+			throws LogicException, DBException {
+		WorkSheet ws = CacheScheduler.getOne(CacheMode.E_ID,wsId, WorkSheet.class, ()->wDAO.selectExistedWorkSheet(wsId));
+		if(updaterId != ws.getOwnerId()) {
+			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS,updaterId+" vs "+ws.getOwnerId());
+		}
+		
+		WorkContentConverter.updateWorkItemPlanItemId(ws, updaterId, workItemId, planItemId);;
+		
+		refreshStateAfterItemModified(ws);
+		
+		CacheScheduler.saveEntityAndUpdateCache(ws,w->wDAO.updateExistedWorkSheet(w));
+	}
 	
 	private synchronized int initPlanDept(int ownerId) throws DBException {
 		PlanDept dept = new PlanDept();
@@ -748,6 +761,8 @@ public class WorkLogic_Real extends WorkLogic{
 		
 		CacheScheduler.saveEntityAndUpdateCache(target,p->wDAO.updateExistedPlan(p));
 	}
+
+
 
 
 

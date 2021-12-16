@@ -580,6 +580,18 @@ little{
     display: none;
 }
 
+#work_sheet_main_container[open_ws_edit_mode='false'] .work_sheet_work_item_container_change_item_type_root_container{
+    display: none;
+}
+
+.work_sheet_work_item_container[siwtch_type_modify_on='false'] .work_sheet_work_item_container_change_item_type_root_container{
+    display: none;
+}
+
+.work_sheet_work_item_container[siwtch_type_modify_on='true'] .work_sheet_work_item_container_plan_item_type_modify_mark{
+    display: none;
+}
+
 #work_sheet_main_container[open_ws_edit_mode='false'] .work_sheet_work_item_container [name='note']{
     display: none;
 }
@@ -594,6 +606,10 @@ little{
     display: none;
 }
 
+#work_sheet_main_container[open_ws_edit_mode='false'] .work_sheet_work_item_container_plan_item_type_modify_mark{
+    display: none;
+}
+
 #work_sheet_main_container[open_ws_edit_mode='true'] .work_sheet_plan_item_container_body,#work_sheet_main_container[open_ws_edit_mode='true'] .work_sheet_plan_item_completion_body{
     cursor: pointer;
 }
@@ -601,6 +617,8 @@ little{
 #work_sheet_main_container[open_ws_edit_mode='true'] .work_sheet_work_item_container_note_container{
     display: none;
 }
+
+
 #work_sheet_main_container[open_ws_edit_mode='true'] .work_sheet_plan_item_container_body:hover,#work_sheet_main_container[open_ws_edit_mode='true'] .work_sheet_plan_item_completion_body:hover{
     opacity: 0.9;
 }
@@ -614,6 +632,36 @@ little{
 #work_sheet_main_container[open_ws_edit_mode='true'] .work_sheet_work_item_container_end_time_span{
     display: none;
 }
+
+
+.work_sheet_work_item_container_change_item_type_root_container{
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    margin-top: 15px;
+}
+
+.work_sheet_work_item_container_change_item_type_container{
+    width: 37%;
+    margin-right: 1%;
+}
+
+
+.work_sheet_work_item_container_change_item_type_btns_container{
+    display: flex;
+    flex-grow: 1.1;
+}
+.work_sheet_save_workitem_type_btn{
+    margin-right: 10px;
+}
+
+
+.work_sheet_work_item_container_change_item_type_hint_container{
+    font-size: 0.9em;
+    color: gray;
+}
+
+
 
 .work_sheet_work_item_calculate_val_by_end_time_btn,.work_sheet_work_item_calculate_end_time_by_val_btn,.work_sheet_work_item_calculate_end_time_by_now{
     margin-left: 5px;
@@ -662,6 +710,8 @@ little{
     align-items: center;
 }
 
+
+
 .work_sheet_work_item_container_start_time_span,.work_sheet_work_item_of_dept_time,.work_sheet_work_item_container_calculate_info,.work_sheet_work_item_of_dept_plan_item,.work_sheet_work_item_container_plan_item,.work_sheet_work_item_end_time_container{
     margin-right: 1em;
 }
@@ -691,6 +741,12 @@ little{
     border-radius: 6px;
     color:  rgb(102, 102, 102);
     border:1px solid grey;
+}
+
+.work_sheet_work_item_container_plan_item{
+    display: flex;
+    align-items: center;
+    margin-left: 1em;
 }
 
 .work_sheet_work_item_container_plan_item,.work_sheet_work_item_of_dept_plan_item{

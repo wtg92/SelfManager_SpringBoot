@@ -135,6 +135,8 @@ public abstract class WorkLogic{
 	/* 状态设置为Finished 改plan的EndDate设为今天*/
 	public abstract void finishPlan(int opreatorId,int planId) throws LogicException, DBException;
 	
+	
+	public abstract void saveWorkItemPlanItemId(int updaterId,int wsId,int workItemId, int planItemId) throws LogicException, DBException;
 	public abstract void saveWorkItem(int updaterId,int wsId,int workItemId, int value, String note, int mood,boolean forAdd,Calendar startTime,Calendar endTime) throws LogicException, DBException;
 	public abstract void savePlanItem(int loginerId, int planId,int itemId,String catName,int value,String note,double mappingVal) throws LogicException, DBException;
 	public abstract void savePlanItemFold(int loginerId, int planId, int itemId, boolean fold) throws LogicException, DBException;

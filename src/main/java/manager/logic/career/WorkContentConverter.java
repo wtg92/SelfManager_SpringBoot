@@ -741,13 +741,33 @@ public abstract class WorkContentConverter {
 	}
 	
 	public static void updateWSPlanItemFold(WorkSheet one, int loginerId, int itemId, boolean fold) throws LogicException {
-		Document ws = getDocumentOrInitIfNotExists(one);
 		Document plan = getDefinatePlanDocument(one);
 		updatePlanItemFold(plan, itemId, fold);
-		one.setContent(ws.asXML());
 		one.setPlan(plan.asXML());
 	}
-
+	
+	/**
+	 * 切换计划项与已有计划项计数类型不同时，计数值会置为0
+	 */
+	protected static void updateWorkItemPlanItemId(WorkSheet one,int updaterId,int workItemId, int planItemId) throws LogicException{
+		Document ws = getDefinateDocument(one);
+		Element targetWorkItem = getWorkItemById(ws, workItemId);
+		WorkItem origin = parseWorkItem(targetWorkItem);
+		
+		Document plan = getDefinatePlanDocument(one);
+		PlanItem old = parsePlanItem(getPlanItemById(plan, origin.getPlanItemId()).cur);
+		PlanItem toUpdateOne =  parsePlanItem(getPlanItemById(plan, planItemId).cur);
+		
+		if(old.getType() != toUpdateOne.getType()) {
+			origin.setValue(0.0);
+		}
+		
+		origin.setPlanItemId(planItemId);
+		
+		fillAttrsExceptId(origin, targetWorkItem);
+		one.setContent(ws.asXML());
+	}
+	
 	
 	protected static void updateWorkItem(WorkSheet one,int updaterId,int workItemId, int value, String note, int mood,boolean forAdd,Calendar startTime,Calendar endTime) throws LogicException{
 		Document ws = getDefinateDocument(one);

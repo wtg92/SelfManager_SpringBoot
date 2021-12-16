@@ -19,6 +19,8 @@
 <script src="${pageContext.request.contextPath}/js/dependency/jquery.fancybox.min.js" type="text/javascript" ></script>
 <link  href="${pageContext.request.contextPath}/css/dependency/jquery.fancybox.min.css" type="text/css" rel="stylesheet" /> 
 
+<script src="${pageContext.request.contextPath}/js/dependency/jquery.dropdown.js" type="text/javascript" ></script>
+<link  href="${pageContext.request.contextPath}/css/dependency/jquery.dropdown.min.css" type="text/css" rel="stylesheet" /> 
 
 <script src="${pageContext.request.contextPath}/js/config.js?<%= SM.VERSION %>" type="text/javascript" ></script>
 <script src="${pageContext.request.contextPath}/js/util.js?<%= SM.VERSION %>" type="text/javascript" ></script>

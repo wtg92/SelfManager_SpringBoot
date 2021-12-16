@@ -89,19 +89,18 @@ public abstract class NoteLogic{
 	 * b.可能存在ID 不在notesSeq中的情况 此刻是由于保存时意外发生得错误导致的,也有可能是新增的，把这部分摘出来，放到最前面，根据ID倒序
 	 * c.可能存在NotesSeq有，但ID没的情况，此时是由于删除或异常情况 过掉。
 	 * d.由于笔记页根据是否重要分组，因此，NotesSeq有，但ID没的情况还可能是由于数据不在所在分组里
-	 * @param selectNoteInfosByBook
-	 * @param notesSeq
-	 * @return
 	 */
 	protected static List<Note> sortBy(List<Note> target, String notesSeq) {
+		
+		Comparator<Note> comp = Comparator.comparing(Note::getUpdateTime).reversed();
+		
 		if(notesSeq == null) {
-			return target;
+			return target.stream().sorted(comp).collect(Collectors.toList());
 		}
+		
 		List<Integer> seq = Arrays.stream(notesSeq.split(SM.ARRAY_SPLIT_MARK)).map(Integer::parseInt).collect(Collectors.toList());
 		
 		List<Note> rlt = new ArrayList<Note>();
-		
-		Comparator<Note> comp = Comparator.comparing(Note::getId).reversed();
 		
 		List<Note> notIncluded = target.stream().filter(t->!seq.contains(t.getId())).sorted(comp).collect(Collectors.toList());
 		

@@ -178,6 +178,8 @@ public class CareerServlet extends SMServlet{
 			return addItemToWS(request);
 		case C_SAVE_WORK_ITEM:
 			return saveWorkItem(request);
+		case C_SAVE_WORK_ITEM_PLAN_ITEM_ID:
+			return saveWorkItemPlanItemId(request);
 		case C_SYNC_TO_PLAN_DEPT:
 			return syncToPlanDept(request);
 		case C_SYNC_ALL_TO_PLAN_DEPT:
@@ -244,9 +246,6 @@ public class CareerServlet extends SMServlet{
 		}
 	}
 	
-	
-
-
 	private String loadWorkSheetsByDateScope(HttpServletRequest request) throws SMException {
 		int loginerId = getLoginerId(request);
 		Calendar startDate = getNonNullParamInDate(request, START_DATE);
@@ -505,6 +504,15 @@ public class CareerServlet extends SMServlet{
 		Calendar endTime = getParamOrBlankDefaultInTime(request, END_TIME);
 		wL.saveWorkItem(loginerId, wsId, workItemId, val, note, mood, forAdd, startTime, endTime);
 		return getNullObjJSON();
+	}
+	
+	private String saveWorkItemPlanItemId(HttpServletRequest request) throws SMException {
+		int loginerId = getLoginerId(request);
+		int wsId = getNonNullParamInInt(request, WS_ID);
+		int workItemId = getNonNullParamInInt(request, WORK_ITEM_ID);
+		int planItimId = getNonNullParamInInt(request, PLAN_ITEM_ID);
+		wL.saveWorkItemPlanItemId(loginerId, wsId, workItemId, planItimId);
+		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId),workConf);
 	}
 
 	private String addItemToWS(HttpServletRequest request) throws LogicException, DBException {

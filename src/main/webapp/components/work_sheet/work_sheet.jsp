@@ -218,12 +218,33 @@
 
 <div id="work_sheet_pattern_container" class="common_pattern_container">
 	<div class="work_sheet_work_item_container">
+		<div class="work_sheet_work_item_container_change_item_type_root_container">
+			<div class="work_sheet_work_item_container_change_item_type_container">
+	          <select style="display:none"></select>
+	     	</div>
+	     	<div class="work_sheet_work_item_container_change_item_type_btns_container">
+	          <span class="common_blue_font common_hover work_sheet_save_workitem_type_btn">保存</span>
+	          <span class="common_blue_font common_hover work_sheet_revoke_save_workitem_type_btn">取消修改</span>
+	     	</div>
+			<div class="work_sheet_work_item_container_change_item_type_hint_container">
+	          当切换计划项与已有计划项<em>计数类型不同</em>时，计数值会置为0
+	     	</div>
+		</div>
 		<div class="work_sheet_work_item_unit_container_for_phone em_of_desc_without_margin"></div>
 		<div class="work_sheet_work_item_unit_container">
 			<div class="work_sheet_work_item_unit_left_container">
 			<span class="work_sheet_work_item_container_start_time_span" title="开始时间" ></span>
 			<input type="time" name="start_time" title="开始时间" >
-			<span class="work_sheet_work_item_container_plan_item" title="计划项"></span>
+			<div class="work_sheet_work_item_container_plan_item" title="计划项">
+				<div class="work_sheet_work_item_container_plan_item_context"></div>
+				<div class="work_sheet_work_item_container_plan_item_type_modify_mark common_blue_font common_hover" title="修改">
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-wrench" viewBox="0 0 16 16">
+  						<path d="M.102 2.223A3.004 3.004 0 0 0 3.78 5.897l6.341 6.252A3.003 3.003 0 0 0 13 16a3 3 0 1 0-.851-5.878L5.897 3.781A3.004 3.004 0 0 0 2.223.1l2.141 2.142L4 4l-1.757.364L.102 2.223zm13.37 9.019.528.026.287.445.445.287.026.529L15 13l-.242.471-.026.529-.445.287-.287.445-.529.026L13 15l-.471-.242-.529-.026-.287-.445-.445-.287-.026-.529L11 13l.242-.471.026-.529.445-.287.287-.445.529-.026L13 11l.471.242z"/>
+					</svg>
+				</div>
+			</div>
+			
+			
 			<span class="work_sheet_work_item_container_calculate_info" title="完成情况">
 				<span class="work_sheet_work_item_container_calculate_info_start" title="工作项开始时，计划项的剩余值"></span>
 				<span class="work_sheet_work_item_container_calculate_info_mark work_sheet_work_item_container_math_mark" title="当认为做了不该做的事时，可以增加计划值"></span>

@@ -16,6 +16,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -169,8 +170,8 @@ public class NoteDAOImpl implements NoteDAO {
 			session = hbFactory.getCurrentSession();
 			trans = session.beginTransaction();
 			session.doWork(conn -> {
-				String sql = String.format("SELECT %s,%s,%s,%s FROM %s WHERE %s=?",
-						SMDB.F_ID,SMDB.F_NAME,SMDB.F_WITH_TODOS,SMDB.F_IMPORTANT,SMDB.T_NOTE,SMDB.F_NOTE_BOOK_ID);
+				String sql = String.format("SELECT %s,%s,%s,%s,%s FROM %s WHERE %s=?",
+						SMDB.F_ID,SMDB.F_NAME,SMDB.F_WITH_TODOS,SMDB.F_IMPORTANT,SMDB.F_UPDATE_TIME,SMDB.T_NOTE,SMDB.F_NOTE_BOOK_ID);
 				try (PreparedStatement ps = conn.prepareStatement(sql)) {
 					ps.setInt(1, noteBookId);
 					
@@ -181,6 +182,9 @@ public class NoteDAOImpl implements NoteDAO {
 						note.setName(rs.getString(2));
 						note.setWithTodos(rs.getBoolean(3));
 						note.setImportant(rs.getBoolean(4));
+						Calendar updateTime = Calendar.getInstance();
+						updateTime.setTime(rs.getDate(SMDB.F_UPDATE_TIME));
+						note.setUpdateTime(updateTime);
 						note.setNoteBookId(noteBookId);
 						rlt.add(note);
 					}

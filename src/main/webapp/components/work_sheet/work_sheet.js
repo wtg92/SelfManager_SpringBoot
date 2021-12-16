@@ -1,4 +1,4 @@
-const WS_NAMESPACE = {
+let WS_NAMESPACE = {
     WS_STATE_OF_OVERDUE : 4 ,
     WS_STATE_OF_ASSUME_FINISHED : 3,
     WS_STATE_OF_ACTIVE:1,
@@ -98,7 +98,20 @@ $(function(){
         .on("click",".work_sheet_work_item_container_mood_body",changeWorkItemMood)
         .on("click",".work_sheet_work_item_calculate_val_by_end_time_btn",calculateValByEndTime)
         .on("click",".work_sheet_work_item_calculate_end_time_by_val_btn",calculateEndTimeByVal)
-        .on("click",".work_sheet_work_item_container_delete_button",deleteItemFromWorkSheet);
+        .on("click",".work_sheet_work_item_container_delete_button",deleteItemFromWorkSheet)
+        .on("click",".work_sheet_save_workitem_type_btn",saveWorkItemTypeModified)
+        .on("click",".work_sheet_revoke_save_workitem_type_btn",function(){
+            unlockSaveWorkItem();
+            $(this).parents(".work_sheet_work_item_container").attr("siwtch_type_modify_on",false);
+        })
+        .on("click",".work_sheet_work_item_container_plan_item_type_modify_mark",function(){
+            /*如果要修改类型了 就锁一下*/
+            lockSaveWorkItem();
+            
+            $(this).parents(".work_sheet_work_item_container").attr("siwtch_type_modify_on",true);
+        });
+        
+
     $(".work_sheet_main_container_show_all_work_items_note").click(showAllWorkItemsNote);
     $(".work_sheet_main_container_hide_all_work_items_note").click(hideAllWorkItemsNote);
 
@@ -129,6 +142,8 @@ $(function(){
         localStorage[CONFIG.DEFAULT_WS_REMINDER_OPEN_KEY]=prop;
     })
 });
+
+
 
 
 function initReminderBtnByLocalStorage(){
@@ -224,7 +239,7 @@ function calculateWorkItemsWhetherOvertime(){
             "item_id":$(e).attr("item_id")
         })
         .find(".warning_work_item_start_time").text(startTimeObj.toSmartString()).end()
-        .find(".warning_work_item_name").text($(e).find(".work_sheet_work_item_container_plan_item").text()).end()
+        .find(".warning_work_item_name").text($(e).find(".work_sheet_work_item_container_plan_item_context").text()).end()
         .find(".warning_work_item_lasting_time").text(lastingMinutes).end()
         .find(".warning_work_item_overdue_time").text(now.countMinutesDiffer(planEndTime).transferToHoursMesIfPossible()).end()
 
@@ -513,13 +528,19 @@ function calculateValByEndTime(){
     let endTime = new Date(parseInt($("#work_sheet_main_container").attr("abs_date")));
     endTime.overrideTimeInput(endTimeVal);
 
-    let minutesDiffer = endTime.countMinutesDiffer(startTime);
+  
+    let minutesDiffer = calculateMinutesForWorkItem(startTime,endTime);
+    
     if(origin != minutesDiffer){
         $workItem.find("[name='val']").val(minutesDiffer);
         pushSaveWorkItemOpToQueue($workItem);  
         saveChangedWorkItemUnits();
     }
 }
+
+
+
+
 
 function setEndTimeByNow(){
     let $workItem = $(this).parents(".work_sheet_work_item_container");
@@ -1279,18 +1300,18 @@ function pushSaveWorkItemOpToQueue($ws){
  * 
  * 它会检验一下Saving 是否上锁，在上锁的情况下 会进行自旋 到最大值 仍不能save掉,则此时无论如何都会save
  * @returns 返回是否发了OP 假如为true 那么dom元素的更新 应当由该函数接管 而不是loadWorkSheetDetail_render
+ * 
 */
-function saveChangedWorkItemUnits(sunFunc,reloadWorkSheetAfterSave,suncFuncAfterReload){
+function saveChangedWorkItemUnits(successFunc,reloadWorkSheetAfterSave,suncFuncAfterReload){
     clearTimeout(WS_NAMESPACE.SAVE_WORK_ITEM_OP_TIMEOUT_ID);
 
     let wsId = $("#work_sheet_main_container").attr("ws_id");
     let $forSave = $("#work_sheet_work_items_container_main_body_ws_items .work_sheet_work_item_container[to_save='"+true+"']");
     let count = 0;
-    console.log($forSave.length)
 
     if($forSave.length == 0){
-        if(sunFunc != undefined){
-            sunFunc();
+        if(successFunc != undefined){
+            successFunc();
         }
         return false;
     }
@@ -1313,10 +1334,11 @@ function saveChangedWorkItemUnits(sunFunc,reloadWorkSheetAfterSave,suncFuncAfter
                 count ++;
                 $(v).attr("to_save",false);
                 if(count != $forSave.length){
+                    /*还有未保存的，等全部保存完 再进下一步骤*/
                     return;
                 }
-                if(sunFunc != undefined){
-                    sunFunc();
+                if(successFunc != undefined){
+                    successFunc();
                 }
                 if (reloadWorkSheetAfterSave == undefined || reloadWorkSheetAfterSave) {
                     /*表明所有都保存成功 重新加载一次workSheet*/
@@ -1339,6 +1361,26 @@ function saveChangedWorkItemUnits(sunFunc,reloadWorkSheetAfterSave,suncFuncAfter
     }
 }
 
+function saveWorkItemTypeModified(){
+    let $btn = $(this);
+    $btn.addClass("common_prevent_double_click");
+
+    let $container = $btn.parents(".work_sheet_work_item_container");
+    
+    let planItemId =  $container.find(".dropdown-selected").attr("item_id");
+    if(planItemId == undefined){
+        $container.attr("siwtch_type_modify_on",false);
+        return;
+    }
+
+    saveChangedWorkItemUnits(()=>{
+        sendAjax("CareerServlet","c_save_work_item_plan_item_id",{
+            "ws_id":$("#work_sheet_main_container").attr("ws_id"),
+            "work_item_id":$(this).parents(".work_sheet_work_item_container").attr("item_id"),
+            "plan_item_id":planItemId
+        },loadWorkSheetDetail_render)
+    },false);
+}
 
 
 
@@ -1393,6 +1435,10 @@ function drawWorkItems(wsItems,basePlanItems){
 
     let $container = $("#work_sheet_work_items_container_main_body_ws_items");
     $container.empty();
+
+    //工作项初始化 那么之前所谓Lock也没意义了 因此尝试解锁一下
+    unlockSaveWorkItem();
+
     wsItems.forEach(item=>{
         let planItem = getPlanItemOfWorkItem(item,basePlanItems);
 
@@ -1421,14 +1467,41 @@ function drawWorkItems(wsItems,basePlanItems){
             return true;
         }
 
+
         let $ws = $("#work_sheet_pattern_container .work_sheet_work_item_container").clone();
+        let liObjs =  $("#work_sheet_work_items_container_main_body").find(".dropdown-menu").find(".dropdown-item").get().map(v=>{
+            return {
+                "item_id":$(v).attr("item_id"),
+                "cat_type":$(v).attr("cat_type"),
+                "val":$(v).text(),
+                "selected" : parseInt($(v).attr("item_id")) == planItem.item.id
+            }
+        });
+
         let startTime = new Date(item.item.startTime);
         let endTime = new Date(item.item.endTime);
-        $ws.find("textarea").prop("value","");
+
+
+        $ws.find(".work_sheet_work_item_container_change_item_type_container").dropdown({
+            readOnly: true,
+            attrs:["item_id","cat_type"],
+            liObjs:liObjs,
+            searchInputContext: '按关键词搜索',
+            choice: function(targetLi,$showText) {
+              $showText.attr({
+                  "item_id": targetLi.item_id
+              })
+            }
+          });
+        
+
         $ws.attr({
             "plan_item_type":planItem.item.type.dbCode,
-            "item_id":item.item.id
-        }).find(".work_sheet_work_item_container_start_time_span").text(startTime.toHoursAndMinutesOnly("<em>无</em>")).end()
+            "item_id":item.item.id,
+            "siwtch_type_modify_on":false
+        }).find(".work_sheet_work_item_container_change_item_type_container").find("select").prop("placeholder",planItem.item.name)
+        .end().prop("value","")
+        .end().find(".work_sheet_work_item_container_start_time_span").text(startTime.toHoursAndMinutesOnly("<em>无</em>")).end()
             .find("[name='start_time']").val(startTime.toStandardHoursAndMinutesOnly()).end()
             .find(".work_sheet_work_item_container_calculate_info_start").text(remaining.toText()).prop("title",isMinutes?remaining.transferToHoursMesIfPossible():"").end()
             .find(".work_sheet_work_item_container_calculate_info_mark").attr("for_add",item.item.forAdd).text(caclulateWorkItemMarkByForAdd(item.item.forAdd)).end()          
@@ -1442,11 +1515,11 @@ function drawWorkItems(wsItems,basePlanItems){
             .find(".work_sheet_work_item_container_note_body").html(item.item.note.replaceAll("\n","<br/>"));
 
         if(isPC()){
-            $ws.find(".work_sheet_work_item_container_plan_item").html("<em>"+planItem.item.name+"</em>").end()
+            $ws.find(".work_sheet_work_item_container_plan_item_context").html("<em>"+planItem.item.name+"</em>").end()
                 .find(".work_sheet_work_item_unit_container_for_phone").remove();
         }else{
             $ws.find(".work_sheet_work_item_unit_container_for_phone").html("<em>"+planItem.item.name+"</em>").end()
-            .find(".work_sheet_work_item_container_plan_item").remove();
+            .find(".work_sheet_work_item_container_plan_item_context").remove();
         }
 
         calculateWorkItemUnitButtonVisible($ws);
@@ -1558,7 +1631,7 @@ function loadWorkSheetDetail_render(data) {
                 .find(".save_hint_update_time").text(new Date(data.ws.updateTime).toSmartString());
     
     
-        drawWSPlan(data.content.planItems);
+        drawWSPlanAndDropDown(data.content.planItems);
         drawWorkItems(data.content.workItems,data.content.planItems);
     
         /*下拉框默认选择 无 默认启动增加模式*/
@@ -1591,7 +1664,7 @@ function loadWorkSheetDetail_render(data) {
 
 
 
-function drawWSPlan(planItems){
+function drawWSPlanAndDropDown(planItems){
 
    /*从属的上拉框*/
    let $dropDownContainerForPlanItem  =$("#work_sheet_today_plan_control_group_container").find(".dropdown-menu");
@@ -1631,7 +1704,6 @@ function drawWSPlan(planItems){
            /*ws不需要无*/
             $dropDownContaienrForWorkItem.append($dropDownForWorkItem);
        }
-    
    })
 
    /*PlanItems的条目*/

@@ -1065,6 +1065,16 @@ function drawCommonPieChart(containerId,pieSource,radius,transValueToLabel){
     });
 }
 
+/**
+ * 似乎应该在函数里clone一下，因为修改了endTime，这里不clone是由于，这里若真的改变了endTime，则外部也应当认为endTime增加了一天。
+ */
+function calculateMinutesForWorkItem(startTime,endTime){
+    //如果endTime<startTime 则认为是到了第二天 此时将endTime加一天
+    if(endTime < startTime){
+        endTime.addDays(1);
+    } 
+    return endTime.countMinutesDiffer(startTime);
+}
 
 /**
  * 根据planItemId merge
@@ -1078,8 +1088,7 @@ function drawCommonPieChart(containerId,pieSource,radius,transValueToLabel){
     content.workItems.filter(w => w.item.endTime != 0 && w.item.type.dbCode != BASIC_NAMESPACE.WORK_ITEM_TYPE_OF_DEPT).forEach(item=>{
         let planItem = getPlanItemOfWorkItem(item,content.planItems);
         let existedItem = rlt.find(p=>p.pItem==planItem);
-        let costMinutes = new Date(item.item.endTime).countMinutesDiffer(new Date(item.item.startTime));
-
+        let costMinutes = calculateMinutesForWorkItem(new Date(item.item.startTime),new Date(item.item.endTime));
         if(existedItem != undefined){
             existedItem.costMinutes = existedItem.costMinutes + costMinutes;
             return ;
