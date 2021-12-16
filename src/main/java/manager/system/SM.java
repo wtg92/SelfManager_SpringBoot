@@ -6,9 +6,9 @@ import java.io.File;
 
 public abstract class SM {
 
-	public final static String VERSION = "1.1";
+	public final static String VERSION = "2.0";
 	
-	public final static String PROPERTIES_FILE_NAME = "sm_sample.properties";
+	public final static String PROPERTIES_FILE_NAME = "sm.properties";
 
 			
 	public final static String DB_NAME = getValFromPropertiesFileInResource("db_name"); 
