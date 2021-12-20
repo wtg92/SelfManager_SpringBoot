@@ -33,6 +33,7 @@ import static manager.system.SMParm.START_DATE;
 import static manager.system.SMParm.START_TIME;
 import static manager.system.SMParm.STATE;
 import static manager.system.SMParm.STYLE;
+import static manager.system.SMParm.TAGS;
 import static manager.system.SMParm.TARGET_ID;
 import static manager.system.SMParm.TARGET_PLAN_ID;
 import static manager.system.SMParm.TEMPLE_PLAN_ID;
@@ -41,7 +42,7 @@ import static manager.system.SMParm.WITH_TODOS;
 import static manager.system.SMParm.WORK_ITEM_ID;
 import static manager.system.SMParm.WS_ID;
 import static manager.system.SMParm.WS_IDS;
-import static manager.util.UIUtil.getBiParamsWithoutQuotationJSON;
+import static manager.util.UIUtil.getBiParamsJSON;
 import static manager.util.UIUtil.getLoginerId;
 import static manager.util.UIUtil.getNonNullParam;
 import static manager.util.UIUtil.getNonNullParamInBool;
@@ -49,9 +50,10 @@ import static manager.util.UIUtil.getNonNullParamInDate;
 import static manager.util.UIUtil.getNonNullParamInDouble;
 import static manager.util.UIUtil.getNonNullParamInInt;
 import static manager.util.UIUtil.getNonNullParamInTime;
+import static manager.util.UIUtil.getNonNullParams;
 import static manager.util.UIUtil.getNonNullParamsInInt;
 import static manager.util.UIUtil.getNullObjJSON;
-import static manager.util.UIUtil.getOneParamInLongJSON;
+import static manager.util.UIUtil.getParamJSON;
 import static manager.util.UIUtil.getParamOrBlankDefault;
 import static manager.util.UIUtil.getParamOrBlankDefaultInDate;
 import static manager.util.UIUtil.getParamOrBlankDefaultInTime;
@@ -130,12 +132,16 @@ public class CareerServlet extends SMServlet{
 			return removeItemFromPlan(request);
 		case C_LOAD_PLAN:
 			return loadPlan(request);
+		case C_LOAD_ALL_PLAN_TAGS:
+			return loadAllPlanTags(request);
 		case C_SAVE_PLAN:
 			return savePlan(request);
 		case C_SAVE_PLAN_ITEM:
 			return savePlanItem(request);
 		case C_SAVE_PLAN_ITEM_FOLD:
 			return savePlanItemFold(request);
+		case C_RESET_PLAN_TAGS:
+			return resetPlanTags(request);
 		case C_ABANDON_PLAN:
 			return abandonPlan(request);
 		case C_FINISH_PLAN:
@@ -246,6 +252,12 @@ public class CareerServlet extends SMServlet{
 		}
 	}
 	
+	private String loadAllPlanTags(HttpServletRequest request) throws SMException{
+		int loginerId = getLoginerId(request);
+		List<String> tags = wL.loadAllPlanTagsByUser(loginerId);
+		return getParamJSON(tags);
+	}
+
 	private String loadWorkSheetsByDateScope(HttpServletRequest request) throws SMException {
 		int loginerId = getLoginerId(request);
 		Calendar startDate = getNonNullParamInDate(request, START_DATE);
@@ -313,9 +325,7 @@ public class CareerServlet extends SMServlet{
 		boolean important = getNonNullParamInBool(request,IMPORTANT);
 		int bookId = nL.saveNoteImportant(loginerId, noteId, important);
 		
-		String content = JSON.toJSONString(nL.loadBookContent(loginerId, bookId),noteConf);
-		String note = JSON.toJSONString(nL.loadNote(loginerId, noteId),noteConf);
-		return getBiParamsWithoutQuotationJSON(note,content);
+		return getBiParamsJSON(nL.loadNote(loginerId, noteId),nL.loadBookContent(loginerId, bookId),noteConf);
 	}
 
 	private String loadNoteLabels(HttpServletRequest request) throws LogicException {
@@ -374,7 +384,7 @@ public class CareerServlet extends SMServlet{
 		int bookId = getNonNullParamInInt(request, BOOK_ID);
 		String name = getNonNullParam(request, NAME);
 		int noteId = nL.createNote(loginerId, bookId, name);
-		return getBiParamsWithoutQuotationJSON(JSON.toJSONString(nL.loadBookContent(loginerId, bookId),noteConf),noteId+""); 
+		return getBiParamsJSON(nL.loadBookContent(loginerId, bookId),noteId,noteConf); 
 	}
 
 	private String saveNoteBook(HttpServletRequest request) throws LogicException, DBException {
@@ -575,7 +585,7 @@ public class CareerServlet extends SMServlet{
 	private String loadTodaySheetCount(HttpServletRequest request) throws SMException {
 		int loginerId = getLoginerId(request);
 		Calendar date = getNonNullParamInDate(request, DATE);
-		return getOneParamInLongJSON(wL.loadWorkSheetCount(loginerId,date));
+		return getParamJSON(wL.loadWorkSheetCount(loginerId,date));
 	}
 	
 	private String loadWorkSheet(HttpServletRequest request) throws LogicException, DBException {
@@ -650,6 +660,15 @@ public class CareerServlet extends SMServlet{
 		wL.abandonPlan(loginerId, planId);
 		return getNullObjJSON();
 	}
+	
+	private String resetPlanTags(HttpServletRequest request) throws SMException {
+		int loginerId = getLoginerId(request);
+		int planId = getNonNullParamInInt(request, PLAN_ID);
+		List<String> tags = getNonNullParams(request, TAGS);
+		wL.resetPlanTags(loginerId, planId,tags);
+		return getNullObjJSON();
+	}
+	
 	
 	private String savePlanItemFold(HttpServletRequest request) throws SMException {
 		int loginerId = getLoginerId(request);

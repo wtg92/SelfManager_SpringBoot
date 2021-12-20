@@ -48,6 +48,7 @@ public abstract class SMDB {
 	public static final String F_PERM_ID = "perm_id";
 	public static final String F_ID_NUM = "id_num";
 	public static final String F_STATE = "state";
+	public static final String F_TAGS = "tags";
 	public static final String F_OWNER_ID = "owner_id";
 	public static final String F_DATE = "date";
 	public static final String F_PLAN_ID = "plan_id";

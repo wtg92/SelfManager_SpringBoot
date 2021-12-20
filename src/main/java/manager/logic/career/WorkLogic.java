@@ -125,6 +125,7 @@ public abstract class WorkLogic{
 	
 	public abstract long loadWorkSheetCount(int loginerId,Calendar date) throws SMException;
 	
+	public abstract List<String> loadAllPlanTagsByUser(int loginerId) throws SMException;
 	public abstract PlanDeptProxy loadPlanDept(int loginerId) throws DBException, LogicException;
 	public abstract List<String> loadPlanDeptItemNames(int loginerId) throws DBException, LogicException;
 	/**
@@ -134,7 +135,7 @@ public abstract class WorkLogic{
 	public abstract void abandonPlan(int opreatorId,int planId) throws LogicException, DBException;
 	/* 状态设置为Finished 改plan的EndDate设为今天*/
 	public abstract void finishPlan(int opreatorId,int planId) throws LogicException, DBException;
-	
+	public abstract void resetPlanTags(int opreatorId,int planId,List<String> tags) throws SMException;
 	
 	public abstract void saveWorkItemPlanItemId(int updaterId,int wsId,int workItemId, int planItemId) throws LogicException, DBException;
 	public abstract void saveWorkItem(int updaterId,int wsId,int workItemId, int value, String note, int mood,boolean forAdd,Calendar startTime,Calendar endTime) throws LogicException, DBException;
@@ -465,6 +466,7 @@ public abstract class WorkLogic{
 			}
 		}
 	}
+	
 
 
 

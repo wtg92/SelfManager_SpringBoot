@@ -30,6 +30,7 @@ import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.SMException;
 import manager.logic.CacheScheduler;
+import manager.logic.TagCalculator;
 import manager.system.CacheMode;
 import manager.system.SM;
 import manager.system.SMDB;
@@ -157,6 +158,21 @@ public class WorkLogic_Real extends WorkLogic{
 		refreshStateAfterItemModified(ws);
 		
 		CacheScheduler.saveEntityAndUpdateCache(ws,w->wDAO.updateExistedWorkSheet(w));
+	}
+	
+	
+	@Override
+	public void resetPlanTags(int opreatorId, int planId, List<String> tags) throws SMException {
+		Plan plan = CacheScheduler.getOne(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
+		if(plan.getOwnerId() != opreatorId) {
+			throw new LogicException(SMError.CANNOT_SAVE_PLAN);
+		}
+		
+		TagCalculator.checkTagsForReset(tags);
+		
+		plan.setTags(tags);
+		
+		CacheScheduler.saveEntityAndUpdateCache(plan,p->wDAO.updateExistedPlan(p));
 	}
 	
 	
@@ -761,6 +777,17 @@ public class WorkLogic_Real extends WorkLogic{
 		
 		CacheScheduler.saveEntityAndUpdateCache(target,p->wDAO.updateExistedPlan(p));
 	}
+
+	@Override
+	public List<String> loadAllPlanTagsByUser(int loginerId) throws SMException {
+		
+		List<String> tagStrs = wDAO.selectNonNullTagsByUser(loginerId);
+		
+		return tagStrs.stream().flatMap(tagStr->TagCalculator.parseToTags(tagStr).stream())
+				.distinct().collect(toList());
+	}
+
+
 
 
 

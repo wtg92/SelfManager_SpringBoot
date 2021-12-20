@@ -17,6 +17,7 @@ import manager.system.career.PlanSetting;
 import manager.system.career.PlanSettingConverter;
 import manager.system.career.PlanState;
 import manager.system.career.PlanStateConverter;
+import manager.system.career.TagsConverter;
 
 @Entity
 @Table(name = SMDB.T_PLAN)
@@ -51,6 +52,9 @@ public class Plan extends SMGeneralEntity {
 	@Convert(converter = PlanSettingConverter.class)
 	private List<PlanSetting> setting;
 	
+	@Column
+	@Convert(converter = TagsConverter.class)
+	private List<String> tags;
 	
 	@Column
 	private Integer seqWeight;
@@ -66,6 +70,14 @@ public class Plan extends SMGeneralEntity {
 	
 	
 	
+	public List<String> getTags() {
+		return tags;
+	}
+
+	public void setTags(List<String> tags) {
+		this.tags = tags;
+	}
+
 	public Integer getSeqWeight() {
 		return seqWeight;
 	}

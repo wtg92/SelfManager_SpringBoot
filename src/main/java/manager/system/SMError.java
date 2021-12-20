@@ -87,8 +87,9 @@ public enum SMError {
 	
 	FIEL_UPLOADING_ERROR("文件上传失败"),
 	
-	MODIFY_DPI_ERROR("修改图片DPI失败")
-	
+	MODIFY_DPI_ERROR("修改图片DPI失败"),
+	ILLEGAL_TAG("标签中包含非法字符"),
+	DUP_TAG("标签重复")
 	;
 	private final String description;
     

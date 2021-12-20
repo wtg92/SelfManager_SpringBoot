@@ -28,6 +28,7 @@ public abstract class SMParm {
 	public final static String GROUP_ID = "group_id";
 	public final static String PERMS = "perms";
 	public final static String PLAN_ID = "plan_id";
+	public final static String TAGS = "tags";
 	public final static String FOLD = "fold";
 	public final static String TARGET_PLAN_ID = "target_plan_id";
 	public final static String TEMPLE_PLAN_ID = "temple_plan_id";

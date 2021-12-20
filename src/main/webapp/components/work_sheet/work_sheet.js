@@ -1512,14 +1512,13 @@ function drawWorkItems(wsItems,basePlanItems){
             .find(".work_sheet_work_item_container_end_time_span").html(endTime.toHoursAndMinutesOnly("<em>进行中</em>")).end()
             .find("[name='end_time']").val(endTime.toStandardHoursAndMinutesOnly("")).end()
             .find(".work_sheet_work_item_container_mood").append(calculateMoodSpan(item.item.mood)).end()
+            .find(".work_sheet_work_item_container_plan_item_context").html("<em>"+planItem.item.name+"</em>").end()
             .find(".work_sheet_work_item_container_note_body").html(item.item.note.replaceAll("\n","<br/>"));
 
         if(isPC()){
-            $ws.find(".work_sheet_work_item_container_plan_item_context").html("<em>"+planItem.item.name+"</em>").end()
-                .find(".work_sheet_work_item_unit_container_for_phone").remove();
+            $ws.find(".work_sheet_work_item_unit_container_for_phone").remove();
         }else{
-            $ws.find(".work_sheet_work_item_unit_container_for_phone").html("<em>"+planItem.item.name+"</em>").end()
-            .find(".work_sheet_work_item_container_plan_item_context").remove();
+            $ws.find(".work_sheet_work_item_container_plan_item").remove();
         }
 
         calculateWorkItemUnitButtonVisible($ws);

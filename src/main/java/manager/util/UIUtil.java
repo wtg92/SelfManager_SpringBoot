@@ -6,7 +6,9 @@ import static manager.system.SMParm.USER_TOKEN;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -15,6 +17,9 @@ import org.apache.tomcat.util.http.fileupload.FileUploadException;
 import org.apache.tomcat.util.http.fileupload.disk.DiskFileItemFactory;
 import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
 import org.apache.tomcat.util.http.fileupload.servlet.ServletRequestContext;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializeConfig;
 
 import manager.data.SingleFileUnit;
 import manager.exception.LogicException;
@@ -220,24 +225,27 @@ public abstract class UIUtil {
 		return "{}";
 	}
 	
-	public static String getOneParamJSON(Object arg) {
-		return String.format("{\"rlt\":\"%s\"}", arg.toString());
+	public static String getParamJSON(Object arg) {
+		SerializeConfig conf = new SerializeConfig();
+		return getParamJSON(arg, conf);
 	}
 	
-	public static String getOneParamInLongJSON(long arg) {
-		return String.format("{\"rlt\":%d}", arg);
+	public static String getBiParamsJSON(Object arg1,Object arg2) {
+		SerializeConfig conf = new SerializeConfig();
+		return getBiParamsJSON(arg1, arg2, conf);
 	}
 	
-	public static String getOneParamInIntJSON(int arg) {
-		return String.format("{\"rlt\":%d}", arg);
+	public static String getParamJSON(Object arg, SerializeConfig config) {
+		Map<String,Object> rlt = new HashMap<>();
+		rlt.put("rlt", arg);
+		return JSON.toJSONString(rlt,config);
 	}
 	
-	public static String getOneParamInBoolJSON(boolean arg) {
-		return String.format("{\"rlt\":%s}", arg);
-	}
-	
-	public static String getBiParamsWithoutQuotationJSON(String objJSON1,String objJSON2) {
-		return String.format("{\"firstRlt\":%s,\"secondRlt\":%s}", objJSON1,objJSON2);
+	public static String getBiParamsJSON(Object arg1,Object arg2, SerializeConfig config) {
+		Map<String,Object> rlt = new HashMap<>();
+		rlt.put("firstRlt", arg1);
+		rlt.put("secondRlt", arg2);
+		return JSON.toJSONString(rlt,config);
 	}
 	
 	public static int getLoginerId(HttpServletRequest request) throws LogicException {

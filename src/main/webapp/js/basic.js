@@ -1,4 +1,4 @@
-const BASIC_NAMESPACE = {
+let BASIC_NAMESPACE = {
     "INFORMATION_GROUPS" :
         [{
            "name" : "关于本站",
@@ -69,6 +69,7 @@ function adpatPhoenAPP(){
         return;
     }
 
+    $("body").addClass("is_phone");
     $("#header_main_container,#footer_main_container,.common_main_container").css("min-width","0");
     $(".modal-lg,.modal-xl").css("max-width","none");
     $("input[type='time']").css({

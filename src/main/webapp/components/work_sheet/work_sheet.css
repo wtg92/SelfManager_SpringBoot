@@ -3,6 +3,16 @@
 
 }
 
+
+.work_sheet_work_item_unit_container_for_phone .work_sheet_work_item_container_plan_item_type_modify_mark{
+    margin-left: 10px;
+}
+
+body.is_phone .work_sheet_work_item_container_change_item_type_hint_container{
+    display: none !important;
+}
+
+
 .work_sheet_work_item_container_delete_button svg{
     vertical-align: auto !important;
 }
@@ -58,6 +68,7 @@
 .work_sheet_work_item_unit_container_for_phone{
     margin-bottom: 5px;
     font-size: 1.1em;
+    display: flex;
 }
 #ws_statistics_dialog_bar_chart_container{
     width: 465px;
@@ -693,7 +704,7 @@ little{
 }
 
 .work_sheet_work_item_container,.work_sheet_work_item_of_dept_container{
-    margin-bottom: 10px;
+    margin-bottom: 20px;
 }
 
 

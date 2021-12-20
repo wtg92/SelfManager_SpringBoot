@@ -172,6 +172,33 @@ public class WorkDAOImpl implements WorkDAO {
 			throws DBException {
 		return selectEntitiesByFieldAndManyField(WorkSheet.class,SMDB.F_OWNER_ID,ownerId, SMDB.F_STATE, states,WorkSheetState::getDbCode,hbFactory);
 	}
+	
+	@Override
+	public List<String> selectNonNullTagsByUser(int loginerId) throws DBException {
+		List<String> rlt = new ArrayList<>();
+		Session session = null;
+		Transaction trans = null;
+		try {
+			session = hbFactory.getCurrentSession();
+			trans = session.beginTransaction();
+			session.doWork(conn -> {
+				String sql = String.format("select %s From %s where %s=? and %s is not null and trim(%s) != ''",
+						SMDB.F_TAGS,SMDB.T_PLAN,
+						SMDB.F_OWNER_ID,SMDB.F_TAGS,SMDB.F_TAGS);
+				try (PreparedStatement ps = conn.prepareStatement(sql)) {
+					ResultSet rs = ps.executeQuery();
+					while(rs.next()) {
+						rlt.add(rs.getString(1));
+					}
+				}
+			});
+			trans.commit();
+			return rlt;
+		} catch (Exception e) {
+			throw processDBExcpetion(trans, session, e);
+		}
+	}
+
 
 	@Override
 	public List<Plan> selectPlanInfosByIds(List<Integer> planIds) throws DBException {
@@ -216,6 +243,7 @@ public class WorkDAOImpl implements WorkDAO {
 	public List<WorkSheet> selectWorkSheetsByOwnerAndDateScope(int ownerId, Calendar startDate, Calendar endDate) throws DBException {
 		return selectEntitiesByDateScopeAndField(WorkSheet.class, SMDB.F_DATE, startDate, endDate, SMDB.F_OWNER_ID, ownerId, hbFactory);
 	}
+
 
 
 	

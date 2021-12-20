@@ -31,8 +31,7 @@ import static manager.util.UIUtil.getNonNullParamInBool;
 import static manager.util.UIUtil.getNonNullParamInInt;
 import static manager.util.UIUtil.getNonNullParamsInInt;
 import static manager.util.UIUtil.getNullObjJSON;
-import static manager.util.UIUtil.getOneParamInBoolJSON;
-import static manager.util.UIUtil.getOneParamJSON;
+import static manager.util.UIUtil.getParamJSON;
 
 import java.io.IOException;
 import java.util.List;
@@ -197,7 +196,7 @@ public class UserServlet extends SMServlet{
 	private String existsUserByField(HttpServletRequest request) throws LogicException, DBException {
 		UserUniqueField field = UserUniqueField.valueOfDBCode(getNonNullParamInInt(request, FIELD));
 		String val = getNonNullParam(request, VAL);
-		return getOneParamInBoolJSON(uL.exists(field, val));
+		return getParamJSON(uL.exists(field, val));
 	}
 
 	private String sendVerifyCode(HttpServletRequest request) throws LogicException {
@@ -238,12 +237,12 @@ public class UserServlet extends SMServlet{
 
 	private String getTempUser(HttpServletRequest request) throws LogicException {
 		String tempUserId = uL.createTempUser();
-		return getOneParamJSON(tempUserId);
+		return getParamJSON(tempUserId);
 	}
 
 	private String confirmTempUser(HttpServletRequest request) throws LogicException {
 		String tempUserId = getNonNullParam(request, TEMP_USER_ID);
-		return getOneParamInBoolJSON(uL.confirmTempUser(tempUserId));
+		return getParamJSON(uL.confirmTempUser(tempUserId));
 	}
 
 	private String confirmUserToken(HttpServletRequest request) throws LogicException, DBException {
