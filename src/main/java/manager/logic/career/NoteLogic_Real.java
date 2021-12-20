@@ -53,10 +53,6 @@ public class NoteLogic_Real extends NoteLogic {
 		return nDAO.insertNoteBook(book);
 	}
 
-	/**
-	 * 首先数据结构是没错的，根据最简原则，就应该这么弄。 其次 每次都需要全取出来 并且 应该提供 selectId And PrevId 和 UpdateId
-	 * And PrevId 专门的两个函数 前台的事，等到前台再考虑
-	 */
 	@Override
 	public int createNote(int creatorId, int noteBookId, String name) throws DBException, LogicException {
 		uL.checkPerm(creatorId, SMPerm.CREATE_NOTE_BOOK_AND_NOTE);

@@ -44,6 +44,18 @@ import manager.system.career.WorkItemType;
 import manager.system.career.WorkSheetState;
 import manager.util.TimeUtil;
 
+/**
+ * 是否加 synchronized 修饰 总是一个很纠结的问题。
+ * 考虑到本系统面向个人且数据并不十分重要，因此尽量少用synchronized修饰。
+ * 而使用synchronized修饰的唯一依据是：本方法在方法内利用到和本方法修改相关的值了，例如创建某一天的工作表，在方法内检验当日是否已经开启了工作表，假设开启了，则不允许重复开启。
+ * 这一依据的表现是：会发生线程安全问题，即当同样的事情，是否用sync修饰，除了时间差异，结果会不同。
+ * 此时必须加synchronized修饰
+ * 
+ * 本质上，是否会由于多线程 导致非法的数据
+ * 和PlanItem相关的增、改 是需要加synchronized修饰的，因为要保证其中的PlanItem不能重名
+ * @author 王天戈
+ *
+ */
 public class WorkLogic_Real extends WorkLogic{
 	
 	final private static Logger logger = Logger.getLogger(WorkLogic_Real.class.getName());
@@ -79,7 +91,7 @@ public class WorkLogic_Real extends WorkLogic{
 	}
 
 	@Override
-	public void addItemToPlan(int adderId, int planId, String categoryName, int value, String note,
+	public synchronized void addItemToPlan(int adderId, int planId, String categoryName, int value, String note,
 			PlanItemType type, int fatherId, double mappingVal) throws LogicException, DBException {
 		Plan existed = CacheScheduler.getOne(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
 		if(existed.getOwnerId() != adderId) {
@@ -89,9 +101,9 @@ public class WorkLogic_Real extends WorkLogic{
 		WorkContentConverter.addItemToPlan(existed,adderId,categoryName,value,note,type,fatherId,mappingVal);
 		CacheScheduler.saveEntityAndUpdateCache(existed,p->wDAO.updateExistedPlan(p));
 	}
-
+	
 	@Override
-	public void addItemToWSPlan(int adderId, int wsId, String categoryName, int value, String note, PlanItemType type,
+	public synchronized void addItemToWSPlan(int adderId, int wsId, String categoryName, int value, String note, PlanItemType type,
 			int fatherId, double mappingVal) throws LogicException, DBException {
 		WorkSheet ws = CacheScheduler.getOne(CacheMode.E_ID,wsId, WorkSheet.class, ()->wDAO.selectExistedWorkSheet(wsId));
 		if(adderId != ws.getOwnerId()) {
@@ -107,7 +119,7 @@ public class WorkLogic_Real extends WorkLogic{
 	
 	
 	@Override
-	public synchronized void addItemToWS(int adderId, int wsId, int planItemId, int value, String note, int mood,
+	public void addItemToWS(int adderId, int wsId, int planItemId, int value, String note, int mood,
 			boolean forAdd,Calendar startTime, Calendar endTime) throws LogicException, DBException {
 		WorkSheet ws = CacheScheduler.getOne(CacheMode.E_ID,wsId, WorkSheet.class, ()->wDAO.selectExistedWorkSheet(wsId));
 		if(adderId != ws.getOwnerId()) {
@@ -133,7 +145,7 @@ public class WorkLogic_Real extends WorkLogic{
 	}
 	
 	@Override
-	public synchronized void removeItemFromWSPlan(int removerId, int wsId, int itemId) throws LogicException, DBException {
+	public void removeItemFromWSPlan(int removerId, int wsId, int itemId) throws LogicException, DBException {
 		WorkSheet ws = CacheScheduler.getOne(CacheMode.E_ID,wsId, WorkSheet.class, ()->wDAO.selectExistedWorkSheet(wsId));
 		if(removerId != ws.getOwnerId()) {
 			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS,removerId+" vs "+ws.getOwnerId());
@@ -147,7 +159,7 @@ public class WorkLogic_Real extends WorkLogic{
 	}
 	
 	@Override
-	public synchronized void removeItemFromWorkSheet(int removerId, int wsId, int itemId) throws LogicException, DBException {
+	public void removeItemFromWorkSheet(int removerId, int wsId, int itemId) throws LogicException, DBException {
 		WorkSheet ws = CacheScheduler.getOne(CacheMode.E_ID,wsId, WorkSheet.class, ()->wDAO.selectExistedWorkSheet(wsId));
 		if(removerId != ws.getOwnerId()) {
 			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS,removerId+" vs "+ws.getOwnerId());
@@ -217,7 +229,22 @@ public class WorkLogic_Real extends WorkLogic{
 	}
 
 	@Override
-	public void savePlanItem(int loginerId, int planId,int itemId , String catName, int value,String note, double mappingVal) throws LogicException, DBException {
+	public void saveWorkSheetPlanId(int updaterId, int wsId, int planId) throws SMException {
+		WorkSheet ws = CacheScheduler.getOne(CacheMode.E_ID,wsId, WorkSheet.class, ()->wDAO.selectExistedWorkSheet(wsId));
+		if(updaterId != ws.getOwnerId()) {
+			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS,updaterId+" vs "+ws.getOwnerId());
+		}
+		Plan plan = CacheScheduler.getOne(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
+		if(plan.getOwnerId() != updaterId) {
+			throw new LogicException(SMError.CAREER_ACTION_ERROR,"不能把工作表的基准计划修改为他人的计划");
+		}
+		
+		ws.setPlanId(planId);
+		CacheScheduler.saveEntityAndUpdateCache(ws, one->wDAO.updateExistedWorkSheet(one));
+	}
+	
+	@Override
+	public synchronized void savePlanItem(int loginerId, int planId,int itemId , String catName, int value,String note, double mappingVal) throws LogicException, DBException {
 		Plan plan = CacheScheduler.getOne(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
 		if(plan.getOwnerId() != loginerId) {
 			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
@@ -240,7 +267,7 @@ public class WorkLogic_Real extends WorkLogic{
 	
 
 	@Override
-	public void saveWSPlanItem(int loginerId, int wsId, int itemId, String catName, int value, String note,
+	public synchronized void saveWSPlanItem(int loginerId, int wsId, int itemId, String catName, int value, String note,
 			double mappingVal) throws LogicException, DBException {
 		WorkSheet ws = CacheScheduler.getOne(CacheMode.E_ID,wsId, WorkSheet.class, ()->wDAO.selectExistedWorkSheet(wsId));
 		if(loginerId != ws.getOwnerId()) {
@@ -525,6 +552,32 @@ public class WorkLogic_Real extends WorkLogic{
 	}
 
 	@Override
+	public List<WorkSheetProxy> loadWorkSheetByState(int loginerId, WorkSheetState stateZT)
+			throws LogicException, DBException {
+		if(stateZT == WorkSheetState.UNDECIDED) {
+			return fillPlanNames(wDAO.selectWorkSheetByField(SMDB.F_OWNER_ID, loginerId));
+		}
+		return clearUnnecessaryInfo(fillPlanNames(wDAO.selectWorkSheetByOwnerAndStates(loginerId, Arrays.asList(stateZT))));
+	}
+	
+	@Override
+	public List<String> loadPlanDeptItemNames(int loginerId) throws DBException, LogicException {
+		PlanDept dept = CacheScheduler.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginerId, PlanDept.class, 
+				 ()->wDAO.selectPlanDeptByOwner(loginerId), ()->initPlanDept(loginerId));
+		PlanDeptContent content = WorkContentConverter.convertPlanDept(dept);
+		return content.items.stream().map(PlanDeptItem::getName).collect(toList());
+	}
+	
+	@Override
+	public List<String> loadAllPlanTagsByUser(int loginerId) throws SMException {
+		
+		List<String> tagStrs = wDAO.selectNonNullTagsByUser(loginerId);
+		
+		return tagStrs.stream().flatMap(tagStr->TagCalculator.parseToTags(tagStr).stream())
+				.distinct().collect(toList());
+	}
+	
+	@Override
 	public synchronized int openWorkSheetToday(int opreatorId, int planId) throws DBException, LogicException {
 		Calendar today = TimeUtil.getCurrentDate();
 		if(CacheScheduler.existsByBiFields(CacheMode.E_ID,
@@ -564,7 +617,7 @@ public class WorkLogic_Real extends WorkLogic{
 	}
 
 	@Override
-	public synchronized void saveWorkSheet(int updaterId, int wsId, String note) throws LogicException, DBException {
+	public void saveWorkSheet(int updaterId, int wsId, String note) throws LogicException, DBException {
 		WorkSheet ws = CacheScheduler.getOne(CacheMode.E_ID,wsId, WorkSheet.class, ()->wDAO.selectExistedWorkSheet(wsId));
 		if(updaterId != ws.getOwnerId()) {
 			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS,updaterId+" vs "+ws.getOwnerId());
@@ -611,7 +664,7 @@ public class WorkLogic_Real extends WorkLogic{
 	
 	
 	@Override
-	public synchronized void saveWorkItem(int updaterId,int wsId, int workItemId, int value, String note, int mood, boolean forAdd,
+	public void saveWorkItem(int updaterId,int wsId, int workItemId, int value, String note, int mood, boolean forAdd,
 			Calendar startTime, Calendar endTime) throws LogicException, DBException {
 		WorkSheet ws = CacheScheduler.getOne(CacheMode.E_ID,wsId, WorkSheet.class, ()->wDAO.selectExistedWorkSheet(wsId));
 		if(updaterId != ws.getOwnerId()) {
@@ -625,7 +678,7 @@ public class WorkLogic_Real extends WorkLogic{
 	}
 	
 	@Override
-	public synchronized void saveWorkItemPlanItemId(int updaterId, int wsId, int workItemId, int planItemId)
+	public void saveWorkItemPlanItemId(int updaterId, int wsId, int workItemId, int planItemId)
 			throws LogicException, DBException {
 		WorkSheet ws = CacheScheduler.getOne(CacheMode.E_ID,wsId, WorkSheet.class, ()->wDAO.selectExistedWorkSheet(wsId));
 		if(updaterId != ws.getOwnerId()) {
@@ -717,21 +770,11 @@ public class WorkLogic_Real extends WorkLogic{
 		CacheScheduler.saveEntityAndUpdateCache(dept,d->wDAO.updateExistedPlanDept(d));
 	}
 	
-	
 	@Override
 	public void syncAllToPlanDeptBatch(int logienrId, List<Integer> wsIds) throws SMException {
 		for(int wsId:wsIds) {
 			syncAllToPlanDept(logienrId, wsId);
 		}
-	}
-	
-	@Override
-	public List<WorkSheetProxy> loadWorkSheetByState(int loginerId, WorkSheetState stateZT)
-			throws LogicException, DBException {
-		if(stateZT == WorkSheetState.UNDECIDED) {
-			return fillPlanNames(wDAO.selectWorkSheetByField(SMDB.F_OWNER_ID, loginerId));
-		}
-		return clearUnnecessaryInfo(fillPlanNames(wDAO.selectWorkSheetByOwnerAndStates(loginerId, Arrays.asList(stateZT))));
 	}
 	
 	private List<WorkSheetProxy> fillPlanNames(List<WorkSheet> src) throws DBException{
@@ -753,14 +796,6 @@ public class WorkLogic_Real extends WorkLogic{
 	}
 
 	@Override
-	public List<String> loadPlanDeptItemNames(int loginerId) throws DBException, LogicException {
-		PlanDept dept = CacheScheduler.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginerId, PlanDept.class, 
-				 ()->wDAO.selectPlanDeptByOwner(loginerId), ()->initPlanDept(loginerId));
-		PlanDeptContent content = WorkContentConverter.convertPlanDept(dept);
-		return content.items.stream().map(PlanDeptItem::getName).collect(toList());
-	}
-
-	@Override
 	public void copyPlanItemsFrom(int loginerId, int targetPlanId, int templetePlanId)
 			throws DBException, LogicException {
 		Plan target = CacheScheduler.getOne(CacheMode.E_ID, targetPlanId, Plan.class, ()->wDAO.selectExistedPlan(targetPlanId));
@@ -777,27 +812,5 @@ public class WorkLogic_Real extends WorkLogic{
 		
 		CacheScheduler.saveEntityAndUpdateCache(target,p->wDAO.updateExistedPlan(p));
 	}
-
-	@Override
-	public List<String> loadAllPlanTagsByUser(int loginerId) throws SMException {
-		
-		List<String> tagStrs = wDAO.selectNonNullTagsByUser(loginerId);
-		
-		return tagStrs.stream().flatMap(tagStr->TagCalculator.parseToTags(tagStr).stream())
-				.distinct().collect(toList());
-	}
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }

@@ -147,7 +147,8 @@ public abstract class WorkLogic{
 			String note, boolean recalculateState, List<PlanSetting> settings,int seqWeight) throws LogicException, DBException;
 	public abstract void saveWorkSheet(int updaterId,int wsId,String note) throws LogicException, DBException;	
 	public abstract void savePlanDeptItem(int updaterId,int itemId,String name,double val) throws LogicException, DBException;	
-	
+	public abstract void saveWorkSheetPlanId(int updaterId,int wsId,int planId) throws SMException;	
+
 	/**
 	 * sync修饰
 	  *  先检查今天没有工作表 否则抛并发异常
