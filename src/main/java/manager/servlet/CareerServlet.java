@@ -522,7 +522,7 @@ public class CareerServlet extends SMServlet{
 	
 	private String saveWorkSheetPlanId(HttpServletRequest request) throws SMException {
 		int loginerId = getLoginerId(request);
-		int planId = getNonNullParamInInt(request, PLAN_ID);
+		int planId = ServletAdapter.getCommonId(getNonNullParam(request, PLAN_ID));
 		int wsId = getNonNullParamInInt(request, WS_ID);
 		wL.saveWorkSheetPlanId(loginerId, wsId, planId);
 		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId),workConf);

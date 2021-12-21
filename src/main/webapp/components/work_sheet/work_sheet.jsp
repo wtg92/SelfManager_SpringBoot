@@ -17,6 +17,7 @@
  			<div class="work_sheet_main_container_header_base_plan">基于<em></em></div>
 
  			<div class="work_sheet_main_ctrogroup_buttons">
+ 				<span class="work_sheet_main_container_change_ws_base_of_plan common_blue_font common_hover">更改计划基</span>
  				<span class="work_sheet_main_container_assume_finsihed common_blue_font common_hover"><%=WorkSheetState.NO_MONITOR.getName()%></span>
  				<span class="work_sheet_main_container_cancel_assumen_finished common_blue_font common_hover">取消<%=WorkSheetState.NO_MONITOR.getName()%></span>
  				<span class="work_sheet_main_container_delete_button common_blue_font common_hover">删除</span>
@@ -215,6 +216,30 @@
 
 
 
+<div class="modal fade" id="ws_change_plan_base_dialog" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="ws_change_plan_base_dialog_label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="ws_change_plan_base_dialog_label">更改<em></em>工作表的计划基</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+		<div id="ws_change_plan_base_dialog_operator_container">
+			<div>更改的计划ID</div><input id="ws_base_plan_id_input_for_change" type="text"/>
+		</div>
+		<div id="ws_change_plan_base_dialog_hint">
+			更改计划基<em>不会修改工作表内已有的计划和工作项</em>，该功能用于调整系统对工作表时间范围的数据分析。
+		</div>
+      </div>
+      <div class="modal-footer">
+      	<button type="button" id="ws_change_plan_base_dialog_confirm_btn" class="btn btn-primary">更改</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div id="work_sheet_pattern_container" class="common_pattern_container">
 	<div class="work_sheet_work_item_container">

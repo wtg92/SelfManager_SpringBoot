@@ -2,6 +2,23 @@
     padding: 20px;
 
 }
+#ws_base_plan_id_input_for_change{
+    flex-grow: 1.1;
+}
+
+#ws_change_plan_base_dialog_operator_container{
+    display: flex;
+    margin-bottom: 10px;
+    align-items: center;
+}
+#ws_change_plan_base_dialog_operator_container>div:first-child{
+    margin-right: 15px;
+}
+
+#ws_change_plan_base_dialog_hint{
+    color: gray;
+    font-size: 0.9em;
+}
 
 
 .work_sheet_work_item_unit_container_for_phone .work_sheet_work_item_container_plan_item_type_modify_mark{

@@ -14,7 +14,9 @@ let WS_NAMESPACE = {
     MAX_LIMIT_TO_SEND_SAVING_IN_QUEUE:30,
     SAVING_LOCK:false,
     COUNT_SAVING_ASKING:0,
-    REMINDER_INTERVAL_MINUTES:1
+    REMINDER_INTERVAL_MINUTES:1,
+    /*加载的工作表当前的对象*/
+    CURRENT_WORKSHEET_OBJ:{}
 }
 
 /**为了解耦，这里关于WS.planItems的部分多数是从plan_dialog.js copy过来的 当修改时，应当修改两处地方 */
@@ -122,6 +124,10 @@ $(function(){
         .on("click",".ws_warning_work_item_unit_controlgroup_samples [extension_minutates]",extensionWorkItemVal)
         .on("click",".ws_warning_work_item_unit_confirm_extension_minutates",confirmCustomizeExtensionWorkItemVal)
 
+    
+    $(".work_sheet_main_container_change_ws_base_of_plan").click(openChangWSPlanBaseDialog);
+    $("#ws_change_plan_base_dialog_confirm_btn").click(confirmChangWSPlanBase);
+
 
     /* === 每一个整分钟 进行reminder code start===*/
     let now = new Date();
@@ -142,8 +148,34 @@ $(function(){
         localStorage[CONFIG.DEFAULT_WS_REMINDER_OPEN_KEY]=prop;
     })
 });
+function confirmChangWSPlanBase(){
+    let val = $("#ws_base_plan_id_input_for_change").val().trim();
+    if(val.length == 0){
+        alertInfo("请填写更改的计划ID");
+        return;
+    }
+    let $btn = $(this);
+    $btn.addClass("common_prevent_double_click");
+
+    sendAjaxBySmartParams("CareerServlet","c_save_work_sheet_plan_id",{
+        "ws_id":WS_NAMESPACE.CURRENT_WORKSHEET_OBJ.ws.id,
+        "plan_id":val
+    },(data)=>{
+        loadWorkSheetDetail_render(data);
+        $("#ws_change_plan_base_dialog").modal("hide");
+    },()=>{
+        $btn.removeClass("common_prevent_double_click");
+    })
+}
 
 
+function openChangWSPlanBaseDialog(){
+    $("#ws_base_plan_id_input_for_change").val("");
+    $("#ws_change_plan_base_dialog").find(".modal-title em").text(new Date(WS_NAMESPACE.CURRENT_WORKSHEET_OBJ.ws.date).toChineseDate())
+        .end().modal("show");
+
+
+}
 
 
 function initReminderBtnByLocalStorage(){
@@ -1122,10 +1154,10 @@ function assumeFinished(){
 
 
 function deleteWorkSheet(){
-    confirmInfo("确定删除吗？（系统会清空相关数据并且不可恢复，建议只在更换计划时使用）",()=>{
+    confirmInfo("确定删除吗？（系统会清空相关数据并且不可恢复）",()=>{
         let wsId = $("#work_sheet_main_container").attr("ws_id");
         sendAjax("CareerServlet","c_delete_work_sheet",{
-            "ws_id" : wsId,
+            "ws_id" : wsId
         },(data)=>{
             alertInfo("删除成功");
             reloadForExternalModule();
@@ -1582,6 +1614,9 @@ function loadWorkSheetDetail_render(data) {
     if(saveChangedWorkItemUnits()){
         return ;
     }
+
+
+    WS_NAMESPACE.CURRENT_WORKSHEET_OBJ = cloneObj(data);
 
     /*
     * 更新前需要根据Id监控哪些workItem打开/关闭了备注 当重新更新完数据后 要保持原样
