@@ -1,4 +1,4 @@
-package manager.logic.career;
+package manager.logic.career.impl;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
@@ -21,7 +21,9 @@ import manager.entity.general.career.NoteBook;
 import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.SMException;
-import manager.logic.CacheScheduler;
+import manager.logic.career.NoteLogic;
+import manager.logic.career.expand.NoteContentConverter;
+import manager.logic.expand.CacheScheduler;
 import manager.system.CacheMode;
 import manager.system.SM;
 import manager.system.SMError;
@@ -32,7 +34,7 @@ import manager.system.career.NoteLabel;
 /**
  * 这个类 暂且 只有涉及到seq变化的需要sync修饰
  */
-public class NoteLogic_Real extends NoteLogic {
+public class NoteLogicImpl extends NoteLogic {
 
 	private NoteDAO nDAO = DAOFactory.getNoteDAO();
 

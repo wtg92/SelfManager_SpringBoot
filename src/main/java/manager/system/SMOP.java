@@ -91,6 +91,7 @@ public enum SMOP {
 	C_SAVE_MEMO_ITEM_LABEL("c_save_memo_label"),
 	C_SAVE_MEMO_ITEM("c_save_memo_item"),
 	C_SAVE_MEMO_ITEMS_SEQ("c_save_memo_items_seq"),
+	C_SAVE_WORK_SHEET_PLAN_ID("c_save_work_sheet_plan_id"),
 	C_REMOVE_ITEM_FROM_MEMO("c_remove_item_from_memo"),
 	C_LOAD_MEMO("c_load_memo"),
 	

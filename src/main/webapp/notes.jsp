@@ -50,7 +50,7 @@
 			<div id="note_books_detail_main_container" class="common_grey_background">
 				<jsp:include page="components/note_book_content/note_book_content.jsp" flush="false" />
 			</div>
-			<div class="common_module_message">并非只有学习和工作需要记录笔记；日记、随笔……或许只是记录下一段心情，就足以让这段时光回味。</div>
+			<div class="common_module_message">并非只有学习和工作需要记录笔记；日记、随笔……或许仅仅记录下一段心情，便足以让时光回味。</div>
 		</div>
 	</div>
 	<jsp:include page="footer.jsp" flush="false" />

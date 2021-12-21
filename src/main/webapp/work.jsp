@@ -96,7 +96,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="common_module_message">高效的时间管理是为了让人有更多时间来<em>享乐与生活</em></div>
+			<div class="common_module_message">高效的时间管理是为了让人有更多时间来<em>享乐</em>与<em>生活</em></div>
 		</div>
 	</div>
 	<jsp:include page="footer.jsp" flush="false" />

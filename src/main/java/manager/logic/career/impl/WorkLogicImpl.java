@@ -1,4 +1,4 @@
-package manager.logic.career;
+package manager.logic.career.impl;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
@@ -29,8 +29,10 @@ import manager.entity.virtual.career.PlanDeptItem;
 import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.SMException;
-import manager.logic.CacheScheduler;
-import manager.logic.TagCalculator;
+import manager.logic.career.WorkLogic;
+import manager.logic.career.expand.WorkContentConverter;
+import manager.logic.expand.CacheScheduler;
+import manager.logic.expand.TagCalculator;
 import manager.system.CacheMode;
 import manager.system.SM;
 import manager.system.SMDB;
@@ -56,9 +58,9 @@ import manager.util.TimeUtil;
  * @author 王天戈
  *
  */
-public class WorkLogic_Real extends WorkLogic{
+public class WorkLogicImpl extends WorkLogic{
 	
-	final private static Logger logger = Logger.getLogger(WorkLogic_Real.class.getName());
+	final private static Logger logger = Logger.getLogger(WorkLogicImpl.class.getName());
 
 	private WorkDAO wDAO = DAOFactory.getWorkDAO();
 	

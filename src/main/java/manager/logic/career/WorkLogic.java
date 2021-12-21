@@ -31,6 +31,9 @@ import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.SMException;
 import manager.logic.UserLogic;
+import manager.logic.career.expand.LogParser;
+import manager.logic.career.expand.WorkContentConverter;
+import manager.logic.career.impl.WorkLogicImpl;
 import manager.system.SM;
 import manager.system.career.CareerLogAction;
 import manager.system.career.PlanItemType;
@@ -46,7 +49,7 @@ public abstract class WorkLogic{
 
 	private static WorkLogic instance = null;
 	
-	UserLogic uL = UserLogic.getInstance();
+	protected UserLogic uL = UserLogic.getInstance();
 
 	public static int DEFAULT_WS_LIMITE_OF_ONE_PAGE = 20;
 	
@@ -173,7 +176,7 @@ public abstract class WorkLogic{
 	
 	public static synchronized WorkLogic getInstance() {
 		if(instance == null) {
-			instance = new WorkLogic_Real();
+			instance = new WorkLogicImpl();
 		}
 		return instance;
 	}

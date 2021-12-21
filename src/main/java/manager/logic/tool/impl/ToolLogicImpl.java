@@ -1,4 +1,4 @@
-package manager.logic.tool;
+package manager.logic.tool.impl;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
@@ -32,6 +32,8 @@ import manager.data.tool.ToolRecordSummary;
 import manager.entity.general.tool.ToolRecord;
 import manager.exception.LogicException;
 import manager.exception.SMException;
+import manager.logic.tool.ToolLogic;
+import manager.logic.tool.expand.ToolRecordContentConverter;
 import manager.system.SM;
 import manager.system.SMError;
 import manager.system.tool.Tool;
@@ -42,9 +44,9 @@ import manager.util.POIUtil;
  * 因此不用缓存了 DAO的时间消耗相较之下  太少了
  * @author 王天戈
  */
-public class ToolLogic_Real extends ToolLogic{
+public class ToolLogicImpl extends ToolLogic{
 	
-	final private static Logger logger = Logger.getLogger(ToolLogic_Real.class.getName());
+	final private static Logger logger = Logger.getLogger(ToolLogicImpl.class.getName());
 
 	private ToolDAO tDAO = DAOFactory.getToolDAO();
 	

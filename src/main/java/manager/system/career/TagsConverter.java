@@ -5,7 +5,7 @@ import java.util.List;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import manager.logic.TagCalculator;
+import manager.logic.expand.TagCalculator;
 
 
 @Converter

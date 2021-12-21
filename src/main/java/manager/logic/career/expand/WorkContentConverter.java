@@ -1,4 +1,4 @@
-package manager.logic.career;
+package manager.logic.career.expand;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
@@ -519,7 +519,7 @@ public abstract class WorkContentConverter {
 	 * @param endTime 可以为空 进行中
 	 * @throws LogicException
 	 */
-	protected static int addItemToWorkSheet(WorkSheet one,int adderId, int planItemId, int value, String note, int mood,boolean forAdd, Calendar startTime,Calendar endTime) throws LogicException {
+	public static int addItemToWorkSheet(WorkSheet one,int adderId, int planItemId, int value, String note, int mood,boolean forAdd, Calendar startTime,Calendar endTime) throws LogicException {
 		Document wsDoc = getDocumentOrInitIfNotExists(one);
 		
 		Document planDoc = getDefinatePlanDocument(one);
@@ -552,14 +552,14 @@ public abstract class WorkContentConverter {
 	  *  先检查Category 内 有没有 categoryName 有的话 抛异常（不允许重复，要不然会导致混乱） 没有的话 添加
 	 *   添加Log 
 	 */
-	protected static int addItemToPlan(Plan one,int adderId, String categoryName, int value, String note, PlanItemType type,int fatherId, double mappingVal) throws LogicException {
+	public static int addItemToPlan(Plan one,int adderId, String categoryName, int value, String note, PlanItemType type,int fatherId, double mappingVal) throws LogicException {
 		Document content = getDocumentOrInitIfNotExists(one);
 		int itemId = addItemToPlanDoc(content,content,adderId, categoryName, value, note, type, fatherId, mappingVal);
 		one.setContent(content.asXML());
 		return itemId;
 	}
 	
-	protected static int addItemToWSPlan(WorkSheet one,int adderId, String categoryName, int value, String note, PlanItemType type,int fatherId, double mappingVal) throws LogicException {
+	public static int addItemToWSPlan(WorkSheet one,int adderId, String categoryName, int value, String note, PlanItemType type,int fatherId, double mappingVal) throws LogicException {
 		Document plan = getDefinatePlanDocument(one);
 		Document ws = getDocumentOrInitIfNotExists(one);
 		int itemId = addItemToPlanDoc(plan,ws,adderId, categoryName, value, note, type, fatherId, mappingVal);
@@ -598,19 +598,19 @@ public abstract class WorkContentConverter {
 	}
 	
 	
-	protected static void addLog(Plan root,CareerLogAction action,int creatorId,Object ...parms) throws LogicException {
+	public static void addLog(Plan root,CareerLogAction action,int creatorId,Object ...parms) throws LogicException {
 		Document doc = getDocumentOrInitIfNotExists(root);
 		addLog(doc, action, creatorId, parms);
 		root.setContent(doc.asXML());
 	}
 	
-	protected static void addLog(WorkSheet root,CareerLogAction action,int creatorId,Object ...parms) throws LogicException {
+	public static void addLog(WorkSheet root,CareerLogAction action,int creatorId,Object ...parms) throws LogicException {
 		Document doc = getDocumentOrInitIfNotExists(root);
 		addLog(doc, action, creatorId, parms);
 		root.setContent(doc.asXML());
 	}
 	
-	protected static void addLog(PlanDept root,CareerLogAction action,int creatorId,Object ...parms) throws LogicException {
+	public static void addLog(PlanDept root,CareerLogAction action,int creatorId,Object ...parms) throws LogicException {
 		Document doc = getDocumentOrInitIfNotExists(root);
 		addPlanDpetLog(doc, action, creatorId, parms);
 		root.setContent(doc.asXML());
@@ -710,7 +710,7 @@ public abstract class WorkContentConverter {
 		
 	}
 	
-	protected static void updatePlanItem(Plan one,int updaterId,int itemId, String categoryName, int value, String note, double mappingVal) throws LogicException{
+	public static void updatePlanItem(Plan one,int updaterId,int itemId, String categoryName, int value, String note, double mappingVal) throws LogicException{
 		Document content = getDefinateDocument(one);
 		updatePlanItem(content, content, updaterId, itemId, categoryName, value, note, mappingVal);
 		one.setContent(content.asXML());
@@ -732,7 +732,7 @@ public abstract class WorkContentConverter {
 		fillAttrsExceptId(origin, planItem.cur);
 	}
 
-	protected static void updateWSPlanItem(WorkSheet one,int updaterId,int itemId, String categoryName, int value, String note, double mappingVal) throws LogicException{
+	public static void updateWSPlanItem(WorkSheet one,int updaterId,int itemId, String categoryName, int value, String note, double mappingVal) throws LogicException{
 		Document ws = getDocumentOrInitIfNotExists(one);
 		Document plan = getDefinatePlanDocument(one);
 		updatePlanItem(plan, ws, updaterId, itemId, categoryName, value, note, mappingVal);
@@ -749,7 +749,7 @@ public abstract class WorkContentConverter {
 	/**
 	 * 切换计划项与已有计划项计数类型不同时，计数值会置为0
 	 */
-	protected static void updateWorkItemPlanItemId(WorkSheet one,int updaterId,int workItemId, int planItemId) throws LogicException{
+	public static void updateWorkItemPlanItemId(WorkSheet one,int updaterId,int workItemId, int planItemId) throws LogicException{
 		Document ws = getDefinateDocument(one);
 		Element targetWorkItem = getWorkItemById(ws, workItemId);
 		WorkItem origin = parseWorkItem(targetWorkItem);
@@ -769,7 +769,7 @@ public abstract class WorkContentConverter {
 	}
 	
 	
-	protected static void updateWorkItem(WorkSheet one,int updaterId,int workItemId, int value, String note, int mood,boolean forAdd,Calendar startTime,Calendar endTime) throws LogicException{
+	public static void updateWorkItem(WorkSheet one,int updaterId,int workItemId, int value, String note, int mood,boolean forAdd,Calendar startTime,Calendar endTime) throws LogicException{
 		Document ws = getDefinateDocument(one);
 		Element targetWorkItem = getWorkItemById(ws, workItemId);
 		WorkItem origin = parseWorkItem(targetWorkItem);
@@ -790,7 +790,7 @@ public abstract class WorkContentConverter {
 	 * 	假如存在同名项 则合并 假如最后为0 则删除。
 	 * 
 	 */
-	protected static void updatePlanDeptItem(PlanDept one,int updaterId,int itemId, String name,double val) throws LogicException{
+	public static void updatePlanDeptItem(PlanDept one,int updaterId,int itemId, String name,double val) throws LogicException{
 		Document deptDoc = getDefinateDocument(one);
 		Element deptItemEle = getPlanDeptItemById(deptDoc, itemId);
 		PlanDeptItem item = parsePlanDeptItem(deptItemEle);
@@ -888,13 +888,13 @@ public abstract class WorkContentConverter {
 	}
 	
 	
-	protected static void removeItemFromPlan(Plan one,int removerId, int itemId) throws LogicException {
+	public static void removeItemFromPlan(Plan one,int removerId, int itemId) throws LogicException {
 		Document content = getDefinateDocument(one);
 		removeItemFromPlanDoc(content, content, removerId, itemId);
 		one.setContent(content.asXML());
 	}
 	
-	protected static void removeItemFromWSPlan(WorkSheet one,int removerId, int itemId) throws LogicException {
+	public static void removeItemFromWSPlan(WorkSheet one,int removerId, int itemId) throws LogicException {
 		Document ws = getDocumentOrInitIfNotExists(one);
 		Document plan = getDefinatePlanDocument(one);
 		WorkItem relevant =  getWorkItems(ws).stream().filter(wI->wI.getPlanItemId() == itemId).findAny().orElse(null);
@@ -908,7 +908,7 @@ public abstract class WorkContentConverter {
 	}
 	
 	
-	protected static void removeItemFromWorkSheet(WorkSheet one,int removerId, int itemId) throws LogicException {
+	public static void removeItemFromWorkSheet(WorkSheet one,int removerId, int itemId) throws LogicException {
 		Document content = getDefinateDocument(one);
 		Element itemsElement= content.getRootElement().element(T_ITEMS);
 		Element workElement = getWorkItemById(content, itemId);
@@ -926,7 +926,7 @@ public abstract class WorkContentConverter {
 	 * 由于功能考虑 所以参数和addItem 并不一致 
 	 */
 	
-	protected static PlanContent convertPlanContent(Plan one) throws LogicException {
+	public static PlanContent convertPlanContent(Plan one) throws LogicException {
 		Document doc = getDocumentOrInitIfNotExists(one);
 		PlanContent rlt = new PlanContent();
 		rlt.items = getPlanItems(doc);
@@ -934,7 +934,7 @@ public abstract class WorkContentConverter {
 		return rlt;
 	}
 	
-	protected static PlanDeptContent convertPlanDept(PlanDept dept) throws LogicException {
+	public static PlanDeptContent convertPlanDept(PlanDept dept) throws LogicException {
 		Document doc = getDocumentOrInitIfNotExists(dept);
 		PlanDeptContent rlt = new PlanDeptContent();
 		rlt.items = getPlanDeptItems(doc);
@@ -942,7 +942,7 @@ public abstract class WorkContentConverter {
 		return rlt;
 	}
 	
-	protected static WorkSheetContent convertWorkSheet(WorkSheet ws) throws LogicException {
+	public static WorkSheetContent convertWorkSheet(WorkSheet ws) throws LogicException {
 		WorkSheetContent rlt = new WorkSheetContent();
 		Document planDoc = getDefinatePlanDocument(ws);
 		rlt.planItems = getPlanItems(planDoc).stream().map(PlanItemProxy::new).collect(toList());
@@ -965,7 +965,7 @@ public abstract class WorkContentConverter {
 		return rlt;
 	}
 	
-	protected static void pushToWorkSheet(Plan plan,WorkSheet ws) throws LogicException {
+	public static void pushToWorkSheet(Plan plan,WorkSheet ws) throws LogicException {
 		
 		if(ws.getContent()!=null && ws.getContent().length() > 0) {
 			throw new LogicException(SMError.ILLEGAL_WORK_SHEET_CONTENT,"push 时 WorkSheet不该有值 ");
@@ -983,7 +983,7 @@ public abstract class WorkContentConverter {
 		return planDoc;
 	}
 	
-	protected static void copyPlanItemsFrom(Plan target,Plan templete,int opreatorId) throws LogicException {
+	public static void copyPlanItemsFrom(Plan target,Plan templete,int opreatorId) throws LogicException {
 		Document targetDoc = getDocumentOrInitIfNotExists(target);
 		Document templeteDoc = getDocumentOrInitIfNotExists(templete);
 		
@@ -1012,7 +1012,7 @@ public abstract class WorkContentConverter {
 	 *  对dept 加Log 来自某一天的工作表的某一项
 	 *  假设sync为0，则销毁掉这条DeptItem 同时加Log
 	*/
-	protected static void syncToPlanDept(WorkSheet ws, PlanDept dept, PlanItemProxy planItem,int opreatorId) throws LogicException {
+	public static void syncToPlanDept(WorkSheet ws, PlanDept dept, PlanItemProxy planItem,int opreatorId) throws LogicException {
 		assert planItem.remainingValForCur != 0;
 
 		Document deptDoc = getDefinateDocument(dept);

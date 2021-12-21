@@ -10,6 +10,7 @@ import manager.data.tool.ToolRecordSummary;
 import manager.exception.LogicException;
 import manager.exception.SMException;
 import manager.logic.UserLogic;
+import manager.logic.tool.impl.ToolLogicImpl;
 import manager.system.tool.Tool;
 
 public abstract class ToolLogic {
@@ -36,7 +37,7 @@ public abstract class ToolLogic {
 
 	public static synchronized ToolLogic getInstance() {
 		if (instance == null) {
-			instance = new ToolLogic_Real();
+			instance = new ToolLogicImpl();
 		}
 		return instance;
 	}

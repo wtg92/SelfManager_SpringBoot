@@ -1,12 +1,12 @@
 package manager.logic.career;
 
-import static manager.logic.career.WorkContentConverter.addItemToPlan;
-import static manager.logic.career.WorkContentConverter.addItemToWorkSheet;
-import static manager.logic.career.WorkContentConverter.convertPlanContent;
-import static manager.logic.career.WorkContentConverter.convertWorkSheet;
-import static manager.logic.career.WorkContentConverter.pushToWorkSheet;
-import static manager.logic.career.WorkContentConverter.removeItemFromWorkSheet;
-import static manager.logic.career.WorkContentConverter.updateWorkItem;
+import static manager.logic.career.expand.WorkContentConverter.addItemToPlan;
+import static manager.logic.career.expand.WorkContentConverter.addItemToWorkSheet;
+import static manager.logic.career.expand.WorkContentConverter.convertPlanContent;
+import static manager.logic.career.expand.WorkContentConverter.convertWorkSheet;
+import static manager.logic.career.expand.WorkContentConverter.pushToWorkSheet;
+import static manager.logic.career.expand.WorkContentConverter.removeItemFromWorkSheet;
+import static manager.logic.career.expand.WorkContentConverter.updateWorkItem;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;

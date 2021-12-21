@@ -10,6 +10,7 @@ import manager.entity.general.User;
 import manager.entity.general.UserGroup;
 import manager.exception.DBException;
 import manager.exception.LogicException;
+import manager.logic.impl.UserLogicImpl;
 import manager.system.Gender;
 import manager.system.SM;
 import manager.system.SMError;
@@ -63,7 +64,7 @@ public abstract class UserLogic {
 	
 	public static synchronized UserLogic getInstance() {
 		if(instance == null) {
-			instance = new UserLogic_Real();
+			instance = new UserLogicImpl();
 		}
 		return instance;
 	}

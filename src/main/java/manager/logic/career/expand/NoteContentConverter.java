@@ -1,4 +1,4 @@
-package manager.logic.career;
+package manager.logic.career.expand;
 
 import static java.util.stream.Collectors.toList;
 
@@ -178,7 +178,7 @@ public abstract class NoteContentConverter {
 		}
 	}
 	
-	protected static int addItemToMemo(Memo one,String content,NoteLabel label,String note,Integer srcNoteId,String srcNoteName,Integer srcBookId,String srcBookName) throws LogicException {
+	public static int addItemToMemo(Memo one,String content,NoteLabel label,String note,Integer srcNoteId,String srcNoteName,Integer srcBookId,String srcBookName) throws LogicException {
 		Document doc = getDocumentOrInitIfNotExists(one);
 		
 		checkMemoItemsContentNoDup(doc, content,label, srcNoteId);
@@ -203,7 +203,7 @@ public abstract class NoteContentConverter {
 		return item.getId();
 	}
 	
-	protected static void updateMemoItem(Memo one,int itemId,String content,NoteLabel label,String note) throws LogicException{
+	public static void updateMemoItem(Memo one,int itemId,String content,NoteLabel label,String note) throws LogicException{
 		Document doc = getDefinateDocument(one);
 		Element item = getMemoItemById(doc, itemId);
 		MemoItem origin = parseMemoItem(item);
@@ -221,7 +221,7 @@ public abstract class NoteContentConverter {
 		one.setContent(doc.asXML());
 	}
 	
-	protected static void updateMemoItemsSeq(Memo one,List<Integer> idsSeq) throws LogicException{
+	public static void updateMemoItemsSeq(Memo one,List<Integer> idsSeq) throws LogicException{
 		Document doc = getDefinateDocument(one);
 
 		Element itemsRoot= doc.getRootElement().element(T_ITEMS);
@@ -241,7 +241,7 @@ public abstract class NoteContentConverter {
 		one.setContent(doc.asXML());
 	}
 	
-	protected static void updateMemoItemLabel(Memo one,int itemId,NoteLabel label) throws LogicException{
+	public static void updateMemoItemLabel(Memo one,int itemId,NoteLabel label) throws LogicException{
 		Document doc = getDefinateDocument(one);
 		Element item = getMemoItemById(doc, itemId);
 		MemoItem origin = parseMemoItem(item);
@@ -250,7 +250,7 @@ public abstract class NoteContentConverter {
 		one.setContent(doc.asXML());
 	}
 	
-	protected static void removeItemFromMemo(Memo one, int itemId) throws LogicException {
+	public static void removeItemFromMemo(Memo one, int itemId) throws LogicException {
 		Document doc = getDefinateDocument(one);
 		Element itemsElement= doc.getRootElement().element(T_ITEMS);
 		Element ele = getMemoItemById(doc, itemId);
@@ -262,7 +262,7 @@ public abstract class NoteContentConverter {
 		one.setContent(doc.asXML());
 	}
 	
-	protected static MemoContent convertMemo(Memo one) throws LogicException {
+	public static MemoContent convertMemo(Memo one) throws LogicException {
 		Document doc = getDocumentOrInitIfNotExists(one);
 		
 		MemoContent rlt = new MemoContent();

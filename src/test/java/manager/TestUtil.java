@@ -12,7 +12,7 @@ import manager.entity.general.User;
 import manager.entity.general.UserGroup;
 import manager.exception.DBException;
 import manager.exception.LogicException;
-import manager.logic.CacheScheduler;
+import manager.logic.expand.CacheScheduler;
 import manager.system.Gender;
 import manager.system.SM;
 import manager.system.SMDB;

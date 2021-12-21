@@ -1,4 +1,4 @@
-package manager.logic.career;
+package manager.logic.career.expand;
 
 import java.util.List;
 

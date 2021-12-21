@@ -1,29 +1,14 @@
-package manager.logic.tool;
-
-import static java.util.stream.Collectors.*;
-
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+package manager.logic.tool.expand;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
-import manager.data.career.MemoContent;
-import manager.data.career.PlanDeptContent;
-import manager.data.proxy.career.CareerLogProxy;
-import manager.data.proxy.career.MemoItemProxy;
 import manager.data.tool.ToolRecordContent;
-import manager.entity.general.career.Memo;
-import manager.entity.general.career.PlanDept;
 import manager.entity.general.tool.ToolRecord;
-import manager.entity.virtual.career.MemoItem;
 import manager.exception.LogicException;
 import manager.system.SMError;
-import manager.system.career.NoteLabel;
-import manager.system.tool.Tool;
 
 /**
  *  <rec>
@@ -54,7 +39,7 @@ public abstract class ToolRecordContentConverter {
 		return doc;
 	}
 	
-	protected static void initContent(ToolRecord record) throws LogicException {
+	public static void initContent(ToolRecord record) throws LogicException {
 		assert record.getContent() == null;
 		Document doc = initToolRecord();
 		Element ele = doc.getRootElement();
@@ -66,7 +51,7 @@ public abstract class ToolRecordContentConverter {
 		record.setContent(doc.asXML());
 	}
 	
-	protected static void addRecordSucOnce(ToolRecord record) throws LogicException {
+	public static void addRecordSucOnce(ToolRecord record) throws LogicException {
 		Document doc = getDefinateDocument(record);
 		Element root =  doc.getRootElement();
 		int src = Integer.parseInt(root.attributeValue(A_SUC_COUNT));
@@ -74,7 +59,7 @@ public abstract class ToolRecordContentConverter {
 		record.setContent(doc.asXML());
 	}
 	
-	protected static void addRecordFailOnce(ToolRecord record) throws LogicException {
+	public static void addRecordFailOnce(ToolRecord record) throws LogicException {
 		Document doc = getDefinateDocument(record);
 		Element root =  doc.getRootElement();
 		int src = Integer.parseInt(root.attributeValue(A_FAIL_COUNT));
@@ -92,7 +77,7 @@ public abstract class ToolRecordContentConverter {
 		}
 		
 	}
-	protected static ToolRecordContent convertToolRecord(ToolRecord one) throws LogicException {
+	public static ToolRecordContent convertToolRecord(ToolRecord one) throws LogicException {
 		Document doc = getDefinateDocument(one);
 		Element root =  doc.getRootElement();
 		ToolRecordContent content = new ToolRecordContent();

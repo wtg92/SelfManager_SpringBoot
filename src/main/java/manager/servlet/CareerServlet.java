@@ -246,12 +246,16 @@ public class CareerServlet extends SMServlet{
 			return saveMemoItemLabel(request);
 		case C_LOAD_WORK_SHEETS_BY_DATE_SCOPE:
 			return loadWorkSheetsByDateScope(request);
+		case C_SAVE_WORK_SHEET_PLAN_ID:
+			return saveWorkSheetPlanId(request);
 		default:
 			assert false : op.getName();
 			throw new LogicException(SMError.UNKOWN_OP,getNonNullParam(request,OP));
 		}
 	}
 	
+
+
 	private String loadAllPlanTags(HttpServletRequest request) throws SMException{
 		int loginerId = getLoginerId(request);
 		List<String> tags = wL.loadAllPlanTagsByUser(loginerId);
@@ -516,6 +520,14 @@ public class CareerServlet extends SMServlet{
 		return getNullObjJSON();
 	}
 	
+	private String saveWorkSheetPlanId(HttpServletRequest request) throws SMException {
+		int loginerId = getLoginerId(request);
+		int planId = getNonNullParamInInt(request, PLAN_ID);
+		int wsId = getNonNullParamInInt(request, WS_ID);
+		wL.saveWorkSheetPlanId(loginerId, wsId, planId);
+		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId),workConf);
+	}
+	
 	private String saveWorkItemPlanItemId(HttpServletRequest request) throws SMException {
 		int loginerId = getLoginerId(request);
 		int wsId = getNonNullParamInInt(request, WS_ID);
@@ -692,6 +704,8 @@ public class CareerServlet extends SMServlet{
 		return JSON.toJSONString(ServletAdapter.process(wL.loadPlan(loginerId, planId)),workConf);
 	}
 
+
+	
 	private String savePlan(HttpServletRequest request) throws LogicException, DBException {
 		int loginerId = getLoginerId(request);
 		String name = getNonNullParam(request, NAME);

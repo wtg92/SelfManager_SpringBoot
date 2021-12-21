@@ -18,6 +18,7 @@ import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.SMException;
 import manager.logic.UserLogic;
+import manager.logic.career.impl.NoteLogicImpl;
 import manager.system.SM;
 import manager.system.career.BookStyle;
 import manager.system.career.NoteLabel;
@@ -28,7 +29,7 @@ public abstract class NoteLogic{
 	
 	private static NoteLogic instance = null;
 	
-	UserLogic uL = UserLogic.getInstance();
+	protected UserLogic uL = UserLogic.getInstance();
 	
 	public abstract int createNoteBook(int creatorId,String name,String note,BookStyle style) throws DBException,LogicException;
 	public abstract int createNote(int creatorId,int noteBookId,String name) throws DBException,LogicException;
@@ -122,7 +123,7 @@ public abstract class NoteLogic{
 	
 	public static synchronized NoteLogic getInstance() {
 		if(instance == null) {
-			instance = new NoteLogic_Real();
+			instance = new NoteLogicImpl();
 		}
 		return instance;
 	}

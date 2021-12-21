@@ -1,4 +1,4 @@
-package manager.logic;
+package manager.logic.expand;
 
 import java.util.ArrayList;
 import java.util.Arrays;

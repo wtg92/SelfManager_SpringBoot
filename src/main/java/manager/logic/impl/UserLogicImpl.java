@@ -1,4 +1,4 @@
-package manager.logic;
+package manager.logic.impl;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
@@ -22,6 +22,8 @@ import manager.entity.general.UserGroup;
 import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.NoSuchElement;
+import manager.logic.UserLogic;
+import manager.logic.expand.CacheScheduler;
 import manager.system.CacheMode;
 import manager.system.Gender;
 import manager.system.NoSuchElementType;
@@ -40,12 +42,10 @@ import manager.util.ThrowableSupplier;
 import manager.util.YZMUtil;
 import manager.util.YZMUtil.YZMInfo;
 
-public class UserLogic_Real extends UserLogic {
-	final private static Logger logger = Logger.getLogger(UserLogic_Real.class.getName());
+public class UserLogicImpl extends UserLogic {
+	final private static Logger logger = Logger.getLogger(UserLogicImpl.class.getName());
 
 	private final UserDAO uDAO = DAOFactory.getUserDAO();
-	
-	UserLogic_Real() {}
 	
 	@Override
 	public boolean hasPerm(int userId, SMPerm perm) throws LogicException, DBException {
