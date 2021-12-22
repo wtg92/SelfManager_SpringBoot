@@ -48,8 +48,8 @@ $(function(){
 
     $(".spirit_img").click(()=>window.location.href = "web_info.jsp?container=web_info_sm_spirit");
 
-    drawCommonIcon("inluding_exclamation_mark",$("#including_alert_dialog .modal-title"));
-    drawCommonIcon("inluding_question_mark",$("#including_confirm_dialog .modal-title"));
+    drawCommonIcon("including_exclamation_mark",$("#including_alert_dialog .modal-title"));
+    drawCommonIcon("including_question_mark",$("#including_confirm_dialog .modal-title"));
 
     checkSignInStateAndAssignIdentifier();
 

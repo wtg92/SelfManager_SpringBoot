@@ -44,17 +44,17 @@
 	</svg>
 	
 	
-	<svg width="1em" height="1em" viewBox="0 0 16 16" class="inluding_exclamation_mark bi bi-exclamation-circle" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+	<svg width="1em" height="1em" viewBox="0 0 16 16" class="including_exclamation_mark bi bi-exclamation-circle" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
   		<path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
  		<path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
 	</svg>
 	
-	<svg width="1em" height="1em" viewBox="0 0 16 16" class="inluding_circle_arrow bi bi-arrow-counterclockwise" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+	<svg width="1em" height="1em" viewBox="0 0 16 16" class="including_circle_arrow bi bi-arrow-counterclockwise" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
   		<path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"/>
   		<path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"/>
 	</svg>
 	
-	<svg  width="16" height="16" fill="currentColor" class="inluding_common_edit_shape bi bi-wrench" viewBox="0 0 16 16">
+	<svg  width="16" height="16" fill="currentColor" class="including_common_edit_shape bi bi-wrench" viewBox="0 0 16 16">
   		<path d="M.102 2.223A3.004 3.004 0 0 0 3.78 5.897l6.341 6.252A3.003 3.003 0 0 0 13 16a3 3 0 1 0-.851-5.878L5.897 3.781A3.004 3.004 0 0 0 2.223.1l2.141 2.142L4 4l-1.757.364L.102 2.223zm13.37 9.019.528.026.287.445.445.287.026.529L15 13l-.242.471-.026.529-.445.287-.287.445-.529.026L13 15l-.471-.242-.529-.026-.287-.445-.445-.287-.026-.529L11 13l.242-.471.026-.529.445-.287.287-.445.529-.026L13 11l.471.242z"/>
 	</svg>
 	
@@ -67,43 +67,43 @@
   		<path fill-rule="evenodd" d="M8 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
   		<path fill-rule="evenodd" d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8z"/>
 	</svg>
-	<svg width="1em" height="1em" viewBox="0 0 16 16" class="inluding_question_mark bi bi-question-circle" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+	<svg width="1em" height="1em" viewBox="0 0 16 16" class="including_question_mark bi bi-question-circle" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
   		<path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
   		<path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
 	</svg>
-	<svg width="1em" height="1em" viewBox="0 0 16 16" class="inluding_modify_mark bi bi-pencil" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+	<svg width="1em" height="1em" viewBox="0 0 16 16" class="including_modify_mark bi bi-pencil" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
   		<path fill-rule="evenodd" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
 	</svg>
-	<svg width="1em" height="1em" viewBox="0 0 16 16" class="inluding_add_mark bi bi-plus-circle" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+	<svg width="1em" height="1em" viewBox="0 0 16 16" class="including_add_mark bi bi-plus-circle" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
   		<path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
   		<path fill-rule="evenodd" d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
 	</svg>
-	<svg width="1em" height="1em" viewBox="0 0 16 16" class="inluding_minus_mark bi bi-dash-circle" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+	<svg width="1em" height="1em" viewBox="0 0 16 16" class="including_minus_mark bi bi-dash-circle" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
   		<path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
   		<path fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"/>
 	</svg>
 	
-	<svg width="20px" height="20px" viewBox="0 0 16 16" class="inluding_circle_mark bi bi-circle-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+	<svg width="20px" height="20px" viewBox="0 0 16 16" class="including_circle_mark bi bi-circle-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
   		<circle cx="8" cy="8" r="8"/>
 	</svg>
 	
-	<svg  width="30px" height="30px" viewBox="0 0 16 16" class="inluding_circle_with_left_line_mark bi bi-node-plus" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+	<svg  width="30px" height="30px" viewBox="0 0 16 16" class="including_circle_with_left_line_mark bi bi-node-plus" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
   		<path fill-rule="evenodd" d="M11 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6.025 7.5a5 5 0 1 1 0 1H4A1.5 1.5 0 0 1 2.5 10h-1A1.5 1.5 0 0 1 0 8.5v-1A1.5 1.5 0 0 1 1.5 6h1A1.5 1.5 0 0 1 4 7.5h2.025zM11 5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 11 5zM1.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"/>
 	</svg>
 	
-	<svg width="1em" height="1em" fill="currentColor" class="inluding_open_folder_mark bi bi-folder-plus" viewBox="0 0 16 16">
+	<svg width="1em" height="1em" fill="currentColor" class="including_open_folder_mark bi bi-folder-plus" viewBox="0 0 16 16">
 	  <path d="m.5 3 .04.87a1.99 1.99 0 0 0-.342 1.311l.637 7A2 2 0 0 0 2.826 14H9v-1H2.826a1 1 0 0 1-.995-.91l-.637-7A1 1 0 0 1 2.19 4h11.62a1 1 0 0 1 .996 1.09L14.54 8h1.005l.256-2.819A2 2 0 0 0 13.81 3H9.828a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 6.172 1H2.5a2 2 0 0 0-2 2zm5.672-1a1 1 0 0 1 .707.293L7.586 3H2.19c-.24 0-.47.042-.683.12L1.5 2.98a1 1 0 0 1 1-.98h3.672z"/>
 	  <path d="M13.5 10a.5.5 0 0 1 .5.5V12h1.5a.5.5 0 1 1 0 1H14v1.5a.5.5 0 1 1-1 0V13h-1.5a.5.5 0 0 1 0-1H13v-1.5a.5.5 0 0 1 .5-.5z"/>
 	</svg>
 	
-	<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="inluding_close_folder_mark bi bi-folder-minus" viewBox="0 0 16 16">
+	<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="including_close_folder_mark bi bi-folder-minus" viewBox="0 0 16 16">
 	  <path d="m.5 3 .04.87a1.99 1.99 0 0 0-.342 1.311l.637 7A2 2 0 0 0 2.826 14H9v-1H2.826a1 1 0 0 1-.995-.91l-.637-7A1 1 0 0 1 2.19 4h11.62a1 1 0 0 1 .996 1.09L14.54 8h1.005l.256-2.819A2 2 0 0 0 13.81 3H9.828a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 6.172 1H2.5a2 2 0 0 0-2 2zm5.672-1a1 1 0 0 1 .707.293L7.586 3H2.19c-.24 0-.47.042-.683.12L1.5 2.98a1 1 0 0 1 1-.98h3.672z"/>
 	  <path d="M11 11.5a.5.5 0 0 1 .5-.5h4a.5.5 0 1 1 0 1h-4a.5.5 0 0 1-.5-.5z"/>
 	</svg>
 	
 	
 	
-	<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="inluding_trashcan_mark bi bi-trash" viewBox="0 0 16 16">
+	<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="including_trashcan_mark bi bi-trash" viewBox="0 0 16 16">
 	  <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
 	  <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
 	</svg>

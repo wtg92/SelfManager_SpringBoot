@@ -22,15 +22,15 @@ let WS_NAMESPACE = {
 /**为了解耦，这里关于WS.planItems的部分多数是从plan_dialog.js copy过来的 当修改时，应当修改两处地方 */
 $(function(){
 
-    drawCommonIcon("inluding_modify_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_modify_mark"));
-    drawCommonIcon("inluding_add_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_add_mark"));
-    drawCommonIcon("inluding_minus_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_delete_mark"));
-    drawCommonIcon("inluding_circle_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_circle_container"));
-    drawCommonIcon("inluding_circle_with_left_line_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_root_add_mark"));
-    drawCommonIcon("inluding_open_folder_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_unfold_btn"));
-    drawCommonIcon("inluding_close_folder_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_fold_btn"));
-    drawCommonIcon("inluding_trashcan_mark",$("#work_sheet_pattern_container .work_sheet_work_item_container_delete_button"));
-    drawCommonIcon("inluding_common_edit_shape",$("#work_sheet_pattern_container .work_sheet_work_item_container_plan_item_type_modify_mark"));
+    drawCommonIcon("including_modify_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_modify_mark"));
+    drawCommonIcon("including_add_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_add_mark"));
+    drawCommonIcon("including_minus_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_delete_mark"));
+    drawCommonIcon("including_circle_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_circle_container"));
+    drawCommonIcon("including_circle_with_left_line_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_root_add_mark"));
+    drawCommonIcon("including_open_folder_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_unfold_btn"));
+    drawCommonIcon("including_close_folder_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_fold_btn"));
+    drawCommonIcon("including_trashcan_mark",$("#work_sheet_pattern_container .work_sheet_work_item_container_delete_button"));
+    drawCommonIcon("including_common_edit_shape",$("#work_sheet_pattern_container .work_sheet_work_item_container_plan_item_type_modify_mark"));
 
 
 

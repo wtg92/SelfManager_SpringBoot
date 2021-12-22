@@ -90,8 +90,8 @@ function bindMemoDialogEvents(){
     let $controgroupContainer = $("#memo_dialog_body_control_group_container");
     let $itemsContainer = $("#memo_dialog_body_items_container")
 
-    drawCommonIcon("inluding_modify_mark",$pattern.find(".one_memo_item_unit_btns_for_modify_item"));
-    drawCommonIcon("inluding_minus_mark",$pattern.find(".one_memo_item_unit_btns_for_delete_item"));
+    drawCommonIcon("including_modify_mark",$pattern.find(".one_memo_item_unit_btns_for_modify_item"));
+    drawCommonIcon("including_minus_mark",$pattern.find(".one_memo_item_unit_btns_for_delete_item"));
 
 
 

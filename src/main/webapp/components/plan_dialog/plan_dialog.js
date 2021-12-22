@@ -7,15 +7,15 @@ let PLAN_DIALOG_NAMESPACE = {
  */
 $(function(){
 
-    drawCommonIcon("inluding_modify_mark",$("#plan_dialog_pattern_container .plan_item_modify_mark"));
-    drawCommonIcon("inluding_add_mark",$("#plan_dialog_pattern_container .plan_item_add_mark"));
-    drawCommonIcon("inluding_minus_mark",$("#plan_dialog_pattern_container .plan_item_delete_mark"));
-    drawCommonIcon("inluding_circle_mark",$("#plan_dialog_pattern_container .plan_item_circle_container"));
-    drawCommonIcon("inluding_circle_with_left_line_mark",$("#plan_dialog_pattern_container .plan_item_root_add_mark"));
+    drawCommonIcon("including_modify_mark",$("#plan_dialog_pattern_container .plan_item_modify_mark"));
+    drawCommonIcon("including_add_mark",$("#plan_dialog_pattern_container .plan_item_add_mark"));
+    drawCommonIcon("including_minus_mark",$("#plan_dialog_pattern_container .plan_item_delete_mark"));
+    drawCommonIcon("including_circle_mark",$("#plan_dialog_pattern_container .plan_item_circle_container"));
+    drawCommonIcon("including_circle_with_left_line_mark",$("#plan_dialog_pattern_container .plan_item_root_add_mark"));
 
-    drawCommonIcon("inluding_open_folder_mark",$("#plan_dialog_pattern_container .plan_item_unfold_btn"));
-    drawCommonIcon("inluding_close_folder_mark",$("#plan_dialog_pattern_container .plan_item_fold_btn"));
-    drawCommonIcon("inluding_common_edit_shape",$("#plan_dialog_basic_unit_container_edit_btn"));
+    drawCommonIcon("including_open_folder_mark",$("#plan_dialog_pattern_container .plan_item_unfold_btn"));
+    drawCommonIcon("including_close_folder_mark",$("#plan_dialog_pattern_container .plan_item_fold_btn"));
+    drawCommonIcon("including_common_edit_shape",$("#plan_dialog_basic_unit_container_edit_btn"));
 
 
     $("#plan_dialog_basic_unit_container_edit_btn").click(openPlanTagEditDialog);
