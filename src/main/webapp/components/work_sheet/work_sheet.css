@@ -15,6 +15,10 @@
     margin-right: 15px;
 }
 
+#ws_change_plan_base_dialog .modal-header{
+    display: none;
+}
+
 #ws_change_plan_base_dialog_hint{
     color: gray;
     font-size: 0.9em;

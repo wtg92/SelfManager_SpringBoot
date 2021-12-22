@@ -55,6 +55,10 @@ pdf:hover{
     color: #86868b;
     pointer-events: none;
 }
+.modal-header{
+    padding: 0.4rem 0.8rem;
+    align-items: center;
+}
 
 
 .dropdown-item{
@@ -69,10 +73,17 @@ textarea{
 }
 
 .modal .modal-footer>button{
-    padding: 5px 10px;
+    padding: 4px 8px;
     margin-top: 0;
     margin-right: 0;
     margin-bottom: 0;
+}
+
+.modal-footer>button:last-child{
+    margin-right: 0;
+}
+.modal-footer>button{
+    margin-right: 0.5rem;
 }
 
 
@@ -151,6 +162,10 @@ em{
     width: 100%;
 }
 
+.modal-footer{
+    padding: 0.5rem .75rem !important;
+}
+
 
 
 .common_waiting_button{
@@ -165,10 +180,13 @@ em{
     text-align: right;
 }
 
+
 .common_state_block{
-    padding: 5px;
+    padding:2px 5px;
     border-radius: 6px;
     font-size: 16px;
+    border-width:1px;
+    border-style: solid;
 }
 
 .common_btn_smaller_padding{

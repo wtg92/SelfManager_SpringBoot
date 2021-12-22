@@ -75,7 +75,7 @@ function loadPlansByStateCircle(){
         data.forEach(plan=>{
             let oneLine = [];
             let $state = $("<span>");
-            $state.text(plan.state.name).addClass("common_state_block").addClass("plan_state_span").attr("plan_id",plan.id).css(getFontColorAndBackgroudColor(plan.state.color));
+            $state.text(plan.state.name).addClass("common_state_block").addClass("plan_state_span").attr("plan_id",plan.id).css(getFontColorAndBorderColor(plan.state.color));
             
             let $startDate = $("<span>");
             $startDate.attr("date_abs",plan.startDate).text(new Date(plan.startDate).toChineseDate());

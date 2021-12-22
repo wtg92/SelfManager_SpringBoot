@@ -620,9 +620,17 @@ function translateUndefinedForDataTable(val){
     return val;
 }
 
+function getFontColorAndBorderColor(color) {
+    return {
+        "border-color": color,
+        "color" :  color
+    }
+}
+
 function getFontColorAndBackgroudColor(backgroundColor) {
     return {
         "background-color": backgroundColor,
+        "border-color": backgroundColor,
         "color" :  parseColor(backgroundColor).getContrastColor()
     }
 }

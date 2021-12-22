@@ -60,7 +60,7 @@
 				</div>
 			</div>
 			<div id="all_ws_genral_btn_groups">
-				<span class="btn btn-primary" id="all_ws_open_plan_dept_dialog_btn">查看历史欠账</span>
+				<span class="btn btn-outline-primary" id="all_ws_open_plan_dept_dialog_btn">查看历史欠账</span>
 			</div>
 			<div id="all_ws_statics">
 				<div id="all_ws_hint_when_loading">加载中......</div>

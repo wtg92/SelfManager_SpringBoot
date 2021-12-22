@@ -78,7 +78,7 @@ function loadWSByStateCircle(){
         data.forEach(ws=>{
             let oneLine = [];
             let $state = $("<span>");
-            $state.text(ws.ws.state.name).addClass("common_state_block").addClass("ws_state_span").attr("ws_id",ws.ws.id).css(getFontColorAndBackgroudColor(ws.ws.state.color));
+            $state.text(ws.ws.state.name).addClass("common_state_block").addClass("ws_state_span").attr("ws_id",ws.ws.id).css(getFontColorAndBorderColor(ws.ws.state.color));
             
             let $date = $("<span>");
             $date.addClass("ws_date").attr("date_abs",ws.ws.date).text(new Date(ws.ws.date).toChineseDate());

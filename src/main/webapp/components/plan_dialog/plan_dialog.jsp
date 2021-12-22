@@ -50,8 +50,8 @@
       					
       					<div class="plan_dialog_basic_info_form_one_row">
       						<div class="plan_dialog_basic_unit_container copy_plan_items_relative">
-      							<span class="plan_dialog_basic_info_sub_title" title="可以用于计划项的复制">ID</span>
-      							<span class="plan_dialog_basic_info_decoded_id" title="可以用于计划项的复制"></span>
+      							<span class="plan_dialog_basic_info_sub_title" title="用于计划的更改、复制">ID</span>
+      							<span class="plan_dialog_basic_info_decoded_id" title="用于计划的更改、复制"></span>
       							<span class="plan_dialog_basic_info_copy_btn common_blue_font common_hover">复制</span>
       							<span class="plan_dialog_basic_info_copy_hint common_blue_font common_hover"></span>
       						</div>
@@ -62,8 +62,16 @@
       						</div>
       					</div>
       					
+      					<div class="plan_dialog_basic_info_form_one_row">
+      						<div class="plan_dialog_basic_unit_container">
+      							<span class="plan_dialog_basic_info_sub_title" title="用于时间范围的数据分析">标签</span>
+      							<span id="plan_dialog_basic_unit_container_edit_btn" class="common_blue_font common_hover"></span>
+      							<span class="plan_dialog_basic_unit_container_plan_tags" title="用于时间范围的数据分析"></span>
+      						</div>
+      					</div>
+      					
 						<div class="plan_dialog_basic_info_form_one_row">
-      						<div class="plan_dialog_basic_unit_container copy_plan_items_relative">
+      						<div class="plan_dialog_basic_unit_container">
       							<span class="plan_dialog_basic_info_sub_title">顺序权重</span>
       							<span class="plan_dialog_basic_info_sub_title_seq_weight_span"></span>
       							<input type="text" name="seq_weight"/>
@@ -202,6 +210,28 @@
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="plan_dialog_edit_tags_dialog" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="plan_dialog_edit_tags_dialog_label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="plan_dialog_edit_tags_dialog_label">标签管理</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      </div>
+      <div class="modal-footer">
+      	<button type="button" id="" class="btn btn-primary">保存</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
 <div id="plan_dialog_pattern_container" class="common_pattern_container">
 	<div class="plan_item_container_first_level">
 		<div class="plan_item_container_first_level_header">

@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toMap;
 
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -392,7 +393,7 @@ public class WorkLogicImpl extends WorkLogic{
 		
 		List<WorkSheet> wss = wDAO.selectWorkSheetsByOwnerAndDateScope(loginerId, startDate, endDate);
 		
-		List<WorkSheetProxy> rlt = fillPlanNames(wss);
+		List<WorkSheetProxy> rlt = fillPlanInfos(wss);
 		
 		for(WorkSheetProxy ws: rlt) {
 			WorkSheetContent content = WorkContentConverter.convertWorkSheet(ws.ws);
@@ -557,9 +558,9 @@ public class WorkLogicImpl extends WorkLogic{
 	public List<WorkSheetProxy> loadWorkSheetByState(int loginerId, WorkSheetState stateZT)
 			throws LogicException, DBException {
 		if(stateZT == WorkSheetState.UNDECIDED) {
-			return fillPlanNames(wDAO.selectWorkSheetByField(SMDB.F_OWNER_ID, loginerId));
+			return fillPlanInfos(wDAO.selectWorkSheetByField(SMDB.F_OWNER_ID, loginerId));
 		}
-		return clearUnnecessaryInfo(fillPlanNames(wDAO.selectWorkSheetByOwnerAndStates(loginerId, Arrays.asList(stateZT))));
+		return clearUnnecessaryInfo(fillPlanInfos(wDAO.selectWorkSheetByOwnerAndStates(loginerId, Arrays.asList(stateZT))));
 	}
 	
 	@Override
@@ -779,7 +780,7 @@ public class WorkLogicImpl extends WorkLogic{
 		}
 	}
 	
-	private List<WorkSheetProxy> fillPlanNames(List<WorkSheet> src) throws DBException{
+	private List<WorkSheetProxy> fillPlanInfos(List<WorkSheet> src) throws DBException{
 		List<WorkSheetProxy> rlt = src.stream().map(WorkSheetProxy::new).collect(toList());
 		List<Integer> planIds = src.stream().map(WorkSheet::getPlanId).distinct().collect(toList());
 		Map<Integer,Plan> relevantPlans =  wDAO.selectPlanInfosByIds(planIds).stream().collect(toMap(Plan::getId, Function.identity()));
@@ -787,10 +788,12 @@ public class WorkLogicImpl extends WorkLogic{
 		for(WorkSheetProxy one : rlt) {
 			try{
 				one.basePlanName = relevantPlans.get(one.ws.getPlanId()).getName();
+				one.planTags = relevantPlans.get(one.ws.getPlanId()).getTags();
 			}catch (Exception e) {
 				e.printStackTrace();
 				assert false ; 
 				one.basePlanName = "出错，请点开查看";
+				one.planTags = Collections.emptyList();
 			}
 		}
 		

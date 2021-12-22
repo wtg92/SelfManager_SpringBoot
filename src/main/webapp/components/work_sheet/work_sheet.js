@@ -30,6 +30,10 @@ $(function(){
     drawCommonIcon("inluding_open_folder_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_unfold_btn"));
     drawCommonIcon("inluding_close_folder_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_fold_btn"));
     drawCommonIcon("inluding_trashcan_mark",$("#work_sheet_pattern_container .work_sheet_work_item_container_delete_button"));
+    drawCommonIcon("inluding_common_edit_shape",$("#work_sheet_pattern_container .work_sheet_work_item_container_plan_item_type_modify_mark"));
+
+
+
     $("body").on("keydown",monitorHotKeys);
 
     $(".work_sheet_switch_to_show_ws_note").click(switchToShowWSNote);
@@ -173,8 +177,6 @@ function openChangWSPlanBaseDialog(){
     $("#ws_base_plan_id_input_for_change").val("");
     $("#ws_change_plan_base_dialog").find(".modal-title em").text(new Date(WS_NAMESPACE.CURRENT_WORKSHEET_OBJ.ws.date).toChineseDate())
         .end().modal("show");
-
-
 }
 
 

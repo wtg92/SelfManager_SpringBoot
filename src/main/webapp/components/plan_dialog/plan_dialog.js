@@ -1,4 +1,4 @@
-const PLAN_DIALOG_NAMESPACE = {
+let PLAN_DIALOG_NAMESPACE = {
     /*当时可能没想好，似乎不需要有cache？干嘛用的呢*/
     PLAN_ITEMS_IN_PLAN_DIALOG : [],
 };
@@ -15,7 +15,10 @@ $(function(){
 
     drawCommonIcon("inluding_open_folder_mark",$("#plan_dialog_pattern_container .plan_item_unfold_btn"));
     drawCommonIcon("inluding_close_folder_mark",$("#plan_dialog_pattern_container .plan_item_fold_btn"));
+    drawCommonIcon("inluding_common_edit_shape",$("#plan_dialog_basic_unit_container_edit_btn"));
 
+
+    $("#plan_dialog_basic_unit_container_edit_btn").click(openPlanTagEditDialog);
 
     $("#plan_dialog_basic_info_main_container")
         .find(".plan_dialog_switch_container_visibility").click(function(){
@@ -86,6 +89,11 @@ $(function(){
     $("#plan_dialog_copy_plan_btn").click(copyPlanItemsById);
 
 })
+
+function openPlanTagEditDialog(){
+    $("#plan_dialog_edit_tags_dialog").modal("show");
+}
+
 
 function foldPlanItemFoldBtn(){
     let $parentContainer =  getSelfContainerForFoldBtns(this);
@@ -766,14 +774,14 @@ function fillPlanDialogByDate(data,openEditMode){
 
     $(".plan_dialog_basic_info_form_error_mes,.plan_dialog_items_error_mes").hide();
 
-    let title = data.countWS == 0 ? data.plan.name : data.plan.name +"，共有<em>"+data.countWS+"</em>天的工作表基于本计划";
+    let title = data.countWS == 0 ? data.plan.name : "共有<em>"+data.countWS+"</em>天的工作表基于本计划";
 
     $planDialog.attr({
         "plan_id":data.plan.id
     }).find(".modal-header .modal-title").html(title);
 
     $("#plan_dialog_basic_info_form").find("[name='name']").val(data.plan.name)
-        .end().find(".plan_dialog_basic_info_state").text(data.plan.state.name).css(getFontColorAndBackgroudColor(data.plan.state.color));
+        .end().find(".plan_dialog_basic_info_state").text(data.plan.state.name).css(getFontColorAndBorderColor(data.plan.state.color));
 
     $("#plan_dialog_basic_info_form").find("[name='start_date']").attr("abs_time_in_millis",data.plan.startDate).end()
         .find("[name='end_date']").attr("abs_time_in_millis",data.plan.endDate).end()
