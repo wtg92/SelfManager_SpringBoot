@@ -5,7 +5,6 @@ import static java.util.stream.Collectors.toMap;
 
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -788,12 +787,10 @@ public class WorkLogicImpl extends WorkLogic{
 		for(WorkSheetProxy one : rlt) {
 			try{
 				one.basePlanName = relevantPlans.get(one.ws.getPlanId()).getName();
-				one.planTags = relevantPlans.get(one.ws.getPlanId()).getTags();
 			}catch (Exception e) {
 				e.printStackTrace();
 				assert false ; 
 				one.basePlanName = "出错，请点开查看";
-				one.planTags = Collections.emptyList();
 			}
 		}
 		

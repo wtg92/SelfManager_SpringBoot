@@ -1,6 +1,7 @@
 package manager.entity.general.career;
 
 import java.util.Calendar;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -12,6 +13,7 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import manager.entity.general.SMGeneralEntity;
 import manager.system.SMDB;
+import manager.system.career.TagsConverter;
 import manager.system.career.WorkSheetState;
 import manager.system.career.WorkSheetStateConverter;
 
@@ -46,14 +48,25 @@ public class WorkSheet extends SMGeneralEntity {
 	@Convert(converter = WorkSheetStateConverter.class)
 	private WorkSheetState state;
 	
+	@Column
+	@Convert(converter = TagsConverter.class)
+	private List<String> tags;
+	
 	public WorkSheet() {}
 
-	
-	public Calendar getDate() {
-		return date;
+	public List<String> getTags() {
+		return tags;
 	}
 
 
+	public void setTags(List<String> tags) {
+		this.tags = tags;
+	}
+
+	public Calendar getDate() {
+		return date;
+	}
+	
 	public void setDate(Calendar date) {
 		this.date = date;
 	}

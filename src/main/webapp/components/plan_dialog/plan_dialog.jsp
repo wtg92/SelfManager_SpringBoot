@@ -24,68 +24,64 @@
       		<div class="plan_dialog_content">
       			<form id="plan_dialog_basic_info_form">
       			<div id="plan_dialog_basic_info_sub_container">
-      					<div class="plan_dialog_basic_info_form_one_row">
-      						<div  class="plan_dialog_basic_unit_container">
-      							<span class="plan_dialog_basic_info_sub_title">名称</span>
-      							<input type="text" name="name"/>		
-      						</div>
-      						<div class="plan_dialog_basic_unit_container">
-      							<span class="plan_dialog_basic_info_sub_title">状态</span>
-      							<span class="plan_dialog_basic_info_state common_state_block"></span>
-      						</div>
-      					</div>
-      					<div class="plan_dialog_basic_info_form_error_mes p_name"></div>
-      					<div class="plan_dialog_basic_info_form_one_row">
-      						<div class="plan_dialog_basic_unit_container">
-      							<span class="plan_dialog_basic_info_sub_title">开始</span>
-      							<input type="date" name="start_date"/>		
-      						</div>
-      						<div class="plan_dialog_basic_unit_container">
-      							<span class="plan_dialog_basic_info_sub_title">结束</span>
-      							<input type="date" name="end_date"/>
-      						</div>
-							<div title="在重新设置结束日期前，该计划将一直被系统认为进行中" id="work_end_date_null_for_save_plan" class="common_blue_font">暂时没想好</div>
-      					</div>
-      					<div class="plan_dialog_basic_info_form_error_mes p_date"></div>
-      					
-      					<div class="plan_dialog_basic_info_form_one_row">
-      						<div class="plan_dialog_basic_unit_container copy_plan_items_relative">
-      							<span class="plan_dialog_basic_info_sub_title" title="用于计划的更改、复制">ID</span>
-      							<span class="plan_dialog_basic_info_decoded_id" title="用于计划的更改、复制"></span>
-      							<span class="plan_dialog_basic_info_copy_btn common_blue_font common_hover">复制</span>
-      							<span class="plan_dialog_basic_info_copy_hint common_blue_font common_hover"></span>
-      						</div>
-      						<div class="plan_dialog_basic_unit_container copy_plan_items_relative">
-      							<span class="plan_dialog_basic_info_sub_title">允许他人根据ID复制计划项</span>
-      							<input type="checkbox" title="当勾选后，非本人的用户可以通过ID复制计划项"  class="allow_others_copy_plan_items" name="plan_setting" value="<%=PlanSetting.ALLOW_OTHERS_COPY_PLAN_ITEMS.getDbCode() %>"/>
-      							<span class="plan_dialog_basic_allow_others_copy_plan_items_rlt"></span>
-      						</div>
-      					</div>
-      					
-      					<div class="plan_dialog_basic_info_form_one_row">
-      						<div class="plan_dialog_basic_unit_container">
-      							<span class="plan_dialog_basic_info_sub_title" title="用于时间范围的数据分析">标签</span>
-      							<span id="plan_dialog_basic_unit_container_edit_btn" class="common_blue_font common_hover"></span>
-      							<span class="plan_dialog_basic_unit_container_plan_tags" title="用于时间范围的数据分析"></span>
-      						</div>
-      					</div>
-      					
-						<div class="plan_dialog_basic_info_form_one_row">
-      						<div class="plan_dialog_basic_unit_container">
-      							<span class="plan_dialog_basic_info_sub_title">顺序权重</span>
-      							<span class="plan_dialog_basic_info_sub_title_seq_weight_span"></span>
-      							<input type="text" name="seq_weight"/>
-      							<div class="plan_dialog_basic_info_sub_seq_weight_hint">非负整数，决定计划卡片的显示顺序，值越大越靠前</div>
-      						</div>
-      					</div>
-      					
-      					
-      					
-      					<div class="plan_dialog_basic_info_form_one_row">
-      						<span class="plan_dialog_basic_info_sub_title">备注</span>
-      						<textarea name="note"></textarea>
-      					</div>
-      			
+    					<div class="plan_dialog_basic_info_form_one_row">
+    						<div  class="plan_dialog_basic_unit_container">
+    							<span class="plan_dialog_basic_info_sub_title">名称</span>
+    							<input type="text" name="name"/>		
+    						</div>
+    						<div class="plan_dialog_basic_unit_container">
+    							<span class="plan_dialog_basic_info_sub_title">状态</span>
+    							<span class="plan_dialog_basic_info_state common_state_block"></span>
+    						</div>
+    					</div>
+    					<div class="plan_dialog_basic_info_form_error_mes p_name"></div>
+    					<div class="plan_dialog_basic_info_form_one_row">
+    						<div class="plan_dialog_basic_unit_container">
+    							<span class="plan_dialog_basic_info_sub_title">开始</span>
+    							<input type="date" name="start_date"/>		
+    						</div>
+    						<div class="plan_dialog_basic_unit_container">
+    							<span class="plan_dialog_basic_info_sub_title">结束</span>
+    							<input type="date" name="end_date"/>
+    						</div>
+					<div title="在重新设置结束日期前，该计划将一直被系统认为进行中" id="work_end_date_null_for_save_plan" class="common_blue_font">暂时没想好</div>
+    					</div>
+    					<div class="plan_dialog_basic_info_form_error_mes p_date"></div>
+    					
+    					<div class="plan_dialog_basic_info_form_one_row">
+    						<div class="plan_dialog_basic_unit_container copy_plan_items_relative">
+    							<span class="plan_dialog_basic_info_sub_title" title="用于计划的更改、复制">ID</span>
+    							<span class="plan_dialog_basic_info_decoded_id" title="用于计划的更改、复制"></span>
+    							<span class="plan_dialog_basic_info_copy_btn common_blue_font common_hover">复制</span>
+    							<span class="plan_dialog_basic_info_copy_hint common_blue_font common_hover"></span>
+    						</div>
+    						<div class="plan_dialog_basic_unit_container copy_plan_items_relative">
+    							<span class="plan_dialog_basic_info_sub_title">允许他人根据ID复制计划项</span>
+    							<input type="checkbox" title="当勾选后，非本人的用户可以通过ID复制计划项"  class="allow_others_copy_plan_items" name="plan_setting" value="<%=PlanSetting.ALLOW_OTHERS_COPY_PLAN_ITEMS.getDbCode() %>"/>
+    							<span class="plan_dialog_basic_allow_others_copy_plan_items_rlt"></span>
+    						</div>
+    					</div>
+    					
+    					<div class="plan_dialog_basic_info_form_one_row">
+    						<div class="plan_dialog_basic_unit_container">
+    							<span class="plan_dialog_basic_info_sub_title" title="用于时间范围的数据分析">标签</span>
+    							<span id="plan_dialog_basic_unit_container_edit_btn" class="common_blue_font common_hover"></span>
+    							<span class="plan_dialog_basic_unit_container_plan_tags" title="用于时间范围的数据分析"></span>
+    						</div>
+    					</div>
+    					
+				<div class="plan_dialog_basic_info_form_one_row">
+    						<div class="plan_dialog_basic_unit_container">
+    							<span class="plan_dialog_basic_info_sub_title">顺序权重</span>
+    							<span class="plan_dialog_basic_info_sub_title_seq_weight_span"></span>
+    							<input type="text" name="seq_weight"/>
+    							<div class="plan_dialog_basic_info_sub_seq_weight_hint">非负整数，决定计划卡片的显示顺序，值越大越靠前</div>
+    						</div>
+    					</div>
+    					<div class="plan_dialog_basic_info_form_one_row">
+    						<span class="plan_dialog_basic_info_sub_title">备注</span>
+    						<textarea name="note"></textarea>
+    					</div>
       			</div>
       			<div id="plan_dialog_save_basic_controgroup">
       				<div id="plan_dialog_save_basic_hint_mes"></div>
@@ -210,27 +206,6 @@
     </div>
   </div>
 </div>
-
-<div class="modal fade" id="plan_dialog_edit_tags_dialog" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="plan_dialog_edit_tags_dialog_label" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="plan_dialog_edit_tags_dialog_label">标签管理</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-      </div>
-      <div class="modal-footer">
-      	<button type="button" id="" class="btn btn-primary">保存</button>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-
 
 <div id="plan_dialog_pattern_container" class="common_pattern_container">
 	<div class="plan_item_container_first_level">

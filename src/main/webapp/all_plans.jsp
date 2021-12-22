@@ -52,6 +52,7 @@
 		</div>
 	</div>
 	<jsp:include page="footer.jsp" flush="false" />
+<jsp:include page="components/tag_edit_dialog/tag_edit_dialog.jsp" flush="false" />
 <jsp:include page="components/plan_dialog/plan_dialog.jsp" flush="false" />
 </body>
 </html>

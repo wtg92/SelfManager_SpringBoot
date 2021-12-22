@@ -86,6 +86,7 @@
     </div>
   </div>
 </div>
+<jsp:include page="components/tag_edit_dialog/tag_edit_dialog.jsp" flush="false" />
 <jsp:include page="components/work_sheet/work_statistics.jsp" flush="false" />
 <jsp:include page="components/plan_dept_dialog/plan_dept_dialog.jsp" flush="false" />
 

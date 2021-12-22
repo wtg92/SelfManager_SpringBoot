@@ -31,7 +31,6 @@ import manager.entity.general.career.PlanDept;
 import manager.entity.general.career.WorkSheet;
 import manager.exception.DBException;
 import manager.exception.NoSuchElement;
-import manager.logic.expand.TagCalculator;
 import manager.system.SMDB;
 import manager.system.career.PlanState;
 import manager.system.career.WorkSheetState;
@@ -215,17 +214,16 @@ public class WorkDAOImpl implements WorkDAO {
 			trans = session.beginTransaction();
 			session.doWork(conn -> {
 				String theManySql = planIds.stream().map(val -> val.toString()).collect(Collectors.joining(","));
-				String sql = String.format("SELECT %s,%s,%s FROM %s WHERE (%s in (%s))",
-						SMDB.F_ID,SMDB.F_NAME,SMDB.F_TAGS,
+				String sql = String.format("SELECT %s,%s FROM %s WHERE (%s in (%s))",
+						SMDB.F_ID,SMDB.F_NAME,
 						SMDB.T_PLAN,SMDB.F_ID,theManySql);
 				try (PreparedStatement ps = conn.prepareStatement(sql)) {
 					ResultSet rs = ps.executeQuery();
 					while(rs.next()) {
-						Plan ws =new Plan();
-						ws.setId(rs.getInt(1));
-						ws.setName(rs.getString(2));
-						ws.setTags(TagCalculator.parseToTags(rs.getString(3)));
-						rlt.add(ws);
+						Plan one =new Plan();
+						one.setId(rs.getInt(1));
+						one.setName(rs.getString(2));
+						rlt.add(one);
 					}
 				}
 			});

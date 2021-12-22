@@ -119,9 +119,6 @@ public abstract class WorkLogic{
 	
 	/**
 	 *   闭区间
-	 * @param loginerId
-	 * @param startDate
-	 * @param endDate
 	 */
 	public abstract List<WorkSheetProxy> loadWorkSheetsByDateScope(int loginerId,Calendar startDate,Calendar endDate) throws SMException;
 	
