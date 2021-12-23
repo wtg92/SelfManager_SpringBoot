@@ -1,6 +1,6 @@
 let PLAN_DIALOG_NAMESPACE = {
-    /*当时可能没想好，似乎不需要有cache？干嘛用的呢*/
-    PLAN_ITEMS_IN_PLAN_DIALOG : [],
+    CURRENT_PLAN : {},
+    
 };
 /**
  * plan item id ==0 means root
@@ -91,7 +91,15 @@ $(function(){
 })
 
 function openPlanTagEditDialog(){
-    $("#plan_dialog_edit_tags_dialog").modal("show");
+    openTagEditDialogForExternalModule((tags,closeDialogFunc,removeDoubleClsFunc)=>{
+        sendAjaxBySmartParams("CareerServlet","c_reset_plan_tags",{
+            "plan_id":PLAN_DIALOG_NAMESPACE.CURRENT_PLAN.plan.id,
+            "tags":tags
+        },(data)=>{
+            fillPlanDialogByDate(data);
+            closeDialogFunc();
+        },removeDoubleClsFunc)
+    });
 }
 
 
@@ -654,7 +662,7 @@ function drawPlanItemsFromCache(){
     let $dropUpContainer  =$("#plan_dialog_items_control_group_container").find(".dropdown-menu");
     $dropUpContainer.empty();
     let cats = [];
-    let items = PLAN_DIALOG_NAMESPACE.PLAN_ITEMS_IN_PLAN_DIALOG;
+    let items = PLAN_DIALOG_NAMESPACE.CURRENT_PLAN.content.items;
     traversePlanItems(items,(item)=>{
         cats.push({
             "id" : item.id,
@@ -759,12 +767,15 @@ function drawSonPlanItemCards(fatherItem,$container){
 
 
 function fillPlanDialogByDate(data,openEditMode){
+
+    PLAN_DIALOG_NAMESPACE.CURRENT_PLAN = cloneObj(data);
+
     let $planDialog = $("#plan_dialog");
     if(openEditMode == undefined){
         openEditMode = parseToBool($planDialog.attr("open_edit_mode")); 
     }
 
-    PLAN_DIALOG_NAMESPACE.PLAN_ITEMS_IN_PLAN_DIALOG = cloneObj(data.content.items);
+   
     drawPlanItemsFromCache();
 
     /*下拉框默认选择 无 默认启动增加模式*/
@@ -814,7 +825,6 @@ function openPlanDialogEditMode(){
         .find("[name='end_date']").prop("type","date").val(endDate.isBlank() ?"":endDate.getDateStr()).end();
     
 
-    /*初始化items 部分 TODO 还应该清空选项*/
     $(".plan_dialog_items_form_one_row.plan_dialog_items_values_container>div").hide();    
     $("#plan_dialog_items_main_container").find("[type='text'],textarea").val("");
     

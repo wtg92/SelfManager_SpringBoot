@@ -49,7 +49,7 @@ $(function(){
 
     $(".work_sheet_logs_switch_container_visibility").click(switchToWSLogsBody);
 
-    $(".work_sheet_main_container_open_work_items_edit_mode").click(openWorkItemsEditMode);
+    $(".work_sheet_main_container_open_work_items_edit_mode").click(openWorkItemsEditModeWithoutConfirm);
     $(".work_sheet_main_container_close_work_items_edit_mode").click(closeWorkItemsEditMode);
     $(".work_sheet_switch_to_show_work_items_main_body").click(switchToShowWorkItemsBody);
 
@@ -1095,16 +1095,6 @@ function openWorkItemsEditModeWithoutConfirm(){
     $(".work_sheet_main_container_open_work_items_edit_mode").hide();
 }
 
-function openWorkItemsEditMode(){
-    let date = new Date(parseInt($("#work_sheet_main_container").attr("abs_date")));
-    if(date.isToday()){
-        openWorkItemsEditModeWithoutConfirm()
-        return;
-    }
-
-    confirmInfo("往者不可谏，确定要编辑过往的工作项吗？",openWorkItemsEditModeWithoutConfirm);
-}
-
 function closeWorkItemsEditMode(){
     $("#work_sheet_main_container").attr("open_ws_edit_mode",false);
 
@@ -1341,7 +1331,6 @@ function saveChangedWorkItemUnits(successFunc,reloadWorkSheetAfterSave,suncFuncA
 
     let wsId = $("#work_sheet_main_container").attr("ws_id");
     let $forSave = $("#work_sheet_work_items_container_main_body_ws_items .work_sheet_work_item_container[to_save='"+true+"']");
-    let count = 0;
 
     if($forSave.length == 0){
         if(successFunc != undefined){
@@ -1356,40 +1345,38 @@ function saveChangedWorkItemUnits(successFunc,reloadWorkSheetAfterSave,suncFuncA
         return true;
     }
     try{
+        /*assert $forSave.length>0*/
         let $workItemsDom =  $("#work_sheet_work_items_container_main_body_ws_items .work_sheet_work_item_container");
         $workItemsDom.addClass("ws_items_saving")
-        $forSave.each((i,v)=>{
-            let param = parseWorkItemSaveParam($(v));
-            param.push({
-                "name":"ws_id",
-                "value":wsId
-            });
-            sendAjax("CareerServlet","c_save_work_item",param,()=>{
-                count ++;
+
+        let objs = $forSave.get().map(v=>parseWorkItemSaveParam($(v)))
+
+        sendAjaxBySmartParams("CareerServlet", "c_save_work_items", {
+            "ws_id" : wsId,
+            "data" : JSON.stringify(objs)
+        }, (data) => {
+            
+            $forSave.each((i,v)=>{
                 $(v).attr("to_save",false);
-                if(count != $forSave.length){
-                    /*还有未保存的，等全部保存完 再进下一步骤*/
-                    return;
+            });
+
+            if(successFunc != undefined){
+                successFunc();
+            }
+
+            if (reloadWorkSheetAfterSave == undefined || reloadWorkSheetAfterSave) {
+                loadWorkSheetDetail_render(data);
+                if(suncFuncAfterReload){
+                    suncFuncAfterReload();
                 }
-                if(successFunc != undefined){
-                    successFunc();
-                }
-                if (reloadWorkSheetAfterSave == undefined || reloadWorkSheetAfterSave) {
-                    /*表明所有都保存成功 重新加载一次workSheet*/
-                    sendAjaxBySmartParams("CareerServlet", "c_load_work_sheet", {
-                        "ws_id": wsId,
-                    }, (data) => {
-                        loadWorkSheetDetail_render(data);
-                        if(suncFuncAfterReload){
-                            suncFuncAfterReload();
-                        }
-                    },()=>{
-                        $workItemsDom.removeClass("ws_items_saving");
-                    });
-                }
-            })
-        })
+            }
+      
+        },()=>{
+            $workItemsDom.removeClass("ws_items_saving");
+        });
+
         return true;
+
     }finally{
         WS_NAMESPACE.COUNT_SAVING_ASKING = 0;
     }
@@ -1419,48 +1406,23 @@ function saveWorkItemTypeModified(){
 
 
 function parseWorkItemSaveParam($ws){
-    let param = [];
-    param.push({
-        "name":"mood",
-        "value" : $ws.find(".work_sheet_work_item_container_mood_body").attr("mood")
-    })
-    param.push({
-        "name":"for_add",
-        "value" : $ws.find(".work_sheet_work_item_container_calculate_info_mark").attr("for_add")
-    })
-    param.push({
-        "name":"work_item_id",
-        "value" : $ws.attr("item_id")
-    })
-
     let startTimeInput = $ws.find("[name='start_time']").val();
     let startTime = new Date(parseInt($("#work_sheet_main_container").attr("abs_date")));
     startTime.overrideTimeInput(startTimeInput);
-    
-    param.push({
-        "name":"start_time",
-        "value" : startTime.toString()
-    })
 
     let endTimeInput = $ws.find("[name='end_time']").val();
     let endTime = new Date(parseInt($("#work_sheet_main_container").attr("abs_date")));
     endTime.overrideTimeInput(endTimeInput);
-    param.push({
-        "name":"end_time",
-        "value" : endTime.toString()
-    })
-
-    param.push({
-        "name":"val",
-        "value" : $ws.find("[name='val']").val()
-    })
     
-    param.push({
-        "name":"note",
-        "value" : $ws.find("[name='note']").val()
-    })
-
-    return param;
+    return {
+        "mood":$ws.find(".work_sheet_work_item_container_mood_body").attr("mood"),
+        "forAdd":$ws.find(".work_sheet_work_item_container_calculate_info_mark").attr("for_add"),
+        "id":$ws.attr("item_id"),
+        "startTime":startTime.toString(),
+        "endTime":endTime.toString(),
+        "value":$ws.find("[name='val']").val(),
+        "note":$ws.find("[name='note']").val()
+    };
 }
 
 

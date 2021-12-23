@@ -56,6 +56,7 @@ public abstract class SMParm {
 	public final static String RECALCULATE_STATE = "recalculate_state";
 	public final static String STATE = "state";
 	public final static String WS_ID = "ws_id";
+	public final static String DATA = "data";
 	public final static String WS_IDS = "ws_ids";
 	public final static String PAGE = "page";
 	public final static String DATE = "date";

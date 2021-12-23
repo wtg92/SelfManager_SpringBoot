@@ -16,10 +16,16 @@
         </button>
       </div>
       <div class="modal-body">
-      
+      	<div id="tag_edit_dialog_tag_list_container">
+      		
+      	</div>
+		<div id="tag_edit_dialog_controlgroup_container">
+      		<input type="text" id="tag_edit_dialog_add_tag_input">
+      		<span id="tag_edit_dialog_add_tag_btn" class="common_blue_font common_hover">添加</span>
+      	</div>
       </div>
       <div class="modal-footer">
-      	<button type="button" id="" class="btn btn-primary">保存</button>
+      	<button type="button" id="tag_edit_dialog_reset_tags_btn" class="btn btn-primary">保存</button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
       </div>
     </div>
@@ -29,5 +35,10 @@
 
 
 <div id="tag_edit_dialog_pattern_container" class="common_pattern_container">
-	
+	<div class="tag_unit_container">
+		<span class="tag_unit_container_content"></span>
+		<i class="tag_unit_close_icon common_hover">
+			&times;
+		</i>
+	</div>
 </div>

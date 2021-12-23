@@ -137,8 +137,10 @@ public abstract class WorkLogic{
 	public abstract void finishPlan(int opreatorId,int planId) throws LogicException, DBException;
 	public abstract void resetPlanTags(int opreatorId,int planId,List<String> tags) throws SMException;
 	
+	
 	public abstract void saveWorkItemPlanItemId(int updaterId,int wsId,int workItemId, int planItemId) throws LogicException, DBException;
 	public abstract void saveWorkItem(int updaterId,int wsId,int workItemId, int value, String note, int mood,boolean forAdd,Calendar startTime,Calendar endTime) throws LogicException, DBException;
+	public abstract void saveWorkItems(int loginerId, int wsId, List<WorkItem> workItems) throws SMException;
 	public abstract void savePlanItem(int loginerId, int planId,int itemId,String catName,int value,String note,double mappingVal) throws LogicException, DBException;
 	public abstract void savePlanItemFold(int loginerId, int planId, int itemId, boolean fold) throws LogicException, DBException;
 	public abstract void saveWSPlanItem(int loginerId, int wsId,int itemId,String catName,int value,String note,double mappingVal) throws LogicException, DBException;

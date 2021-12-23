@@ -6,6 +6,7 @@ import static manager.system.SMParm.USER_TOKEN;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
 import org.apache.tomcat.util.http.fileupload.servlet.ServletRequestContext;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 
 import manager.data.SingleFileUnit;
@@ -45,6 +47,8 @@ public abstract class UIUtil {
 		
 		return Arrays.stream(value).map(val->val.strip()).collect(toList());
 	}
+	
+	
 	
 	public static int getNonNullParamInInt(HttpServletRequest request, String key) throws LogicException {
 		try {
@@ -116,6 +120,48 @@ public abstract class UIUtil {
 			return getParam(request, key);
 		} catch (NoSuchElement e) {
 			return "";
+		}
+	}
+	
+	public static<T> List<T> getJSONArrayParam(HttpServletRequest request, String key,Class<T> cla)throws LogicException{
+		try {
+			String json = getParam(request, key);
+			
+			List<T> rlt = new ArrayList<T>();
+			
+			JSONArray arr = JSON.parseArray(json);
+			for(int i=0;i<arr.size();i++) {
+				rlt.add(arr.getObject(i, cla));
+			}
+			return rlt;
+		} catch (NoSuchElement e) {
+			throw new LogicException(SMError.REQUEST_ARG_ILLEGAL,"缺失参数");
+		}
+	}
+	
+	
+	public static List<Calendar> getParamsOrBlankDefaultInTime(HttpServletRequest request, String key) throws LogicException{
+		try {
+			return getParams(request, key).stream().map(str->str==null?TimeUtil.getBlank():TimeUtil.parseTime(str)).collect(toList());
+		} catch (NoSuchElement e) {
+			throw new LogicException(SMError.REQUEST_ARG_ILLEGAL,"缺失参数");
+		}
+	}
+	
+	public static List<Boolean> getNonNullParamsInBool(HttpServletRequest request, String key) throws LogicException{
+		try {
+			return getParams(request, key).stream().map(str->Boolean.parseBoolean(str)).collect(toList());
+		} catch (NoSuchElement e) {
+			throw new LogicException(SMError.REQUEST_ARG_ILLEGAL,"缺失参数");
+		}
+	}
+	
+	
+	public static List<String> getParamsOrBlankDefault(HttpServletRequest request, String key) throws LogicException{
+		try {
+			return getParams(request, key).stream().map(str->str == null ? "" : str).collect(toList());
+		} catch (NoSuchElement e) {
+			return Collections.emptyList();
 		}
 	}
 	
@@ -212,9 +258,9 @@ public abstract class UIUtil {
 		}
 	}
 	
-	public static List<Integer> getParamsInIntOrBlankDefault(HttpServletRequest request, String key) throws LogicException{
+	public static List<Integer> getParamsInIntOrZeroDefault(HttpServletRequest request, String key) throws LogicException{
 		try {
-			return getParams(request, key).stream().map(v->Integer.parseInt(v)).collect(toList());
+			return getParams(request, key).stream().map(v->v== null ? 0 : Integer.parseInt(v)).collect(toList());
 		} catch (NoSuchElement e) {
 			return new ArrayList<>();
 		}

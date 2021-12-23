@@ -26,6 +26,7 @@ import manager.entity.general.career.Plan;
 import manager.entity.general.career.PlanDept;
 import manager.entity.general.career.WorkSheet;
 import manager.entity.virtual.career.PlanDeptItem;
+import manager.entity.virtual.career.WorkItem;
 import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.SMException;
@@ -662,7 +663,21 @@ public class WorkLogicImpl extends WorkLogic{
 		ws.setState(calculateStateByNow(ws));
 		CacheScheduler.saveEntityAndUpdateCache(ws, one->wDAO.updateExistedWorkSheet(one));
 	}
-
+	
+	@Override
+	public void saveWorkItems(int loginerId, int wsId, List<WorkItem> workItems) throws SMException {
+		WorkSheet ws = CacheScheduler.getOne(CacheMode.E_ID,wsId, WorkSheet.class, ()->wDAO.selectExistedWorkSheet(wsId));
+		if(loginerId != ws.getOwnerId()) {
+			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS,loginerId+" vs "+ws.getOwnerId());
+		}
+		
+		for(WorkItem item:workItems) {
+			WorkContentConverter.updateWorkItem(ws, loginerId, item.getId(), item.getValue(), item.getNote(), item.getMood(), item.isForAdd(), item.getStartTime(), item.getEndTime());
+			
+		}
+		refreshStateAfterItemModified(ws);
+		CacheScheduler.saveEntityAndUpdateCache(ws,w->wDAO.updateExistedWorkSheet(w));	
+	}
 	
 	
 	@Override
@@ -814,5 +829,7 @@ public class WorkLogicImpl extends WorkLogic{
 		
 		CacheScheduler.saveEntityAndUpdateCache(target,p->wDAO.updateExistedPlan(p));
 	}
+
+	
 
 }

@@ -59,7 +59,7 @@ public enum SMOP {
 	C_LOAD_WORK_SHEET_INFOS_RECENTLY("c_load_work_sheet_infos_recently"),
 	C_LOAD_WORK_SHEET("c_load_work_sheet"),
 	C_LOAD_WORK_SHEET_COUNT("c_load_work_sheet_count"),
-	C_SAVE_WORK_ITEM("c_save_work_item"),
+	C_SAVE_WORK_ITEMS("c_save_work_items"),
 	C_SAVE_WORK_ITEM_PLAN_ITEM_ID("c_save_work_item_plan_item_id"),
 	C_SYNC_TO_PLAN_DEPT("c_sync_to_plan_dept"),
 	C_SYNC_ALL_TO_PLAN_DEPT("c_sync_all_to_plan_dept"),

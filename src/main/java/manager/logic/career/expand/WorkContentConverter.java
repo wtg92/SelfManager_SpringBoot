@@ -769,11 +769,11 @@ public abstract class WorkContentConverter {
 	}
 	
 	
-	public static void updateWorkItem(WorkSheet one,int updaterId,int workItemId, int value, String note, int mood,boolean forAdd,Calendar startTime,Calendar endTime) throws LogicException{
+	public static void updateWorkItem(WorkSheet one,int updaterId,int workItemId, double value, String note, int mood,boolean forAdd,Calendar startTime,Calendar endTime) throws LogicException{
 		Document ws = getDefinateDocument(one);
 		Element targetWorkItem = getWorkItemById(ws, workItemId);
 		WorkItem origin = parseWorkItem(targetWorkItem);
-		origin.setValue((double)value);
+		origin.setValue(value);
 		origin.setNote(note);
 		origin.setMood(mood);
 		origin.setForAdd(forAdd);

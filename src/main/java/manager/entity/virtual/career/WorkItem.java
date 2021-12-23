@@ -2,10 +2,9 @@ package manager.entity.virtual.career;
 
 import java.util.Calendar;
 
-import com.alibaba.fastjson.JSON;
-
 import manager.entity.virtual.SMVirtualEntity;
 import manager.system.career.WorkItemType;
+import manager.util.TimeUtil;
 
 public class WorkItem extends SMVirtualEntity{
 	
@@ -27,6 +26,14 @@ public class WorkItem extends SMVirtualEntity{
 	
 	private WorkItemType type;
 	
+	
+	
+	@Override
+	public String toString() {
+		return String.format(
+				" {id:%d,planItemId:'%s', value:'%s', note:'%s', mood:'%s', forAdd:'%s', startTime:'%s', endTime:'%s', type:'%s'}",
+				getId(),planItemId, value, note, mood, forAdd, TimeUtil.parseTime(startTime), TimeUtil.parseTime(endTime), type);
+	}
 	public WorkItemType getType() {
 		return type;
 	}

@@ -5,6 +5,7 @@ import static manager.system.SMParm.BOOK_ID;
 import static manager.system.SMParm.CAT_NAME;
 import static manager.system.SMParm.CAT_TYPE;
 import static manager.system.SMParm.CONTENT;
+import static manager.system.SMParm.DATA;
 import static manager.system.SMParm.DATE;
 import static manager.system.SMParm.END_DATE;
 import static manager.system.SMParm.END_TIME;
@@ -43,6 +44,7 @@ import static manager.system.SMParm.WORK_ITEM_ID;
 import static manager.system.SMParm.WS_ID;
 import static manager.system.SMParm.WS_IDS;
 import static manager.util.UIUtil.getBiParamsJSON;
+import static manager.util.UIUtil.getJSONArrayParam;
 import static manager.util.UIUtil.getLoginerId;
 import static manager.util.UIUtil.getNonNullParam;
 import static manager.util.UIUtil.getNonNullParamInBool;
@@ -61,7 +63,7 @@ import static manager.util.UIUtil.getParamOrFalseDefault;
 import static manager.util.UIUtil.getParamOrZeroDefault;
 import static manager.util.UIUtil.getParamOrZeroDefaultInDouble;
 import static manager.util.UIUtil.getParamOrZeroDefaultInInt;
-import static manager.util.UIUtil.getParamsInIntOrBlankDefault;
+import static manager.util.UIUtil.getParamsInIntOrZeroDefault;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -74,6 +76,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 
+import manager.entity.virtual.career.WorkItem;
 import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.SMException;
@@ -182,8 +185,8 @@ public class CareerServlet extends SMServlet{
 			return removeItemFromWorkSheet(request);
 		case C_ADD_ITEM_TO_WS:
 			return addItemToWS(request);
-		case C_SAVE_WORK_ITEM:
-			return saveWorkItem(request);
+		case C_SAVE_WORK_ITEMS:
+			return saveWorkItems(request);
 		case C_SAVE_WORK_ITEM_PLAN_ITEM_ID:
 			return saveWorkItemPlanItemId(request);
 		case C_SYNC_TO_PLAN_DEPT:
@@ -506,18 +509,14 @@ public class CareerServlet extends SMServlet{
 		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId),workConf);
 	}
 
-	private String saveWorkItem(HttpServletRequest request) throws LogicException, DBException {
+	private String saveWorkItems(HttpServletRequest request) throws SMException {
 		int loginerId = getLoginerId(request);
 		int wsId = getNonNullParamInInt(request, WS_ID);
-		int workItemId = getNonNullParamInInt(request, WORK_ITEM_ID);
-		int val = getParamOrZeroDefault(request, VAL);
-		String note = getParamOrBlankDefault(request, NOTE);
-		int mood = getNonNullParamInInt(request, MOOD);
-		boolean forAdd = getNonNullParamInBool(request, FOR_ADD);
-		Calendar startTime = getNonNullParamInTime(request, START_TIME);
-		Calendar endTime = getParamOrBlankDefaultInTime(request, END_TIME);
-		wL.saveWorkItem(loginerId, wsId, workItemId, val, note, mood, forAdd, startTime, endTime);
-		return getNullObjJSON();
+		List<WorkItem> workItems = getJSONArrayParam(request, DATA,WorkItem.class);
+		
+		wL.saveWorkItems(loginerId, wsId,workItems);
+		
+		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId),workConf);
 	}
 	
 	private String saveWorkSheetPlanId(HttpServletRequest request) throws SMException {
@@ -678,7 +677,7 @@ public class CareerServlet extends SMServlet{
 		int planId = getNonNullParamInInt(request, PLAN_ID);
 		List<String> tags = getNonNullParams(request, TAGS);
 		wL.resetPlanTags(loginerId, planId,tags);
-		return getNullObjJSON();
+		return JSON.toJSONString(ServletAdapter.process(wL.loadPlan(loginerId, planId)),workConf);
 	}
 	
 	
@@ -715,7 +714,7 @@ public class CareerServlet extends SMServlet{
 		boolean recalculateState = getParamOrFalseDefault(request, RECALCULATE_STATE);
 		int planId = getNonNullParamInInt(request, PLAN_ID);
 		int seqWeight = getParamOrZeroDefaultInInt(request, SEQ_WEIGHT);
-		List<PlanSetting> settings = getParamsInIntOrBlankDefault(request, PLAN_SETTING).stream().map(PlanSetting::valueOfDBCode).collect(toList());
+		List<PlanSetting> settings = getParamsInIntOrZeroDefault(request, PLAN_SETTING).stream().map(PlanSetting::valueOfDBCode).collect(toList());
 		
 		wL.savePlan(loginerId,planId,name,startDate,endDate,note,recalculateState,settings,seqWeight);
 		return JSON.toJSONString(ServletAdapter.process(wL.loadPlan(loginerId, planId)),workConf);

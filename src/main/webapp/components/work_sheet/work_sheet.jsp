@@ -230,7 +230,7 @@
 			<div>更改的计划ID</div><input id="ws_base_plan_id_input_for_change" type="text"/>
 		</div>
 		<div id="ws_change_plan_base_dialog_hint">
-			更改计划基<em>不会修改工作表内已有的计划和工作项</em>，该功能用于调整系统对工作表时间范围的数据分析。
+			更改计划基<em>不会修改工作表内已有的计划和工作项</em>，该功能用于计划基的标签同步以及调整系统对工作表时间范围的数据分析。
 		</div>
       </div>
       <div class="modal-footer">

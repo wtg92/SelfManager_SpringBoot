@@ -1,0 +1,23 @@
+#tag_edit_dialog_tag_list_container{
+    margin-bottom: 20px;
+}
+
+.tag_unit_container{
+    margin-right: 20px;
+    margin-bottom: 10px;
+    display: inline-block;
+    padding:2px 12px;
+    border-radius:15px;
+    background-color:#F3F3F3;
+    color: #999;
+    text-align:center;
+    position: relative;
+}
+
+.tag_unit_close_icon{
+    cursor: pointer;
+ }
+ .tag_unit_close_icon:hover{
+    background-color:rgb(197, 197, 197);
+    border-radius:10px;
+ }
