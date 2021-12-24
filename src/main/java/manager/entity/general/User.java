@@ -10,8 +10,8 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import manager.system.Gender;
-import manager.system.GenderConverter;
 import manager.system.SMDB;
+import manager.system.converter.GenderConverter;
 
 
 @Entity

@@ -99,7 +99,7 @@ function openPlanTagEditDialog(){
             fillPlanDialogByDate(data);
             closeDialogFunc();
         },removeDoubleClsFunc)
-    });
+    },PLAN_DIALOG_NAMESPACE.CURRENT_PLAN.plan.tags);
 }
 
 
@@ -806,6 +806,14 @@ function fillPlanDialogByDate(data,openEditMode){
 
     drawCommonLogs(data.content.logs,$("#plan_dialog_plan_logs_container"))
     $("#plan_dialog_plan_latest_update_time>span").text(new Date(data.plan.updateTime).toSmartString());
+
+    $tagContainer = $(".plan_dialog_basic_unit_container_plan_tags");
+    $tagContainer.empty();
+    data.plan.tags.forEach(tag=>{
+        let $unit = $("#plan_dialog_pattern_container .plan_dialog_tag_unit_container").clone();
+        $unit.find(".plan_dialog_tag_unit_container_context").text(tag);
+        $tagContainer.append($unit);
+    })
 
     if(openEditMode){
         openPlanDialogEditMode();

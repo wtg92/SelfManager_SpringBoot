@@ -1,4 +1,4 @@
-package manager.logic.expand;
+package manager.logic.sub;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,7 +36,7 @@ public abstract class TagCalculator {
 			return new ArrayList<String>();
 		}
 		
-		return new ArrayList<String>(Arrays.asList(tagsStr.split(SEPERATOR)));
+		return Arrays.asList(tagsStr.split(SEPERATOR)).stream().filter(e->e.trim().length()>0).collect(Collectors.toList());
 	}
 	
 	public static void checkTagsForReset(List<String> tags) throws LogicException {

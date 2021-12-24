@@ -17,7 +17,7 @@ import manager.system.career.PlanSetting;
 import manager.system.career.PlanSettingConverter;
 import manager.system.career.PlanState;
 import manager.system.career.PlanStateConverter;
-import manager.system.career.TagsConverter;
+import manager.system.converter.TagsConverter;
 
 @Entity
 @Table(name = SMDB.T_PLAN)

@@ -23,7 +23,7 @@ import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.NoSuchElement;
 import manager.logic.UserLogic;
-import manager.logic.expand.CacheScheduler;
+import manager.logic.sub.CacheScheduler;
 import manager.system.CacheMode;
 import manager.system.Gender;
 import manager.system.NoSuchElementType;

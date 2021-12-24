@@ -62,12 +62,17 @@
     						</div>
     					</div>
     					
-    					<div class="plan_dialog_basic_info_form_one_row">
-    						<div class="plan_dialog_basic_unit_container">
-    							<span class="plan_dialog_basic_info_sub_title" title="用于时间范围的数据分析">标签</span>
-    							<span id="plan_dialog_basic_unit_container_edit_btn" class="common_blue_font common_hover"></span>
-    							<span class="plan_dialog_basic_unit_container_plan_tags" title="用于时间范围的数据分析"></span>
-    						</div>
+    					<div class="plan_dialog_basic_info_form_one_row" title="用于时间范围的数据分析">
+   							<span class="plan_dialog_basic_info_sub_title">标签</span>
+   							<span id="plan_dialog_basic_unit_container_edit_btn" class="common_blue_font common_hover"></span>
+   							<div id="plan_dialog_tag_righer">
+    							<div class="plan_dialog_basic_unit_container_plan_tags"></div>
+    							
+   								<div>
+   									<span class="common_blue_font common_hover">同步相关工作表</span>
+   									<span>说明</span>
+   								</div>
+   							</div>
     					</div>
     					
 				<div class="plan_dialog_basic_info_form_one_row">
@@ -79,7 +84,6 @@
     						</div>
     					</div>
     					<div class="plan_dialog_basic_info_form_one_row">
-    						<span class="plan_dialog_basic_info_sub_title">备注</span>
     						<textarea name="note"></textarea>
     					</div>
       			</div>
@@ -96,7 +100,7 @@
       	</div>
       	<div id="plan_dialog_items_main_container" class="plan_dialog_main_container">
       		<div class="plan_dialog_header">
-      			<div class="plan_dialog_title">单日计划项</div>
+      			<div class="plan_dialog_title">每日计划项</div>
       			<span class="plan_dialog_switch_container_visibility common_blue_font common_hover"></span>
       		</div>
       		<div class="plan_dialog_content">
@@ -208,6 +212,9 @@
 </div>
 
 <div id="plan_dialog_pattern_container" class="common_pattern_container">
+	<div class="plan_dialog_tag_unit_container">
+		<span  class="plan_dialog_tag_unit_container_context"></span>
+	</div>
 	<div class="plan_item_container_first_level">
 		<div class="plan_item_container_first_level_header">
 			<div></div>

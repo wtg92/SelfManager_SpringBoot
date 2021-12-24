@@ -9,7 +9,7 @@ import org.junit.Test;
 import manager.data.career.MemoContent;
 import manager.entity.general.career.Memo;
 import manager.entity.virtual.career.MemoItem;
-import manager.logic.career.expand.NoteContentConverter;
+import manager.logic.sub.career.NoteContentConverter;
 import manager.system.career.NoteLabel;
 
 public class NoteLogicStaticTest {

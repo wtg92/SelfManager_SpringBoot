@@ -31,9 +31,9 @@ import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.SMException;
 import manager.logic.UserLogic;
-import manager.logic.career.expand.LogParser;
-import manager.logic.career.expand.WorkContentConverter;
 import manager.logic.career.impl.WorkLogicImpl;
+import manager.logic.sub.career.LogParser;
+import manager.logic.sub.career.WorkContentConverter;
 import manager.system.SM;
 import manager.system.career.CareerLogAction;
 import manager.system.career.PlanItemType;
@@ -139,7 +139,6 @@ public abstract class WorkLogic{
 	
 	
 	public abstract void saveWorkItemPlanItemId(int updaterId,int wsId,int workItemId, int planItemId) throws LogicException, DBException;
-	public abstract void saveWorkItem(int updaterId,int wsId,int workItemId, int value, String note, int mood,boolean forAdd,Calendar startTime,Calendar endTime) throws LogicException, DBException;
 	public abstract void saveWorkItems(int loginerId, int wsId, List<WorkItem> workItems) throws SMException;
 	public abstract void savePlanItem(int loginerId, int planId,int itemId,String catName,int value,String note,double mappingVal) throws LogicException, DBException;
 	public abstract void savePlanItemFold(int loginerId, int planId, int itemId, boolean fold) throws LogicException, DBException;

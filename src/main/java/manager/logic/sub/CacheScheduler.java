@@ -1,4 +1,4 @@
-package manager.logic.expand;
+package manager.logic.sub;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;

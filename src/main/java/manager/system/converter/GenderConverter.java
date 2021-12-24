@@ -1,7 +1,9 @@
-package manager.system;
+package manager.system.converter;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
+
+import manager.system.Gender;
 
 @Converter
 public class GenderConverter implements AttributeConverter<Gender, Integer> {

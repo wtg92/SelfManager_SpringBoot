@@ -52,7 +52,6 @@ import static manager.util.UIUtil.getNonNullParamInDate;
 import static manager.util.UIUtil.getNonNullParamInDouble;
 import static manager.util.UIUtil.getNonNullParamInInt;
 import static manager.util.UIUtil.getNonNullParamInTime;
-import static manager.util.UIUtil.getNonNullParams;
 import static manager.util.UIUtil.getNonNullParamsInInt;
 import static manager.util.UIUtil.getNullObjJSON;
 import static manager.util.UIUtil.getParamJSON;
@@ -64,6 +63,7 @@ import static manager.util.UIUtil.getParamOrZeroDefault;
 import static manager.util.UIUtil.getParamOrZeroDefaultInDouble;
 import static manager.util.UIUtil.getParamOrZeroDefaultInInt;
 import static manager.util.UIUtil.getParamsInIntOrZeroDefault;
+import static manager.util.UIUtil.getParamsOrEmptyList;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -675,7 +675,7 @@ public class CareerServlet extends SMServlet{
 	private String resetPlanTags(HttpServletRequest request) throws SMException {
 		int loginerId = getLoginerId(request);
 		int planId = getNonNullParamInInt(request, PLAN_ID);
-		List<String> tags = getNonNullParams(request, TAGS);
+		List<String> tags = getParamsOrEmptyList(request, TAGS);
 		wL.resetPlanTags(loginerId, planId,tags);
 		return JSON.toJSONString(ServletAdapter.process(wL.loadPlan(loginerId, planId)),workConf);
 	}

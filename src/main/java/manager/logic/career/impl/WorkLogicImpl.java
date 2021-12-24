@@ -31,9 +31,9 @@ import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.SMException;
 import manager.logic.career.WorkLogic;
-import manager.logic.career.expand.WorkContentConverter;
-import manager.logic.expand.CacheScheduler;
-import manager.logic.expand.TagCalculator;
+import manager.logic.sub.CacheScheduler;
+import manager.logic.sub.TagCalculator;
+import manager.logic.sub.career.WorkContentConverter;
 import manager.system.CacheMode;
 import manager.system.SM;
 import manager.system.SMDB;
@@ -673,26 +673,12 @@ public class WorkLogicImpl extends WorkLogic{
 		
 		for(WorkItem item:workItems) {
 			WorkContentConverter.updateWorkItem(ws, loginerId, item.getId(), item.getValue(), item.getNote(), item.getMood(), item.isForAdd(), item.getStartTime(), item.getEndTime());
-			
 		}
+		
 		refreshStateAfterItemModified(ws);
 		CacheScheduler.saveEntityAndUpdateCache(ws,w->wDAO.updateExistedWorkSheet(w));	
 	}
 	
-	
-	@Override
-	public void saveWorkItem(int updaterId,int wsId, int workItemId, int value, String note, int mood, boolean forAdd,
-			Calendar startTime, Calendar endTime) throws LogicException, DBException {
-		WorkSheet ws = CacheScheduler.getOne(CacheMode.E_ID,wsId, WorkSheet.class, ()->wDAO.selectExistedWorkSheet(wsId));
-		if(updaterId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS,updaterId+" vs "+ws.getOwnerId());
-		}
-		WorkContentConverter.updateWorkItem(ws, updaterId, workItemId, value, note, mood, forAdd, startTime, endTime);
-		
-		refreshStateAfterItemModified(ws);
-		
-		CacheScheduler.saveEntityAndUpdateCache(ws,w->wDAO.updateExistedWorkSheet(w));
-	}
 	
 	@Override
 	public void saveWorkItemPlanItemId(int updaterId, int wsId, int workItemId, int planItemId)

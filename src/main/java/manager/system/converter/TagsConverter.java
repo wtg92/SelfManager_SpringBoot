@@ -1,11 +1,11 @@
-package manager.system.career;
+package manager.system.converter;
 
 import java.util.List;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import manager.logic.expand.TagCalculator;
+import manager.logic.sub.TagCalculator;
 
 
 @Converter

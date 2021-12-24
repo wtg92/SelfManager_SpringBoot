@@ -242,6 +242,14 @@ public abstract class UIUtil {
 		}
 	}
 	
+	public static List<String> getParamsOrEmptyList(HttpServletRequest request, String key) throws LogicException{
+		try {
+			return getParams(request, key);
+		} catch (NoSuchElement e) {
+			return Collections.emptyList();
+		}
+	}
+	
 	public static List<String> getNonNullParams(HttpServletRequest request, String key) throws LogicException{
 		try {
 			return getParams(request, key);

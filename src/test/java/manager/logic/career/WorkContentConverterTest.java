@@ -1,5 +1,5 @@
 package manager.logic.career;
-import static manager.logic.career.expand.WorkContentConverter.*;
+import static manager.logic.sub.career.WorkContentConverter.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 

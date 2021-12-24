@@ -1,4 +1,4 @@
-package manager.logic.career.expand;
+package manager.logic.sub.career;
 
 import static java.util.stream.Collectors.toList;
 

@@ -29,10 +29,21 @@ function resetTags(){
 
 
 
-function openTagEditDialogForExternalModule(resetTagsFunc){
+function openTagEditDialogForExternalModule(resetTagsFunc,initialTags){
     TAG_EDIT_DIALOG_NAMESPACE.RESET_TAGS_FUNC = resetTagsFunc;
     $("#tag_edit_dialog").modal("show");
     $("#tag_edit_dialog_add_tag_input").val("");
+    $("#tag_edit_dialog_tag_list_container").empty();
+    initialTags.forEach(e=>{
+        addOneTagToContainer(e);
+    })
+
+}
+
+function addOneTagToContainer(val){
+    let $unit = $("#tag_edit_dialog_pattern_container .tag_unit_container").clone();
+    $unit.find(".tag_unit_container_content").text(val);
+    $("#tag_edit_dialog_tag_list_container").append($unit);
 }
 
 function addTagToList(){
@@ -48,9 +59,6 @@ function addTagToList(){
         alertInfo("标签重复 "+val);
         return;
     }
-
-    let $unit = $("#tag_edit_dialog_pattern_container .tag_unit_container").clone();
-    $unit.find(".tag_unit_container_content").text(val);
-    $("#tag_edit_dialog_tag_list_container").append($unit);
+    addOneTagToContainer(val);
     $input.val("");
 }

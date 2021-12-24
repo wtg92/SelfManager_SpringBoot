@@ -4,7 +4,28 @@
     padding-bottom: 10px;
 }
 
+#plan_dialog_tag_righer{
+    display: flex;
+    align-items: center;
+}
 
+.plan_dialog_basic_unit_container_plan_tags{
+    flex-grow: 1.1;
+    margin-right: 10px;
+    text-align: left;
+    white-space: normal;
+}
+
+
+
+.plan_dialog_tag_unit_container{
+    display: inline-block;
+    margin-right: 20px;
+    padding:2px 12px;
+    border-radius:10px;
+    background-color:#F3F3F3;
+    margin-bottom: 5px;
+}
 
 #plan_dialog_items_main_container{
     margin-bottom: 20px;
@@ -49,10 +70,12 @@
     cursor: pointer;
 }
 
+
 .plan_dialog_basic_info_form_one_row,.plan_dialog_items_form_one_row{
     display: flex;
     margin-bottom: 15px;
     white-space: nowrap;
+    align-items: center;
 }
 
 .plan_dialog_basic_info_form_one_row:last-child,.plan_dialog_items_form_one_row:last-child{
@@ -168,6 +191,9 @@
     display: flex;
     justify-content: flex-end;
 
+}
+#plan_dialog_basic_unit_container_edit_btn{
+    margin-right: 15px;
 }
 
 #plan_dialog_save_basic_controgroup>div:first-child{
@@ -303,7 +329,9 @@
 #plan_dialog[open_edit_mode='false'] #work_end_date_null_for_save_plan{
     display: none;
 }
-
+#plan_dialog[open_edit_mode='false'] #plan_dialog_basic_unit_container_edit_btn{
+    display: none;
+}
 
 #plan_dialog[open_edit_mode='false'] #plan_dialog_items_control_group_container{
     display: none;

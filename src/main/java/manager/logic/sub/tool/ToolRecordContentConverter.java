@@ -1,4 +1,4 @@
-package manager.logic.tool.expand;
+package manager.logic.sub.tool;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
