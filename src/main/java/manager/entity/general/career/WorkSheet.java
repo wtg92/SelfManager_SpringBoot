@@ -14,7 +14,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import manager.entity.general.SMGeneralEntity;
 import manager.system.SMDB;
 import manager.system.career.WorkSheetState;
-import manager.system.career.WorkSheetStateConverter;
+import manager.system.career.converter.WorkSheetStateConverter;
 import manager.system.converter.TagsConverter;
 
 @Entity

@@ -11,7 +11,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import manager.entity.general.SMGeneralEntity;
 import manager.system.SMDB;
 import manager.system.career.BookStyle;
-import manager.system.career.BookStyleConverter;
+import manager.system.career.converter.BookStyleConverter;
 
 
 @Entity

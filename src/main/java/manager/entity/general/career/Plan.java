@@ -14,9 +14,9 @@ import org.hibernate.annotations.DynamicUpdate;
 import manager.entity.general.SMGeneralEntity;
 import manager.system.SMDB;
 import manager.system.career.PlanSetting;
-import manager.system.career.PlanSettingConverter;
 import manager.system.career.PlanState;
-import manager.system.career.PlanStateConverter;
+import manager.system.career.converter.PlanSettingConverter;
+import manager.system.career.converter.PlanStateConverter;
 import manager.system.converter.TagsConverter;
 
 @Entity
