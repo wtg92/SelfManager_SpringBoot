@@ -1,4 +1,4 @@
-package manager.logic.sub.tool;
+package manager.logic.tool.sub;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
