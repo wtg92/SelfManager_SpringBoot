@@ -1,4 +1,4 @@
-package manager.dao.career;
+package manager.dao.career.impl;
 
 import static manager.util.DBUtil.countEntitiesByBiFields;
 import static manager.util.DBUtil.countEntitiesByRange;
@@ -26,6 +26,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
+import manager.dao.career.WorkDAO;
 import manager.entity.general.career.Plan;
 import manager.entity.general.career.PlanDept;
 import manager.entity.general.career.WorkSheet;

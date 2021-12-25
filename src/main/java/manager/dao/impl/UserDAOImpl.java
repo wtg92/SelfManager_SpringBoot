@@ -1,4 +1,4 @@
-package manager.dao;
+package manager.dao.impl;
 
 import static manager.util.DBUtil.*;
 import java.util.List;
@@ -8,6 +8,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
+import manager.dao.UserDAO;
 import manager.entity.general.User;
 import manager.entity.general.UserGroup;
 import manager.exception.DBException;

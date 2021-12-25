@@ -6,11 +6,12 @@ import java.sql.SQLException;
 import org.hibernate.Session;
 
 import manager.dao.career.NoteDAO;
-import manager.dao.career.NoteDAOImpl;
 import manager.dao.career.WorkDAO;
-import manager.dao.career.WorkDAOImpl;
+import manager.dao.career.impl.NoteDAOImpl;
+import manager.dao.career.impl.WorkDAOImpl;
+import manager.dao.impl.UserDAOImpl;
 import manager.dao.tool.ToolDAO;
-import manager.dao.tool.ToolDAOImpl;
+import manager.dao.tool.impl.ToolDAOImpl;
 import manager.system.SMDB;
 import manager.util.DBUtil;
 

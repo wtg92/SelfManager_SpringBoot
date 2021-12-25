@@ -1,4 +1,4 @@
-package manager.dao.career;
+package manager.dao.career.impl;
 
 import static manager.util.DBUtil.countEntitiesByField;
 import static manager.util.DBUtil.deleteEntitiesByField;
@@ -24,6 +24,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
+import manager.dao.career.NoteDAO;
 import manager.entity.general.career.Memo;
 import manager.entity.general.career.Note;
 import manager.entity.general.career.NoteBook;

@@ -1,4 +1,4 @@
-package manager.dao.tool;
+package manager.dao.tool.impl;
 
 import static manager.util.DBUtil.getHibernateSessionFactory;
 import static manager.util.DBUtil.insertEntity;
@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.hibernate.SessionFactory;
 
+import manager.dao.tool.ToolDAO;
 import manager.entity.general.tool.ToolRecord;
 import manager.exception.DBException;
 import manager.system.SMDB;
