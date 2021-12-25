@@ -35,6 +35,7 @@ public enum SMError {
 	ILLEGAL_USER_TOKEN("登录凭证损坏，请重新登录"),
 	YZM_ENCODE_ERROR("验证码图片转码异常"),
 	CANNOT_EDIT_OTHERS_PLAN("不能编辑他人的工作表计划"),
+	CANNOT_SYNC_OTHERS_PLAN_TAGS("不能同步他人的工作表标签"),
 	DB_SYNC_ERROR("操作过于频繁，请刷新页面重试"),
 	ILLEGAL_WL_ENTITY_CONTENT("Content 格式非法"),
 	FORBID_DUP_CAT_IN_PLAN("同一份计划里不允许有重名的类别"),

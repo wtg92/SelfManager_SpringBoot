@@ -11,6 +11,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import manager.data.EntityTag;
 import manager.entity.general.SMGeneralEntity;
 import manager.system.SMDB;
 import manager.system.career.PlanSetting;
@@ -54,7 +55,7 @@ public class Plan extends SMGeneralEntity {
 	
 	@Column
 	@Convert(converter = TagsConverter.class)
-	private List<String> tags;
+	private List<EntityTag> tags;
 	
 	@Column
 	private Integer seqWeight;
@@ -70,11 +71,11 @@ public class Plan extends SMGeneralEntity {
 	
 	
 	
-	public List<String> getTags() {
+	public List<EntityTag> getTags() {
 		return tags;
 	}
 
-	public void setTags(List<String> tags) {
+	public void setTags(List<EntityTag> tags) {
 		this.tags = tags;
 	}
 

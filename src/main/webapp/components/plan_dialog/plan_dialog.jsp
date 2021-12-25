@@ -68,8 +68,8 @@
    							<div id="plan_dialog_tag_righer">
     							<div class="plan_dialog_basic_unit_container_plan_tags"></div>
     							
-   								<div>
-   									<span class="common_blue_font common_hover">同步相关工作表</span>
+   								<div class="plan_dialog_sync_plan_tags_to_ws_container">
+   									<span id="plan_dialog_sync_plan_tags_to_ws_container_btn" class="common_blue_font common_hover">同步相关工作表</span>
    									<span>说明</span>
    								</div>
    							</div>

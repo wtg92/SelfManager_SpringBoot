@@ -11,7 +11,7 @@ import manager.system.SMPerm;
  * @author 王天戈
  *
  */
-public class UserProxy extends SMProxy{
+public class UserProxy{
 	public User user;
 	
 	@JSONField(serialize = false)

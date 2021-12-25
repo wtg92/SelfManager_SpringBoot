@@ -6,6 +6,7 @@ import static java.util.stream.Collectors.toList;
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -175,6 +176,13 @@ public abstract class CommonUtil {
 		}
 		
 		return val;
+	}
+	public static<T> List<T> cloneList(List<T> units,Function<T,T> clone) {
+		List<T> rlt = new ArrayList<T>();
+		units.forEach(unit->{
+			rlt.add(clone.apply(unit));
+		});
+		return rlt;
 	}
 	
 }

@@ -5,19 +5,20 @@ import java.util.List;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
+import manager.data.EntityTag;
 import manager.logic.sub.TagCalculator;
 
 
 @Converter
-public class TagsConverter implements AttributeConverter<List<String>, String> {
+public class TagsConverter implements AttributeConverter<List<EntityTag>, String> {
 
 	@Override
-	public List<String> convertToEntityAttribute(String attribute) {
+	public List<EntityTag> convertToEntityAttribute(String attribute) {
 		return TagCalculator.parseToTags(attribute);
 	}
 
 	@Override
-	public String convertToDatabaseColumn(List<String> tags) {
+	public String convertToDatabaseColumn(List<EntityTag> tags) {
 		return TagCalculator.mergeTags(tags);
 	}
 }

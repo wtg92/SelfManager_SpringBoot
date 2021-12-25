@@ -8,10 +8,12 @@
     display: flex;
     align-items: center;
 }
+.plan_dialog_sync_plan_tags_to_ws_container{
+    margin-left: 15px;
+}
 
 .plan_dialog_basic_unit_container_plan_tags{
     flex-grow: 1.1;
-    margin-right: 10px;
     text-align: left;
     white-space: normal;
 }
@@ -280,6 +282,9 @@
 }
 
 #plan_dialog[open_edit_mode='true'] .plan_dialog_basic_info_sub_title_seq_weight_span{
+    display: none;
+}
+#plan_dialog[open_edit_mode='false'] .plan_dialog_sync_plan_tags_to_ws_container{
     display: none;
 }
 

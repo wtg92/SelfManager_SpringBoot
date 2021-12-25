@@ -5,10 +5,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import manager.data.EntityTag;
 import manager.exception.LogicException;
 import manager.system.SMError;
 
@@ -23,51 +22,57 @@ import manager.system.SMError;
  */
 public abstract class TagCalculator {
 	
-	final private static Logger logger = Logger.getLogger(TagCalculator.class.getName());
-	
 	final private static String SEPERATOR = ";;;";
 	
-	public static String mergeTags(List<String> tags) {
-		return tags.stream().collect(Collectors.joining(SEPERATOR));
+	final private static String CREATED_BY_SYSTEM ="^^^";
+	
+	
+	public static String mergeTags(List<EntityTag> tags) {
+		return tags.stream().map(TagCalculator::parseTo).collect(Collectors.joining(SEPERATOR));
 	}
 	
-	public static List<String> parseToTags(String tagsStr){
-		if(tagsStr == null) {
-			return new ArrayList<String>();
+	public static String parseTo(EntityTag tag) {
+		return tag.createdBySystem ? CREATED_BY_SYSTEM+tag.name : tag.name;
+	}
+	
+	public static EntityTag parseTo(String tagStr) {
+		EntityTag tag = new EntityTag();
+		
+		boolean createdBySystem = tagStr.startsWith(CREATED_BY_SYSTEM);
+		tag.createdBySystem = createdBySystem;
+		if(!createdBySystem) {
+			tag.name = tagStr;
+			return tag;
 		}
 		
-		return Arrays.asList(tagsStr.split(SEPERATOR)).stream().filter(e->e.trim().length()>0).collect(Collectors.toList());
+		tag.name = tagStr.substring(CREATED_BY_SYSTEM.length());
+		
+		return tag;
 	}
 	
-	public static void checkTagsForReset(List<String> tags) throws LogicException {
-		for(String tag:tags) {
+	public static List<EntityTag> parseToTags(String tagsStr){
+		if(tagsStr == null) {
+			return new ArrayList<>();
+		}
+		
+		return Arrays.asList(tagsStr.split(SEPERATOR)).stream().filter(e->e.trim().length()>0)
+				.map(TagCalculator::parseTo).collect(Collectors.toList());
+	}
+	
+	public static void checkTagsForReset(List<EntityTag> tags) throws LogicException {
+		List<String> tagNames = tags.stream().map(tag->tag.name).collect(Collectors.toList());
+		for(String tag:tagNames) {
 			checkTagLegal(tag);
 		}
-		checkTagsUnique(tags);
+		checkTagsUnique(tagNames);
 	}
 
-	public static List<String> addTag(String tagForAdd,List<String> existedTags) throws LogicException {
-		
-		checkTagLegal(tagForAdd);
-		
-		existedTags.add(tagForAdd);
-		
-		checkTagsUnique(existedTags);
-		
-		return existedTags;
-	}
-	
-	public static List<String> deleteTag(String tagForDelete,List<String> existedTags) throws LogicException {
-		boolean contains = existedTags.remove(tagForDelete);
-		if(!contains) {
-			logger.log(Level.WARNING, "删除了不存在的Tag " +tagForDelete);
-		}
-		return existedTags;
-	}
-	
 	private static void checkTagLegal(String tag) throws LogicException {
 		if(tag.contains(SEPERATOR)) {
 			throw new LogicException(SMError.ILLEGAL_TAG,SEPERATOR);
+		}
+		if(tag.contains(CREATED_BY_SYSTEM)) {
+			throw new LogicException(SMError.ILLEGAL_TAG,CREATED_BY_SYSTEM);
 		}
 	}
 	

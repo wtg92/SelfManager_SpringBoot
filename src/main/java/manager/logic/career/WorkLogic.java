@@ -166,6 +166,8 @@ public abstract class WorkLogic{
 	public abstract void syncToPlanDept(int loginerId,int wsId,int planItemId) throws DBException, LogicException;
 	public abstract void syncAllToPlanDept(int loginerId, int wsId) throws DBException, LogicException;
 	public abstract void syncAllToPlanDeptBatch(int logienrId,List<Integer> wsIds) throws SMException;
+	public abstract void syncPlanTagsToWorkSheet(int loginerId,int planId) throws SMException;
+	
 	
 	public abstract void copyPlanItemsFrom(int loginerId,int targetPlanId,int templetePlanId) throws DBException, LogicException;
 	

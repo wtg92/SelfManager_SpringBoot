@@ -3,6 +3,7 @@ package manager.logic.career.impl;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -14,6 +15,7 @@ import java.util.logging.Logger;
 
 import manager.dao.DAOFactory;
 import manager.dao.career.WorkDAO;
+import manager.data.EntityTag;
 import manager.data.career.PlanDeptContent;
 import manager.data.career.WorkSheetContent;
 import manager.data.career.WorkSheetContent.PlanItemNode;
@@ -45,6 +47,7 @@ import manager.system.career.PlanSetting;
 import manager.system.career.PlanState;
 import manager.system.career.WorkItemType;
 import manager.system.career.WorkSheetState;
+import manager.util.CommonUtil;
 import manager.util.TimeUtil;
 
 /**
@@ -54,7 +57,7 @@ import manager.util.TimeUtil;
  * 这一依据的表现是：会发生线程安全问题，即当同样的事情，是否用sync修饰，除了时间差异，结果会不同。
  * 此时必须加synchronized修饰
  * 
- * 本质上，是否会由于多线程 导致非法的数据
+ * 本质上，是否会由于异步连点 导致非法的数据
  * 和PlanItem相关的增、改 是需要加synchronized修饰的，因为要保证其中的PlanItem不能重名
  * @author 王天戈
  *
@@ -183,9 +186,10 @@ public class WorkLogicImpl extends WorkLogic{
 			throw new LogicException(SMError.CANNOT_SAVE_PLAN);
 		}
 		
-		TagCalculator.checkTagsForReset(tags);
+		List<EntityTag> entityTags = tags.stream().map(tag->new EntityTag(tag, false)).collect(toList());
+		TagCalculator.checkTagsForReset(entityTags);
 		
-		plan.setTags(tags);
+		plan.setTags(entityTags);
 		
 		CacheScheduler.saveEntityAndUpdateCache(plan,p->wDAO.updateExistedPlan(p));
 	}
@@ -576,7 +580,7 @@ public class WorkLogicImpl extends WorkLogic{
 		
 		List<String> tagStrs = wDAO.selectNonNullTagsByUser(loginerId);
 		
-		return tagStrs.stream().flatMap(tagStr->TagCalculator.parseToTags(tagStr).stream())
+		return tagStrs.stream().flatMap(tagStr->TagCalculator.parseToTags(tagStr).stream().map(tag->tag.name))
 				.distinct().collect(toList());
 	}
 	
@@ -780,6 +784,40 @@ public class WorkLogicImpl extends WorkLogic{
 		}
 	}
 	
+	/**
+	 * 为了尽量保留用户手动修改的工作表痕迹，计划标签的同步逻辑为：
+	 * 只删除工作表中,由系统生成的Tag，替换成计划的标签
+	 * 如果手动修改的标签 在计划的标签里，将标签由手动改为系统创建
+	 */
+	@Override
+	public void syncPlanTagsToWorkSheet(int loginerId, int planId) throws SMException {
+		Plan target = CacheScheduler.getOne(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
+		if(target.getOwnerId() != loginerId) {
+			throw new LogicException(SMError.CANNOT_SYNC_OTHERS_PLAN_TAGS);
+		}
+		
+		
+	 	for(WorkSheet workSheet : wDAO.selectWorkSheetByField(SMDB.F_PLAN_ID, planId)) {
+	 		List<EntityTag> tagsFromPlan =  CommonUtil.cloneList(target.getTags(),tag->{
+	 			EntityTag one = tag.clone();
+	 			one.createdBySystem = true;
+	 			return one;
+	 		});
+	 		/*万一有重复 认为该标签该是tagsFromPlan，即当同步之后，认为该标签是由系统创立的*/
+	 		List<EntityTag> tagsByUser = workSheet.getTags().stream()
+	 				.filter(tag->!tag.createdBySystem)
+	 				.filter(tag->tagsFromPlan.stream().noneMatch(tagFromPlan->tag.name.equals(tagFromPlan.name)))
+	 				.collect(toList());
+	 		List<EntityTag> tagsForNew = new ArrayList<EntityTag>();
+	 		tagsForNew.addAll(tagsByUser);
+	 		//
+	 		
+	 		
+	 		
+	 		
+	 	}
+	}
+	
 	private List<WorkSheetProxy> fillPlanInfos(List<WorkSheet> src) throws DBException{
 		List<WorkSheetProxy> rlt = src.stream().map(WorkSheetProxy::new).collect(toList());
 		List<Integer> planIds = src.stream().map(WorkSheet::getPlanId).distinct().collect(toList());
@@ -815,6 +853,8 @@ public class WorkLogicImpl extends WorkLogic{
 		
 		CacheScheduler.saveEntityAndUpdateCache(target,p->wDAO.updateExistedPlan(p));
 	}
+	
+
 
 	
 

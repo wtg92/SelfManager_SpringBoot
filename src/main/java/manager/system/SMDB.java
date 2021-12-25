@@ -14,6 +14,7 @@ public abstract class SMDB {
 	public static final String T_PLAN_DEPT = "plan_dept";
 	public static final String T_WORK_SHEET = "work_sheet";
 	public static final String T_MEMO = "memo";
+	public static final String T_TAG_SET = "tag_set";
 	public static final String T_NOTE_BOOK = "note_book";
 	public static final String T_NOTE = "note";
 	public static final String T_TOOL_RECORD = "tool_record";
@@ -30,7 +31,8 @@ public abstract class SMDB {
 			T_MEMO,
 			T_NOTE_BOOK,
 			T_NOTE,
-			T_TOOL_RECORD
+			T_TOOL_RECORD,
+			T_TAG_SET
 	};
 	
 	
