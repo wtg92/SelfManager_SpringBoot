@@ -53,7 +53,6 @@ public abstract class DAOFactory {
 		return new ToolDAOImpl();
 	}
 	
-	
 	public static void deleteAllTables() {
 		for(String table:SMDB.ALL_TABLES) {
 			deleteTable(table);

@@ -4,7 +4,7 @@
 <hibernate-configuration>
  <!-- Fuck it ! Chinese characters cannot appear in this file because of 
 		hibernate bug. -->
- <session-factory>
+ <session-factory name="sm">
   <property name="driverClassName">com.mysql.cj.jdbc.Driver</property>
   <property name="url">jdbc:mysql://localhost:3306/scientific_manager?useUnicode=true&amp;characterEncoding=UTF-8&amp;serverTimezone=Asia/Shanghai&amp;autoReconnect=true</property>
   <property name="username">root</property>
@@ -39,5 +39,6 @@
   <mapping class="manager.entity.general.career.Note"/>
   <mapping class="manager.entity.general.career.Memo"/>
   <mapping class="manager.entity.general.tool.ToolRecord"/>
+  <mapping class="manager.entity.general.TagSet"/>
  </session-factory>
 </hibernate-configuration>
