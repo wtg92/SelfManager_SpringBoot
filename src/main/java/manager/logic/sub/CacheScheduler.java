@@ -40,6 +40,12 @@ import manager.util.ThrowableSupplier;
  *  
   *  关系表的双向缓存导致了一个特别讨厌的缺陷：一旦变化，需要同时更新两个方向的缓存，所幸设计的是使用删除key的手法更新，还好吧，但是逻辑调用时易漏
  *  
+ *  
+ *  对于保存：
+ *  普遍的策略是：保存数据库-删除缓存。 本逻辑采用保存数据库-保存缓存。
+ *  这样做的原因，是当发生了并发问题时，在保存方法内是可以通过DB的乐观锁异常得知的，此时save会做删除缓存的操作，然后抛出异常，迫使用户重新保存。
+ *  这样就万无一失了，因为即便是普遍策略，也解决不了并发问题，即便是几率很小。
+ *  
  * @author 王天戈
  *
  */
@@ -221,12 +227,12 @@ public abstract class CacheScheduler {
 	
 	
 	/**
-	 * save后 删除缓存
+	 * 加入缓存/刷新已有缓存
 	 * 即便这样，仍旧有可能并发危险的可能，这时我需要判断是否发生了这种危险，假设发生了这种危险，则删除缓存
 	 * 不能一直卡着
 	 * @throws LogicException 
 	 */
-	public static<T extends SMEntity> void saveEntity(T one,ThrowableConsumer<T, DBException> updator) throws DBException, LogicException {
+	public static<T extends SMEntity> void saveEntityAndUpdateCache(T one,ThrowableConsumer<T, DBException> updator) throws DBException, LogicException {
 		if(!USING_REDIS_CACHE) {
 			updator.accept(one);
 			return;
@@ -241,10 +247,29 @@ public abstract class CacheScheduler {
 			}
 			throw e;
 		}
-		CacheUtil.deleteOne(key);
+		String jsonStr = JSON.toJSONString(one);
+		CacheUtil.set(key,jsonStr);
+	}
+	public static<T extends SMEntity> void saveEntityAndUpdateCacheOnlyIfExists(T one,ThrowableConsumer<T, DBException> updator) throws DBException, LogicException {
+		if(!USING_REDIS_CACHE) {
+			updator.accept(one);
+			return;
+		}
+		
+		String key = createKey(CacheMode.E_ID,one.getId(),getEntityTableName(one.getClass()));
+		try {
+			updator.accept(one);
+		}catch(DBException e) {
+			if(e.type == SMError.DB_SYNC_ERROR) {
+				CacheUtil.deleteOne(key);
+			}
+			throw e;
+		}
+		String jsonStr = JSON.toJSONString(one);
+		CacheUtil.setOnlyIfKeyExists(key,jsonStr);
 	}
 	
-	public static<T extends SMEntity> void saveEntities(List<T> ones,ThrowableConsumer<T, DBException> updator) throws DBException, LogicException {
+	public static<T extends SMEntity> void saveEntitiesAndUpdateCacheOnlyIfExists(List<T> ones,ThrowableConsumer<T, DBException> updator) throws DBException, LogicException {
 		if(!USING_REDIS_CACHE) {
 			for(T one: ones) {
 				updator.accept(one);	
@@ -264,9 +289,10 @@ public abstract class CacheScheduler {
 			}
 			throw e;
 		}
-		if(ones.size() > 0) {
-			CacheUtil.deleteOnes(ones.stream().map(one->createKey(CacheMode.E_ID,one.getId(),getEntityTableName(one.getClass()))).collect(toList()));
-		}
+		
+		Map<String,String> onesMap = ones.stream().collect(toMap(one->createKey(CacheMode.E_ID,one.getId(),getEntityTableName(one.getClass()))
+				, one->JSON.toJSONString(one)));
+		CacheUtil.setOnlyIfKeyExists(onesMap);
 	}
 	
 	/**

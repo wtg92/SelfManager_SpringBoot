@@ -105,7 +105,7 @@ public class WorkLogicImpl extends WorkLogic{
 		}
 		
 		WorkContentConverter.addItemToPlan(existed,adderId,categoryName,value,note,type,fatherId,mappingVal);
-		CacheScheduler.saveEntity(existed,p->wDAO.updateExistedPlan(p));
+		CacheScheduler.saveEntityAndUpdateCache(existed,p->wDAO.updateExistedPlan(p));
 	}
 	
 	@Override
@@ -120,7 +120,7 @@ public class WorkLogicImpl extends WorkLogic{
 		
 		refreshStateAfterItemModified(ws);
 		
-		CacheScheduler.saveEntity(ws,w->wDAO.updateExistedWorkSheet(w));
+		CacheScheduler.saveEntityAndUpdateCache(ws,w->wDAO.updateExistedWorkSheet(w));
 	}
 	
 	
@@ -136,7 +136,7 @@ public class WorkLogicImpl extends WorkLogic{
 		
 		refreshStateAfterItemModified(ws);
 		
-		CacheScheduler.saveEntity(ws,w->wDAO.updateExistedWorkSheet(w));
+		CacheScheduler.saveEntityAndUpdateCache(ws,w->wDAO.updateExistedWorkSheet(w));
 	}
 	
 	@Override
@@ -147,7 +147,7 @@ public class WorkLogicImpl extends WorkLogic{
 		}
 		
 		WorkContentConverter.removeItemFromPlan(existed,removerId,itemId);
-		CacheScheduler.saveEntity(existed,p->wDAO.updateExistedPlan(p));
+		CacheScheduler.saveEntityAndUpdateCache(existed,p->wDAO.updateExistedPlan(p));
 	}
 	
 	@Override
@@ -161,7 +161,7 @@ public class WorkLogicImpl extends WorkLogic{
 		
 		refreshStateAfterItemModified(ws);
 		
-		CacheScheduler.saveEntity(ws,w->wDAO.updateExistedWorkSheet(w));
+		CacheScheduler.saveEntityAndUpdateCache(ws,w->wDAO.updateExistedWorkSheet(w));
 	}
 	
 	@Override
@@ -175,7 +175,7 @@ public class WorkLogicImpl extends WorkLogic{
 		
 		refreshStateAfterItemModified(ws);
 		
-		CacheScheduler.saveEntity(ws,w->wDAO.updateExistedWorkSheet(w));
+		CacheScheduler.saveEntityAndUpdateCache(ws,w->wDAO.updateExistedWorkSheet(w));
 	}
 	
 	
@@ -191,7 +191,7 @@ public class WorkLogicImpl extends WorkLogic{
 		
 		plan.setTags(entityTags);
 		
-		CacheScheduler.saveEntity(plan,p->wDAO.updateExistedPlan(p));
+		CacheScheduler.saveEntityAndUpdateCache(plan,p->wDAO.updateExistedPlan(p));
 	}
 	
 	/**
@@ -219,7 +219,7 @@ public class WorkLogicImpl extends WorkLogic{
 		
 		ws.setTags(entityTags);
 		
-		CacheScheduler.saveEntity(ws, one->wDAO.updateExistedWorkSheet(one));
+		CacheScheduler.saveEntityAndUpdateCache(ws, one->wDAO.updateExistedWorkSheet(one));
 	}
 	
 	
@@ -262,7 +262,7 @@ public class WorkLogicImpl extends WorkLogic{
 			plan.setState(stateByNow);
 		}
 		
-		CacheScheduler.saveEntity(plan,p->wDAO.updateExistedPlan(p));
+		CacheScheduler.saveEntityAndUpdateCache(plan,p->wDAO.updateExistedPlan(p));
 	}
 
 	@Override
@@ -277,7 +277,7 @@ public class WorkLogicImpl extends WorkLogic{
 		}
 		
 		ws.setPlanId(planId);
-		CacheScheduler.saveEntity(ws, one->wDAO.updateExistedWorkSheet(one));
+		CacheScheduler.saveEntityAndUpdateCache(ws, one->wDAO.updateExistedWorkSheet(one));
 	}
 	
 	@Override
@@ -288,7 +288,7 @@ public class WorkLogicImpl extends WorkLogic{
 		}
 		
 		WorkContentConverter.updatePlanItem(plan, loginerId, itemId, catName, value, note, mappingVal);
-		CacheScheduler.saveEntity(plan,p->wDAO.updateExistedPlan(p));
+		CacheScheduler.saveEntityAndUpdateCache(plan,p->wDAO.updateExistedPlan(p));
 	}
 	
 	@Override
@@ -299,7 +299,7 @@ public class WorkLogicImpl extends WorkLogic{
 		}
 		
 		WorkContentConverter.updatePlanItemFold(plan, loginerId, itemId, fold);
-		CacheScheduler.saveEntity(plan,p->wDAO.updateExistedPlan(p));
+		CacheScheduler.saveEntityAndUpdateCache(plan,p->wDAO.updateExistedPlan(p));
 	}
 	
 
@@ -315,7 +315,7 @@ public class WorkLogicImpl extends WorkLogic{
 		
 		refreshStateAfterItemModified(ws);
 		
-		CacheScheduler.saveEntity(ws,w->wDAO.updateExistedWorkSheet(w));
+		CacheScheduler.saveEntityAndUpdateCache(ws,w->wDAO.updateExistedWorkSheet(w));
 	}
 
 	@Override
@@ -327,7 +327,7 @@ public class WorkLogicImpl extends WorkLogic{
 		
 		WorkContentConverter.updateWSPlanItemFold(ws, loginerId, itemId, fold);
 		
-		CacheScheduler.saveEntity(ws,w->wDAO.updateExistedWorkSheet(w));
+		CacheScheduler.saveEntityAndUpdateCache(ws,w->wDAO.updateExistedWorkSheet(w));
 	}
 	
 	@Override
@@ -335,7 +335,7 @@ public class WorkLogicImpl extends WorkLogic{
 			throws LogicException, DBException {
 		PlanDept dept = CacheScheduler.getOne(CacheMode.E_UNIQUE_FIELD_ID, updaterId, PlanDept.class, ()->wDAO.selectExistedPlanDeptByOwner(updaterId));
 		WorkContentConverter.updatePlanDeptItem(dept, updaterId, itemId, name, val);
-		CacheScheduler.saveEntity(dept,w->wDAO.updateExistedPlanDept(w));
+		CacheScheduler.saveEntityAndUpdateCache(dept,w->wDAO.updateExistedPlanDept(w));
 	}
 	
 	
@@ -365,7 +365,7 @@ public class WorkLogicImpl extends WorkLogic{
 		
 		plan.setState(after);
 		plan.setEndDate(endDate);
-		CacheScheduler.saveEntity(plan,p->wDAO.updateExistedPlan(p));
+		CacheScheduler.saveEntityAndUpdateCache(plan,p->wDAO.updateExistedPlan(p));
 	}
 
 	@Override
@@ -386,7 +386,7 @@ public class WorkLogicImpl extends WorkLogic{
 		
 		plan.setState(after);
 		plan.setEndDate(endDate);
-		CacheScheduler.saveEntity(plan,p->wDAO.updateExistedPlan(p));
+		CacheScheduler.saveEntityAndUpdateCache(plan,p->wDAO.updateExistedPlan(p));
 	}
 	
 	@Override
@@ -409,7 +409,7 @@ public class WorkLogicImpl extends WorkLogic{
 					stateByNow.getDbCode());
 			
 			fullWs.setState(stateByNow);
-			CacheScheduler.saveEntity(fullWs, one->wDAO.updateExistedWorkSheet(one));
+			CacheScheduler.saveEntityAndUpdateCache(fullWs, one->wDAO.updateExistedWorkSheet(one));
 			
 			active.setState(stateByNow);
 		}
@@ -496,7 +496,7 @@ public class WorkLogicImpl extends WorkLogic{
 					PlanState.PREPARED.getDbCode(),needToUpdate.getState().getDbCode());
 		}
 		
-		CacheScheduler.saveEntities(stateChangedForPrepared, (p)->wDAO.updateExistedPlan(p));
+		CacheScheduler.saveEntitiesAndUpdateCacheOnlyIfExists(stateChangedForPrepared, (p)->wDAO.updateExistedPlan(p));
 		prepared.removeAll(stateChangedForPrepared);
 		target.removeAll(prepared);
 		
@@ -515,7 +515,7 @@ public class WorkLogicImpl extends WorkLogic{
 					TimeUtil.parseDate(needToUpdate.getEndDate()),
 					PlanState.ACTIVE.getDbCode(),needToUpdate.getState().getDbCode());
 		}
-		CacheScheduler.saveEntities(stateChangedForActive, (p)->wDAO.updateExistedPlan(p));
+		CacheScheduler.saveEntitiesAndUpdateCacheOnlyIfExists(stateChangedForActive, (p)->wDAO.updateExistedPlan(p));
 		
 		target.removeAll(stateChangedForActive);
 		CacheScheduler.putEntitiesToCacheById(target);
@@ -673,7 +673,7 @@ public class WorkLogicImpl extends WorkLogic{
 			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS,updaterId+" vs "+ws.getOwnerId());
 		}
 		ws.setNote(note);
-		CacheScheduler.saveEntity(ws, one->wDAO.updateExistedWorkSheet(one));
+		CacheScheduler.saveEntityAndUpdateCache(ws, one->wDAO.updateExistedWorkSheet(one));
 	}
 
 	@Override
@@ -695,7 +695,7 @@ public class WorkLogicImpl extends WorkLogic{
 		}
 		
 		ws.setState(WorkSheetState.NO_MONITOR);
-		CacheScheduler.saveEntity(ws, one->wDAO.updateExistedWorkSheet(one));
+		CacheScheduler.saveEntityAndUpdateCache(ws, one->wDAO.updateExistedWorkSheet(one));
 	}
 
 	@Override
@@ -708,7 +708,7 @@ public class WorkLogicImpl extends WorkLogic{
 			throw new LogicException(SMError.CANNOT_CANCEL_WS_WHICH_NOT_ASSUMED,ws.getState().getName());
 		}
 		ws.setState(calculateStateByNow(ws));
-		CacheScheduler.saveEntity(ws, one->wDAO.updateExistedWorkSheet(one));
+		CacheScheduler.saveEntityAndUpdateCache(ws, one->wDAO.updateExistedWorkSheet(one));
 	}
 	
 	@Override
@@ -723,7 +723,7 @@ public class WorkLogicImpl extends WorkLogic{
 		}
 		
 		refreshStateAfterItemModified(ws);
-		CacheScheduler.saveEntity(ws,w->wDAO.updateExistedWorkSheet(w));	
+		CacheScheduler.saveEntityAndUpdateCache(ws,w->wDAO.updateExistedWorkSheet(w));	
 	}
 	
 	
@@ -739,7 +739,7 @@ public class WorkLogicImpl extends WorkLogic{
 		
 		refreshStateAfterItemModified(ws);
 		
-		CacheScheduler.saveEntity(ws,w->wDAO.updateExistedWorkSheet(w));
+		CacheScheduler.saveEntityAndUpdateCache(ws,w->wDAO.updateExistedWorkSheet(w));
 	}
 	
 	private synchronized int initPlanDept(int ownerId) throws DBException {
@@ -784,8 +784,8 @@ public class WorkLogicImpl extends WorkLogic{
 
 		refreshStateAfterItemModified(ws);
 		
-		CacheScheduler.saveEntity(ws,w->wDAO.updateExistedWorkSheet(w));
-		CacheScheduler.saveEntity(dept,d->wDAO.updateExistedPlanDept(d));
+		CacheScheduler.saveEntityAndUpdateCache(ws,w->wDAO.updateExistedWorkSheet(w));
+		CacheScheduler.saveEntityAndUpdateCache(dept,d->wDAO.updateExistedPlanDept(d));
 	}
 	
 	@Override
@@ -816,8 +816,8 @@ public class WorkLogicImpl extends WorkLogic{
 
 		refreshStateAfterItemModified(ws);
 		
-		CacheScheduler.saveEntity(ws,w->wDAO.updateExistedWorkSheet(w));
-		CacheScheduler.saveEntity(dept,d->wDAO.updateExistedPlanDept(d));
+		CacheScheduler.saveEntityAndUpdateCache(ws,w->wDAO.updateExistedWorkSheet(w));
+		CacheScheduler.saveEntityAndUpdateCache(dept,d->wDAO.updateExistedPlanDept(d));
 	}
 	
 	@Override
@@ -861,7 +861,7 @@ public class WorkLogicImpl extends WorkLogic{
 	 		workSheet.setTags(tagsForNew);
 	 	}
 	 	
-	 	CacheScheduler.saveEntities(toSave, p->wDAO.updateExistedWorkSheet(p));
+	 	CacheScheduler.saveEntitiesAndUpdateCacheOnlyIfExists(toSave, p->wDAO.updateExistedWorkSheet(p));
 	}
 	
 	private List<WorkSheetProxy> fillPlanInfos(List<WorkSheet> src) throws DBException{
@@ -897,7 +897,7 @@ public class WorkLogicImpl extends WorkLogic{
 		
 		WorkContentConverter.copyPlanItemsFrom(target, templete, loginerId);
 		
-		CacheScheduler.saveEntity(target,p->wDAO.updateExistedPlan(p));
+		CacheScheduler.saveEntityAndUpdateCache(target,p->wDAO.updateExistedPlan(p));
 	}
 	
 
