@@ -78,8 +78,8 @@ public interface WorkDAO {
 	long countWorkSheetByDate(Calendar date) throws DBException;
 	
 	boolean includeWorkSheetByPlanId(int planId) throws DBException;
-	List<String> selectNonNullTagsByUser(int loginerId) throws DBException;
-
+	List<String> selectNonNullPlanTagsByUser(int loginerId) throws DBException;
+	List<String> selectNonNullWorkSheetTagsByUser(int loginerId) throws DBException;
 
 	
 }

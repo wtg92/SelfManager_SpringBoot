@@ -1,6 +1,5 @@
 /*==============================Date Start========================================*/
 
-
 Date.prototype.getThisWeekRange = function(){
     let dayOfWeek = this.getDay();
 
@@ -346,6 +345,50 @@ String.prototype.replaceAll = function(s1,s2){
     return rlt;    
 }
 
+Array.prototype.sumBySpecificArrayField = function(namesMapper,valueMapper){
+    let rlt = [];
+    
+    this.forEach(item=>{
+        let names = namesMapper(item);
+        names.forEach(name=>{
+            let existedItem = rlt.find(p=>p.name==name);
+
+            if(existedItem != undefined){
+                existedItem.value += valueMapper == undefined ? 1 : valueMapper(item);
+                return ;
+            }
+    
+            rlt.push({
+                name : name,
+                value: valueMapper == undefined ?  1 : valueMapper(item)
+            })
+        })
+    })
+
+    return rlt;    
+}
+
+
+
+
+Array.prototype.removeAll = function(arrForRemove){
+    let countForSuccess = 0;
+    arrForRemove.forEach(remove=>{
+        if(this.remove(remove)){
+            countForSuccess++;
+        }
+    })
+    return countForSuccess;
+}
+Array.prototype.remove = function(val) { 
+    var index = this.findIndex(e=>val==e); 
+    if (index > -1) { 
+        this.splice(index, 1); 
+        return true;
+    } 
+    return false;
+};
+
 /**
  * rlt keys属性 将记录有哪些可能
  * classifier 暂时只允许生成字符串吧
@@ -366,6 +409,27 @@ Array.prototype.groupBy = function(classifier){
 
     return rlt;
 }
+
+/*groupBy是以属性值为分组依据的，但属性值如果是个数组怎么办，我需要将Array映射成多个值*/
+Array.prototype.groupByArrayAttr = function(classifier){
+    let rlt = {
+        keys:[]
+    };
+
+    this.forEach((e)=>{
+        let keys = classifier(e);
+        keys.forEach(key=>{
+            if(!rlt.keys.contains(key)){
+                rlt[key] = [];
+                rlt.keys.push(key);
+            }
+            rlt[key].push(e);
+        })
+    })
+
+    return rlt;
+}
+
 
 Array.prototype.contains = function(e){
     return this.find(m=>m==e) != null;

@@ -96,11 +96,6 @@ public abstract class WorkLogic{
 	public abstract List<WorkSheetProxy> loadWorkSheetByState(int loginerId, WorkSheetState stateZT)  throws LogicException, DBException;
 	/**
 	 * 暂且只让人看到自己的
-	 * @param loginerId
-	 * @param planId
-	 * @return
-	 * @throws LogicException 
-	 * @throws DBException 
 	 */
 	public abstract PlanProxy loadPlan(int loginerId,int planId) throws LogicException, DBException;
 	
@@ -126,6 +121,7 @@ public abstract class WorkLogic{
 	public abstract long loadWorkSheetCount(int loginerId,Calendar date) throws SMException;
 	
 	public abstract List<String> loadAllPlanTagsByUser(int loginerId) throws SMException;
+	public abstract List<String> loadAllWorkSheetTagsByUser(int loginerId) throws SMException;
 	public abstract PlanDeptProxy loadPlanDept(int loginerId) throws DBException, LogicException;
 	public abstract List<String> loadPlanDeptItemNames(int loginerId) throws DBException, LogicException;
 	/**
@@ -135,8 +131,10 @@ public abstract class WorkLogic{
 	public abstract void abandonPlan(int opreatorId,int planId) throws LogicException, DBException;
 	/* 状态设置为Finished 改plan的EndDate设为今天*/
 	public abstract void finishPlan(int opreatorId,int planId) throws LogicException, DBException;
-	public abstract void resetPlanTags(int opreatorId,int planId,List<String> tags) throws SMException;
 	
+	public abstract void resetPlanTags(int opreatorId,int planId,List<String> tags) throws SMException;
+	public abstract void resetWorkSheetTags(int opreatorId,int wsId,List<String> tags) throws SMException;
+
 	
 	public abstract void saveWorkItemPlanItemId(int updaterId,int wsId,int workItemId, int planItemId) throws LogicException, DBException;
 	public abstract void saveWorkItems(int loginerId, int wsId, List<WorkItem> workItems) throws SMException;

@@ -37,7 +37,7 @@ public abstract class CacheUtil {
 	
 	private static Logger logger = Logger.getLogger(CacheUtil.class.getName());
 	
-	public final static int ALIVE_SECONDS = CommonUtil.getIntValFromPropertiesFileInResource("redis_cache_alive_seconds");
+	public final static long ALIVE_SECONDS = CommonUtil.getIntValFromPropertiesFileInResource("redis_cache_alive_seconds");
 	private final static int SCANNER_COUNT = CommonUtil.getIntValFromPropertiesFileInResource("redis_scanner_count");
 	
 	
@@ -481,7 +481,7 @@ public abstract class CacheUtil {
 	}
 
 
-	private static boolean resetTimeout(Jedis jedis,String key,int seconds) {
+	private static boolean resetTimeout(Jedis jedis,String key,long seconds) {
 		Long flag = jedis.expire(key, seconds);
 		return flag == 1 ? true : false;
 	}

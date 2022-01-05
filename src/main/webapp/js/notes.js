@@ -205,10 +205,6 @@ function createNoteBook() {
     sendAjax("CareerServlet", "c_create_note_book", param, (data) => {
         $("#notes_create_note_book_dialog").modal("hide");
         loadBooks();
-        /*TODO 未来考虑*/
-        // confirmInfo("创建成功，您要直接编辑计划内容吗？", () => {
-        //     openPlanDialogByDate(data, true, true);
-        // }, "直接编辑", "以后再说");
     }, true, () => { }, () => $commitBtn.text(buttonText).removeClass("common_waiting_button"));
 }
 

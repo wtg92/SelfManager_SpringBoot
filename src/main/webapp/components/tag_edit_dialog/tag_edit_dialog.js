@@ -1,9 +1,11 @@
 
-let TAG_EDIT_DIALOG_NAMESPACE = {
+const TAG_EDIT_DIALOG_NAMESPACE = {
     /** 
      * 提供给外部模块的重置标签函数，在点击保存标签时调用，第一个参数为用户选择的标签，第二个参数为dialog关闭函数，第三个参数为取消保存按钮的禁止点击的函数
     */
     RESET_TAGS_FUNC:null,
+    TAGS:[],
+    GET_EXISTED_TAGS_OP:null
 };
 
 $(function(){
@@ -12,7 +14,23 @@ $(function(){
         $(this).parents(".tag_unit_container").remove();
     });
     $("#tag_edit_dialog_reset_tags_btn").click(resetTags);
+
+    $("#tag_edit_dialog_add_tag_input").autocomplete({
+        minLength:0,
+        source : []
+    }).focus(getTagsAndRefill)
 })
+
+function getTagsAndRefill(){
+    sendAjax("CareerServlet",TAG_EDIT_DIALOG_NAMESPACE.GET_EXISTED_TAGS_OP,{},(data)=>{
+        let existed = $("#tag_edit_dialog_tag_list_container").find(".tag_unit_container").get().map(e=>$(e).find(".tag_unit_container_content").text())
+        data.removeAll(existed);
+        fillAutocompletInput(data,$(this));
+    });
+}
+
+
+
 
 function resetTags(){
 
@@ -29,13 +47,14 @@ function resetTags(){
 
 
 
-function openTagEditDialogForExternalModule(resetTagsFunc,initialTags){
+function openTagEditDialogForExternalModule(resetTagsFunc,initialTags,getTagsOP){
     TAG_EDIT_DIALOG_NAMESPACE.RESET_TAGS_FUNC = resetTagsFunc;
+    TAG_EDIT_DIALOG_NAMESPACE.GET_EXISTED_TAGS_OP = getTagsOP;
     $("#tag_edit_dialog").modal("show");
     $("#tag_edit_dialog_add_tag_input").val("");
     $("#tag_edit_dialog_tag_list_container").empty();
     initialTags.forEach(e=>{
-        addOneTagToContainer(e);
+        addOneTagToContainer(e.name);
     })
 
 }

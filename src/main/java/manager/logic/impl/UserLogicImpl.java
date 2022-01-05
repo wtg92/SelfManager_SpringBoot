@@ -634,7 +634,7 @@ public class UserLogicImpl extends UserLogic {
 			
 			user.setPassword(resetPWD);
 			SecurityUtil.encodeUserPwd(user);
-			CacheScheduler.saveEntityAndUpdateCache(user, one -> uDAO.updateExistedUser(user));
+			CacheScheduler.saveEntity(user, one -> uDAO.updateExistedUser(user));
 			return;
 		}
 		case TEL_VERIFY_CODE:{
@@ -653,7 +653,7 @@ public class UserLogicImpl extends UserLogic {
 			}		
 			user.setPassword(resetPWD);
 			SecurityUtil.encodeUserPwd(user);
-			CacheScheduler.saveEntityAndUpdateCache(user, one -> uDAO.updateExistedUser(user));
+			CacheScheduler.saveEntity(user, one -> uDAO.updateExistedUser(user));
 			return;
 		}
 		default:

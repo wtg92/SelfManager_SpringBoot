@@ -1,3 +1,7 @@
+const WS_STAT_NAMESAPCE={
+    DATA:null
+};
+
 $(function(){
     $("#ws_stat_controlgroup_container_quick_terms_this_week").click(()=>{
         let range = new Date().getThisWeekRange();
@@ -23,6 +27,10 @@ $(function(){
         $("[name='ws_stat_end_date']").val(range.end.getDateStr());
     });
 
+    $("[name='ws_stat_mode']").click(switchWSStatMode)
+    //默认按计划分组
+    .eq(0).click();
+
     $("#ws_stat_analyze_ws_btn").click(analyzeWSsOfDateRange);
 
 
@@ -30,9 +38,14 @@ $(function(){
 
     $("#ws_stat_content_container_of_more_info_container").on("click",".ws_stat_unit_for_one_plan_header_switch_to_show_btn",switchToShowOnePlanStatDetail);
 
-
-
 })
+
+function switchWSStatMode(){
+    let prop =$(this).attr("group_by");
+    $("#ws_stat_of_date_range_dialog").attr("group_by",prop);
+    drawGroupByChartBaseRadio();
+}
+
 
 function switchToShowOnePlanStatDetail(){
     let open = parseToBool($(this).attr("open"));
@@ -79,7 +92,7 @@ function openDetailStatByPlanContainer($unit){
 
 function closeMoreInfoContainer(){
     $("#ws_stat_content_container_of_more_info_container").hide();
-    $("#ws_stat_content_container_of_text .ws_stat_switch_to_show_more_info").text("分计划统计").attr("open",false);
+    $("#ws_stat_content_container_of_text .ws_stat_switch_to_show_more_info").text("分组统计").attr("open",false);
 }
 
 function openMoreInfoContainer(){
@@ -88,7 +101,10 @@ function openMoreInfoContainer(){
 }
 
 function drawMoodStat(data){
-
+    if(data.length == 0){
+        //TODO 找时间处理一下 在时间范围内没有工作表的情况
+        return ;
+    }
     data.sort((a,b)=>
         a.ws.date-b.ws.date
     )
@@ -232,7 +248,23 @@ function drawMoodStat(data){
 }
 
 
+function drawGroupByChartBaseRadio(){
+    if(!WS_STAT_NAMESAPCE.DATA){
+        return;
+    }
 
+    let groupBy = $("#ws_stat_switch_stat_mode_container").find(":checked").attr("group_by");
+    let data = [];
+    switch(groupBy){
+        case "plan":
+            data = WS_STAT_NAMESAPCE.DATA.sumBySpecificField(item=>item.basePlanName)
+            break;
+        case "tag":
+            data = WS_STAT_NAMESAPCE.DATA.sumBySpecificArrayField(item=>item.ws.tags.map(e=>e.name));
+            break;
+    }
+    drawCommonPieChart("ws_stat_content_container_of_charts_for_distribution",data.sortAndMergeSumRlt(),70,(value)=>value+"天");
+}
 
 
 
@@ -256,6 +288,8 @@ function analyzeWSsOfDateRange(){
         "end_date":endDate
     },(data)=>{
 
+        WS_STAT_NAMESAPCE.DATA = data;
+
         closeMoreInfoContainer();
 
         $("#ws_stat_content_container").show();
@@ -264,9 +298,7 @@ function analyzeWSsOfDateRange(){
         $(".count_for_search_date_range").text(new Date(endDate).countDaysDiffer(new Date(startDate))+1);
         $(".count_for_stat_days").text(data.length);
 
-        drawCommonPieChart("ws_stat_content_container_of_charts_for_plan_distribution",data.sumBySpecificField(item=>item.basePlanName).sortAndMergeSumRlt(),70,(value)=>value+"天");
         drawCommonBarChart("ws_stat_content_container_of_charts_for_ws_state_distribution",data.sumBySpecificField(item=>item.ws.state.name).sortAndMergeSumRlt(),"工作表状态/天",4);
-
         drawCommonPieChart("ws_stat_content_container_of_charts_for_type_count",data.flatMap((e)=>{
             return mergeWorkItemsExceptUndone(e.content).map((ee)=>{
                 return {"name": ee.pItem.item.name,
@@ -278,36 +310,39 @@ function analyzeWSsOfDateRange(){
         drawCommonBarChart("ws_stat_content_container_of_charts_for_finish_situation",data.sumBySpecificField(item=>item.finishPlanWithoutDeptItems ? "完成（除同步项）" : "未完成（除同步项）").sortAndMergeSumRlt(),"实际完成/天",2);
 
         drawMoodStat(data);
-        drawStatByPlan(data);
+
+        let dataByPlan = data.groupBy(item=>item.basePlanName);
+        drawStatByGroup(dataByPlan,".ws_stat_group_by_plan");
+        let dataByTag = data.groupByArrayAttr(item=>item.ws.tags.map(e=>e.name));
+        drawStatByGroup(dataByTag,".ws_stat_group_by_tag");
+
+        
+        drawGroupByChartBaseRadio(); 
     },()=>{
         $(this).removeClass("common_prevent_double_click");
     })
 }
-/**根据名字分组的意义在于，假设重名 在前台本就无意义，谁也看不到ID */
-function drawStatByPlan(data){
-    let dataByPlan = data.groupBy(item=>item.basePlanName);
 
-    dataByPlan.keys.sort((a,b)=>dataByPlan[b].length - dataByPlan[a].length);
+function drawStatByGroup(dataGroupBy,subContainer){
 
-    let $container = $("#ws_stat_content_container_of_more_info_container");
+    dataGroupBy.keys.sort((a,b)=>dataGroupBy[b].length - dataGroupBy[a].length);
+
+    let $container = $("#ws_stat_content_container_of_more_info_container").find(subContainer);
     $container.empty();
 
-    dataByPlan.keys.forEach(key=>{
+    dataGroupBy.keys.forEach(key=>{
         let $unit = $("#ws_stat_pattern_container").find(".ws_stat_unit_for_one_plan").clone();
-        console.log(dataByPlan[key]);
-        let sumDays = dataByPlan[key].length;
-
-        console.log(dataByPlan[key]);
+        let sumDays = dataGroupBy[key].length;
 
         $unit.find(".ws_stat_unit_for_one_plan_header_plan_name").text(key).end()
             .find(".ws_stat_unit_for_one_plan_header_count_days em").text(sumDays).end()
-            .find(".count_days_for_saturday").text(dataByPlan[key].filter(e=>new Date(e.ws.date).isSaturday()).length).end()
-            .find(".count_days_for_sunday").text(dataByPlan[key].filter(e=>new Date(e.ws.date).isSunday()).length).end()
+            .find(".count_days_for_saturday").text(dataGroupBy[key].filter(e=>new Date(e.ws.date).isSaturday()).length).end()
+            .find(".count_days_for_sunday").text(dataGroupBy[key].filter(e=>new Date(e.ws.date).isSunday()).length).end()
 
 
         let sumMinutes = 0;
 
-        dataByPlan[key].flatMap((e)=>{
+        dataGroupBy[key].flatMap((e)=>{
                 return mergeWorkItemsExceptUndone(e.content).map((ee)=>{
                     return {"name": ee.pItem.item.name,
                          "value": ee.costMinutes

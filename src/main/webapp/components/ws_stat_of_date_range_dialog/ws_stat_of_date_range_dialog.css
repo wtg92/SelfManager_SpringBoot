@@ -12,6 +12,25 @@
     margin-bottom: 0;
 }
 
+#ws_stat_of_date_range_dialog[group_by='plan'] .ws_stat_group_by_tag{
+    display: none;
+}
+
+#ws_stat_of_date_range_dialog[group_by='tag'] .ws_stat_group_by_plan{
+    display: none;
+}
+
+#ws_stat_switch_stat_mode_container{
+    text-align: right;
+}
+#ws_stat_mode_of_plan_group{
+    margin-right: 15px;
+}
+
+[name='ws_stat_mode']{
+    cursor: pointer;
+}
+
 
 .ws_stat_unit_for_one_plan_item.sum_for_plan_item_stat{
     border-top: solid 1px rgb(197, 197, 197);
@@ -83,9 +102,12 @@
     flex-shrink: 1.1;
 }
 
+#ws_stat_controlgroup_container{
+    margin-bottom: 15px;
+}
+
 #ws_stat_controlgroup_container_quick_terms{
     margin-top: 10px;
-    margin-bottom: 15px;
     font-size: 16px;
 }
 
@@ -111,7 +133,7 @@
     margin-top: 10px;
 }
 
-#ws_stat_content_container_of_charts_for_plan_distribution,#ws_stat_content_container_of_charts_for_ws_state_distribution,#ws_stat_content_container_of_charts_for_finish_situation,#ws_stat_content_container_of_charts_for_type_count{
+#ws_stat_content_container_of_charts_for_distribution,#ws_stat_content_container_of_charts_for_ws_state_distribution,#ws_stat_content_container_of_charts_for_finish_situation,#ws_stat_content_container_of_charts_for_type_count{
     margin-top: 15px;
     margin-bottom: 15px;
     width: 50%;

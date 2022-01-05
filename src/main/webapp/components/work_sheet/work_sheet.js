@@ -1,4 +1,4 @@
-let WS_NAMESPACE = {
+const WS_NAMESPACE = {
     WS_STATE_OF_OVERDUE : 4 ,
     WS_STATE_OF_ASSUME_FINISHED : 3,
     WS_STATE_OF_ACTIVE:1,
@@ -16,7 +16,7 @@ let WS_NAMESPACE = {
     COUNT_SAVING_ASKING:0,
     REMINDER_INTERVAL_MINUTES:1,
     /*加载的工作表当前的对象*/
-    CURRENT_WORKSHEET_OBJ:{}
+    CURRENT_WORKSHEET:{}
 }
 
 /**为了解耦，这里关于WS.planItems的部分多数是从plan_dialog.js copy过来的 当修改时，应当修改两处地方 */
@@ -31,7 +31,7 @@ $(function(){
     drawCommonIcon("including_close_folder_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_fold_btn"));
     drawCommonIcon("including_trashcan_mark",$("#work_sheet_pattern_container .work_sheet_work_item_container_delete_button"));
     drawCommonIcon("including_common_edit_shape",$("#work_sheet_pattern_container .work_sheet_work_item_container_plan_item_type_modify_mark"));
-
+    drawCommonIcon("including_common_edit_shape",$("#edit_work_sheet_tags_icon"));
 
 
     $("body").on("keydown",monitorHotKeys);
@@ -113,7 +113,6 @@ $(function(){
         .on("click",".work_sheet_work_item_container_plan_item_type_modify_mark",function(){
             /*如果要修改类型了 就锁一下*/
             lockSaveWorkItem();
-            
             $(this).parents(".work_sheet_work_item_container").attr("siwtch_type_modify_on",true);
         });
         
@@ -131,7 +130,6 @@ $(function(){
     
     $(".work_sheet_main_container_change_ws_base_of_plan").click(openChangWSPlanBaseDialog);
     $("#ws_change_plan_base_dialog_confirm_btn").click(confirmChangWSPlanBase);
-
 
     /* === 每一个整分钟 进行reminder code start===*/
     let now = new Date();
@@ -151,7 +149,24 @@ $(function(){
         let prop = $(this).prop("checked");
         localStorage[CONFIG.DEFAULT_WS_REMINDER_OPEN_KEY]=prop;
     })
+
+    $("#edit_work_sheet_tags_icon").click(editWorkSheetTags);
+
 });
+
+function editWorkSheetTags(){
+    openTagEditDialogForExternalModule((tags,closeDialogFunc,removeDoubleClsFunc)=>{
+        sendAjaxBySmartParams("CareerServlet","c_reset_work_sheet_tags",{
+            "ws_id":WS_NAMESPACE.CURRENT_WORKSHEET.ws.id,
+            "tags":tags
+        },(data)=>{
+            loadWorkSheetDetail_render(data);
+            closeDialogFunc();
+        },removeDoubleClsFunc)
+    },WS_NAMESPACE.CURRENT_WORKSHEET.ws.tags,"c_load_all_worksheet_tags");
+}
+
+
 function confirmChangWSPlanBase(){
     let val = $("#ws_base_plan_id_input_for_change").val().trim();
     if(val.length == 0){
@@ -162,7 +177,7 @@ function confirmChangWSPlanBase(){
     $btn.addClass("common_prevent_double_click");
 
     sendAjaxBySmartParams("CareerServlet","c_save_work_sheet_plan_id",{
-        "ws_id":WS_NAMESPACE.CURRENT_WORKSHEET_OBJ.ws.id,
+        "ws_id":WS_NAMESPACE.CURRENT_WORKSHEET.ws.id,
         "plan_id":val
     },(data)=>{
         loadWorkSheetDetail_render(data);
@@ -175,7 +190,7 @@ function confirmChangWSPlanBase(){
 
 function openChangWSPlanBaseDialog(){
     $("#ws_base_plan_id_input_for_change").val("");
-    $("#ws_change_plan_base_dialog").find(".modal-title em").text(new Date(WS_NAMESPACE.CURRENT_WORKSHEET_OBJ.ws.date).toChineseDate())
+    $("#ws_change_plan_base_dialog").find(".modal-title em").text(new Date(WS_NAMESPACE.CURRENT_WORKSHEET.ws.date).toChineseDate())
         .end().modal("show");
 }
 
@@ -1580,7 +1595,7 @@ function loadWorkSheetDetail_render(data) {
     }
 
 
-    WS_NAMESPACE.CURRENT_WORKSHEET_OBJ = cloneObj(data);
+    WS_NAMESPACE.CURRENT_WORKSHEET = cloneObj(data);
 
     /*
     * 更新前需要根据Id监控哪些workItem打开/关闭了备注 当重新更新完数据后 要保持原样
@@ -1619,7 +1634,6 @@ function loadWorkSheetDetail_render(data) {
             fillTextareaVal(data.ws.note,$("#work_note_textarea"));
         }
 
-
         $(".work_sheet_main_container_cancel_assumen_finished").toggle(data.ws.state.dbCode == WS_NAMESPACE.WS_STATE_OF_ASSUME_FINISHED);
         $(".work_sheet_main_container_assume_finsihed").toggle(data.ws.state.dbCode == WS_NAMESPACE.WS_STATE_OF_OVERDUE
                                                                 || data.ws.state.dbCode == WS_NAMESPACE.WS_STATE_OF_ACTIVE
@@ -1642,6 +1656,15 @@ function loadWorkSheetDetail_render(data) {
         /*初始化items 部分 TODO 还应该清空选项*/
         $(".work_sheet_today_plan_items_for_one_row.work_sheet_today_plan_items_values_container>div").hide();    
         $("#work_sheet_today_plan_control_group_container").find("[type='text'],textarea").val("");
+        
+        /*工作表标签*/
+        let $tagContainer = $("#work_sheet_tag_items_container");
+        $tagContainer.empty();
+        data.ws.tags.forEach(tag=>{
+            let $unit = $("#work_sheet_pattern_container .work_sheet_tag_unit_container").clone();
+            $unit.find(".work_sheet_tag_unit_container_context").text(tag.name);
+            $tagContainer.append($unit);
+        })
 
     }finally{
         $("#work_sheet_work_items_container_main_body_ws_items .work_sheet_work_item_container").each((i, v) => {

@@ -39,6 +39,7 @@ public enum SMOP {
 	C_REMOVE_ITEM_FROM_WORK_SHEET("c_remove_item_from_work_sheet"),
 	C_LOAD_PLAN("c_load_plan"),
 	C_LOAD_ALL_PLAN_TAGS("c_load_all_plan_tags"),
+	C_LOAD_ALL_WORKSHEET_TAGS("c_load_all_worksheet_tags"),
 	C_SAVE_PLAN("c_save_plan"),
 	C_SAVE_PLAN_ITEM("c_save_plan_item"),
 	C_SAVE_PLAN_ITEM_FOLD("c_save_plan_item_fold"),
@@ -47,6 +48,7 @@ public enum SMOP {
 	C_ABANDON_PLAN("c_abandon_plan"),
 	C_FINISH_PLAN("c_finish_plan"),
 	C_RESET_PLAN_TAGS("c_reset_plan_tags"),
+	C_RESET_WORK_SHEET_TAGS("c_reset_work_sheet_tags"),
 	C_LOAD_PLAN_STATE_STATISTICS("c_load_plan_state_statistics"),
 	C_LOAD_WS_STATE_STATISITCS("c_load_ws_state_statistics"),
 	C_LOAD_PLANS_BY_STATE("c_load_plans_by_state"),
@@ -81,7 +83,7 @@ public enum SMOP {
 	C_DELETE_NOTE("c_delete_note"),
 	C_CLOSE_NOTE_BOOK("c_close_note_book"),
 	C_OPEN_NOTE_BOOK("c_open_note_book"),
-	
+	C_SYNC_PLAN_TAGS_TO_WORKSHEET("c_sync_plan_tags_to_workSheet"),
 	C_LOAD_NOTE_LABELS("c_load_note_labels"),
 	
 	C_SAVE_NOTE_IMPORTANT("c_save_important"),

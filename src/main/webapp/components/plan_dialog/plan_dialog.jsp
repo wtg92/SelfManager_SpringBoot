@@ -62,7 +62,7 @@
     						</div>
     					</div>
     					
-    					<div class="plan_dialog_basic_info_form_one_row" title="用于时间范围的数据分析">
+    					<div class="plan_dialog_basic_info_form_one_row plan_tag" title="用于时间范围的数据分析">
    							<span class="plan_dialog_basic_info_sub_title">标签</span>
    							<span id="plan_dialog_basic_unit_container_edit_btn" class="common_blue_font common_hover"></span>
    							<div id="plan_dialog_tag_righer">
@@ -70,7 +70,8 @@
     							
    								<div class="plan_dialog_sync_plan_tags_to_ws_container">
    									<span id="plan_dialog_sync_plan_tags_to_ws_container_btn" class="common_blue_font common_hover">同步相关工作表</span>
-   									<span>说明</span>
+   									<div id="plan_dialog_sync_plan_tags_desc" class="common_hover" data-placement="top" data-toggle="popover" title="相关工作表的标签同步" data-html="true"
+ 				 						data-content="a. 同步时，对于<em>基于该计划</em>生成的<em>所有</em>工作表，系统会将标签重置为计划标签。<br/>b. 为了尽量<em>保留用户手动修改的工作表痕迹</em>，系统通过计划标签和工作表标签的文字比较，<em>尽可能地识别出用户手动设置的工作表标签</em>，将其保留，其余，直接替换">说明</div>
    								</div>
    							</div>
     					</div>
@@ -112,8 +113,8 @@
       				<div class="plan_dialog_items_form_one_row">
       					<div  class="plan_dialog_items_unit_container">
       						<span class="plan_dialog_items_sub_title">名称</span>
-      						<input type="text" name="cat_name" placeholder="不能与已有重复" autocomplete="off" id="abcdef"/>
-      						<input type="text" name="cat_name_when_modify" placeholder="不能与已有重复" autocomplete="off"/>
+      						<input type="text" name="cat_name" placeholder="不能重复" autocomplete="off"/>
+      						<input type="text" name="cat_name_when_modify" placeholder="不能重复" autocomplete="off"/>
       					</div>
       					<div class="plan_dialog_items_unit_container">
       						<span class="plan_dialog_items_sub_title">类型</span>

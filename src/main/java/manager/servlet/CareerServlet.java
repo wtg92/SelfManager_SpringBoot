@@ -137,6 +137,8 @@ public class CareerServlet extends SMServlet{
 			return loadPlan(request);
 		case C_LOAD_ALL_PLAN_TAGS:
 			return loadAllPlanTags(request);
+		case C_LOAD_ALL_WORKSHEET_TAGS:
+			return loadAllWorkSheetTags(request);
 		case C_SAVE_PLAN:
 			return savePlan(request);
 		case C_SAVE_PLAN_ITEM:
@@ -145,6 +147,8 @@ public class CareerServlet extends SMServlet{
 			return savePlanItemFold(request);
 		case C_RESET_PLAN_TAGS:
 			return resetPlanTags(request);
+		case C_RESET_WORK_SHEET_TAGS:
+			return resetWorkSheetTags(request);
 		case C_ABANDON_PLAN:
 			return abandonPlan(request);
 		case C_FINISH_PLAN:
@@ -189,6 +193,8 @@ public class CareerServlet extends SMServlet{
 			return saveWorkItems(request);
 		case C_SAVE_WORK_ITEM_PLAN_ITEM_ID:
 			return saveWorkItemPlanItemId(request);
+		case C_SYNC_PLAN_TAGS_TO_WORKSHEET:
+			return syncPlanTagsToWorkSheet(request);
 		case C_SYNC_TO_PLAN_DEPT:
 			return syncToPlanDept(request);
 		case C_SYNC_ALL_TO_PLAN_DEPT:
@@ -256,15 +262,27 @@ public class CareerServlet extends SMServlet{
 			throw new LogicException(SMError.UNKOWN_OP,getNonNullParam(request,OP));
 		}
 	}
-	
 
+	private String syncPlanTagsToWorkSheet(HttpServletRequest request) throws SMException {
+		int loginerId = getLoginerId(request);
+		int planId = getNonNullParamInInt(request, PLAN_ID);
+		wL.syncPlanTagsToWorkSheet(loginerId, planId);
+		return getNullObjJSON();
+	}
 
 	private String loadAllPlanTags(HttpServletRequest request) throws SMException{
 		int loginerId = getLoginerId(request);
 		List<String> tags = wL.loadAllPlanTagsByUser(loginerId);
-		return getParamJSON(tags);
+		return JSON.toJSONString(tags);
 	}
 
+	private String loadAllWorkSheetTags(HttpServletRequest request) throws SMException{
+		int loginerId = getLoginerId(request);
+		List<String> tags = wL.loadAllWorkSheetTagsByUser(loginerId);
+		return JSON.toJSONString(tags);
+	}
+	
+	
 	private String loadWorkSheetsByDateScope(HttpServletRequest request) throws SMException {
 		int loginerId = getLoginerId(request);
 		Calendar startDate = getNonNullParamInDate(request, START_DATE);
@@ -671,6 +689,16 @@ public class CareerServlet extends SMServlet{
 		wL.abandonPlan(loginerId, planId);
 		return getNullObjJSON();
 	}
+	
+	
+	private String resetWorkSheetTags(HttpServletRequest request) throws SMException {
+		int loginerId = getLoginerId(request);
+		int wsId = getNonNullParamInInt(request, WS_ID);
+		List<String> tags = getParamsOrEmptyList(request, TAGS);
+		wL.resetWorkSheetTags(loginerId, wsId, tags);
+		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId),workConf);
+	}
+	
 	
 	private String resetPlanTags(HttpServletRequest request) throws SMException {
 		int loginerId = getLoginerId(request);

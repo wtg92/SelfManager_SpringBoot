@@ -1,4 +1,4 @@
-let BASIC_NAMESPACE = {
+const BASIC_NAMESPACE = {
     "INFORMATION_GROUPS" :
         [{
            "name" : "关于本站",
@@ -1021,8 +1021,10 @@ function drawCommonBarChart(containerId,barSource,yAxisName,xAxisNamesLength){
  * @param {*} pieSource  数组，数组内元素为带有name和value
  */
 function drawCommonPieChart(containerId,pieSource,radius,transValueToLabel){
-    let pieChartForPlanDistribution = getOrInitEcharts(containerId);
-    pieChartForPlanDistribution.setOption({
+
+
+    let pieChart = getOrInitEcharts(containerId);
+    pieChart.setOption({
         legend: {
             data: pieSource.map(e=>e.name),
             z:500
@@ -1060,7 +1062,7 @@ function drawCommonPieChart(containerId,pieSource,radius,transValueToLabel){
             maxSurfaceAngle: 80
         },
         labelLayout : function (params) {
-            var isLeft = params.labelRect.x < pieChartForPlanDistribution.getWidth() / 2;
+            var isLeft = params.labelRect.x < pieChart.getWidth() / 2;
             var points = params.labelLinePoints;
             // Update the end point.
             points[2][0] = isLeft

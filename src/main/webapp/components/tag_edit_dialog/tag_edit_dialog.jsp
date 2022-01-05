@@ -16,11 +16,9 @@
         </button>
       </div>
       <div class="modal-body">
-      	<div id="tag_edit_dialog_tag_list_container">
-      		
-      	</div>
+      	<div id="tag_edit_dialog_tag_list_container"></div>
 		<div id="tag_edit_dialog_controlgroup_container">
-      		<input type="text" id="tag_edit_dialog_add_tag_input">
+      		<input type="text" id="tag_edit_dialog_add_tag_input" placeholder="不能重复" autocomplete="off">
       		<span id="tag_edit_dialog_add_tag_btn" class="common_blue_font common_hover">添加</span>
       	</div>
       </div>

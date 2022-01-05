@@ -32,6 +32,23 @@
 body.is_phone .work_sheet_work_item_container_change_item_type_hint_container{
     display: none !important;
 }
+#work_sheet_tags_container{
+    display: flex;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+#work_sheet_tag_items_container{
+    flex-grow: 1.1;
+}
+
+.work_sheet_tag_unit_container{
+    display: inline-block;
+    margin-right: 20px;
+    padding:1px 10px;
+    border-radius:10px;
+    border: 1px solid #d6d6d6;
+    margin-bottom: 4px;
+}
 
 
 .work_sheet_work_item_container_delete_button svg{
@@ -140,7 +157,6 @@ body.is_phone .work_sheet_work_item_container_change_item_type_hint_container{
     cursor: pointer;
 }
 
-
 #work_sheet_main_container_header,#work_sheet_work_items_container_header,.work_sheet_logs_header{
     display: flex;
     align-items: center;
@@ -151,7 +167,7 @@ body.is_phone .work_sheet_work_item_container_change_item_type_hint_container{
     flex-grow: 1.1;
 }
 
-#work_sheet_main_container_header,.work_sheet_logs_header,#work_sheet_main_container_for_basic_info,#work_sheet_container_with_header_and_content,#work_sheet_work_items_container_with_header_and_body{
+.work_sheet_logs_header,#work_sheet_main_container_for_basic_info,#work_sheet_container_with_header_and_content,#work_sheet_work_items_container_with_header_and_body{
     margin-bottom: 20px;
 }
 

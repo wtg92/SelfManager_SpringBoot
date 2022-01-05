@@ -1,6 +1,6 @@
-let PLAN_DIALOG_NAMESPACE = {
+const PLAN_DIALOG_NAMESPACE = {
     CURRENT_PLAN : {},
-    
+    RELOAD_FUNC_FOR_SYNC_PLAN_TAGS:null
 };
 /**
  * plan item id ==0 means root
@@ -88,7 +88,24 @@ $(function(){
     
     $("#plan_dialog_copy_plan_btn").click(copyPlanItemsById);
 
+    $("#plan_dialog_sync_plan_tags_to_ws_container_btn").click(syncPlanTagsToWS);
+
 })
+
+function syncPlanTagsToWS(){
+    confirmInfo("确定把计划标签同步到相关工作表吗？（涉及<em>"+$("#plan_dialog_label em").text()+"</em>天）",()=>{
+        sendAjaxBySmartParams("CareerServlet","c_sync_plan_tags_to_workSheet",{
+            "plan_id":PLAN_DIALOG_NAMESPACE.CURRENT_PLAN.plan.id
+        },refreshExternalIfExisted)
+    })
+}
+
+function refreshExternalIfExisted(){
+    if(PLAN_DIALOG_NAMESPACE.RELOAD_FUNC_FOR_SYNC_PLAN_TAGS){
+        PLAN_DIALOG_NAMESPACE.RELOAD_FUNC_FOR_SYNC_PLAN_TAGS();
+    }
+}
+
 
 function openPlanTagEditDialog(){
     openTagEditDialogForExternalModule((tags,closeDialogFunc,removeDoubleClsFunc)=>{
@@ -99,7 +116,7 @@ function openPlanTagEditDialog(){
             fillPlanDialogByDate(data);
             closeDialogFunc();
         },removeDoubleClsFunc)
-    },PLAN_DIALOG_NAMESPACE.CURRENT_PLAN.plan.tags);
+    },PLAN_DIALOG_NAMESPACE.CURRENT_PLAN.plan.tags,"c_load_all_plan_tags");
 }
 
 
@@ -811,7 +828,7 @@ function fillPlanDialogByDate(data,openEditMode){
     $tagContainer.empty();
     data.plan.tags.forEach(tag=>{
         let $unit = $("#plan_dialog_pattern_container .plan_dialog_tag_unit_container").clone();
-        $unit.find(".plan_dialog_tag_unit_container_context").text(tag);
+        $unit.find(".plan_dialog_tag_unit_container_context").text(tag.name);
         $tagContainer.append($unit);
     })
 
@@ -859,19 +876,19 @@ function closePlanDialogEditMode(){
 
 
 
-function openPlanDialog(id,openEditMode,closeBasicInfo){
+function openPlanDialog(id,openEditMode,reloadFuncForSyncPlanTags){
+    
     sendAjax("CareerServlet","c_load_plan",{
         "plan_id" : id
-    },(data)=>openPlanDialogByDate(data,openEditMode,closeBasicInfo));
+    },(data)=>openPlanDialogByDate(data,openEditMode,reloadFuncForSyncPlanTags));
 }
 
 
-function openPlanDialogByDate(data,openEditMode,closeBasicInfo){
-    if(closeBasicInfo){
-        hidePlanDialogBasicInfoContainer();
-    }else{
-        showPlanDialogBasicInfoContainer();
-    }
+function openPlanDialogByDate(data,openEditMode,reloadFuncForSyncPlanTags){
+
+    PLAN_DIALOG_NAMESPACE.RELOAD_FUNC_FOR_SYNC_PLAN_TAGS = reloadFuncForSyncPlanTags;
+
+    showPlanDialogBasicInfoContainer();
     showPlanDialogItemsContainer();
     hidePlanDialogLogsContainer();
     fillPlanDialogByDate(data,openEditMode);

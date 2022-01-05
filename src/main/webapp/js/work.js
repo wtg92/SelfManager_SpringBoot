@@ -1,5 +1,5 @@
 const WORK_NAMESPACE = {
-
+    OPENED_WS_ID : null
 }
 
 $(function(){
@@ -98,6 +98,8 @@ function showWsDetail(){
 
     $(this).addClass("common_prevent_double_click");
     let wsId = $(this).attr("ws_id");
+
+    WORK_NAMESPACE.OPENED_WS_ID = wsId;
     drawWorkSheetDetail(wsId,()=>$(this).removeClass("common_prevent_double_click"));    
 }
 
@@ -187,6 +189,8 @@ function openWsActualContainer(){
 function closeWsActualContainer(){
     $("#work_ws_with_actual_content_container").hide();
     $("#work_ws_sub_right_container .work_ws_blank_container").show();
+
+    WORK_NAMESPACE.OPENED_WS_ID = null;
 }
 
 function loadWorkSheetInfosRecently_render(data,page){
@@ -238,16 +242,22 @@ function fillWsDateInfosContainer(data,pageOfData){
     }    
 }
 
+function refreshCurrentWorkSheetIfOpen(){
+    if(WORK_NAMESPACE.OPENED_WS_ID){
+        drawWorkSheetDetail(WORK_NAMESPACE.OPENED_WS_ID); 
+    }
+}
+
 function editPlanDetail(){
     preventDoubleClick(this);
     let id = $(this).parents(".work_plan_card_container").attr("plan_id");
-    openPlanDialog(id,true); 
+    openPlanDialog(id,true,refreshCurrentWorkSheetIfOpen); 
 }
 
 function seePlanDetail(){
     preventDoubleClick(this);
     let id = $(this).parents(".work_plan_card_container").attr("plan_id");
-    openPlanDialog(id,false);
+    openPlanDialog(id,false,refreshCurrentWorkSheetIfOpen);
 }
 
 function finishPlan(){
@@ -363,7 +373,7 @@ function createPlan_render(data){
     loadActivePlans();
 
     confirmInfo("创建成功，您要直接编辑计划内容吗？",()=>{
-        openPlanDialogByDate(data,true,true);
+        openPlanDialogByDate(data,true,refreshCurrentWorkSheetIfOpen);
     },"直接编辑","以后再说");
 }
 

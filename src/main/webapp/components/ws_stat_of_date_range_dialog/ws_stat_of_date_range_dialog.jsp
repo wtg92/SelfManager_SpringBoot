@@ -30,6 +30,13 @@
       				<button class="btn btn-outline-primary" id="ws_stat_controlgroup_container_quick_terms_this_quarter">本季度</button>
       				<button class="btn btn-outline-primary" id="ws_stat_controlgroup_container_quick_terms_this_year">本年度</button>
       			</div>
+      			<div id="ws_stat_switch_stat_mode_container">
+      				<label for="ws_stat_mode_of_plan_group" class="common_hover">按计划</label>
+      				<input type="radio"  name="ws_stat_mode" id="ws_stat_mode_of_plan_group" group_by="plan">
+      				<label for="ws_stat_mode_of_tag_group" class="common_hover">按标签</label>
+      				<input type="radio"  name="ws_stat_mode" id="ws_stat_mode_of_tag_group" group_by="tag">
+      			</div>
+      			
       		</div>
       		<div id="ws_stat_content_container">
       			<div id="ws_stat_content_container_of_text">
@@ -40,14 +47,17 @@
       					<span class="ws_stat_switch_to_show_more_info common_blue_font common_hover"></span>
       				</div>
       			</div>
-      			<div id="ws_stat_content_container_of_more_info_container"></div>
+      			<div id="ws_stat_content_container_of_more_info_container">
+      				<div class="ws_stat_group_by_plan"></div>
+      				<div class="ws_stat_group_by_tag"></div>
+      			</div>
       			<div id="ws_stat_content_container_of_charts_for_plan_and_state_distribution">
       			    <div id="ws_stat_content_container_of_charts_for_ws_state_distribution" title="工作表状态分布情况"></div>
       				<div id="ws_stat_content_container_of_charts_for_finish_situation" title="工作实际完成情况（刨除同步项）"></div>
       			</div>
       			<div id="ws_stat_content_container_of_charts_for_type_count_finish_situation">
-      				<div id="ws_stat_content_container_of_charts_for_plan_distribution" title="工作表使用计划分布情况"></div>
-      				<div id="ws_stat_content_container_of_charts_for_type_count"  title="工作项总计时分布情况"></div>
+      				<div id="ws_stat_content_container_of_charts_for_distribution"></div>
+      				<div id="ws_stat_content_container_of_charts_for_type_count"></div>
       			</div>
       			<div id="ws_stat_content_container_of_charts_average_moods"></div>
       		</div>

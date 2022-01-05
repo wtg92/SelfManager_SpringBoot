@@ -25,6 +25,12 @@
  			 </div>
  		</div>
  	</div>
+ 	<div id="work_sheet_tags_container">
+ 		<div id="work_sheet_tag_items_container"></div>
+ 		<div class="common_blue_font common_hover" id="edit_work_sheet_tags_icon"></div>
+ 	</div>
+ 	
+ 	
 	<div id="work_sheet_main_container_for_basic_info">
 		<textarea id="work_note_textarea"></textarea>
 		<div id="work_save_ws_rlt_container"></div>
@@ -242,6 +248,10 @@
 </div>
 
 <div id="work_sheet_pattern_container" class="common_pattern_container">
+	<div class="work_sheet_tag_unit_container">
+		<span  class="work_sheet_tag_unit_container_context"></span>
+	</div>
+	
 	<div class="work_sheet_work_item_container">
 		<div class="work_sheet_work_item_container_change_item_type_root_container">
 			<div class="work_sheet_work_item_container_change_item_type_container">

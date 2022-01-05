@@ -4,12 +4,18 @@
     padding-bottom: 10px;
 }
 
+.plan_dialog_basic_info_form_one_row.plan_tag{
+    align-items: baseline;
+}
+
 #plan_dialog_tag_righer{
     display: flex;
-    align-items: center;
+    align-items: baseline;
 }
 .plan_dialog_sync_plan_tags_to_ws_container{
     margin-left: 15px;
+    display: flex;
+    align-items: center;
 }
 
 .plan_dialog_basic_unit_container_plan_tags{
@@ -18,6 +24,11 @@
     white-space: normal;
 }
 
+
+#plan_dialog_sync_plan_tags_desc{
+    color: gray;
+    margin-left: 8px;
+}
 
 
 .plan_dialog_tag_unit_container{

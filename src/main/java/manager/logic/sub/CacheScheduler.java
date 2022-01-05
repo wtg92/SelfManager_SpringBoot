@@ -219,40 +219,54 @@ public abstract class CacheScheduler {
 		return JSON.parseObject(jsonStr, cla);
 	}
 	
+	
 	/**
-	 * save后 加入缓存/刷新已有缓存
+	 * save后 删除缓存
+	 * 即便这样，仍旧有可能并发危险的可能，这时我需要判断是否发生了这种危险，假设发生了这种危险，则删除缓存
+	 * 不能一直卡着
 	 * @throws LogicException 
 	 */
-	public static<T extends SMEntity> void saveEntityAndUpdateCache(T one,ThrowableConsumer<T, DBException> updator) throws DBException, LogicException {
-		updator.accept(one);
+	public static<T extends SMEntity> void saveEntity(T one,ThrowableConsumer<T, DBException> updator) throws DBException, LogicException {
 		if(!USING_REDIS_CACHE) {
+			updator.accept(one);
 			return;
 		}
+		
 		String key = createKey(CacheMode.E_ID,one.getId(),getEntityTableName(one.getClass()));
-		String jsonStr = JSON.toJSONString(one);
-		CacheUtil.set(key,jsonStr);
+		try {
+			updator.accept(one);
+		}catch(DBException e) {
+			if(e.type == SMError.DB_SYNC_ERROR) {
+				CacheUtil.deleteOne(key);
+			}
+			throw e;
+		}
+		CacheUtil.deleteOne(key);
 	}
 	
-	public static<T extends SMEntity> void saveEntityAndUpdateCacheOnlyIfExists(T one,ThrowableConsumer<T, DBException> updator) throws DBException, LogicException {
-		updator.accept(one);
+	public static<T extends SMEntity> void saveEntities(List<T> ones,ThrowableConsumer<T, DBException> updator) throws DBException, LogicException {
 		if(!USING_REDIS_CACHE) {
+			for(T one: ones) {
+				updator.accept(one);	
+			}
 			return;
 		}
-		String key = createKey(CacheMode.E_ID,one.getId(),getEntityTableName(one.getClass()));
-		String jsonStr = JSON.toJSONString(one);
-		CacheUtil.setOnlyIfKeyExists(key,jsonStr);
-	}
-	
-	public static<T extends SMEntity> void saveEntitiesAndUpdateCacheOnlyIfExists(List<T> ones,ThrowableConsumer<T, DBException> updator) throws DBException, LogicException {
-		for(T one: ones) {
-			updator.accept(one);	
+		
+		try {
+			for(T one: ones) {
+				updator.accept(one);	
+			}
+		}catch(DBException e) {
+			if(e.type == SMError.DB_SYNC_ERROR) {
+				if(ones.size() > 0) {
+					CacheUtil.deleteOnes(ones.stream().map(one->createKey(CacheMode.E_ID,one.getId(),getEntityTableName(one.getClass()))).collect(toList()));
+				}
+			}
+			throw e;
 		}
-		if(!USING_REDIS_CACHE) {
-			return;
+		if(ones.size() > 0) {
+			CacheUtil.deleteOnes(ones.stream().map(one->createKey(CacheMode.E_ID,one.getId(),getEntityTableName(one.getClass()))).collect(toList()));
 		}
-		Map<String,String> onesMap = ones.stream().collect(toMap(one->createKey(CacheMode.E_ID,one.getId(),getEntityTableName(one.getClass()))
-				, one->JSON.toJSONString(one)));
-		CacheUtil.setOnlyIfKeyExists(onesMap);
 	}
 	
 	/**
