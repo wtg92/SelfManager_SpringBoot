@@ -90,7 +90,7 @@ public class NoteLogicImpl extends NoteLogic {
 		book.setName(name);
 		book.setStyle(style);
 		book.setSeqWeight(seqWeight);
-		CacheScheduler.saveEntityAndUpdateCache(book, one -> nDAO.updateExistedNoteBook(one));
+		CacheScheduler.saveEntity(book, one -> nDAO.updateExistedNoteBook(one));
 	}
 
 	private void checkBookOpened(NoteBook book) throws LogicException {
@@ -118,7 +118,7 @@ public class NoteLogicImpl extends NoteLogic {
 		
 		note.setImportant(important);
 		
-		CacheScheduler.saveEntityAndUpdateCache(note, one -> nDAO.updateExistedNote(one));
+		CacheScheduler.saveEntity(note, one -> nDAO.updateExistedNote(one));
 
 		return noteBookId;
 	}
@@ -148,7 +148,7 @@ public class NoteLogicImpl extends NoteLogic {
 	public void saveMemo(int saverId, String note) throws DBException, LogicException {
 		Memo memo = CacheScheduler.getOne(CacheMode.E_UNIQUE_FIELD_ID, saverId, Memo.class, ()->nDAO.selectExistedMemoByOwner(saverId));
 		memo.setNote(note);
-		CacheScheduler.saveEntityAndUpdateCache(memo,p->nDAO.updateExistedMemo(p));
+		CacheScheduler.saveEntity(memo,p->nDAO.updateExistedMemo(p));
 	}
 	
 	@Override
@@ -161,7 +161,7 @@ public class NoteLogicImpl extends NoteLogic {
 
 		checkBookOpened(book);
 		book.setNotesSeq(notesSeq.stream().map(String::valueOf).collect(Collectors.joining(SM.ARRAY_SPLIT_MARK)));
-		CacheScheduler.saveEntityAndUpdateCache(book, one -> nDAO.updateExistedNoteBook(one));
+		CacheScheduler.saveEntity(book, one -> nDAO.updateExistedNoteBook(one));
 	}
 
 	@Override
@@ -310,7 +310,7 @@ public class NoteLogicImpl extends NoteLogic {
 		}
 
 		book.setClosed(true);
-		CacheScheduler.saveEntityAndUpdateCache(book, one -> nDAO.updateExistedNoteBook(one));
+		CacheScheduler.saveEntity(book, one -> nDAO.updateExistedNoteBook(one));
 	}
 
 	@Override
@@ -326,7 +326,7 @@ public class NoteLogicImpl extends NoteLogic {
 		}
 
 		book.setClosed(false);
-		CacheScheduler.saveEntityAndUpdateCache(book, one -> nDAO.updateExistedNoteBook(one));
+		CacheScheduler.saveEntity(book, one -> nDAO.updateExistedNoteBook(one));
 	}
 
 	@Override
@@ -355,14 +355,14 @@ public class NoteLogicImpl extends NoteLogic {
 		}
 		
 		NoteContentConverter.addItemToMemo(memo, content, label, note, srcNoteId, srcNoteName,srcBookId,srcBookName);
-		CacheScheduler.saveEntityAndUpdateCache(memo,p->nDAO.updateExistedMemo(p));
+		CacheScheduler.saveEntity(memo,p->nDAO.updateExistedMemo(p));
 	}
 
 	@Override
 	public void removeItemFromMemo(int removerId, int itemId) throws LogicException, DBException {
 		Memo one = CacheScheduler.getOne(CacheMode.E_UNIQUE_FIELD_ID, removerId, Memo.class, ()->nDAO.selectExistedMemoByOwner(removerId));
 		NoteContentConverter.removeItemFromMemo(one, itemId);
-		CacheScheduler.saveEntityAndUpdateCache(one,p->nDAO.updateExistedMemo(p));
+		CacheScheduler.saveEntity(one,p->nDAO.updateExistedMemo(p));
 	}
 
 	@Override
@@ -370,21 +370,21 @@ public class NoteLogicImpl extends NoteLogic {
 			throws LogicException, DBException {
 		Memo memo = CacheScheduler.getOne(CacheMode.E_UNIQUE_FIELD_ID, updaterId, Memo.class, ()->nDAO.selectExistedMemoByOwner(updaterId));
 		NoteContentConverter.updateMemoItem(memo, itemId, content, label, note);
-		CacheScheduler.saveEntityAndUpdateCache(memo,p->nDAO.updateExistedMemo(p));
+		CacheScheduler.saveEntity(memo,p->nDAO.updateExistedMemo(p));
 	}
 
 	@Override
 	public void saveMemoItemsSeq(int updaterId, List<Integer> seqIds) throws LogicException, DBException {
 		Memo memo = CacheScheduler.getOne(CacheMode.E_UNIQUE_FIELD_ID, updaterId, Memo.class, ()->nDAO.selectExistedMemoByOwner(updaterId));
 		NoteContentConverter.updateMemoItemsSeq(memo, seqIds);
-		CacheScheduler.saveEntityAndUpdateCache(memo,p->nDAO.updateExistedMemo(p));
+		CacheScheduler.saveEntity(memo,p->nDAO.updateExistedMemo(p));
 	}
 
 	@Override
 	public void saveMemoItemLabel(int updaterId, int itemId, NoteLabel label) throws LogicException, DBException {
 		Memo memo = CacheScheduler.getOne(CacheMode.E_UNIQUE_FIELD_ID, updaterId, Memo.class, ()->nDAO.selectExistedMemoByOwner(updaterId));
 		NoteContentConverter.updateMemoItemLabel(memo, itemId, label);
-		CacheScheduler.saveEntityAndUpdateCache(memo,p->nDAO.updateExistedMemo(p));
+		CacheScheduler.saveEntity(memo,p->nDAO.updateExistedMemo(p));
 	}
 
 }

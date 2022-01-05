@@ -228,11 +228,10 @@ public abstract class CacheScheduler {
 	
 	/**
 	 * 加入缓存/刷新已有缓存
-	 * 即便这样，仍旧有可能并发危险的可能，这时我需要判断是否发生了这种危险，假设发生了这种危险，则删除缓存
-	 * 不能一直卡着
+	 * 判断是否发生了并发危险，假设发生了这种危险，则删除缓存
 	 * @throws LogicException 
 	 */
-	public static<T extends SMEntity> void saveEntityAndUpdateCache(T one,ThrowableConsumer<T, DBException> updator) throws DBException, LogicException {
+	public static<T extends SMEntity> void saveEntity(T one,ThrowableConsumer<T, DBException> updator) throws DBException, LogicException {
 		if(!USING_REDIS_CACHE) {
 			updator.accept(one);
 			return;
@@ -250,26 +249,16 @@ public abstract class CacheScheduler {
 		String jsonStr = JSON.toJSONString(one);
 		CacheUtil.set(key,jsonStr);
 	}
-	public static<T extends SMEntity> void saveEntityAndUpdateCacheOnlyIfExists(T one,ThrowableConsumer<T, DBException> updator) throws DBException, LogicException {
-		if(!USING_REDIS_CACHE) {
-			updator.accept(one);
-			return;
-		}
-		
-		String key = createKey(CacheMode.E_ID,one.getId(),getEntityTableName(one.getClass()));
-		try {
-			updator.accept(one);
-		}catch(DBException e) {
-			if(e.type == SMError.DB_SYNC_ERROR) {
-				CacheUtil.deleteOne(key);
-			}
-			throw e;
-		}
-		String jsonStr = JSON.toJSONString(one);
-		CacheUtil.setOnlyIfKeyExists(key,jsonStr);
-	}
 	
-	public static<T extends SMEntity> void saveEntitiesAndUpdateCacheOnlyIfExists(List<T> ones,ThrowableConsumer<T, DBException> updator) throws DBException, LogicException {
+	/**
+	 * 与saveEntity不同的是，这里的更新缓存 只会在缓存已有的时候 才会进行
+	 * @param <T>
+	 * @param ones
+	 * @param updator
+	 * @throws DBException
+	 * @throws LogicException
+	 */
+	public static<T extends SMEntity> void saveEntities(List<T> ones,ThrowableConsumer<T, DBException> updator) throws DBException, LogicException {
 		if(!USING_REDIS_CACHE) {
 			for(T one: ones) {
 				updator.accept(one);	
