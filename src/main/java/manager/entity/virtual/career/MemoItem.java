@@ -9,11 +9,11 @@ public class MemoItem extends SMVirtualEntity{
 	private String note;
 	private NoteLabel label;
 	
-	private Integer srcNoteId;
+	private Long srcNoteId;
 	/*当Note被删除时使用*/
 	private String srcNoteName;
 	
-	private Integer srcBookId;
+	private Long srcBookId;
 	private String srcBookName;
 	
 	public String getContent() {
@@ -34,10 +34,10 @@ public class MemoItem extends SMVirtualEntity{
 	public void setLabel(NoteLabel label) {
 		this.label = label;
 	}
-	public Integer getSrcNoteId() {
+	public Long getSrcNoteId() {
 		return srcNoteId;
 	}
-	public void setSrcNoteId(Integer srcNoteId) {
+	public void setSrcNoteId(Long srcNoteId) {
 		this.srcNoteId = srcNoteId;
 	}
 	public String getSrcNoteName() {
@@ -47,11 +47,11 @@ public class MemoItem extends SMVirtualEntity{
 		this.srcNoteName = srcNoteName;
 	}
 
-	public Integer getSrcBookId() {
+	public Long getSrcBookId() {
 		return srcBookId;
 	}
 
-	public void setSrcBookId(Integer srcBookId) {
+	public void setSrcBookId(Long srcBookId) {
 		this.srcBookId = srcBookId;
 	}
 

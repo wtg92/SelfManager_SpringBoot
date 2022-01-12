@@ -11,13 +11,13 @@ import manager.system.SMError;
 
 public interface NoteDAO {
 	
-	int insertNoteBook(NoteBook book) throws DBException;
-	int insertNote(Note note) throws DBException;
-	int insertMemo(Memo memo) throws DBException;
+	long insertNoteBook(NoteBook book) throws DBException;
+	long insertNote(Note note) throws DBException;
+	long insertMemo(Memo memo) throws DBException;
 	
-	NoteBook selectNoteBook(int id) throws NoSuchElement, DBException;
-	Note selectNote(int id) throws NoSuchElement, DBException;
-	Memo selectMemoByOwner(int ownerId) throws NoSuchElement, DBException;
+	NoteBook selectNoteBook(long id) throws NoSuchElement, DBException;
+	Note selectNote(long id) throws NoSuchElement, DBException;
+	Memo selectMemoByOwner(long ownerId) throws NoSuchElement, DBException;
 	
 	void updateExistedNoteBook(NoteBook book) throws DBException;
 	void updateExistedNote(Note note) throws DBException;
@@ -25,26 +25,26 @@ public interface NoteDAO {
 	
 	void updateExistedMemo(Memo memo) throws DBException;
 	
-	List<NoteBook> selectBooksByOwner(int ownerId) throws DBException;
+	List<NoteBook> selectBooksByOwner(long ownerId) throws DBException;
 	
-	void deleteExistedNoteBook(int bookId) throws DBException;
-	void deleteExistedNote(int noteId) throws DBException;
+	void deleteExistedNoteBook(long bookId) throws DBException;
+	void deleteExistedNote(long noteId) throws DBException;
 	
 	/*id name withTodos prevId important*/
-	List<Note> selectNoteInfosByBook(int noteBookId) throws DBException;
-	List<Note> selectNoteInfosByBookAndImportant(int noteBookId,boolean important) throws DBException;
+	List<Note> selectNoteInfosByBook(long noteBookId) throws DBException;
+	List<Note> selectNoteInfosByBookAndImportant(long noteBookId,boolean important) throws DBException;
 	
-	List<Note> selectNotesWithIdAndNameByIds(List<Integer> ids) throws DBException;
-	List<NoteBook> selectBooksWithIdAndNameByIds(List<Integer> ids) throws DBException;
+	List<Note> selectNotesWithIdAndNameByIds(List<Long> ids) throws DBException;
+	List<NoteBook> selectBooksWithIdAndNameByIds(List<Long> ids) throws DBException;
 	
-	Long countNotesByBook(int noteBookId) throws DBException;
+	Long countNotesByBook(long noteBookId) throws DBException;
 	
-	boolean includeNotesByBook(int noteBookId) throws DBException;
+	boolean includeNotesByBook(long noteBookId) throws DBException;
 	
-	void deleteNotesByBook(int bookId) throws DBException;
+	void deleteNotesByBook(long bookId) throws DBException;
 	
 	/*====================== NOT ABSTRACT ==========================*/
-	default Memo selectExistedMemoByOwner(int ownerId) throws DBException{
+	default Memo selectExistedMemoByOwner(long ownerId) throws DBException{
 		try {
 			return selectMemoByOwner(ownerId);
 		}catch (NoSuchElement e) {
@@ -52,7 +52,7 @@ public interface NoteDAO {
 		}
 	}
 	
-	default NoteBook selectExistedNoteBook(int id) throws DBException{
+	default NoteBook selectExistedNoteBook(long id) throws DBException{
 		try {
 			return selectNoteBook(id);
 		}catch (NoSuchElement e) {
@@ -60,7 +60,7 @@ public interface NoteDAO {
 		}
 	}
 	
-	default Note selectExistedNote(int id) throws DBException{
+	default Note selectExistedNote(long id) throws DBException{
 		try {
 			return selectNote(id);
 		}catch (NoSuchElement e) {

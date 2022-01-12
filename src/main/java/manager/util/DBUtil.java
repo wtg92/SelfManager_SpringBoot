@@ -127,7 +127,7 @@ public abstract class DBUtil {
 		}
 	}
 	/**
-	 *  ！！！theManyVals 只适合Int类型的，假如非int类型，SQL应该就错了
+	 *  ！！！theManyVals 只适合Long类型的，假如非Long类型，SQL应该就错了
 	 */
 	public static<T,E> List<T> selectEntitiesByFieldAndManyField(Class<T> cla, String theOneField, Object theOneVal,
 			String theManyField, List<E> theManyVals,Function<E,Object> theManyValsTranslator,
@@ -154,7 +154,7 @@ public abstract class DBUtil {
 	}
 	
 	/**
-	 *  ！！！theManyVals 只适合Int类型的，假如非int类型，SQL应该就错了
+	 *  ！！！theManyVals 只适合long类型的，假如非long类型，SQL应该就错了
 	 */
 	public static<T,E> List<T> selectEntitiesByManyField(Class<T> cla,String theManyField, List<E> theManyVals,Function<E,Object> theManyValsTranslator,
 			SessionFactory hbFactory) throws DBException {
@@ -336,7 +336,7 @@ public abstract class DBUtil {
 		}
 
 	}
-	public static<T extends SMGeneralEntity> int insertEntity(T one,SessionFactory hbFactory) throws DBException {
+	public static<T extends SMGeneralEntity> long insertEntity(T one,SessionFactory hbFactory) throws DBException {
 		one.setCreateTime(TimeUtil.getCurrentTime());
 		one.setUpdateTime(TimeUtil.getCurrentTime());
 
@@ -345,7 +345,7 @@ public abstract class DBUtil {
 		try {
 			session = hbFactory.getCurrentSession();
 			trans = session.beginTransaction();
-			Integer id = (Integer) session.save(one);
+			Long id = (Long) session.save(one);
 			trans.commit();
 			return id;
 		} catch (Exception e) {
@@ -353,7 +353,7 @@ public abstract class DBUtil {
 		}
 	}
 	
-	public static<T extends SMGeneralEntity> T selectEntity(int id,Class<T> cla,SessionFactory hbFactory) throws DBException, NoSuchElement {
+	public static<T extends SMGeneralEntity> T selectEntity(long id,Class<T> cla,SessionFactory hbFactory) throws DBException, NoSuchElement {
 		Transaction trans = null;
 		Session session = null;
 		try {
@@ -524,7 +524,7 @@ public abstract class DBUtil {
 	 * @author 王天戈
 	 * @throws DBException 
 	 */
-	public static void insertGeneralRTableData(String tableName, List<Integer> argIds1, int argId2, SessionFactory hbFactory) throws DBException {
+	public static void insertGeneralRTableData(String tableName, List<Long> argIds1, long argId2, SessionFactory hbFactory) throws DBException {
 		if (argIds1.size() == 0)
 			return;
 		
@@ -553,7 +553,9 @@ public abstract class DBUtil {
 		for(int i=0;i<params.length;i++) {
 			Object param = params[i];
 			int indexForPS = i+1;
-			if(param.getClass().equals(int.class) || param instanceof Integer) {
+			if(param.getClass().equals(long.class) || param instanceof Long) {
+				ps.setLong(indexForPS, (long)param);
+			}else if(param.getClass().equals(int.class) || param instanceof Integer) {
 				ps.setInt(indexForPS, (int)param);
 			}else if(param.getClass().equals(float.class) || param instanceof Float) {
 				assert false : "shouldn't use float";
@@ -568,18 +570,18 @@ public abstract class DBUtil {
 		}
 	}
 	
-	public static<T extends SMEntity> int deleteEntitiesByField(Class<T> cla, String field,Object val,SessionFactory hbFactory) throws DBException {
+	public static<T extends SMEntity> long deleteEntitiesByField(Class<T> cla, String field,Object val,SessionFactory hbFactory) throws DBException {
 		Session session = null;
 		Transaction trans = null;
 		try {
 			session = hbFactory.getCurrentSession();
 			trans = session.beginTransaction();
-			List<Integer> rlt = new ArrayList<Integer>();
+			List<Long> rlt = new ArrayList<Long>();
 			session.doWork(conn -> {
 				String sql = String.format("DELETE FROM %s WHERE %s=?  ", CommonUtil.getEntityTableName(cla), field);
 				try (PreparedStatement ps = conn.prepareStatement(sql)) {
 					setPSParams(ps, val);
-					int deleteRows = ps.executeUpdate();
+					long deleteRows = ps.executeUpdate();
 					rlt.add(deleteRows);
 				}
 			});
@@ -593,8 +595,8 @@ public abstract class DBUtil {
 		
 	}
 	
-	public static<T extends SMEntity> void deleteEntity(Class<T> cla, int id,SessionFactory hbFactory) throws DBException {
-		int deleteRows = deleteEntitiesByField(cla, SMDB.F_ID, id, hbFactory);
+	public static<T extends SMEntity> void deleteEntity(Class<T> cla, long id,SessionFactory hbFactory) throws DBException {
+		long deleteRows = deleteEntitiesByField(cla, SMDB.F_ID, id, hbFactory);
 		if(deleteRows == 0) {
 			logger.log(Level.WARNING,"delete by id zero"+ CommonUtil.getEntityTableName(cla)+":"+id);
 			assert false;
@@ -603,7 +605,7 @@ public abstract class DBUtil {
 	
 	
 	public static void deleteGeneralRTableData(String tableName, String fieldForTheMany, String fieldForTheOne,
-			List<Integer> theManyIds, int theOneId, SessionFactory hbFactory) throws DBException {
+			List<Long> theManyIds, long theOneId, SessionFactory hbFactory) throws DBException {
 		if(theManyIds.size() == 0) {
 			return ;
 		}
@@ -628,22 +630,22 @@ public abstract class DBUtil {
 
 	}
 
-	public static List<Integer> selectGeneralRTableData(String tableName, String fieldForTheMany, String fieldForTheOne,
-			int theOneId, SessionFactory hbFactory) throws DBException {
+	public static List<Long> selectGeneralRTableData(String tableName, String fieldForTheMany, String fieldForTheOne,
+			long theOneId, SessionFactory hbFactory) throws DBException {
 		Session session = null;
 		Transaction trans = null;
 		try {
 			session = hbFactory.getCurrentSession();
 			trans = session.beginTransaction();
-			List<Integer> rlt = new ArrayList<Integer>();
+			List<Long> rlt = new ArrayList<Long>();
 			session.doWork(conn->{
 				String sql = String.format("SELECT %s FROM %s WHERE %s = ?  ",fieldForTheMany
 						,tableName,fieldForTheOne);
 				try(PreparedStatement ps = conn.prepareStatement(sql)){
-					ps.setInt(1, theOneId);
+					ps.setLong(1, theOneId);
 					try(ResultSet rs = ps.executeQuery();){
 						while(rs.next()) {
-							rlt.add(rs.getInt(fieldForTheMany));
+							rlt.add(rs.getLong(fieldForTheMany));
 						}
 					}
 				}
@@ -653,9 +655,10 @@ public abstract class DBUtil {
 		} catch (Exception e) {
 			throw processDBExcpetion(trans, session, e);
 		}
-		
-
 	}
 	
-
+	public static List<Integer> selectGeneralRTableDataInInt(String tableName, String fieldForTheMany, String fieldForTheOne,
+			long theOneId, SessionFactory hbFactory) throws DBException {
+		return selectGeneralRTableData(tableName, fieldForTheMany, fieldForTheOne, theOneId, hbFactory).stream().map(l->(int)l.longValue()).collect(Collectors.toList());
+	}
 }

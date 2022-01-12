@@ -21,7 +21,7 @@ public class ToolDAOImpl implements ToolDAO {
 	private final SessionFactory hbFactory = getHibernateSessionFactory();
 
 	@Override
-	public int insertToolRecord(ToolRecord record) throws DBException {
+	public long insertToolRecord(ToolRecord record) throws DBException {
 		return insertEntity(record, hbFactory);
 	}
 

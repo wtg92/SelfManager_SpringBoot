@@ -7,6 +7,7 @@ import static manager.util.CacheConverter.createPatternKey;
 import static manager.util.CacheConverter.createTempKey;
 import static manager.util.CacheConverter.createTempKeyByBiIdentifiers;
 import static manager.util.CacheConverter.parseRVal;
+import static manager.util.CacheConverter.parseRValInInt;
 import static manager.util.CommonUtil.getBoolValFromPropertiesFileInResource;
 import static manager.util.CommonUtil.getEntityTableName;
 import static manager.util.CommonUtil.pretreatForString;
@@ -53,7 +54,7 @@ public abstract class CacheScheduler {
 	private final static boolean USING_REDIS_CACHE = getBoolValFromPropertiesFileInResource("using_redis_cache");
 	
 	
-	public static <T extends SMEntity> T getOne(CacheMode mode, int identifier, Class<T> cla,
+	public static <T extends SMEntity> T getOne(CacheMode mode, long identifier, Class<T> cla,
 			ThrowableSupplier<T, DBException> generator) throws LogicException, DBException {
 		
 		if(!USING_REDIS_CACHE) {
@@ -74,8 +75,8 @@ public abstract class CacheScheduler {
 	}
 	
 	/*initor 使用ThrowableSupplier 的原因是 由于该函数 通常应当是dao.insert 要返回一个id  */
-	public static <T extends SMEntity> T getOneOrInitIfNotExists(CacheMode mode, int identifier, Class<T> cla,
-			BiThrowablesSupplier<T, DBException,NoSuchElement> generator,ThrowableSupplier<Integer,DBException> initor) throws LogicException, DBException {
+	public static <T extends SMEntity> T getOneOrInitIfNotExists(CacheMode mode, long identifier, Class<T> cla,
+			BiThrowablesSupplier<T, DBException,NoSuchElement> generator,ThrowableSupplier<Long,DBException> initor) throws LogicException, DBException {
 		
 		if(!USING_REDIS_CACHE) {
 			try {
@@ -129,13 +130,13 @@ public abstract class CacheScheduler {
 	}
 	
 	
-	public static <T> List<T> getOnes(CacheMode mode, List<Integer> identifiers,Function<T, Integer> identifierTranslator, Class<T> cla,
-			ThrowableFunction<Integer, T, DBException> oneGenerator) throws LogicException, DBException {
+	public static <T> List<T> getOnes(CacheMode mode, List<Long> identifiers,Function<T, Long> identifierTranslator, Class<T> cla,
+			ThrowableFunction<Long, T, DBException> oneGenerator) throws LogicException, DBException {
 		
 		if(identifiers.size() == 0)
 			return new ArrayList<>();
 		/*为实际环境做个保险*/
-		List<Integer> identifiersNoDup = identifiers.stream().distinct().collect(toList());
+		List<Long> identifiersNoDup = identifiers.stream().distinct().collect(toList());
 		assert identifiers.size() == identifiersNoDup.size() : "不应该传入相同的id";
 		
 		if(!USING_REDIS_CACHE) {
@@ -169,11 +170,11 @@ public abstract class CacheScheduler {
 			rlt.addAll(ones);
 		}
 		
-		List<Integer> deadIdentifiers = identifiersNoDup.stream().filter(identifier->
+		List<Long> deadIdentifiers = identifiersNoDup.stream().filter(identifier->
 			!rlt.stream().anyMatch(one->identifierTranslator.apply(one).equals(identifier))
 		).collect(toList());
 		
-		for(Integer idenfierForAddToCache : deadIdentifiers) {
+		for(Long idenfierForAddToCache : deadIdentifiers) {
 			T t = oneGenerator.apply(idenfierForAddToCache);
 			String keyForOne = createKey(mode,idenfierForAddToCache,tableName);
 			String jsonStr = JSON.toJSONString(t);
@@ -288,7 +289,7 @@ public abstract class CacheScheduler {
 	 *  由于缓存策略（get时如果没有，则会重新设置缓存），当数据被修改时使用本方法，在下次取数据时，会自动更新缓存
 	 * @return 成功删除的数量
 	 */
-	public static Long deleteRCachesIfExist(CacheMode mode, String tableName, List<Integer> identifiers) {
+	public static Long deleteRCachesIfExist(CacheMode mode, String tableName, List<Long> identifiers) {
 		if(!USING_REDIS_CACHE || identifiers.size() == 0) {
 			return (long)0 ;
 		}
@@ -300,7 +301,12 @@ public abstract class CacheScheduler {
 		return CacheUtil.deleteOnes(keysForDelete);
 	}
 	
-	public static boolean deleteRCacheIfExists(CacheMode mode, String tableName, Integer identifier) {
+	public static Long deleteRCachesIfExistByInt(CacheMode mode, String tableName, List<Integer> identifiers) {
+		return deleteRCachesIfExist(mode, tableName, identifiers.stream().map(i->(long)i.intValue()).collect(toList()));
+	}
+	
+	
+	public static boolean deleteRCacheIfExists(CacheMode mode, String tableName, Long identifier) {
 		if(!USING_REDIS_CACHE ) {
 			return false;
 		}
@@ -314,7 +320,7 @@ public abstract class CacheScheduler {
 		deleteEntityByIdOnlyForCache(entity.getId(), getEntityTableName(entity.getClass()));
 	}
 	
-	public static void deleteEntityByIdOnlyForCache(int id,String tableName) throws DBException {
+	public static void deleteEntityByIdOnlyForCache(long id,String tableName) throws DBException {
 		if(!USING_REDIS_CACHE ) {
 			return ;
 		}
@@ -322,7 +328,7 @@ public abstract class CacheScheduler {
 		CacheUtil.deleteOne(key);
 	}
 	
-	public static<T extends SMEntity> void deleteEntityById(T entity,ThrowableConsumer<Integer, DBException> deletor) throws DBException {
+	public static<T extends SMEntity> void deleteEntityById(T entity,ThrowableConsumer<Long, DBException> deletor) throws DBException {
 		assert entity.getId() != 0;
 		deletor.accept(entity.getId());
 		deleteEntityByIdOnlyForCache(entity);
@@ -346,13 +352,29 @@ public abstract class CacheScheduler {
 	 * @return
 	 * @throws DBException
 	 */
-	public static List<Integer> getRIds(CacheMode mode, String tableName, int identifier, ThrowableSupplier<List<Integer>, DBException> generator) throws DBException {
+	public static List<Long> getRIds(CacheMode mode, String tableName, long identifier, ThrowableSupplier<List<Long>, DBException> generator) throws DBException {
 		if(!USING_REDIS_CACHE) {
 			return generator.get();
 		}
 		String key = createKey(mode, identifier, tableName);
 		try {
 			return parseRVal(CacheUtil.getOne(key));
+		} catch (NoSuchElement e) {
+			List<Long> val = generator.get();
+			String rVal = CacheConverter.createRsVal(val);
+			CacheUtil.set(key,rVal);
+			return val;
+		}
+	}
+	
+	
+	public static List<Integer> getRIdsInInt(CacheMode mode, String tableName, long identifier, ThrowableSupplier<List<Integer>, DBException> generator) throws DBException {
+		if(!USING_REDIS_CACHE) {
+			return generator.get();
+		}
+		String key = createKey(mode, identifier, tableName);
+		try {
+			return parseRValInInt(CacheUtil.getOne(key));
 		} catch (NoSuchElement e) {
 			List<Integer> val = generator.get();
 			String rVal = CacheConverter.createRsVal(val);
@@ -362,7 +384,7 @@ public abstract class CacheScheduler {
 	}
 	
 	/*根据成为缓存key值的identifier判断是否存在*/
-	public static boolean existsByIdentifier(CacheMode mode, String tableName, int identifier,
+	public static boolean existsByIdentifier(CacheMode mode, String tableName, long identifier,
 			ThrowableSupplier<Boolean, DBException> judge) throws DBException {
 		if(!USING_REDIS_CACHE) {
 			return judge.get();
@@ -608,13 +630,13 @@ public abstract class CacheScheduler {
 	
 	
 	
-	public static void appendROnlyIfExists(CacheMode mode,String tableName, int theOneId,
-			int theManyId) {
+	public static void appendROnlyIfExists(CacheMode mode,String tableName, long theOneId,
+			long theManyId) {
 		appendRsOnlyIfExist(mode, tableName, theOneId, Arrays.asList(theManyId));
 	}
 	
-	public static void appendRsOnlyIfExist(CacheMode mode,String tableName, Integer theOneId,
-			List<Integer> theManyIds) {
+	public static void appendRsOnlyIfExist(CacheMode mode,String tableName, Long theOneId,
+			List<Long> theManyIds) {
 		if(!USING_REDIS_CACHE) {
 			return;
 		}

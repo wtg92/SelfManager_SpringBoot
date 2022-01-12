@@ -39,12 +39,12 @@ public class WorkDAOTest {
 		user.setNickName("hh");
 		user.setPassword("hhhhhhhhhhhhhhhhhhhhhhhhhh");
 		SecurityUtil.encodeUserPwd(user);
-		int uId = uDAO.insertUser(user);
+		long uId = uDAO.insertUser(user);
 		assertEquals(1, uId);
 		
 		WorkDAO cDAO  = DAOFactory.getWorkDAO();
 		Plan plan = new Plan();
-		plan.setOwnerId(1);
+		plan.setOwnerId((long)1);
 		plan.setName("计划？");
 		plan.setContent("xxx");
 		plan.setStartDate(TimeUtil.getCurrentTime());
@@ -55,12 +55,12 @@ public class WorkDAOTest {
 		
 		Plan planFromDB =  cDAO.selectExistedPlan(1);
 	
-		assertEquals(1,(int) planFromDB.getOwnerId());
+		assertEquals(1,(int) planFromDB.getOwnerId().longValue());
 		
 		WorkSheet sheet = new WorkSheet();
 		sheet.setContent("xx");
-		sheet.setOwnerId(1);
-		sheet.setPlanId(1);
+		sheet.setOwnerId((long)1);
+		sheet.setPlanId((long)1);
 		sheet.setDate(TimeUtil.getCurrentDate());
 		sheet.setPlan("ss");
 		sheet.setState(WorkSheetState.ACTIVE);
@@ -68,8 +68,8 @@ public class WorkDAOTest {
 		
 		WorkSheet sheetFromDB =  cDAO.selectExistedWorkSheet(1);
 	
-		assertEquals(1,(int) sheetFromDB.getPlanId());
-		assertEquals(1,(int) sheetFromDB.getOwnerId());
+		assertEquals(1,(int) sheetFromDB.getPlanId().longValue());
+		assertEquals(1,(int) sheetFromDB.getOwnerId().longValue());
 	}
 	
 	@Test
@@ -80,12 +80,12 @@ public class WorkDAOTest {
 		user.setNickName("hh");
 		user.setPassword("hhhhhhhhhhhhhhhhhhhhhhhhhh");
 		SecurityUtil.encodeUserPwd(user);
-		int uId = uDAO.insertUser(user);
+		long uId = uDAO.insertUser(user);
 		assertEquals(1, uId);
 		
 		WorkDAO cDAO  = DAOFactory.getWorkDAO();
 		Plan plan = new Plan();
-		plan.setOwnerId(1);
+		plan.setOwnerId((long)1);
 		plan.setName("计划？");
 		plan.setContent("xxx");
 		plan.setStartDate(TimeUtil.getCurrentTime());
@@ -113,14 +113,14 @@ public class WorkDAOTest {
 		user.setNickName("hh");
 		user.setPassword("hhhhhhhhhhhhhhhhhhhhhhhhhh");
 		SecurityUtil.encodeUserPwd(user);
-		int uId = uDAO.insertUser(user);
+		long uId = uDAO.insertUser(user);
 		assertEquals(1, uId);
 		
 		
 		WorkDAO dao = DAOFactory.getWorkDAO();
 		Calendar today = TimeUtil.getCurrentDate();
 		Plan plan = new Plan();
-		plan.setOwnerId(1);
+		plan.setOwnerId((long)1);
 		plan.setName("计划？");
 		plan.setContent("xxx");
 		plan.setStartDate(TimeUtil.getCurrentTime());
@@ -132,8 +132,8 @@ public class WorkDAOTest {
 		for(int i=0;i<10;i++) {
 			WorkSheet ws = new WorkSheet();
 			ws.setContent("xx");
-			ws.setOwnerId(1);
-			ws.setPlanId(1);
+			ws.setOwnerId((long)1);
+			ws.setPlanId((long)1);
 			ws.setDate(today);
 			ws.setPlan("ss");
 			ws.setState(WorkSheetState.ACTIVE);
@@ -145,7 +145,7 @@ public class WorkDAOTest {
 		List<WorkSheet> rlt = dao.selectWorkSheetInfoRecentlyByOwner(1, 0, 10);
 		assertEquals(10, rlt.size());
 		for(int i=0;i<rlt.size();i++) {
-			assertEquals(i+1, (int)rlt.get(i).getId());
+			assertEquals(i+1, (int)rlt.get(i).getId().longValue());
 		}
 		
 		assertEquals(5, dao.selectWorkSheetInfoRecentlyByOwner(1, 0, 5).size());;

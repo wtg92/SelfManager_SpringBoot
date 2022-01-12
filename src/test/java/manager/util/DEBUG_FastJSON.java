@@ -24,7 +24,7 @@ public class DEBUG_FastJSON {
 		String nickName="lkkk";
 		Gender gender = Gender.MALE;
 		User user = new User();
-		user.setId(5);
+		user.setId((long)5);
 		user.setAccount(account);
 		user.setEmail(email);
 		user.setPassword(pwd);

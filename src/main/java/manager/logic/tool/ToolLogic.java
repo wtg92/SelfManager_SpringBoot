@@ -19,7 +19,7 @@ public abstract class ToolLogic {
 
 	UserLogic uL = UserLogic.getInstance();
 
-	public abstract ToolRecordSummary loadToolRecordSummary(int loginerId) throws SMException;
+	public abstract ToolRecordSummary loadToolRecordSummary(long loginerId) throws SMException;
 
 	public abstract ToolRecordProxy loadToolRecord(Tool tool) throws SMException;
 

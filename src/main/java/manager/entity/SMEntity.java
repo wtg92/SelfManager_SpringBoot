@@ -25,13 +25,13 @@ public abstract class SMEntity implements Serializable{
 	@Id
 	@GeneratedValue(generator = "idGenerator", strategy = GenerationType.IDENTITY)
 	@GenericGenerator(name = "idGenerator", strategy = "identity")
-	private Integer id;
+	private Long id;
 	
-	public Integer getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(Integer id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 

@@ -323,12 +323,31 @@ function analyzeWSsOfDateRange(){
     })
 }
 
+function addZeroIfNotEnough(arr,shouldSize){
+    if(arr.length>shouldSize){
+        //不可能
+        console.error("addZeroIfNotEnough Shouldn't happen")
+        return;
+    }
+    let added =  shouldSize-arr.length;
+    for(let i=0;i<added;i++){
+        arr.push(0);
+    }
+    return arr;
+}
+
+
+
 function drawStatByGroup(dataGroupBy,subContainer){
 
     dataGroupBy.keys.sort((a,b)=>dataGroupBy[b].length - dataGroupBy[a].length);
 
     let $container = $("#ws_stat_content_container_of_more_info_container").find(subContainer);
     $container.empty();
+    
+    const MERGE_OTHERS_LIMIT = 4;
+    const OTHER_TEXT = "其它";
+    const ALL_TEXT = "总计";
 
     dataGroupBy.keys.forEach(key=>{
         let $unit = $("#ws_stat_pattern_container").find(".ws_stat_unit_for_one_plan").clone();
@@ -339,35 +358,102 @@ function drawStatByGroup(dataGroupBy,subContainer){
             .find(".count_days_for_saturday").text(dataGroupBy[key].filter(e=>new Date(e.ws.date).isSaturday()).length).end()
             .find(".count_days_for_sunday").text(dataGroupBy[key].filter(e=>new Date(e.ws.date).isSunday()).length).end()
 
-
-        let sumMinutes = 0;
-
-        dataGroupBy[key].flatMap((e)=>{
-                return mergeWorkItemsExceptUndone(e.content).map((ee)=>{
-                    return {"name": ee.pItem.item.name,
-                         "value": ee.costMinutes
-                    };
-                })
-             }).sumBySpecificField(item=>item.name,item=>item.value).sortAndMergeSumRlt(3).forEach(e=>{
-                let $planStatUnit = $("#ws_stat_pattern_container").find(".ws_stat_unit_for_one_plan_item").clone();
-                
-                sumMinutes += e.value;
-
-                $planStatUnit.find(".ws_stat_unit_for_one_plan_item_name").text(e.name).end()
-                    .find(".ws_stat_unit_for_one_plan_item_value").text((e.value/sumDays).transferToHoursMesIfPossible());
-                $unit.find(".ws_stat_container_for_one_plan_items").append($planStatUnit);
-             })
         
-        let $planStatUnit = $("#ws_stat_pattern_container").find(".ws_stat_unit_for_one_plan_item").clone();
-                
-        $planStatUnit.addClass("sum_for_plan_item_stat").find(".ws_stat_unit_for_one_plan_item_name").text("总计").end()
-                 .find(".ws_stat_unit_for_one_plan_item_value").text((sumMinutes/sumDays).transferToHoursMesIfPossible());
-        $unit.find(".ws_stat_container_for_one_plan_items").append($planStatUnit);        
+        /**
+         * 这片逻辑其实有点易错：
+         * 在于下面需要根据总时长找到前几个显示 合并其它为“其它”
+         * 那么此时取平均数等，是要/总天数 而非下列经过flatMap的数组的。
+         * 因为当flatMap时，会清除掉0项，此时，便需要补0了
+         */
+        let workItemsAfterMergedForEveryDay = dataGroupBy[key].map((e)=>{
+            return mergeWorkItemsExceptUndone(e.content).map((ee)=>{
+                return {"name": ee.pItem.item.name,
+                     "value": ee.costMinutes
+                };
+            })
+         });
+
+        let workItemsGroupBy = workItemsAfterMergedForEveryDay.flatMap(e=>e).groupBy(item=>item.name);
+             
+        let statRLt = workItemsGroupBy.keys.map(subKey=>{
+            return {
+                "name":subKey,
+                //这里需要补0
+                "stat":calculateCommonStat(addZeroIfNotEnough(workItemsGroupBy[subKey].map(item=>item.value),sumDays)),
+                "src":workItemsGroupBy[subKey]
+            };
+        });
+        
+        /**
+         * 根据总时长倒序排序，取前3个的显示，其它合并为其它
+         */
+        statRLt.sort((a,b)=>b.stat.sum-a.stat.sum);
+        let mergedRlt = [];
+        let othersData=[];
+        for(let i = 0 ; i<statRLt.length ; i++){
+            if(i < MERGE_OTHERS_LIMIT){
+                mergedRlt.push(statRLt[i]);
+                continue;
+            }
+            othersData = othersData.concat(statRLt[i].src);
+        }
+
+        if(othersData.length>0){
+            /**
+             * 找到每一天并非这些targetKeys的workItems 合并 视为每一天的其它项 重新组成数组
+             */
+            let targetKeys = mergedRlt.map(e=>e.name);
+            let othersDataMerged = workItemsAfterMergedForEveryDay.map(e=>{
+                let sum = e.filter(e=>!targetKeys.contains(e.name)).map(e=>e.value).sum();
+                return {
+                    "name": OTHER_TEXT,
+                    "value": sum
+                };
+            })
+
+            mergedRlt.push({
+                "name":OTHER_TEXT,
+                "stat":calculateCommonStat(addZeroIfNotEnough(othersDataMerged.map(item=>item.value),sumDays)),
+                "src":othersDataMerged
+            })
+        }
+
+        mergedRlt.forEach(e=>{
+            let $statUnit = calculateStatUnit(e);
+            $unit.find(".ws_stat_container_for_one_plan_items").append($statUnit);
+        })
+
+        let allDataMerged = workItemsAfterMergedForEveryDay.map(e=>{
+            let sum = e.map(e=>e.value).sum();
+            return {
+                "name": ALL_TEXT,
+                "value": sum
+            };
+        })
+        let sumObj = {
+            "name":ALL_TEXT,
+            "stat":calculateCommonStat(addZeroIfNotEnough(allDataMerged.map(item=>item.value),sumDays)),
+            "src":allDataMerged
+        };
+        
+        let $sumUnit = calculateStatUnit(sumObj);
+        $sumUnit.addClass("sum_for_item_stat")
+        $unit.find(".ws_stat_container_for_one_plan_items").append($sumUnit);        
             
         $container.append($unit);
 
         closeDetailStatByPlanContainer($unit);   
     })
+}
+
+function calculateStatUnit(e){
+    let $statUnit = $("#ws_stat_pattern_container").find(".ws_stat_unit_for_one_item").clone();
+    $statUnit.find(".ws_stat_unit_for_one_item_name").text(e.name).end()
+        .find(".ws_stat_unit_for_one_item_sum_value em").text(e.stat.sum.transferToHoursMesIfPossible()).end()
+        .find(".ws_stat_unit_for_one_item_median_value em").text(e.stat.mid.transferToHoursMesIfPossible()).end()
+        .find(".ws_stat_unit_for_one_item_avg_value em").text(e.stat.avg.transferToHoursMesIfPossible()).end()
+        .find(".ws_stat_unit_for_one_item_std_dev_value em").text(e.stat.stdDev.transferToHoursMesIfPossible()).end()
+    return $statUnit;
 }
 
 

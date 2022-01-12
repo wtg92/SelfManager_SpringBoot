@@ -1,7 +1,6 @@
 package manager.logic.career;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -21,9 +20,9 @@ public class NoteLogicStaticTest {
 		String content = "xx";
 		NoteLabel label = NoteLabel.SPEC_NULL;
 		String note = "note..";
-		Integer srcNoteId = 0;
+		Long srcNoteId = (long)0;
 		String srcNoteName = "";
-		Integer srcBookId =0;
+		Long srcBookId =(long)0;
 		String srcBookName = "";
 		
 		NoteContentConverter.addItemToMemo(one, content, label, note, srcNoteId, srcNoteName,srcBookId,srcBookName);

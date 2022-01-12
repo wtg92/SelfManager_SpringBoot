@@ -8,7 +8,7 @@ import manager.system.tool.Tool;
 
 public interface ToolDAO {
 	
-	int insertToolRecord(ToolRecord record) throws DBException;
+	long insertToolRecord(ToolRecord record) throws DBException;
 	
 	ToolRecord selectToolRecordByTool(Tool tool) throws DBException;
 	

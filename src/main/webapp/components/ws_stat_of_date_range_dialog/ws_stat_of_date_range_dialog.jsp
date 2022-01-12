@@ -87,9 +87,26 @@
 		</div>
 	</div>
 	
-	<div class="ws_stat_unit_for_one_plan_item">
-		<div class="ws_stat_unit_for_one_plan_item_name"></div>
-		<em class="ws_stat_unit_for_one_plan_item_value"></em>
+	<div class="ws_stat_unit_for_one_item">
+		<div class="ws_stat_unit_for_one_item_name"></div>
+		<div class="ws_stat_unit_for_one_item_stat_container">
+			<div class="ws_stat_unit_for_one_item_sum_value">
+				<span>总计</span>
+				<em></em>
+			</div>
+			<div class="ws_stat_unit_for_one_item_median_value">
+				<span>中位数</span>
+				<em></em>
+			</div>
+			<div class="ws_stat_unit_for_one_item_avg_value">
+				<span>平均数</span>
+				<em></em>
+			</div>
+			<div class="ws_stat_unit_for_one_item_std_dev_value">
+				<span>标准差</span>
+				<em></em>
+			</div>
+		</div>
 	</div>
 	
 </div>

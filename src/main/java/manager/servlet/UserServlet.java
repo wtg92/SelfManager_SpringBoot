@@ -147,8 +147,8 @@ public class UserServlet extends SMServlet{
 	}
 
 	private String overrideGroupPerms(HttpServletRequest request) throws LogicException, DBException {
-		int loginerId = getLoginerId(request);
-		int groupId = getNonNullParamInInt(request,GROUP_ID);
+		long loginerId = getLoginerId(request);
+		long groupId = getNonNullParamInInt(request,GROUP_ID);
 		List<SMPerm> perms = getNonNullParamsInInt(request,PERMS).stream().map(SMPerm::valueOfDBCode).collect(toList());
 		uL.overrideGroupPerms(perms, groupId, loginerId);
 		return getNullObjJSON();
@@ -156,26 +156,26 @@ public class UserServlet extends SMServlet{
 
 	@SuppressWarnings("unchecked")
 	private String loadPermsOfGroup(HttpServletRequest request) throws LogicException, DBException {
-		int loginerId = getLoginerId(request);
-		int groupId = getNonNullParamInInt(request,GROUP_ID);
+		long loginerId = getLoginerId(request);
+		long groupId = getNonNullParamInInt(request,GROUP_ID);
 		SerializeConfig conf = new SerializeConfig();
 		conf.configEnumAsJavaBean(SMPerm.class);
 		return JSON.toJSONString(uL.loadPermsOfGroup(groupId, loginerId),conf);
 	}
 
 	private String loadUsersOfGroup(HttpServletRequest request) throws LogicException, DBException {
-		int loginerId = getLoginerId(request);
-		int groupId = getNonNullParamInInt(request,GROUP_ID);
+		long loginerId = getLoginerId(request);
+		long groupId = getNonNullParamInInt(request,GROUP_ID);
 		return JSON.toJSONString(uL.loadUsersOfGroup(groupId, loginerId));
 	}
 
 	private String loadAllUserGroups(HttpServletRequest request) throws LogicException, DBException {
-		int userId = getLoginerId(request);
+		long userId = getLoginerId(request);
 		return JSON.toJSONString(uL.loadAllUserGroups(userId));
 	}
 
 	private String loadUserSummary(HttpServletRequest request) throws LogicException, DBException {
-		int userId = getLoginerId(request);
+		long userId = getLoginerId(request);
 		return JSON.toJSONString(uL.loadUserSummary(userId));
 	}
 
@@ -247,7 +247,7 @@ public class UserServlet extends SMServlet{
 
 	private String confirmUserToken(HttpServletRequest request) throws LogicException, DBException {
 		String token = getNonNullParam(request,USER_TOKEN); 
-		int userId = ServletAdapter.getUserId(token);
+		long userId = ServletAdapter.getUserId(token);
 		UserProxy user = uL.loadUser(userId, userId);
 		return JSON.toJSONString(ServletAdapter.confirmUser(user,token));
 	}

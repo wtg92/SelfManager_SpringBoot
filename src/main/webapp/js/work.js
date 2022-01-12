@@ -136,12 +136,10 @@ function openWorkSheetToday(){
         },(data)=>{
             loadWorkSheetInfosRecently_render(data);
             closeAllPlanCards();
-            confirmInfoSecond("您要直接开始工作吗？", () => {
-                openWsContainer();
-                closePlansContainer();
-                $("#work_ws_main_container").get(0).scrollIntoView();
-                $("#work_ws_sub_left_container_body").find(".work_ws_date_cotnainer").filter((i, v) => new Date(parseInt($(v).attr("ws_date"))).isSameByDate(new Date())).click();
-            })
+            openWsContainer();
+            closePlansContainer();
+            $("#work_ws_main_container").get(0).scrollIntoView();
+            $("#work_ws_sub_left_container_body").find(".work_ws_date_cotnainer").filter((i, v) => new Date(parseInt($(v).attr("ws_date"))).isSameByDate(new Date())).click();
         })
     });
 }

@@ -23,7 +23,7 @@ public class PlanDept extends SMGeneralEntity {
 	private String content;
 	
 	@Column
-	private Integer ownerId;
+	private Long ownerId;
 	
 	public PlanDept() {}
 	
@@ -35,11 +35,11 @@ public class PlanDept extends SMGeneralEntity {
 		this.content = content;
 	}
 
-	public Integer getOwnerId() {
+	public Long getOwnerId() {
 		return ownerId;
 	}
 
-	public void setOwnerId(Integer ownerId) {
+	public void setOwnerId(Long ownerId) {
 		this.ownerId = ownerId;
 	}
 

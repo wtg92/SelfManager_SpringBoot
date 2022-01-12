@@ -15,21 +15,21 @@ import manager.system.career.WorkSheetState;
 public interface WorkDAO {
 	
 	
-	int insertPlan(Plan plan) throws DBException;
-	int insertWorkSheet(WorkSheet sheet) throws DBException;
-	int insertPlanDept(PlanDept dept) throws DBException;
+	long insertPlan(Plan plan) throws DBException;
+	long insertWorkSheet(WorkSheet sheet) throws DBException;
+	long insertPlanDept(PlanDept dept) throws DBException;
 	
-	Plan selectPlan(int id) throws NoSuchElement, DBException;
-	List<Plan> selectPlansByOwnerAndStates(int ownerId,List<PlanState> states) throws DBException;
-	List<WorkSheet> selectWorkSheetByOwnerAndStates(int ownerId,List<WorkSheetState> states) throws DBException;
-	long countPlansByOwnerAndState(int ownerId,PlanState state) throws DBException;
-	long countWorkSheetByOwnerAndState(int ownerId,WorkSheetState state) throws DBException;
-	long countWorkSheetByOwnerAndPlanId(int ownerId,int planId) throws DBException;
+	Plan selectPlan(long id) throws NoSuchElement, DBException;
+	List<Plan> selectPlansByOwnerAndStates(long ownerId,List<PlanState> states) throws DBException;
+	List<WorkSheet> selectWorkSheetByOwnerAndStates(long ownerId,List<WorkSheetState> states) throws DBException;
+	long countPlansByOwnerAndState(long ownerId,PlanState state) throws DBException;
+	long countWorkSheetByOwnerAndState(long ownerId,WorkSheetState state) throws DBException;
+	long countWorkSheetByOwnerAndPlanId(long ownerId,long planId) throws DBException;
 	
-	void deleteExistedPlan(int planId) throws DBException;
-	void deleteExistedWorkSheet(int wsId) throws DBException;
+	void deleteExistedPlan(long planId) throws DBException;
+	void deleteExistedWorkSheet(long wsId) throws DBException;
 	
-	default Plan selectExistedPlan(int id) throws DBException{
+	default Plan selectExistedPlan(long id) throws DBException{
 		try {
 			return selectPlan(id);
 		}catch (NoSuchElement e) {
@@ -37,9 +37,9 @@ public interface WorkDAO {
 		}
 	}
 	
-	WorkSheet selectWorkSheet(int id) throws NoSuchElement, DBException;
-	PlanDept selectPlanDeptByOwner(int ownerId) throws NoSuchElement, DBException;
-	default PlanDept selectExistedPlanDeptByOwner(int ownerId) throws DBException{
+	WorkSheet selectWorkSheet(long id) throws NoSuchElement, DBException;
+	PlanDept selectPlanDeptByOwner(long ownerId) throws NoSuchElement, DBException;
+	default PlanDept selectExistedPlanDeptByOwner(long ownerId) throws DBException{
 		try {
 			return selectPlanDeptByOwner(ownerId);
 		}catch (NoSuchElement e) {
@@ -48,7 +48,7 @@ public interface WorkDAO {
 	}
 	
 	
-	default WorkSheet selectExistedWorkSheet(int id) throws DBException{
+	default WorkSheet selectExistedWorkSheet(long id) throws DBException{
 		try {
 			return selectWorkSheet(id);
 		}catch (NoSuchElement e) {
@@ -63,23 +63,23 @@ public interface WorkDAO {
 	List<Plan> selectPlansByField(String field, Object val) throws DBException;
 	List<WorkSheet> selectWorkSheetByField(String field, Object val) throws DBException;
 	
-	boolean includeUniqueWorkSheetByOwnerAndDate(int ownerId,Calendar date) throws DBException;
+	boolean includeUniqueWorkSheetByOwnerAndDate(long ownerId,Calendar date) throws DBException;
 	
 	/*只查询date排序的最新几条 id state date三个字段*/
 	/*page从0开始*/
-	List<WorkSheet> selectWorkSheetInfoRecentlyByOwner(int ownerId,int page,int limit) throws DBException;
+	List<WorkSheet> selectWorkSheetInfoRecentlyByOwner(long ownerId,long page,long limit) throws DBException;
 	
 	/*闭区间*/
-	List<WorkSheet> selectWorkSheetsByOwnerAndDateScope(int ownerId,Calendar startDate,Calendar endDate) throws DBException;
+	List<WorkSheet> selectWorkSheetsByOwnerAndDateScope(long ownerId,Calendar startDate,Calendar endDate) throws DBException;
 	
 	
 	/*只取名字 Id*/
-	List<Plan> selectPlanInfosByIds(List<Integer> planIds) throws DBException;
+	List<Plan> selectPlanInfosByIds(List<Long> planIds) throws DBException;
 	long countWorkSheetByDate(Calendar date) throws DBException;
 	
-	boolean includeWorkSheetByPlanId(int planId) throws DBException;
-	List<String> selectNonNullPlanTagsByUser(int loginerId) throws DBException;
-	List<String> selectNonNullWorkSheetTagsByUser(int loginerId) throws DBException;
+	boolean includeWorkSheetByPlanId(long planId) throws DBException;
+	List<String> selectNonNullPlanTagsByUser(long loginerId) throws DBException;
+	List<String> selectNonNullWorkSheetTagsByUser(long loginerId) throws DBException;
 
 	
 }

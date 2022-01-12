@@ -36,10 +36,10 @@ public class WorkSheet extends SMGeneralEntity {
 	private String note;
 	
 	@Column
-	private Integer planId;
+	private Long planId;
 	
 	@Column
-	private Integer ownerId;
+	private Long ownerId;
 	
 	/*plan的一个快照  是基于该计划*/
 	@Column
@@ -72,12 +72,12 @@ public class WorkSheet extends SMGeneralEntity {
 		this.date = date;
 	}
 
-	public Integer getPlanId() {
+	public Long getPlanId() {
 		return planId;
 	}
 
 
-	public void setPlanId(Integer planId) {
+	public void setPlanId(Long planId) {
 		this.planId = planId;
 	}
 
@@ -99,12 +99,12 @@ public class WorkSheet extends SMGeneralEntity {
 	}
 
 
-	public Integer getOwnerId() {
+	public Long getOwnerId() {
 		return ownerId;
 	}
 
 
-	public void setOwnerId(Integer ownerId) {
+	public void setOwnerId(Long ownerId) {
 		this.ownerId = ownerId;
 	}
 

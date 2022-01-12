@@ -30,7 +30,7 @@ public class NoteBook extends SMGeneralEntity {
 	private String name;
 	
 	@Column
-	private Integer ownerId;
+	private Long ownerId;
 	
 	@Column
 	private Boolean closed;
@@ -88,11 +88,11 @@ public class NoteBook extends SMGeneralEntity {
 		this.name = name;
 	}
 
-	public Integer getOwnerId() {
+	public Long getOwnerId() {
 		return ownerId;
 	}
 
-	public void setOwnerId(Integer ownerId) {
+	public void setOwnerId(Long ownerId) {
 		this.ownerId = ownerId;
 	}
 

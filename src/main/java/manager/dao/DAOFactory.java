@@ -9,6 +9,8 @@ import manager.dao.career.NoteDAO;
 import manager.dao.career.WorkDAO;
 import manager.dao.career.impl.NoteDAOImpl;
 import manager.dao.career.impl.WorkDAOImpl;
+import manager.dao.finance.FinanceDAO;
+import manager.dao.finance.impl.FinanceDAOImpl;
 import manager.dao.impl.UserDAOImpl;
 import manager.dao.tool.ToolDAO;
 import manager.dao.tool.impl.ToolDAOImpl;
@@ -51,6 +53,10 @@ public abstract class DAOFactory {
 	
 	public static ToolDAO getToolDAO() {
 		return new ToolDAOImpl();
+	}
+	
+	public static FinanceDAO getFinanceDAO() {
+		return FinanceDAOImpl.getInstance();
 	}
 	
 	public static void deleteAllTables() {

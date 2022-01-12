@@ -51,7 +51,7 @@ public class ToolLogicImpl extends ToolLogic{
 	private ToolDAO tDAO = DAOFactory.getToolDAO();
 	
 	@Override
-	public ToolRecordSummary loadToolRecordSummary(int loginerId) throws SMException {
+	public ToolRecordSummary loadToolRecordSummary(long loginerId) throws SMException {
 		ToolRecordSummary summary = getOrInitToolRecordSummary();
 		
 		/*fastJson有BUG 嵌套的属性 无法映射全 诡异。。只能在调用的时候，重新fill一次了*/

@@ -39,32 +39,32 @@ public class NoteDAOImpl implements NoteDAO {
 	private final SessionFactory hbFactory = getHibernateSessionFactory();
 	
 	@Override
-	public int insertNoteBook(NoteBook book) throws DBException {
+	public long insertNoteBook(NoteBook book) throws DBException {
 		return insertEntity(book, hbFactory);
 	}
 
 	@Override
-	public int insertNote(Note note) throws DBException {
+	public long insertNote(Note note) throws DBException {
 		return insertEntity(note, hbFactory);
 	}
 
 	@Override
-	public int insertMemo(Memo memo) throws DBException {
+	public long insertMemo(Memo memo) throws DBException {
 		return insertEntity(memo, hbFactory);
 	}
 
 	@Override
-	public NoteBook selectNoteBook(int id) throws NoSuchElement, DBException {
+	public NoteBook selectNoteBook(long id) throws NoSuchElement, DBException {
 		return selectEntity(id,NoteBook.class, hbFactory);
 	}
 
 	@Override
-	public Note selectNote(int id) throws NoSuchElement, DBException {
+	public Note selectNote(long id) throws NoSuchElement, DBException {
 		return selectEntity(id,Note.class, hbFactory);
 	}
 
 	@Override
-	public Memo selectMemoByOwner(int ownerId) throws NoSuchElement, DBException {
+	public Memo selectMemoByOwner(long ownerId) throws NoSuchElement, DBException {
 		return selectUniqueEntityByField(Memo.class, SMDB.F_OWNER_ID, ownerId, hbFactory);
 	}
 	
@@ -100,8 +100,8 @@ public class NoteDAOImpl implements NoteDAO {
 					ps.setString(2, note.getContent());
 					ps.setBoolean(3, note.getWithTodos());
 					ps.setTimestamp(4, new Timestamp(note.getUpdateTime().getTimeInMillis()));
-					ps.setInt(5, note.getId());
-					int modifedNum = ps.executeUpdate();
+					ps.setLong(5, note.getId());
+					long modifedNum = ps.executeUpdate();
 					assert modifedNum == 1;
 				}
 			});
@@ -113,23 +113,23 @@ public class NoteDAOImpl implements NoteDAO {
 	
 	
 	@Override
-	public List<NoteBook> selectBooksByOwner(int ownerId) throws DBException {
+	public List<NoteBook> selectBooksByOwner(long ownerId) throws DBException {
 		return selectEntitiesByField(NoteBook.class, SMDB.F_OWNER_ID, ownerId, hbFactory);
 	}
 
 	@Override
-	public void deleteExistedNoteBook(int bookId) throws DBException {
+	public void deleteExistedNoteBook(long bookId) throws DBException {
 		deleteEntity(NoteBook.class, bookId, hbFactory);
 	}
 
 	@Override
-	public void deleteExistedNote(int noteId) throws DBException {
+	public void deleteExistedNote(long noteId) throws DBException {
 		deleteEntity(Note.class, noteId, hbFactory);
 	}
 	
 	
 	@Override
-	public List<Note> selectNoteInfosByBookAndImportant(int noteBookId, boolean important) throws DBException {
+	public List<Note> selectNoteInfosByBookAndImportant(long noteBookId, boolean important) throws DBException {
 		List<Note> rlt = new ArrayList<>();
 		Session session = null;
 		Transaction trans = null;
@@ -140,12 +140,12 @@ public class NoteDAOImpl implements NoteDAO {
 				String sql = String.format("SELECT %s,%s,%s FROM %s WHERE %s=? and %s=?",
 						SMDB.F_ID,SMDB.F_NAME,SMDB.F_WITH_TODOS,SMDB.T_NOTE,SMDB.F_NOTE_BOOK_ID,SMDB.F_IMPORTANT);
 				try (PreparedStatement ps = conn.prepareStatement(sql)) {
-					ps.setInt(1, noteBookId);
+					ps.setLong(1, noteBookId);
 					ps.setBoolean(2, important);
 					ResultSet rs = ps.executeQuery();
 					while(rs.next()) {
 						Note note = new Note();
-						note.setId(rs.getInt(1));
+						note.setId(rs.getLong(1));
 						note.setName(rs.getString(3));
 						note.setWithTodos(rs.getBoolean(4));
 						/*为了保持一致 set上 虽然理论上讲 上层不该用到*/
@@ -163,7 +163,7 @@ public class NoteDAOImpl implements NoteDAO {
 	}
 	
 	@Override
-	public List<Note> selectNoteInfosByBook(int noteBookId) throws DBException {
+	public List<Note> selectNoteInfosByBook(long noteBookId) throws DBException {
 		List<Note> rlt = new ArrayList<>();
 		Session session = null;
 		Transaction trans = null;
@@ -174,12 +174,12 @@ public class NoteDAOImpl implements NoteDAO {
 				String sql = String.format("SELECT %s,%s,%s,%s,%s FROM %s WHERE %s=?",
 						SMDB.F_ID,SMDB.F_NAME,SMDB.F_WITH_TODOS,SMDB.F_IMPORTANT,SMDB.F_UPDATE_TIME,SMDB.T_NOTE,SMDB.F_NOTE_BOOK_ID);
 				try (PreparedStatement ps = conn.prepareStatement(sql)) {
-					ps.setInt(1, noteBookId);
+					ps.setLong(1, noteBookId);
 					
 					ResultSet rs = ps.executeQuery();
 					while(rs.next()) {
 						Note note = new Note();
-						note.setId(rs.getInt(1));
+						note.setId(rs.getLong(1));
 						note.setName(rs.getString(2));
 						note.setWithTodos(rs.getBoolean(3));
 						note.setImportant(rs.getBoolean(4));
@@ -199,22 +199,22 @@ public class NoteDAOImpl implements NoteDAO {
 	}
 
 	@Override
-	public Long countNotesByBook(int noteBookId) throws DBException {
+	public Long countNotesByBook(long noteBookId) throws DBException {
 		return countEntitiesByField(Note.class, SMDB.F_NOTE_BOOK_ID, noteBookId, hbFactory);
 	}
 
 	@Override
-	public boolean includeNotesByBook(int noteBookId) throws DBException {
+	public boolean includeNotesByBook(long noteBookId) throws DBException {
 		return includeEntitiesByField(Note.class, SMDB.F_NOTE_BOOK_ID, noteBookId, hbFactory);
 	}
 
 	@Override
-	public void deleteNotesByBook(int bookId) throws DBException {
+	public void deleteNotesByBook(long bookId) throws DBException {
 		deleteEntitiesByField(Note.class, SMDB.F_NOTE_BOOK_ID, bookId, hbFactory);
 	}
 
 	@Override
-	public List<Note> selectNotesWithIdAndNameByIds(List<Integer> ids) throws DBException {
+	public List<Note> selectNotesWithIdAndNameByIds(List<Long> ids) throws DBException {
 		if(ids.size() == 0) {
 			return new ArrayList<>();
 		}
@@ -234,7 +234,7 @@ public class NoteDAOImpl implements NoteDAO {
 					ResultSet rs = ps.executeQuery();
 					while(rs.next()) {
 						Note one =new Note();
-						one.setId(rs.getInt(1));
+						one.setId(rs.getLong(1));
 						one.setName(rs.getString(2));
 						rlt.add(one);
 					}
@@ -248,7 +248,7 @@ public class NoteDAOImpl implements NoteDAO {
 	}
 
 	@Override
-	public List<NoteBook> selectBooksWithIdAndNameByIds(List<Integer> ids) throws DBException {
+	public List<NoteBook> selectBooksWithIdAndNameByIds(List<Long> ids) throws DBException {
 		if(ids.size() == 0) {
 			return new ArrayList<>();
 		}
@@ -268,7 +268,7 @@ public class NoteDAOImpl implements NoteDAO {
 					ResultSet rs = ps.executeQuery();
 					while(rs.next()) {
 						NoteBook one =new NoteBook();
-						one.setId(rs.getInt(1));
+						one.setId(rs.getLong(1));
 						one.setName(rs.getString(2));
 						rlt.add(one);
 					}

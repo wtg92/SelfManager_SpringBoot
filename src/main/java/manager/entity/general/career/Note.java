@@ -26,7 +26,7 @@ public class Note extends SMGeneralEntity {
 	private String name;
 	
 	@Column
-	private Integer noteBookId;
+	private Long noteBookId;
 	
 	@Column
 	private Boolean withTodos;
@@ -59,11 +59,11 @@ public class Note extends SMGeneralEntity {
 		this.name = name;
 	}
 
-	public Integer getNoteBookId() {
+	public Long getNoteBookId() {
 		return noteBookId;
 	}
 
-	public void setNoteBookId(Integer noteBookId) {
+	public void setNoteBookId(Long noteBookId) {
 		this.noteBookId = noteBookId;
 	}
 

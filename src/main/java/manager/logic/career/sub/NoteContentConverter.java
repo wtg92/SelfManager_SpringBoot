@@ -74,9 +74,9 @@ public abstract class NoteContentConverter {
 		MemoItem item = new MemoItem();
 		item.setId(Integer.parseInt(element.attributeValue(A_ID)));
 		item.setContent(element.getText());
-		item.setSrcNoteId(Integer.parseInt(element.attributeValue(A_SRC_NOTE_ID)));
+		item.setSrcNoteId(Long.parseLong(element.attributeValue(A_SRC_NOTE_ID)));
 		item.setSrcNoteName(element.attributeValue(A_SRC_NOTE_NAME));
-		item.setSrcBookId(Integer.parseInt(element.attributeValue(A_SRC_BOOK_ID)));
+		item.setSrcBookId(Long.parseLong(element.attributeValue(A_SRC_BOOK_ID)));
 		item.setSrcBookName(element.attributeValue(A_SRC_BOOK_NAME));
 		item.setLabel(NoteLabel.valueOfName(element.attributeValue(A_LABEL)));
 		item.setNote(element.elementText(T_NOTE));
@@ -165,7 +165,7 @@ public abstract class NoteContentConverter {
 		return item;
 	}
 	/* TODO和DONE视作同一标签  */
-	private static void checkMemoItemsContentNoDup(Document doc,String content,NoteLabel label,Integer srcNoteId) throws LogicException {
+	private static void checkMemoItemsContentNoDup(Document doc,String content,NoteLabel label,Long srcNoteId) throws LogicException {
 		List<MemoItem> items = getMemoItems(doc);
 		if(items.stream().anyMatch(item->{
 			boolean sameLabel = item.getLabel() == label;
@@ -178,7 +178,7 @@ public abstract class NoteContentConverter {
 		}
 	}
 	
-	public static int addItemToMemo(Memo one,String content,NoteLabel label,String note,Integer srcNoteId,String srcNoteName,Integer srcBookId,String srcBookName) throws LogicException {
+	public static int addItemToMemo(Memo one,String content,NoteLabel label,String note,Long srcNoteId,String srcNoteName,Long srcBookId,String srcBookName) throws LogicException {
 		Document doc = getDocumentOrInitIfNotExists(one);
 		
 		checkMemoItemsContentNoDup(doc, content,label, srcNoteId);

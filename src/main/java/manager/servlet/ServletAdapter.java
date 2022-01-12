@@ -119,12 +119,12 @@ public class ServletAdapter {
 		
 		info.success = true;
 		Map<String, String> data = new HashMap<String, String>();
-		data.put(USER_ID, SecurityUtil.encodeInfo(proxy.user.getId()+""));
+		data.put(USER_ID, SecurityUtil.encodeInfo(String.valueOf(proxy.user.getId())));
 		data.put(USER_PWD, proxy.user.getPassword());
 		info.token = setData(data);
 		proxy.user.setPassword("");
 		proxy.user.setPwdSalt("");
-		proxy.user.setId(0);
+		proxy.user.setId((long)0);
 		return info;
 	}
 	

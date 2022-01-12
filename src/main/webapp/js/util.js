@@ -388,7 +388,9 @@ Array.prototype.remove = function(val) {
     } 
     return false;
 };
-
+Array.prototype.sum = function(){
+    return this.reduce((a,c)=>a+c,0);
+}
 /**
  * rlt keys属性 将记录有哪些可能
  * classifier 暂时只允许生成字符串吧
@@ -469,6 +471,10 @@ Array.prototype.contains = function(e){
 
     return rlt;
 }
+
+
+
+
 
 
 if (!Array.prototype.flatMap) {

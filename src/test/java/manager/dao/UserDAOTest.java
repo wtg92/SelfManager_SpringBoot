@@ -37,7 +37,7 @@ public class UserDAOTest {
 		user.setNickName("hh");
 		user.setPassword("hhhhhhhhhhhhhhhhhhhhhhhhhh");
 		SecurityUtil.encodeUserPwd(user);
-		int uId = uDAO.insertUser(user);
+		long uId = uDAO.insertUser(user);
 		assertTrue(user.getId() == uId);
 		assertEquals(1, uId);
 		uDAO.selectExistedUser(1);
@@ -76,8 +76,8 @@ public class UserDAOTest {
 		group.setName("UnBelieveable!");
 		assertEquals(1, uDAO.insertUserGroup(group));
 		
-		uDAO.insertUsersToGroup(Arrays.asList(1,2),1);
-		uDAO.deleteUsersFromGroup(Arrays.asList(1,2), 1);
+		uDAO.insertUsersToGroup(Arrays.asList((long)1,(long)2),(long)1);
+		uDAO.deleteUsersFromGroup(Arrays.asList((long)1,(long)2), (long)1);
 	}
 	
 	
@@ -88,7 +88,7 @@ public class UserDAOTest {
 		user.setNickName("hh");
 		user.setPassword("hhhhhhhhhhhhhhhhhhhhhhhhhh");
 		SecurityUtil.encodeUserPwd(user);
-		int uId = uDAO.insertUser(user);
+		long uId = uDAO.insertUser(user);
 		assertTrue(user.getId() == uId);
 		assertEquals(1, uId);
 		
@@ -98,8 +98,8 @@ public class UserDAOTest {
 				Session s2 = sessionFactory.openSession()){
 			s1.beginTransaction();
 			s2.beginTransaction();
-			User u1 = s1.get(User.class, 1);
-			User u2 = s2.get(User.class, 1);
+			User u1 = s1.get(User.class, (long)1);
+			User u2 = s2.get(User.class, (long)1);
 			u1.setNickName("changed!");
 			s1.update(u1);
 			s1.getTransaction().commit();
@@ -146,10 +146,10 @@ public class UserDAOTest {
 		group2.setName("UnBelieveable!");
 		
 		assertEquals(1, uDAO.insertUserGroup(group));
-		uDAO.insertUsersToGroup(Arrays.asList(1,2),1);
+		uDAO.insertUsersToGroup(Arrays.asList((long)1,(long)2),(long)1);
 		
 		assertEquals(2, uDAO.insertUserGroup(group2));
-		uDAO.insertUsersToGroup(Arrays.asList(1,2),1);
+		uDAO.insertUsersToGroup(Arrays.asList((long)1,(long)2),1);
 		
 		assertEquals(2, uDAO.selectGroupsByUser(1).size());
 		assertEquals(2, uDAO.selectGroupsByUser(2).size());

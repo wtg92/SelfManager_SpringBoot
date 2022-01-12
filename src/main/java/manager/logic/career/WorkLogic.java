@@ -61,43 +61,43 @@ public abstract class WorkLogic{
 	 * @throws DBException 
 	 * @throws LogicException 
 	 */
-	public abstract int createPlan(int ownerId,String name,Calendar startDate,Calendar endDate,String note) throws LogicException, DBException;
+	public abstract long createPlan(long ownerId,String name,Calendar startDate,Calendar endDate,String note) throws LogicException, DBException;
 	/**
 	 * 可以暂且无权限，但是只能修改自己的
 	 * 需要有Log
 	 * @throws DBException 
 	 * @throws LogicException 
 	*/
-	public abstract void addItemToPlan(int adderId,int planId,String categoryName,int value,String note,PlanItemType type,int fatherId,double mappingVal) throws LogicException, DBException;
-	public abstract void addItemToWSPlan(int adderId,int wsId,String categoryName,int value,String note,PlanItemType type,int fatherId,double mappingVal) throws LogicException, DBException;
-	public abstract void addItemToWS(int adderId, int wsId, int planItemId, int value, String note, int mood,boolean forAdd,Calendar startTime, Calendar endTime) throws LogicException, DBException;
+	public abstract void addItemToPlan(long adderId,long planId,String categoryName,int value,String note,PlanItemType type,int fatherId,double mappingVal) throws LogicException, DBException;
+	public abstract void addItemToWSPlan(long adderId,long wsId,String categoryName,int value,String note,PlanItemType type,int fatherId,double mappingVal) throws LogicException, DBException;
+	public abstract void addItemToWS(long adderId, long wsId, int planItemId, int value, String note, int mood,boolean forAdd,Calendar startTime, Calendar endTime) throws LogicException, DBException;
 	
 	/**
 	  * 当remove时，会一起连子的Item一起remove掉
 	 */
-	public abstract void removeItemFromPlan(int removerId,int planId,int itemId) throws LogicException, DBException;
-	public abstract void removeItemFromWSPlan(int removerId,int wsId,int itemId) throws LogicException, DBException;
-	public abstract void removeItemFromWorkSheet(int removerId, int wsId, int itemId) throws LogicException, DBException;
+	public abstract void removeItemFromPlan(long removerId,long planId,int itemId) throws LogicException, DBException;
+	public abstract void removeItemFromWSPlan(long removerId,long wsId,int itemId) throws LogicException, DBException;
+	public abstract void removeItemFromWorkSheet(long removerId, long wsId, int itemId) throws LogicException, DBException;
 	/**
 	 *  加载出state 为 active和prepared 的plan  
 	 *   从数据库取出后，会进行refreshStateByTime 这时如果更新为Finished 则会更新且不会返回 更新为Active会返回
 	 * 取出后 如果不在缓存里，就放到缓存里（认为用户很快会使用） 
 	 *  
 	 */
-	public abstract List<Plan> loadActivePlans(int loginerId) throws LogicException, DBException;
+	public abstract List<Plan> loadActivePlans(long loginerId) throws LogicException, DBException;
 	
 	/**
 	 * @return key state.dbCode.toString value count
 	 */
-	public abstract Map<String,Long> loadPlanStateStatistics(int ownerId) throws LogicException, DBException;
-	public abstract Map<String,Long> loadWSStateStatistics(int loginerId) throws LogicException, DBException;
+	public abstract Map<String,Long> loadPlanStateStatistics(long ownerId) throws LogicException, DBException;
+	public abstract Map<String,Long> loadWSStateStatistics(long loginerId) throws LogicException, DBException;
 	/*ZT means ZoerTerm 当是0时，代表不设限*/
-	public abstract List<Plan> loadPlansByState(int ownerId,PlanState stateZT) throws LogicException, DBException;
-	public abstract List<WorkSheetProxy> loadWorkSheetByState(int loginerId, WorkSheetState stateZT)  throws LogicException, DBException;
+	public abstract List<Plan> loadPlansByState(long ownerId,PlanState stateZT) throws LogicException, DBException;
+	public abstract List<WorkSheetProxy> loadWorkSheetByState(long loginerId, WorkSheetState stateZT)  throws LogicException, DBException;
 	/**
 	 * 暂且只让人看到自己的
 	 */
-	public abstract PlanProxy loadPlan(int loginerId,int planId) throws LogicException, DBException;
+	public abstract PlanProxy loadPlan(long loginerId,long planId) throws LogicException, DBException;
 	
 	/**
 	 * dao 只取三个字段 id date state 
@@ -107,46 +107,46 @@ public abstract class WorkLogic{
 	 * @return 只包含 id date state信息 state的信息不一定准确
 	 * @throws LogicException 
 	 */
-	public abstract List<WorkSheet> loadWorkSheetInfosRecently(int opreatorId,int page) throws DBException, LogicException;
+	public abstract List<WorkSheet> loadWorkSheetInfosRecently(long opreatorId,int page) throws DBException, LogicException;
 	
-	public abstract WorkSheetProxy loadWorkSheet(int loginerId,int wsId) throws DBException, LogicException;
+	public abstract WorkSheetProxy loadWorkSheet(long loginerId,long wsId) throws DBException, LogicException;
 	
 	
 	/**
 	 *   闭区间
 	 */
-	public abstract List<WorkSheetProxy> loadWorkSheetsByDateScope(int loginerId,Calendar startDate,Calendar endDate) throws SMException;
+	public abstract List<WorkSheetProxy> loadWorkSheetsByDateScope(long loginerId,Calendar startDate,Calendar endDate) throws SMException;
 	
 	
-	public abstract long loadWorkSheetCount(int loginerId,Calendar date) throws SMException;
+	public abstract long loadWorkSheetCount(long loginerId,Calendar date) throws SMException;
 	
-	public abstract List<String> loadAllPlanTagsByUser(int loginerId) throws SMException;
-	public abstract List<String> loadAllWorkSheetTagsByUser(int loginerId) throws SMException;
-	public abstract PlanDeptProxy loadPlanDept(int loginerId) throws DBException, LogicException;
-	public abstract List<String> loadPlanDeptItemNames(int loginerId) throws DBException, LogicException;
+	public abstract List<String> loadAllPlanTagsByUser(long loginerId) throws SMException;
+	public abstract List<String> loadAllWorkSheetTagsByUser(long loginerId) throws SMException;
+	public abstract PlanDeptProxy loadPlanDept(long loginerId) throws DBException, LogicException;
+	public abstract List<String> loadPlanDeptItemNames(long loginerId) throws DBException, LogicException;
 	/**
 	  * 假如存在一个WorkItem 依据该Plan 建立(No Cache)，那么会将改plan的EndDate设为今天，并且将状态设置为abandon.
 	  * 否则，直接删除
 	 */
-	public abstract void abandonPlan(int opreatorId,int planId) throws LogicException, DBException;
+	public abstract void abandonPlan(long opreatorId,long planId) throws LogicException, DBException;
 	/* 状态设置为Finished 改plan的EndDate设为今天*/
-	public abstract void finishPlan(int opreatorId,int planId) throws LogicException, DBException;
+	public abstract void finishPlan(long opreatorId,long planId) throws LogicException, DBException;
 	
-	public abstract void resetPlanTags(int opreatorId,int planId,List<String> tags) throws SMException;
-	public abstract void resetWorkSheetTags(int opreatorId,int wsId,List<String> tags) throws SMException;
+	public abstract void resetPlanTags(long opreatorId,long planId,List<String> tags) throws SMException;
+	public abstract void resetWorkSheetTags(long opreatorId,long wsId,List<String> tags) throws SMException;
 
 	
-	public abstract void saveWorkItemPlanItemId(int updaterId,int wsId,int workItemId, int planItemId) throws LogicException, DBException;
-	public abstract void saveWorkItems(int loginerId, int wsId, List<WorkItem> workItems) throws SMException;
-	public abstract void savePlanItem(int loginerId, int planId,int itemId,String catName,int value,String note,double mappingVal) throws LogicException, DBException;
-	public abstract void savePlanItemFold(int loginerId, int planId, int itemId, boolean fold) throws LogicException, DBException;
-	public abstract void saveWSPlanItem(int loginerId, int wsId,int itemId,String catName,int value,String note,double mappingVal) throws LogicException, DBException;
-	public abstract void saveWSPlanItemFold(int loginerId, int wsId, int itemId, boolean fold) throws DBException, LogicException;
-	public abstract void savePlan(int loginerId, int planId, String name, Calendar startDate, Calendar endDate,
+	public abstract void saveWorkItemPlanItemId(long updaterId,long wsId,int workItemId, int planItemId) throws LogicException, DBException;
+	public abstract void saveWorkItems(long loginerId, long wsId, List<WorkItem> workItems) throws SMException;
+	public abstract void savePlanItem(long loginerId, long planId,int itemId,String catName,int value,String note,double mappingVal) throws LogicException, DBException;
+	public abstract void savePlanItemFold(long loginerId, long planId, int itemId, boolean fold) throws LogicException, DBException;
+	public abstract void saveWSPlanItem(long loginerId, long wsId,int itemId,String catName,int value,String note,double mappingVal) throws LogicException, DBException;
+	public abstract void saveWSPlanItemFold(long loginerId, long wsId, int itemId, boolean fold) throws DBException, LogicException;
+	public abstract void savePlan(long loginerId, long planId, String name, Calendar startDate, Calendar endDate,
 			String note, boolean recalculateState, List<PlanSetting> settings,int seqWeight) throws LogicException, DBException;
-	public abstract void saveWorkSheet(int updaterId,int wsId,String note) throws LogicException, DBException;	
-	public abstract void savePlanDeptItem(int updaterId,int itemId,String name,double val) throws LogicException, DBException;	
-	public abstract void saveWorkSheetPlanId(int updaterId,int wsId,int planId) throws SMException;	
+	public abstract void saveWorkSheet(long updaterId,long wsId,String note) throws LogicException, DBException;	
+	public abstract void savePlanDeptItem(long updaterId,int itemId,String name,double val) throws LogicException, DBException;	
+	public abstract void saveWorkSheetPlanId(long updaterId,long wsId,long planId) throws SMException;	
 
 	/**
 	 * sync修饰
@@ -155,19 +155,19 @@ public abstract class WorkLogic{
 	 * 
 	 * @return workSheetId
 	 */
-	public abstract int openWorkSheetToday(int opreatorId,int planId) throws DBException, LogicException;
+	public abstract long openWorkSheetToday(long opreatorId,long planId) throws DBException, LogicException;
 	
-	public abstract void deleteWorkSheet(int deletorId,int wsId) throws DBException, LogicException;
-	public abstract void assumeWorkSheetFinished(int opreatorId,int wsId) throws LogicException, DBException;
-	public abstract void cancelAssumeWorkSheetFinished(int opreatorId,int wsId) throws LogicException, DBException;
+	public abstract void deleteWorkSheet(long deletorId,long wsId) throws DBException, LogicException;
+	public abstract void assumeWorkSheetFinished(long opreatorId,long wsId) throws LogicException, DBException;
+	public abstract void cancelAssumeWorkSheetFinished(long opreatorId,long wsId) throws LogicException, DBException;
 
-	public abstract void syncToPlanDept(int loginerId,int wsId,int planItemId) throws DBException, LogicException;
-	public abstract void syncAllToPlanDept(int loginerId, int wsId) throws DBException, LogicException;
-	public abstract void syncAllToPlanDeptBatch(int logienrId,List<Integer> wsIds) throws SMException;
-	public abstract void syncPlanTagsToWorkSheet(int loginerId,int planId) throws SMException;
+	public abstract void syncToPlanDept(long loginerId,long wsId,int planItemId) throws DBException, LogicException;
+	public abstract void syncAllToPlanDept(long loginerId, long wsId) throws DBException, LogicException;
+	public abstract void syncAllToPlanDeptBatch(long logienrId,List<Integer> wsIds) throws SMException;
+	public abstract void syncPlanTagsToWorkSheet(long loginerId,long planId) throws SMException;
 	
 	
-	public abstract void copyPlanItemsFrom(int loginerId,int targetPlanId,int templetePlanId) throws DBException, LogicException;
+	public abstract void copyPlanItemsFrom(long loginerId,int targetPlanId,int templetePlanId) throws DBException, LogicException;
 	
 /*=================================================NOT ABSTRACT ==============================================================*/	
 	
@@ -453,8 +453,8 @@ public abstract class WorkLogic{
 	}
 	
 	protected void fill(List<CareerLogProxy> logs) throws LogicException, DBException {
-		List<Integer> relevantUsers = logs.stream().map(proxy->proxy.log.getCreatorId()).distinct().filter(id->id!=SM.SYSTEM_ID).collect(toList());
-		Map<Integer,User> users = uL.getUsers(relevantUsers).stream().collect(toMap(User::getId, Function.identity()));
+		List<Long> relevantUsers = logs.stream().map(proxy->proxy.log.getCreatorId()).distinct().filter(id->id!=SM.SYSTEM_ID).collect(toList());
+		Map<Long,User> users = uL.getUsers(relevantUsers).stream().collect(toMap(User::getId, Function.identity()));
 		assert users.size() == relevantUsers.size();
 		
 		for(CareerLogProxy log:logs) {

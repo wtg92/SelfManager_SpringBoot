@@ -25,7 +25,7 @@ public abstract class TestUtil {
 		CacheScheduler.clearAllCache_ONLYFORTEST();
 	}
 	
-	public static int addAdmin() throws LogicException, DBException {
+	public static long addAdmin() throws LogicException, DBException {
 		UserDAO uDAO = DAOFactory.getUserDAO();
 		User user = new User();
 		user.setAccount(SM.ADMIN_ACCOUNT);

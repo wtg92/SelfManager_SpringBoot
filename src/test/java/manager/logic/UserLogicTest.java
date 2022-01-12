@@ -14,14 +14,11 @@ import manager.TestUtil;
 import manager.entity.general.User;
 import manager.exception.DBException;
 import manager.exception.LogicException;
-import manager.logic.career.WorkLogic;
-import manager.servlet.CareerServlet;
-import manager.servlet.UserServlet;
 import manager.system.Gender;
 import manager.system.SMError;
 import manager.system.SMPerm;
-import manager.system.VerifyUserMethod;
 import manager.system.UserUniqueField;
+import manager.system.VerifyUserMethod;
 import manager.util.SecurityUtil;
 import manager.util.YZMUtil.YZMInfo;
 /**
@@ -57,7 +54,7 @@ public class UserLogicTest {
 		YZMInfo rlt = uL.createEmailYZM(uuId, "");
 		String verifyCode = uL.sendEmailVerifyCodeForSignUp(email, uuId, rlt.xForCheck);
 		
-		int id = uL.signUp(uuId, account, email, verifyCode, "", "", pwd, nickName, gender);
+		long id = uL.signUp(uuId, account, email, verifyCode, "", "", pwd, nickName, gender);
 		User user = uL.getUser(id);
 		assertEquals(account, user.getAccount());
 		assertEquals(email, user.getEmail());
@@ -115,10 +112,10 @@ public class UserLogicTest {
 		YZMInfo rlt = uL.createEmailYZM(uuId, "");
 		String verifyCode = uL.sendEmailVerifyCodeForSignUp(email, uuId, rlt.xForCheck);
 		
-		int id = uL.signUp(uuId, account, email, verifyCode, "", "", pwd, nickName, gender);
+		long id = uL.signUp(uuId, account, email, verifyCode, "", "", pwd, nickName, gender);
 		
-		int admin = TestUtil.addAdmin();
-		int groupId = uL.createUserGroup("用户组1", admin);
+		long admin = TestUtil.addAdmin();
+		long groupId = uL.createUserGroup("用户组1", admin);
 		uL.addUsersToGroup(Arrays.asList(id), groupId, admin);
 		SMPerm targetPerm = SMPerm.EDIT_PERMS_TO_GROUP;
 		uL.overrideGroupPerms(Arrays.asList(targetPerm), groupId, admin);

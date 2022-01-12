@@ -14,11 +14,11 @@ public class CacheConverterTest {
 	
 	@Test
 	public void testRVal() {
-		List<Integer> src1 = Arrays.asList(1,2,3,4,5);
-		List<Integer> src2 = Collections.emptyList();
+		List<Long> src1 = Arrays.asList((long)1,(long)2,(long)3,(long)4,(long)5);
+		List<Long> src2 = Collections.emptyList();
 		
-		List<Integer> src1AfterConvert = parseRVal(createRsVal(src1));
-		List<Integer> src2AfterConvert = parseRVal(createRsVal(src2));
+		List<Long> src1AfterConvert = parseRVal(createRsVal(src1));
+		List<Long> src2AfterConvert = parseRVal(createRsVal(src2));
 		
 		assertTrue(CommonUtil.equalsOfElements(src1, src1AfterConvert));
 		assertTrue(CommonUtil.equalsOfElements(src2, src2AfterConvert));

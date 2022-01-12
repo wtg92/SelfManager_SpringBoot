@@ -23,9 +23,13 @@ public abstract class SMGeneralEntity extends SMEntity implements Cloneable{
 	@Column
 	private Calendar updateTime;
 	
-	@Column
+	@Column(name="hb_version")
 	@Version
-	private Integer hbVersion;
+	/**
+	 * 并发问题是任何数据库都会遇到的
+	 * 该字段注解
+	 */
+	private Integer version;
 
 
 	public Calendar getCreateTime() {
@@ -40,14 +44,10 @@ public abstract class SMGeneralEntity extends SMEntity implements Cloneable{
 	public void setUpdateTime(Calendar updateTime) {
 		this.updateTime = updateTime;
 	}
-
-
-	public Integer getHbVersion() {
-		return hbVersion;
+	public Integer getVersion() {
+		return version;
 	}
-
-
-	public void setHbVersion(Integer hbVersion) {
-		this.hbVersion = hbVersion;
+	public void setVersion(Integer version) {
+		this.version = version;
 	}
 }

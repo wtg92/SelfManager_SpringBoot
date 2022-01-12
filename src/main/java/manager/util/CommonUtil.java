@@ -109,8 +109,11 @@ public abstract class CommonUtil {
 		return min + random.nextInt(max-min);
 	}
 	
+	public static List<Long> parseToLong(String[] args){
+		return Arrays.stream(args).map(Long::parseLong).collect(toList());
+	}
 	
-	public static List<Integer> parseTo(String[] args){
+	public static List<Integer> parseToInt(String[] args){
 		return Arrays.stream(args).map(Integer::parseInt).collect(toList());
 	}
 	

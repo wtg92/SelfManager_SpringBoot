@@ -39,7 +39,7 @@ public class NoteLogicImpl extends NoteLogic {
 	private NoteDAO nDAO = DAOFactory.getNoteDAO();
 
 	@Override
-	public int createNoteBook(int creatorId, String name, String note, BookStyle style)
+	public long createNoteBook(long creatorId, String name, String note, BookStyle style)
 			throws DBException, LogicException {
 
 		uL.checkPerm(creatorId, SMPerm.CREATE_NOTE_BOOK_AND_NOTE);
@@ -56,7 +56,7 @@ public class NoteLogicImpl extends NoteLogic {
 	}
 
 	@Override
-	public int createNote(int creatorId, int noteBookId, String name) throws DBException, LogicException {
+	public long createNote(long creatorId, long noteBookId, String name) throws DBException, LogicException {
 		uL.checkPerm(creatorId, SMPerm.CREATE_NOTE_BOOK_AND_NOTE);
 
 		NoteBook book = CacheScheduler.getOne(CacheMode.E_ID, noteBookId, NoteBook.class,
@@ -76,7 +76,7 @@ public class NoteLogicImpl extends NoteLogic {
 	}
 	
 	@Override
-	public void saveNoteBook(int saverId, int noteBookId, String name, String note, BookStyle style, int seqWeight)
+	public void saveNoteBook(long saverId, long noteBookId, String name, String note, BookStyle style, int seqWeight)
 			throws DBException, LogicException {
 		NoteBook book = CacheScheduler.getOne(CacheMode.E_ID, noteBookId, NoteBook.class,
 				() -> nDAO.selectExistedNoteBook(noteBookId));
@@ -100,10 +100,10 @@ public class NoteLogicImpl extends NoteLogic {
 	}
 
 	@Override
-	public int saveNoteImportant(int saverId, int noteId, boolean important) throws DBException, LogicException {
+	public long saveNoteImportant(long saverId, long noteId, boolean important) throws DBException, LogicException {
 		Note note = CacheScheduler.getOne(CacheMode.E_ID, noteId, Note.class, () -> nDAO.selectExistedNote(noteId));
 
-		int noteBookId = note.getNoteBookId();
+		long noteBookId = note.getNoteBookId();
 		NoteBook book = CacheScheduler.getOne(CacheMode.E_ID, noteBookId, NoteBook.class,
 				() -> nDAO.selectExistedNoteBook(noteBookId));
 		if (saverId != book.getOwnerId()) {
@@ -124,11 +124,11 @@ public class NoteLogicImpl extends NoteLogic {
 	}
 	
 	@Override
-	public void saveNote(int saverId, int noteId, String name, String content, boolean withTodos)
+	public void saveNote(long saverId, long noteId, String name, String content, boolean withTodos)
 			throws DBException, LogicException {
 		Note note = CacheScheduler.getOne(CacheMode.E_ID, noteId, Note.class, () -> nDAO.selectExistedNote(noteId));
 
-		int noteBookId = note.getNoteBookId();
+		long noteBookId = note.getNoteBookId();
 		NoteBook book = CacheScheduler.getOne(CacheMode.E_ID, noteBookId, NoteBook.class,
 				() -> nDAO.selectExistedNoteBook(noteBookId));
 		if (saverId != book.getOwnerId()) {
@@ -145,14 +145,14 @@ public class NoteLogicImpl extends NoteLogic {
 	}
 
 	@Override
-	public void saveMemo(int saverId, String note) throws DBException, LogicException {
+	public void saveMemo(long saverId, String note) throws DBException, LogicException {
 		Memo memo = CacheScheduler.getOne(CacheMode.E_UNIQUE_FIELD_ID, saverId, Memo.class, ()->nDAO.selectExistedMemoByOwner(saverId));
 		memo.setNote(note);
 		CacheScheduler.saveEntity(memo,p->nDAO.updateExistedMemo(p));
 	}
 	
 	@Override
-	public void saveNotesSeq (int saverId,int bookId,List<Integer> notesSeq) throws SMException {
+	public void saveNotesSeq (long saverId,long bookId,List<Integer> notesSeq) throws SMException {
 		NoteBook book = CacheScheduler.getOne(CacheMode.E_ID, bookId, NoteBook.class,
 				() -> nDAO.selectExistedNoteBook(bookId));
 		if (saverId != book.getOwnerId()) {
@@ -165,13 +165,13 @@ public class NoteLogicImpl extends NoteLogic {
 	}
 
 	@Override
-	public List<NoteBookProxy> loadBooks(int loginerId) throws DBException, LogicException {
+	public List<NoteBookProxy> loadBooks(long loginerId) throws DBException, LogicException {
 		List<NoteBookProxy> rlt = nDAO.selectBooksByOwner(loginerId).stream().map(NoteBookProxy::new).collect(toList());
 		return rlt;
 	}
 
 	@Override
-	public NoteBookProxy loadBook(int loginerId, int bookId) throws DBException, LogicException {
+	public NoteBookProxy loadBook(long loginerId, long bookId) throws DBException, LogicException {
 		NoteBook book = CacheScheduler.getOne(CacheMode.E_ID, bookId, NoteBook.class,
 				() -> nDAO.selectExistedNoteBook(bookId));
 		if (loginerId != book.getOwnerId()) {
@@ -181,7 +181,7 @@ public class NoteLogicImpl extends NoteLogic {
 	}
 
 	@Override
-	public BookContent loadBookContent(int loginerId, int noteBookId) throws DBException, LogicException {
+	public BookContent loadBookContent(long loginerId, long noteBookId) throws DBException, LogicException {
 		NoteBook book = CacheScheduler.getOne(CacheMode.E_ID, noteBookId, NoteBook.class,
 				() -> nDAO.selectExistedNoteBook(noteBookId));
 		if (loginerId != book.getOwnerId()) {
@@ -198,9 +198,9 @@ public class NoteLogicImpl extends NoteLogic {
 	}
 
 	@Override
-	public NoteProxy loadNote(int loginerId, int noteId) throws DBException, LogicException {
+	public NoteProxy loadNote(long loginerId, long noteId) throws DBException, LogicException {
 		Note note = CacheScheduler.getOne(CacheMode.E_ID, noteId, Note.class, () -> nDAO.selectExistedNote(noteId));
-		int noteBookId = note.getNoteBookId();
+		long noteBookId = note.getNoteBookId();
 		NoteBook book = CacheScheduler.getOne(CacheMode.E_ID, noteBookId, NoteBook.class,
 				() -> nDAO.selectExistedNoteBook(noteBookId));
 		if (loginerId != book.getOwnerId()) {
@@ -211,7 +211,7 @@ public class NoteLogicImpl extends NoteLogic {
 	}
 	
 	@Override
-	public MemoProxy loadMemo(int loginerId) throws DBException, LogicException {
+	public MemoProxy loadMemo(long loginerId) throws DBException, LogicException {
 		Memo memo = CacheScheduler.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginerId, Memo.class, 
 				 ()->nDAO.selectMemoByOwner(loginerId), ()->initMemo(loginerId));
 		
@@ -225,10 +225,10 @@ public class NoteLogicImpl extends NoteLogic {
 	}
 	
 	private void fill(List<MemoItemProxy> items) throws DBException {
-		List<Integer> booksId = items.stream().filter(p->p.item.getSrcNoteId()>0).map(memo->memo.item.getSrcBookId()).distinct().collect(toList());
-		List<Integer> notesId  = items.stream().filter(p->p.item.getSrcNoteId()>0).map(memo->memo.item.getSrcNoteId()).distinct().collect(toList());
-		Map<Integer,NoteBook> relevantBooks = nDAO.selectBooksWithIdAndNameByIds(booksId).stream().collect(toMap(NoteBook::getId,Function.identity()));
-		Map<Integer,Note> relevantNotes = nDAO.selectNotesWithIdAndNameByIds(notesId).stream().collect(toMap(Note::getId,Function.identity()));;
+		List<Long> booksId = items.stream().filter(p->p.item.getSrcNoteId()>0).map(memo->memo.item.getSrcBookId()).distinct().collect(toList());
+		List<Long> notesId  = items.stream().filter(p->p.item.getSrcNoteId()>0).map(memo->memo.item.getSrcNoteId()).distinct().collect(toList());
+		Map<Long,NoteBook> relevantBooks = nDAO.selectBooksWithIdAndNameByIds(booksId).stream().collect(toMap(NoteBook::getId,Function.identity()));
+		Map<Long,Note> relevantNotes = nDAO.selectNotesWithIdAndNameByIds(notesId).stream().collect(toMap(Note::getId,Function.identity()));;
 		
 		
 		for(MemoItemProxy proxy : items) {
@@ -252,7 +252,7 @@ public class NoteLogicImpl extends NoteLogic {
 		}
 	}
 
-	private synchronized int initMemo(int ownerId) throws DBException {
+	private synchronized long initMemo(long ownerId) throws DBException {
 		Memo memo = new Memo();
 		memo.setOwnerId(ownerId);
 		memo.setContent("");
@@ -262,7 +262,7 @@ public class NoteLogicImpl extends NoteLogic {
 	
 	
 	@Override
-	public void deleteNoteBook(int deletorId, int id) throws DBException, LogicException {
+	public void deleteNoteBook(long deletorId, long id) throws DBException, LogicException {
 		NoteBook book = CacheScheduler.getOne(CacheMode.E_ID, id, NoteBook.class, () -> nDAO.selectExistedNoteBook(id));
 		if (deletorId != book.getOwnerId()) {
 			throw new LogicException(SMError.EDIT_NOTEBOOK_ERROR, "不能删除非本人的笔记本");
@@ -279,7 +279,7 @@ public class NoteLogicImpl extends NoteLogic {
 	}
 
 	@Override
-	public void deleteNote(int deletorId, int id) throws DBException, LogicException {
+	public void deleteNote(long deletorId, long id) throws DBException, LogicException {
 		Note note = CacheScheduler.getOne(CacheMode.E_ID, id, Note.class, () -> nDAO.selectExistedNote(id));
 
 		NoteBook book = CacheScheduler.getOne(CacheMode.E_ID, note.getNoteBookId(), NoteBook.class,
@@ -295,7 +295,7 @@ public class NoteLogicImpl extends NoteLogic {
 	}
 
 	@Override
-	public void closeNoteBook(int closerId, int bookId) throws DBException, LogicException {
+	public void closeNoteBook(long closerId, long bookId) throws DBException, LogicException {
 		NoteBook book = CacheScheduler.getOne(CacheMode.E_ID, bookId, NoteBook.class,
 				() -> nDAO.selectExistedNoteBook(bookId));
 		if (closerId != book.getOwnerId()) {
@@ -314,7 +314,7 @@ public class NoteLogicImpl extends NoteLogic {
 	}
 
 	@Override
-	public void openNoteBook(int closerId, int bookId) throws DBException, LogicException {
+	public void openNoteBook(long closerId, long bookId) throws DBException, LogicException {
 		NoteBook book = CacheScheduler.getOne(CacheMode.E_ID, bookId, NoteBook.class,
 				() -> nDAO.selectExistedNoteBook(bookId));
 		if (closerId != book.getOwnerId()) {
@@ -330,12 +330,12 @@ public class NoteLogicImpl extends NoteLogic {
 	}
 
 	@Override
-	public void addItemToMemo(int adderId, String content, NoteLabel label, String note,int srcNoteId)
+	public void addItemToMemo(long adderId, String content, NoteLabel label, String note,long srcNoteId)
 			throws LogicException, DBException {
 		
 		Memo memo = CacheScheduler.getOne(CacheMode.E_UNIQUE_FIELD_ID, adderId, Memo.class, ()->nDAO.selectExistedMemoByOwner(adderId));
 		String srcNoteName = "";
-		int srcBookId = 0;
+		long srcBookId = 0;
 		String srcBookName = "";
 		if(srcNoteId != 0) {
 			Note srcNote = CacheScheduler.getOne(CacheMode.E_ID, srcNoteId, Note.class, () -> nDAO.selectExistedNote(srcNoteId));
@@ -359,14 +359,14 @@ public class NoteLogicImpl extends NoteLogic {
 	}
 
 	@Override
-	public void removeItemFromMemo(int removerId, int itemId) throws LogicException, DBException {
+	public void removeItemFromMemo(long removerId, int itemId) throws LogicException, DBException {
 		Memo one = CacheScheduler.getOne(CacheMode.E_UNIQUE_FIELD_ID, removerId, Memo.class, ()->nDAO.selectExistedMemoByOwner(removerId));
 		NoteContentConverter.removeItemFromMemo(one, itemId);
 		CacheScheduler.saveEntity(one,p->nDAO.updateExistedMemo(p));
 	}
 
 	@Override
-	public void saveMemoItem(int updaterId,int itemId,String content, NoteLabel label, String note)
+	public void saveMemoItem(long updaterId,int itemId,String content, NoteLabel label, String note)
 			throws LogicException, DBException {
 		Memo memo = CacheScheduler.getOne(CacheMode.E_UNIQUE_FIELD_ID, updaterId, Memo.class, ()->nDAO.selectExistedMemoByOwner(updaterId));
 		NoteContentConverter.updateMemoItem(memo, itemId, content, label, note);
@@ -374,14 +374,14 @@ public class NoteLogicImpl extends NoteLogic {
 	}
 
 	@Override
-	public void saveMemoItemsSeq(int updaterId, List<Integer> seqIds) throws LogicException, DBException {
+	public void saveMemoItemsSeq(long updaterId, List<Integer> seqIds) throws LogicException, DBException {
 		Memo memo = CacheScheduler.getOne(CacheMode.E_UNIQUE_FIELD_ID, updaterId, Memo.class, ()->nDAO.selectExistedMemoByOwner(updaterId));
 		NoteContentConverter.updateMemoItemsSeq(memo, seqIds);
 		CacheScheduler.saveEntity(memo,p->nDAO.updateExistedMemo(p));
 	}
 
 	@Override
-	public void saveMemoItemLabel(int updaterId, int itemId, NoteLabel label) throws LogicException, DBException {
+	public void saveMemoItemLabel(long updaterId, int itemId, NoteLabel label) throws LogicException, DBException {
 		Memo memo = CacheScheduler.getOne(CacheMode.E_UNIQUE_FIELD_ID, updaterId, Memo.class, ()->nDAO.selectExistedMemoByOwner(updaterId));
 		NoteContentConverter.updateMemoItemLabel(memo, itemId, label);
 		CacheScheduler.saveEntity(memo,p->nDAO.updateExistedMemo(p));

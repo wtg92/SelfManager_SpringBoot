@@ -10,26 +10,15 @@ import manager.system.career.CareerLogAction;
 
 public class CareerLog extends SMVirtualEntity{
 	
-	private Integer id;
 	@JSONField(serialize = false)
 	private CareerLogAction action;
 	@JSONField(serialize = false)
 	private LinkedList<String> params = new LinkedList<String>();
 	@JSONField(serialize = false)
-	private Integer creatorId ;
+	private Long creatorId ;
 	
 	private Calendar createTime;
 	
-	 
-	
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
-	}
-
 	public Calendar getCreateTime() {
 		return createTime;
 	}
@@ -52,7 +41,7 @@ public class CareerLog extends SMVirtualEntity{
 		return params.get(index);
 	}
 	
-	public CareerLog(CareerLogAction action, int creatorId) {
+	public CareerLog(CareerLogAction action, long creatorId) {
 		super();
 		this.action = action;
 		this.creatorId = creatorId;
@@ -74,11 +63,11 @@ public class CareerLog extends SMVirtualEntity{
 		this.action = action;
 	}
 
-	public Integer getCreatorId() {
+	public Long getCreatorId() {
 		return creatorId;
 	}
 
-	public void setCreatorId(Integer creatorId) {
+	public void setCreatorId(Long creatorId) {
 		this.creatorId = creatorId;
 	}
 	

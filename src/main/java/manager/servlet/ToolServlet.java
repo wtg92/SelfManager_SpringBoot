@@ -58,7 +58,7 @@ public class ToolServlet extends SMServlet{
 	}
 
 	private String loadToolRecordSummary(HttpServletRequest request) throws SMException {
-		int loginerId = getLoginerId(request);
+		long loginerId = getLoginerId(request);
 		return JSON.toJSONString(tL.loadToolRecordSummary(loginerId),toolConfig); 
 	}
 

@@ -302,7 +302,7 @@ public abstract class UIUtil {
 		return JSON.toJSONString(rlt,config);
 	}
 	
-	public static int getLoginerId(HttpServletRequest request) throws LogicException {
+	public static long getLoginerId(HttpServletRequest request) throws LogicException {
 		String token = getNonNullParam(request,USER_TOKEN); 
 		return ServletAdapter.getUserId(token);
 	}

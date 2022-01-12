@@ -48,17 +48,17 @@ public class UserLogicImpl extends UserLogic {
 	private final UserDAO uDAO = DAOFactory.getUserDAO();
 	
 	@Override
-	public boolean hasPerm(int userId, SMPerm perm) throws LogicException, DBException {
+	public boolean hasPerm(long userId, SMPerm perm) throws LogicException, DBException {
 		/*admin owning all perms*/
 		if(isAdmin(userId)) {
 			return true;
 		}
-		ThrowableSupplier<List<Integer>, DBException> userGroupGenerator = ()-> uDAO.selectGroupsByUser(userId);
-		List<Integer> groupsId = CacheScheduler.getRIds(CacheMode.R_ONE_TO_MANY_FORMER,SMDB.T_R_USER_GROUP,userId,userGroupGenerator);
+		ThrowableSupplier<List<Long>, DBException> userGroupGenerator = ()-> uDAO.selectGroupsByUser(userId);
+		List<Long> groupsId = CacheScheduler.getRIds(CacheMode.R_ONE_TO_MANY_FORMER,SMDB.T_R_USER_GROUP,userId,userGroupGenerator);
 		
-		for(Integer groupId : groupsId) {
+		for(Long groupId : groupsId) {
 			ThrowableSupplier<List<Integer>, DBException> groupPermGenerator = ()-> uDAO.selectPermsByGroup(groupId);
-			List<Integer> permsId = CacheScheduler.getRIds(CacheMode.R_ONE_TO_MANY_FORMER, SMDB.T_R_GROUP_PERM, groupId, groupPermGenerator);
+			List<Integer> permsId = CacheScheduler.getRIdsInInt(CacheMode.R_ONE_TO_MANY_FORMER, SMDB.T_R_GROUP_PERM, groupId, groupPermGenerator);
 			if(permsId.contains(perm.getDbCode()))
 				return true;
 		}
@@ -66,19 +66,19 @@ public class UserLogicImpl extends UserLogic {
 		return false;
 	}
 
-	private Set<SMPerm> getUserAllPerms(int userId) throws DBException, LogicException{
+	private Set<SMPerm> getUserAllPerms(long userId) throws DBException, LogicException{
 		if(isAdmin(userId)) {
 			return Arrays.stream(SMPerm.values()).filter(perm->perm != SMPerm.UNDECIDED).collect(toSet());
 		}
 		
 		Set<SMPerm> perms = new HashSet<SMPerm>();
 		
-		ThrowableSupplier<List<Integer>, DBException> userGroupGenerator = ()-> uDAO.selectGroupsByUser(userId);
-		List<Integer> groupsId = CacheScheduler.getRIds(CacheMode.R_ONE_TO_MANY_FORMER,SMDB.T_R_USER_GROUP,userId,userGroupGenerator);
+		ThrowableSupplier<List<Long>, DBException> userGroupGenerator = ()-> uDAO.selectGroupsByUser(userId);
+		List<Long> groupsId = CacheScheduler.getRIds(CacheMode.R_ONE_TO_MANY_FORMER,SMDB.T_R_USER_GROUP,userId,userGroupGenerator);
 		
-		for(Integer groupId : groupsId) {
+		for(Long groupId : groupsId) {
 			ThrowableSupplier<List<Integer>, DBException> groupPermGenerator = ()-> uDAO.selectPermsByGroup(groupId);
-			List<Integer> permsId = CacheScheduler.getRIds(CacheMode.R_ONE_TO_MANY_FORMER, SMDB.T_R_GROUP_PERM, groupId, groupPermGenerator);
+			List<Integer> permsId = CacheScheduler.getRIdsInInt(CacheMode.R_ONE_TO_MANY_FORMER, SMDB.T_R_GROUP_PERM, groupId, groupPermGenerator);
 			perms.addAll(permsId.stream().map(SMPerm::valueOfDBCode).collect(toSet()));
 		}
 		
@@ -146,13 +146,13 @@ public class UserLogicImpl extends UserLogic {
 	}
 
 	@Override
-	public User getUser(int userId) throws LogicException, DBException {
+	public User getUser(long userId) throws LogicException, DBException {
 		ThrowableSupplier<User, DBException> generator = ()-> uDAO.selectExistedUser(userId);
 		return CacheScheduler.getOne(CacheMode.E_ID,userId,User.class,generator);
 	}
 
 	@Override
-	public UserProxy loadUser(int userId, int loginerId) throws LogicException, DBException {
+	public UserProxy loadUser(long userId, long loginerId) throws LogicException, DBException {
 		/*TODO loginerId决定能看到什么信息 但先不管了*/
 		User user=  getUser(userId);
 		UserProxy proxy = new UserProxy();
@@ -162,7 +162,7 @@ public class UserLogicImpl extends UserLogic {
 	}
 	
 	@Override
-	public synchronized int signUp(String uuId,String account,String email,String emailVerifyCode,
+	public synchronized long signUp(String uuId,String account,String email,String emailVerifyCode,
 			String tel,String telVerifyCode,String pwd,String nickName,Gender gender) throws LogicException, DBException {
 
 		User user = new User();
@@ -224,7 +224,7 @@ public class UserLogicImpl extends UserLogic {
 				throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL,"手机验证码已过期失效");
 			}
 		}
-		int uId = uDAO.insertUser(user);
+		long uId = uDAO.insertUser(user);
 		UserGroup defaultGroup = uDAO.selectUniqueExistedUserGroupByField(SMDB.F_NAME, SM.DEFAULT_BASIC_USER_GROUP);
 		/*这里比较特殊 是系统自动添加的 并且相对来说太过频繁 不应该重置缓存 这里选择直接添加进缓存 影响到的是 一个组里有多少用户*/
 		uDAO.insertUsersToGroup(Arrays.asList(uId), defaultGroup.getId());
@@ -238,13 +238,13 @@ public class UserLogicImpl extends UserLogic {
 	
 	
 	@Override
-	public List<User> getUsers(List<Integer> usersId) throws LogicException, DBException {
-		ThrowableFunction<Integer,User, DBException> generator = (userId)-> uDAO.selectExistedUser(userId);
+	public List<User> getUsers(List<Long> usersId) throws LogicException, DBException {
+		ThrowableFunction<Long,User, DBException> generator = (userId)-> uDAO.selectExistedUser(userId);
 		return CacheScheduler.getOnes(CacheMode.E_ID,usersId,User::getId,User.class,generator);
 	}
 	
 	@Override
-	public synchronized void addUsersToGroup(List<Integer> usersId, int groupId,int loginerId) throws LogicException, DBException {
+	public synchronized void addUsersToGroup(List<Long> usersId, long groupId,long loginerId) throws LogicException, DBException {
 		
 		checkPerm(loginerId, SMPerm.ADD_USERS_TO_PERM);
 		
@@ -258,9 +258,9 @@ public class UserLogicImpl extends UserLogic {
 			throw new LogicException(SMError.INCONSTSTANT_ARGS_BETWEEN_DATA,"用户组不存在 "+groupId);
 		}
 		
-		ThrowableSupplier<List<Integer>, DBException> generator = ()-> uDAO.selectUsersIdByGroup(groupId);
-		List<Integer> usersForThisGroup = CacheScheduler.getRIds(CacheMode.R_ONE_TO_MANY_LATTER, SMDB.T_R_USER_GROUP, groupId, generator);
-		List<Integer> distinctUsers = usersId.stream().filter(uId->!usersForThisGroup.contains(uId)).collect(toList());
+		ThrowableSupplier<List<Long>, DBException> generator = ()-> uDAO.selectUsersIdByGroup(groupId);
+		List<Long> usersForThisGroup = CacheScheduler.getRIds(CacheMode.R_ONE_TO_MANY_LATTER, SMDB.T_R_USER_GROUP, groupId, generator);
+		List<Long> distinctUsers = usersId.stream().filter(uId->!usersForThisGroup.contains(uId)).collect(toList());
 		
 		if(distinctUsers.size() == 0) {
 			logger.log(Level.WARNING,"添加的user全是已存在在组里的 "+groupId,"uL.addUsersToGroup");
@@ -273,7 +273,7 @@ public class UserLogicImpl extends UserLogic {
 	}
 
 	@Override
-	public synchronized void overrideGroupPerms(List<SMPerm> permsForOverride, int groupId, int loginerId) throws LogicException, DBException {
+	public synchronized void overrideGroupPerms(List<SMPerm> permsForOverride, long groupId, long loginerId) throws LogicException, DBException {
 
 		checkPerm(loginerId, SMPerm.EDIT_PERMS_TO_GROUP);
 		
@@ -283,7 +283,7 @@ public class UserLogicImpl extends UserLogic {
 		}
 		
 		ThrowableSupplier<List<Integer>, DBException> generator = ()-> uDAO.selectPermsByGroup(groupId);
-		List<SMPerm> permsForThisGroup = CacheScheduler.getRIds(CacheMode.R_ONE_TO_MANY_FORMER, SMDB.T_R_GROUP_PERM, groupId, generator)
+		List<SMPerm> permsForThisGroup = CacheScheduler.getRIdsInInt(CacheMode.R_ONE_TO_MANY_FORMER, SMDB.T_R_GROUP_PERM, groupId, generator)
 				.stream().map(SMPerm::valueOfDBCode).collect(toList());
 		List<SMPerm> permsForAdd = permsForOverride.stream().filter(perm->!permsForThisGroup.contains(perm)).collect(toList());
 		List<SMPerm> permsForDelete = permsForThisGroup.stream().filter(perm->!permsForOverride.contains(perm)).collect(toList());
@@ -294,12 +294,12 @@ public class UserLogicImpl extends UserLogic {
 			uDAO.deletePermsFromGroup(permsForDelete, groupId);	
 		}
 
-		CacheScheduler.deleteRCachesIfExist(CacheMode.R_ONE_TO_MANY_LATTER,SMDB.T_R_GROUP_PERM,permsForAdd.stream().map(SMPerm::getDbCode).collect(toList()));
+		CacheScheduler.deleteRCachesIfExistByInt(CacheMode.R_ONE_TO_MANY_LATTER,SMDB.T_R_GROUP_PERM,permsForAdd.stream().map(SMPerm::getDbCode).collect(toList()));
 		CacheScheduler.deleteRCacheIfExists(CacheMode.R_ONE_TO_MANY_FORMER, SMDB.T_R_GROUP_PERM, groupId);
 	}
 
 	@Override
-	public synchronized int createUserGroup(String name, int loginerId) throws LogicException, DBException {
+	public synchronized long createUserGroup(String name, long loginerId) throws LogicException, DBException {
 		
 		checkPerm(loginerId, SMPerm.CREATE_USER_GROUP);
 		
@@ -543,7 +543,7 @@ public class UserLogicImpl extends UserLogic {
 
 	
 	@Override
-	public List<UserGroupProxy> loadAllUserGroups(int loginerId) throws DBException, LogicException {
+	public List<UserGroupProxy> loadAllUserGroups(long loginerId) throws DBException, LogicException {
 		checkPerm(loginerId, SMPerm.SEE_USRS_AND_USER_GROUPS_DATA);
 		
 		List<UserGroupProxy> rlt = new ArrayList<>(); 
@@ -557,14 +557,14 @@ public class UserLogicImpl extends UserLogic {
 	}
 
 	@Override
-	public List<SMPerm> loadPermsOfGroup(int groupId, int loginerId) throws DBException, LogicException {
+	public List<SMPerm> loadPermsOfGroup(long groupId, long loginerId) throws DBException, LogicException {
 		checkPerm(loginerId, SMPerm.SEE_USRS_AND_USER_GROUPS_DATA);
 		
 		return uDAO.selectPermsByGroup(groupId).stream().map(SMPerm::valueOfDBCode).collect(toList());
 	}
 
 	@Override
-	public UserSummary loadUserSummary(int loginerId) throws LogicException, DBException {
+	public UserSummary loadUserSummary(long loginerId) throws LogicException, DBException {
 		checkPerm(loginerId, SMPerm.SEE_USRS_AND_USER_GROUPS_DATA);
 		UserSummary summary = new UserSummary();
 		summary.countUsers = uDAO.countAllUsers();
@@ -573,7 +573,7 @@ public class UserLogicImpl extends UserLogic {
 	}
 
 	@Override
-	public List<UserProxy> loadUsersOfGroup(int groupId, int loginerId) throws LogicException, DBException {
+	public List<UserProxy> loadUsersOfGroup(long groupId, long loginerId) throws LogicException, DBException {
 		checkPerm(loginerId, SMPerm.SEE_USRS_AND_USER_GROUPS_DATA);
 		return uDAO.selectUsersByGroup(groupId,SMDB.MAX_NUM_IN_ONE_SELECT).stream().map(user->{
 			UserProxy proxy = new UserProxy();

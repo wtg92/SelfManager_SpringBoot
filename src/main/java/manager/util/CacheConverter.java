@@ -27,7 +27,7 @@ public abstract class CacheConverter {
 	private static String LATTER_ARG_FOR_KEY = "0";
 	private static String TEMP_PREFIX = "tp";
 	
-	public static String createKey(CacheMode mode, int identifier, String tableName) {
+	public static String createKey(CacheMode mode, long identifier, String tableName) {
 		switch(mode) {
 			case E_ID:
 			case E_UNIQUE_FIELD_ID:
@@ -87,17 +87,27 @@ public abstract class CacheConverter {
 		}
 	}
 
-	public static List<Integer> parseRVal(String val) {
+	public static List<Long> parseRVal(String val) {
 		if(val.strip().length() == 0)
 			return new ArrayList<>();
 				
-		return CommonUtil.parseTo(val.split(SPLIT_CHAR));
+		return CommonUtil.parseToLong(val.split(SPLIT_CHAR));
 	}
 	
-	public static String createRsVal(List<Integer> val) {
+	public static List<Integer> parseRValInInt(String val) {
+		if(val.strip().length() == 0)
+			return new ArrayList<>();
+				
+		return CommonUtil.parseToInt(val.split(SPLIT_CHAR));
+	}
+	
+	
+	public static<T> String createRsVal(List<T> val) {
 		return val.stream().map(Object::toString).collect(joining(SPLIT_CHAR));
 	}
-	public static String createRsValForAppend(List<Integer> theManyIds) {
+	
+	
+	public static String createRsValForAppend(List<Long> theManyIds) {
 		return SPLIT_CHAR+createRsVal(theManyIds);
 	}
 }

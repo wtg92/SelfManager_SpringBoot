@@ -27,7 +27,7 @@ public abstract class SM {
 	public final static String WEB_TITLE =BRAND_NAME+"，成就非凡";
 	
 	/*系统的Id 用在一些Log上 表明是系统的动作*/
-	public final static int SYSTEM_ID = 0;
+	public final static long SYSTEM_ID = 0;
 	public final static String SYSTEM_NAME ="系统";
 	
 	public final static String ARRAY_SPLIT_MARK=";;;";

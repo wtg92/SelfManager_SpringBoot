@@ -31,56 +31,56 @@ public abstract class NoteLogic{
 	
 	protected UserLogic uL = UserLogic.getInstance();
 	
-	public abstract int createNoteBook(int creatorId,String name,String note,BookStyle style) throws DBException,LogicException;
-	public abstract int createNote(int creatorId,int noteBookId,String name) throws DBException,LogicException;
+	public abstract long createNoteBook(long creatorId,String name,String note,BookStyle style) throws DBException,LogicException;
+	public abstract long createNote(long creatorId,long noteBookId,String name) throws DBException,LogicException;
 	
-	public abstract void saveNoteBook(int saverId,int noteBookId,String name,String note, BookStyle style, int seqWeight) throws DBException,LogicException;
+	public abstract void saveNoteBook(long saverId,long noteBookId,String name,String note, BookStyle style, int seqWeight) throws DBException,LogicException;
 	/**
 	 * 由于标签的计算是前台的，因此 withTodos 也应该由前台告诉我，同样的正则 不应该写在两处地方
 	 */
-	public abstract void saveNote(int saverId,int noteId,String name,String content,boolean withTodos) throws DBException,LogicException;
-	public abstract void saveMemo(int saverId,String note)throws DBException,LogicException;
+	public abstract void saveNote(long saverId,long noteId,String name,String content,boolean withTodos) throws DBException,LogicException;
+	public abstract void saveMemo(long saverId,String note)throws DBException,LogicException;
 	/**
 	 * @return bookId 方便Servlet
 	 */
-	public abstract int saveNoteImportant(int saverId,int noteId,boolean important) throws DBException,LogicException;
+	public abstract long saveNoteImportant(long saverId,long noteId,boolean important) throws DBException,LogicException;
 	
-	public abstract void saveNotesSeq (int saverId,int bookId,List<Integer> notesSeq) throws SMException;
+	public abstract void saveNotesSeq (long saverId,long bookId,List<Integer> notesSeq) throws SMException;
 	
 	
-	public abstract List<NoteBookProxy> loadBooks(int loginerId) throws DBException,LogicException;
-	public abstract NoteBookProxy loadBook(int loginerId,int bookId) throws DBException,LogicException;
+	public abstract List<NoteBookProxy> loadBooks(long loginerId) throws DBException,LogicException;
+	public abstract NoteBookProxy loadBook(long loginerId,long bookId) throws DBException,LogicException;
 	/**
 	 * Note: id name withTodos prevId important
 	 */
-	public abstract BookContent loadBookContent(int loginerId,int noteBookId) throws DBException, LogicException;
-	public abstract NoteProxy loadNote(int loginerId,int noteId) throws DBException, LogicException;
-	public abstract MemoProxy loadMemo(int loginerId) throws DBException, LogicException;
+	public abstract BookContent loadBookContent(long loginerId,long noteBookId) throws DBException, LogicException;
+	public abstract NoteProxy loadNote(long loginerId,long noteId) throws DBException, LogicException;
+	public abstract MemoProxy loadMemo(long loginerId) throws DBException, LogicException;
 	
 	
 	/**
 	  * 只允许noteBook Closed时，才允许删除，删除时，会将Note一起删掉
 	 */
-	public abstract void deleteNoteBook(int deletorId,int id) throws DBException, LogicException;
+	public abstract void deleteNoteBook(long deletorId,long id) throws DBException, LogicException;
 	
-	public abstract void deleteNote(int deletorId,int id) throws DBException, LogicException;
+	public abstract void deleteNote(long deletorId,long id) throws DBException, LogicException;
 	
-	public abstract void addItemToMemo(int adderId,String content,NoteLabel label,String note,int srcNoteId) throws LogicException, DBException;
+	public abstract void addItemToMemo(long adderId,String content,NoteLabel label,String note,long srcNoteId) throws LogicException, DBException;
 	
-	public abstract void removeItemFromMemo(int removerId,int itemId)  throws LogicException, DBException;
+	public abstract void removeItemFromMemo(long removerId,int itemId)  throws LogicException, DBException;
 	
-	public abstract void saveMemoItem(int updaterId,int itemId,String content,NoteLabel label,String note) throws LogicException, DBException;
+	public abstract void saveMemoItem(long updaterId,int itemId,String content,NoteLabel label,String note) throws LogicException, DBException;
 	
-	public abstract void saveMemoItemsSeq(int updaterId,List<Integer> seqIds)  throws LogicException, DBException;
+	public abstract void saveMemoItemsSeq(long updaterId,List<Integer> seqIds)  throws LogicException, DBException;
 	
-	public abstract void saveMemoItemLabel(int updaterId,int itemId,NoteLabel label) throws LogicException, DBException;
+	public abstract void saveMemoItemLabel(long updaterId,int itemId,NoteLabel label) throws LogicException, DBException;
 	
 	/**
 	  *  假如NoteBook里 无Note且无备注 则直接删除
 	 * 假如有Note 放到closed里 
 	 */
-	public abstract void closeNoteBook(int closerId,int bookId) throws DBException, LogicException;
-	public abstract void openNoteBook(int closerId,int bookId) throws DBException, LogicException;
+	public abstract void closeNoteBook(long closerId,long bookId) throws DBException, LogicException;
+	public abstract void openNoteBook(long closerId,long bookId) throws DBException, LogicException;
 	
 /*=================================================NOT ABSTRACT ==============================================================*/
 
@@ -107,7 +107,7 @@ public abstract class NoteLogic{
 		
 		rlt.addAll(notIncluded);
 		
-		Map<Integer,Note> notesById =  target.stream().collect(Collectors.toMap(Note::getId, Function.identity()));
+		Map<Long,Note> notesById =  target.stream().collect(Collectors.toMap(Note::getId, Function.identity()));
 		
 		seq.forEach(id->{
 			

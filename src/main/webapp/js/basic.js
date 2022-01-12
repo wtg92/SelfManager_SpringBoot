@@ -1014,6 +1014,52 @@ function drawCommonBarChart(containerId,barSource,yAxisName,xAxisNamesLength){
     })
 }
 
+function calculateCommonStat(numbers, digit) {
+    // 修复js浮点数精度误差问题
+    const formulaCalc = function formulaCalc(formula, digit) {
+        if(digit == null){
+            return formula;
+        }
+      let pow = Math.pow(10, digit);
+      return parseInt(formula * pow, 10) / pow;
+    };
+    let len = numbers.length;
+    let sumFunc = (a, b) => formulaCalc(a + b, digit);
+    let max = Math.max.apply(null, numbers);
+    let min = Math.min.apply(null, numbers);
+    let sum = numbers.reduce(sumFunc);
+    // 平均值
+    let avg = sum / len;
+    // 计算中位数
+    // 将数值从大到小顺序排列好，赋值给新数组用于计算中位数
+    let sequence = numbers.sort((a,b) => b-a);
+    let mid;
+    if(len == 0){
+        mid = 0;
+    }else if(len == 1){
+        mid = numbers[0]/2;
+    }else{
+        mid = len % 2 == 0 ?
+        (sequence[len/2-1] + sequence[len/2]) / 2 :
+        sequence[(len+1)/2-1];
+    }
+    
+    // 计算标准差
+    // 所有数减去其平均值的平方和，再除以数组个数（或个数减一，即变异数）再把所得值开根号
+    let variance = numbers.map(n=> (n-avg) * (n-avg)).reduce(sumFunc) / len;
+    let stdDev = Math.sqrt(variance);
+    return {
+      sum: sum,
+      max: max,
+      min: min,
+      avg: digit == null? avg: avg.toText(digit),
+      mid: digit == null? mid:parseFloat(mid).toText(digit),
+      variance:variance,
+      stdDev : digit == null?stdDev:stdDev.toText(digit)
+    }
+  }
+
+
 
 
 /**
