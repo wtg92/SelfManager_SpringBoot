@@ -19,8 +19,12 @@ scientific_manager_sample.sql是项目的数据库结构及初始的用户数据
 hb.cfg.xml是数据库相关的配置，假设你想起个不一样的schema名或采取了非3306的端口号，在这一配置文件里修改吧。
 
 这三个文件配置好之后，用任何一个你喜欢的IDE，打开manager.SelfManagerSpringbootApplication 运行里边的main方法即可。
+
+除此之外，在项目的根目录下，你还会看见sm_files.rar，这个压缩包是项目依赖的图片、PDF文件，它并非必须配置，但如果配置的话，你可以将其解压在硬盘的任意位置，然后将解压文件夹的目录路径配置在sm_external_files_directory中，以及将sm_files为key，该路径为value配置为tomcat的静态文件映射路径（静态映射文件配置方法网上查阅即可），你便可以看到验证码等图片以及在“我的作品列表”页中，顺利点开PDF文件相关的了。
+
 默认的访问网址是，http://localhost:8080/index.jsp
 默认的管理员账户/密码： admin   123456789
+
 
 三、项目涉及到的框架、库
 后台：redis，SpringBoot，Hibernate
