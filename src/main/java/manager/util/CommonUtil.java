@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 import java.util.function.BiFunction;
@@ -186,6 +187,16 @@ public abstract class CommonUtil {
 			rlt.add(clone.apply(unit));
 		});
 		return rlt;
+	}
+	
+	
+	public static <T,O>  void mergeMap(Map<T, O> container, Map<T, O> toMerge) {
+		toMerge.forEach((k,v)->{
+			if(container.containsKey(k)) {
+				logger.log(Level.WARNING,"Merging Map With Same Key,thus Override");
+			}
+			container.put(k, v);
+		});
 	}
 	
 }

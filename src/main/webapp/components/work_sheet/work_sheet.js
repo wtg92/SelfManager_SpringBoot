@@ -22,6 +22,10 @@ const WS_NAMESPACE = {
 /**为了解耦，这里关于WS.planItems的部分多数是从plan_dialog.js copy过来的 当修改时，应当修改两处地方 */
 $(function(){
 
+    window.onbeforeunload = ()=>{
+        saveChangedWorkItemUnits();
+    };
+
     drawCommonIcon("including_modify_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_modify_mark"));
     drawCommonIcon("including_add_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_add_mark"));
     drawCommonIcon("including_minus_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_delete_mark"));
@@ -657,7 +661,8 @@ function addItemToWS(){
     let wsId = $("#work_sheet_main_container").attr("ws_id");
     let date = new Date(parseInt($("#work_sheet_main_container").attr("abs_date")));
     date.overrideTime(new Date());
-    sendAjax("CareerServlet","c_add_item_to_ws",{
+
+    sendAjaxBySmartParams("CareerServlet","c_add_item_to_ws",{
         "ws_id" : wsId,
         "plan_item_id" :planItemId,
         "note": getDefaultWorkItemNote(),
@@ -666,8 +671,9 @@ function addItemToWS(){
         "for_add":false,
         "start_time":date.toString()
     },(data)=>{
-        $(this).removeClass("common_prevent_double_click");
         loadWorkSheetDetail_render(data)
+    },()=>{
+        $(this).removeClass("common_prevent_double_click");
     });
 }
 

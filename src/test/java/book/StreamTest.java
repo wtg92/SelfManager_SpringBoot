@@ -168,6 +168,11 @@ public class StreamTest {
 		public void setValue(int value) {
 			this.value = value;
 		}
+		
+		public void test() {
+			
+		}
+		
 	}
 	
 	private static boolean isEven(Num num) {

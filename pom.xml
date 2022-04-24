@@ -44,7 +44,11 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
+		<dependency>
+		  <groupId>jsch</groupId>
+		  <artifactId>jsch</artifactId>
+		  <version>0.1.29</version>
+		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>

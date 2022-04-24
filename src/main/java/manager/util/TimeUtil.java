@@ -254,5 +254,11 @@ public class TimeUtil {
 		  max.set(Calendar.MILLISECOND,999);
 		  return max;
 	  }
+
+	public static String getNeo4jDateTime(Calendar val) {
+		String date = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA).format(val.getTime());
+		String time = new SimpleDateFormat("HH:mm:ss.SSS", Locale.CHINA).format(val.getTime());
+		return date+"T"+time;
+	}
 	  
 }

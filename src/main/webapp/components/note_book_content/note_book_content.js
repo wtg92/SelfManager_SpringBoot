@@ -2,11 +2,19 @@ const NOTE_BOOK_NAMESPACE = {
     LABELS : [],
     LABEL_TAG : "sm_label",
     WAITING_TO_SAVED_NOTES:[],
-    MEMO:undefined
+    MEMO:undefined,
+    NEEDING_SAVING:false
 }
 
 $(function(){
 
+    window.onbeforeunload = ()=>{
+        if(NOTE_BOOK_NAMESPACE.NEEDING_SAVING){
+            return "您还没有保存，确定要离开吗";
+        }
+    };
+
+    
     initNoteLabelsManager();
 
     initNoteBookContentUI();
@@ -64,7 +72,6 @@ $(function(){
     
 
 });
-
 
 
 
@@ -457,7 +464,7 @@ function monitorHotKeys(e){
 
 function changeNoteImportant(){
     let text = $(this).text();
-    confirmInfo("确定要将该笔记页<em>"+text+"</em>吗？当笔记标为重要时，它会始终出现在笔记列表的头部，并且有金色边框提示。",()=>{
+    confirmInfo("确定要将该笔记页<em>"+text+"</em>吗？始终出现在笔记列表的头部，并且有金色边框。",()=>{
         let $bookContainer = $(this).parents(".note_book_for_unit_body_container");
         let $page = $(this).parents(".one_note_book_content_unit");
         let bookId = $bookContainer.attr("book_id");
@@ -881,12 +888,15 @@ function initEditor($page,noteId){
         setup:  function(editor){
             let originalText;
             editor.on("focus",function(e){
+                NOTE_BOOK_NAMESPACE.NEEDING_SAVING = true;
                 originalText = editor.getContent();
             }).on('blur', function(e) {
                 let nowText = editor.getContent();
                 if(originalText != nowText){
                     originalText = nowText;
                     saveNoteContent($page);
+                }else{
+                    NOTE_BOOK_NAMESPACE.NEEDING_SAVING = false;
                 }
             }).on("keydown",function(e){
                 let nowText = editor.getContent();
@@ -895,11 +905,17 @@ function initEditor($page,noteId){
                     if(originalText != nowText){
                         originalText = nowText;
                         saveNoteContent($page);
+                    }else{
+                        NOTE_BOOK_NAMESPACE.NEEDING_SAVING = false;
                     }
                 }
-                if(monitorHotKeys(e) && originalText != nowText){
-                    originalText = nowText;
-                    saveNoteContent($page);
+                if(monitorHotKeys(e)){
+                    if(originalText != nowText){
+                        originalText = nowText;
+                        saveNoteContent($page);
+                    }else{
+                        NOTE_BOOK_NAMESPACE.NEEDING_SAVING = false;
+                    }
                 }
             }).on('keydown', function (evt) {
                 if (evt.keyCode == 9) {
@@ -1052,7 +1068,7 @@ function saveNoteContent($noteContent){
         let indexForDelete = NOTE_BOOK_NAMESPACE.WAITING_TO_SAVED_NOTES.indexOf(existedSavingNote);
         NOTE_BOOK_NAMESPACE.WAITING_TO_SAVED_NOTES.splice(indexForDelete,1);
         if(indexForDelete == -1){
-            throw "unbelieveable? 用错API了？";
+            throw "unbelieveable? 用错API了";
         }
     }
 
@@ -1078,6 +1094,10 @@ function saveNoteContent($noteContent){
         }, () => {
             removeBookNavagtionLoadingState(bookId);
         });
+
+
+    NOTE_BOOK_NAMESPACE.NEEDING_SAVING = false;
+
     },WAITING_MILL_SECONDS);
 
     NOTE_BOOK_NAMESPACE.WAITING_TO_SAVED_NOTES.push(savingMark);

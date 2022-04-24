@@ -476,10 +476,13 @@ public class WorkLogicImpl extends WorkLogic{
 	
 	@Override
 	public List<Plan> loadActivePlans(long loginerId) throws LogicException, DBException {
+		
+		System.out.println("LOGINER_ID:"+loginerId);
+		
 		uL.checkPerm(loginerId, SMPerm.SEE_SELF_PLANS);
 		
 		List<Plan> target = wDAO.selectPlansByOwnerAndStates(loginerId,Arrays.asList(PlanState.ACTIVE,PlanState.PREPARED));
-		
+		System.out.println("TARGET SIZE:"+target.size());
 		List<Plan> prepared = target.stream().filter(one->
 			one.getState()== PlanState.PREPARED
 		).collect(toList());
@@ -499,8 +502,10 @@ public class WorkLogicImpl extends WorkLogic{
 					TimeUtil.parseDate(needToUpdate.getEndDate()),
 					PlanState.PREPARED.getDbCode(),needToUpdate.getState().getDbCode());
 		}
-		
+		System.out.println("SAVE_ENTITY ==== ");
 		CacheScheduler.saveEntities(stateChangedForPrepared, (p)->wDAO.updateExistedPlan(p));
+		
+		System.out.println("SAVE_ENTITY ==== =====");
 		prepared.removeAll(stateChangedForPrepared);
 		target.removeAll(prepared);
 		
@@ -519,6 +524,7 @@ public class WorkLogicImpl extends WorkLogic{
 					TimeUtil.parseDate(needToUpdate.getEndDate()),
 					PlanState.ACTIVE.getDbCode(),needToUpdate.getState().getDbCode());
 		}
+		System.out.println("SAVE_ENTITY ==== ===== 222");
 		CacheScheduler.saveEntities(stateChangedForActive, (p)->wDAO.updateExistedPlan(p));
 		
 		target.removeAll(stateChangedForActive);
