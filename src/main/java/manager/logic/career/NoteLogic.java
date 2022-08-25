@@ -44,7 +44,7 @@ public abstract class NoteLogic{
 	 * @return bookId 方便Servlet
 	 */
 	public abstract long saveNoteImportant(long saverId,long noteId,boolean important) throws DBException,LogicException;
-	
+	public abstract long saveNoteHidden(long saverId,long noteId,boolean important) throws SMException;
 	public abstract void saveNotesSeq (long saverId,long bookId,List<Integer> notesSeq) throws SMException;
 	
 	
@@ -87,19 +87,19 @@ public abstract class NoteLogic{
 	/**
 	 * 处理顺序，有一定容错性：
 	 * a.notesSeq可能为null 旧数据，此时顺序按输入
-	 * b.可能存在ID 不在notesSeq中的情况 此刻是由于保存时意外发生得错误导致的,也有可能是新增的，把这部分摘出来，放到最前面，根据ID倒序
+	 * b.可能存在ID 不在notesSeq中的情况 此刻是由于保存时意外发生得错误导致的,也有可能是新增的，把这部分摘出来，放到最前面，根据Id倒序
 	 * c.可能存在NotesSeq有，但ID没的情况，此时是由于删除或异常情况 过掉。
 	 * d.由于笔记页根据是否重要分组，因此，NotesSeq有，但ID没的情况还可能是由于数据不在所在分组里
 	 */
 	protected static List<Note> sortBy(List<Note> target, String notesSeq) {
 		
-		Comparator<Note> comp = Comparator.comparing(Note::getUpdateTime).reversed();
+		Comparator<Note> comp = Comparator.comparing(Note::getId).reversed();
 		
 		if(notesSeq == null) {
 			return target.stream().sorted(comp).collect(Collectors.toList());
 		}
 		
-		List<Integer> seq = Arrays.stream(notesSeq.split(SM.ARRAY_SPLIT_MARK)).map(Integer::parseInt).collect(Collectors.toList());
+		List<Long> seq = Arrays.stream(notesSeq.split(SM.ARRAY_SPLIT_MARK)).map(Long::parseLong).collect(Collectors.toList());
 		
 		List<Note> rlt = new ArrayList<Note>();
 		
@@ -127,6 +127,7 @@ public abstract class NoteLogic{
 		}
 		return instance;
 	}
+
 	
 
 }

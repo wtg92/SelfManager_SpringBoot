@@ -33,8 +33,21 @@ public class Note extends SMGeneralEntity {
 	
 	@Column
 	private Boolean important;
+	
+	@Column
+	private Boolean hidden;
 
 	
+	
+	
+	public Boolean getHidden() {
+		return hidden;
+	}
+
+	public void setHidden(Boolean hidden) {
+		this.hidden = hidden;
+	}
+
 	public Boolean getImportant() {
 		return important;
 	}

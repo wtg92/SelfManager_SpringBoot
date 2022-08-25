@@ -12,6 +12,7 @@ import static manager.system.SMParm.END_TIME;
 import static manager.system.SMParm.FATHER_ID;
 import static manager.system.SMParm.FOLD;
 import static manager.system.SMParm.FOR_ADD;
+import static manager.system.SMParm.HIDDEN;
 import static manager.system.SMParm.IDS;
 import static manager.system.SMParm.IMPORTANT;
 import static manager.system.SMParm.ITEM_ID;
@@ -239,6 +240,8 @@ public class CareerServlet extends SMServlet{
 			return loadNoteLabels(request);
 		case C_SAVE_NOTE_IMPORTANT:
 			return saveNoteImportant(request);
+		case C_SAVE_NOTE_HIDDEN:
+			return saveNoteHidden(request);
 		case C_ADD_ITEM_TO_MEMO:
 			return addItemToMemo(request);
 		case C_LOAD_MEMO:
@@ -343,7 +346,17 @@ public class CareerServlet extends SMServlet{
 		nL.addItemToMemo(loginerId, content, label, note,srcNoteId);
 		return JSON.toJSONString(nL.loadMemo(loginerId), noteConf); 
 	}
-
+	
+	
+	private String saveNoteHidden(HttpServletRequest request) throws SMException {
+		long loginerId = getLoginerId(request);
+		int noteId = getNonNullParamInInt(request, NOTE_ID);
+		boolean hidden = getNonNullParamInBool(request,HIDDEN);
+		long bookId = nL.saveNoteHidden(loginerId, noteId, hidden);
+		
+		return getBiParamsJSON(nL.loadNote(loginerId, noteId),nL.loadBookContent(loginerId, bookId),noteConf);
+	}
+	
 	private String saveNoteImportant(HttpServletRequest request) throws LogicException, DBException {
 		long loginerId = getLoginerId(request);
 		int noteId = getNonNullParamInInt(request, NOTE_ID);

@@ -401,8 +401,8 @@
 							<div class="web_info_my_work_title">我的作品列表（由新到旧）</div>
 							<div class="web_info_my_work_content"><pdf pdf="如何成为一流程序员？Java，JavaScript">如何成为一流程序员？Java，JavaScript（已完成-计算机技术）</pdf>注：积极寻求出版</div>
 							<div class="web_info_my_work_content"><pdf pdf="原点（The Essence Of Everything）">原点（The Essence Of Everything）（已完成-哲学）</pdf>注：积极寻求出版</div>
-							<div class="web_info_my_work_content"><span class="common_open_new_window" href="https://www.xrzww.com/index.html#/bookdetail?novel_id=27200">低俗家庭（未完成-搞笑生活-长篇小说）</span></div>
-							<div class="web_info_my_work_content"><span class="common_open_new_window" href="https://www.xrzww.com/index.html#/bookdetail?novel_id=19237">换天记（未完成-玄幻-长篇小说）</span></div>
+							<div class="web_info_my_work_content"><span class="common_open_new_window" href="https://www.xrzww.com/bookdetail/27200">低俗家庭（未完成-搞笑生活-长篇小说）</span></div>
+							<div class="web_info_my_work_content"><span class="common_open_new_window" href="https://www.xrzww.com/bookdetail/19237">换天记（未完成-玄幻-长篇小说）</span></div>
 							<div class="web_info_my_work_content"><pdf pdf="理想之剑">理想之剑（已完成-励志-剧本）</pdf></div>
 							<div class="web_info_my_work_content"><pdf pdf="如水的青春年华_小说">如水的青春年华（已完成-爱情-小说）</pdf></div>
 							<div class="web_info_my_work_content"><pdf pdf="如水的青春年华_剧本">如水的青春年华（已完成-爱情-剧本）</pdf></div>

@@ -87,6 +87,7 @@ public enum SMOP {
 	C_LOAD_NOTE_LABELS("c_load_note_labels"),
 	
 	C_SAVE_NOTE_IMPORTANT("c_save_important"),
+	C_SAVE_NOTE_HIDDEN("c_save_hidden"),
 	
 	C_SAVE_MEMO("c_save_memo"),
 	C_ADD_ITEM_TO_MEMO("c_add_item_to_memo"),

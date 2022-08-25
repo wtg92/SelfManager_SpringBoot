@@ -39,6 +39,12 @@ $(function(){
         .on("click",".note_book_main_info_close_note_page_edit_mode",closeNotePageEditModeByClick)
         .on("click",".note_book_main_info_swtich_merging_page_mode",switchNotePageMergingModeByClick)
         .on("click",".note_book_main_info_swtich_spliting_page_mode",switchNotePageSplitingModeByClick)
+
+
+        .on("click",".note_book_main_info_show_hidden_notes",showHiddenNotesByClick)
+        .on("click",".note_book_main_info_close_show_hidden_notes",closeShowHiddenNotesByClick)
+
+
         .on("click",".note_book_main_info_show_page_title_btn",showNotePageTitleByClick)
         .on("click",".note_book_main_info_hide_page_title_btn",hideNotePageTitleByClick)
         .on("click",".note_book_main_info_open_note_list_edit_mode",openNoteListEditModeByClick)
@@ -57,6 +63,7 @@ $(function(){
         .on("click","sm_label[label_name='EM']",copyEMContent)
         .on("click",".note_book_call_out_labels_manager_btn",callOutLabelsManager)
         .on("click",".one_note_book_content_unit_page_control_mark_important,.one_note_book_content_unit_page_control_mark_general",changeNoteImportant)
+        .on("click",".one_note_book_content_unit_page_control_mark_hidden,.one_note_book_content_unit_page_control_mark_show",changeNoteHidden)
         .on("click",".one_note_book_content_unit_page_control_delete_btn",deleteNoteByClickBtnInPage)
 
     $("#note_book_content_main_header_units_container").on("click",".note_book_for_unit_header_navagation_container",switchBookContentWindow)
@@ -462,6 +469,30 @@ function monitorHotKeys(e){
 }
 
 
+
+
+function changeNoteHidden(){
+    let $bookContainer = $(this).parents(".note_book_for_unit_body_container");
+    let $page = $(this).parents(".one_note_book_content_unit");
+    let bookId = $bookContainer.attr("book_id");
+    let noteId = $page.attr("note_id");
+    addBookNavagtionLoadingState(bookId);
+    $(this).addClass("common_prevent_double_click");
+    sendAjaxBySmartParams("CareerServlet", "c_save_hidden", {
+        "note_id":noteId,
+        "hidden" : $(this).attr("note_hidden")
+    }, (data) => {
+        fillNotePageByData($page,data.firstRlt);
+        refillNoteList($bookContainer,data.secondRlt);
+    }, () => {
+        removeBookNavagtionLoadingState(bookId);
+        $(this).removeClass("common_prevent_double_click");
+    });
+}
+
+
+
+
 function changeNoteImportant(){
     let text = $(this).text();
     confirmInfo("确定要将该笔记页<em>"+text+"</em>吗？始终出现在笔记列表的头部，并且有金色边框。",()=>{
@@ -862,9 +893,14 @@ function fillNotePageByData($page,data){
     let content = data.note.content;
     let calculateLabeledRlt = calculateNoteLabels(content);
     
-    $page.attr("note_id",noteId).find(".one_note_book_content_unit_page_name").text(data.note.name).end()
+    $page.attr({
+        "note_id":noteId,
+        "hidden_note":data.note.hidden
+    }).find(".one_note_book_content_unit_page_name").text(data.note.name).end()
     .find(".one_note_book_content_unit_page_control_mark_important").toggle(!data.note.important).end()
     .find(".one_note_book_content_unit_page_control_mark_general").toggle(data.note.important).end()
+    .find(".one_note_book_content_unit_page_control_mark_hidden").toggle(!data.note.hidden).end()
+    .find(".one_note_book_content_unit_page_control_mark_show").toggle(data.note.hidden).end()
     .find(".one_note_book_content_unit_page_name_input").val(data.note.name).end()
     .find(".page_create_time").text(new Date(data.note.createTime).toSmartString()).end()
     .find(".page_update_time").text(new Date(data.note.updateTime).toSmartString()).end()
@@ -1422,6 +1458,7 @@ function fillNoteNavagationByData($note,note){
     
     $note.attr({"note_id":note.id,
         "important_note":note.important,
+        "hidden_note":note.hidden
     }).find(".note_book_list_item_title").text(note.name).end()
     .toggleClass("warning_with_todos",note.withTodos)
 
@@ -1546,6 +1583,26 @@ function openNoteBookBasicInfoEditModeByClick(){
     let $container = $(this).parents(".note_book_for_unit_body_container");
     openNoteBookBasicInfoEditMode($container)
 }
+
+
+function showHiddenNotesByClick(){
+    let $container = $(this).parents(".note_book_for_unit_body_container");
+    showHiddenNotes($container)
+}
+
+function showHiddenNotes($container){
+    $container.attr("show_hidden_notes",true);
+}
+
+function closeShowHiddenNotesByClick(){
+    let $container = $(this).parents(".note_book_for_unit_body_container");
+    closeShowHiddenNotes($container)
+}
+
+function closeShowHiddenNotes($container){
+    $container.attr("show_hidden_notes",false);
+}
+
 
 function openNotePageEditModeByClick(){
     let $container = $(this).parents(".note_book_for_unit_body_container");
@@ -1797,6 +1854,7 @@ function drawNotesBookContent(data,usingWatchMode){
         $container.find(".note_book_baisc_info_infos_list_main_container").click();
 
         closeNoteBookBasicInfoEditMode($container);
+        closeShowHiddenNotes($container);
         switchNotePageSplitingMode($container);
         showNotePageTitle($container);
         switchContainerMode($container,usingWatchMode)

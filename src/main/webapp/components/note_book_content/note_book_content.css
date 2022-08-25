@@ -606,6 +606,12 @@ sm_label[label_name="DONE"],.one_note_label_of_manager_introduction[label_name="
     display: none;
 }
 
+
+
+
+
+
+
 .note_book_for_unit_header_navagation_loading_mark{
     margin-right: 5px;
     display: none;
@@ -795,6 +801,22 @@ sm_label[label_name="DONE"],.one_note_label_of_manager_introduction[label_name="
 }
 
 /*show_note_page_title ===end===*/
+
+
+.note_book_for_unit_body_container[show_hidden_notes='false'] .note_book_title_item_cotnainer[hidden_note='true']{
+    display: none;
+}
+
+.note_book_for_unit_body_container[show_hidden_notes='true'] .note_book_main_info_show_hidden_notes{
+    display: none;
+}
+
+.note_book_for_unit_body_container[show_hidden_notes='false'] .note_book_main_info_close_show_hidden_notes{
+    display: none;
+}
+
+
+
 
 /* NotePageEditMode */
 .note_book_for_unit_body_container[open_note_page_edit_mode='false'] .one_note_book_content_unit_page_control_btns{

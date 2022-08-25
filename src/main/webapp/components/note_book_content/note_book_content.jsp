@@ -128,6 +128,10 @@
 			 <span class="note_book_main_info_swtich_merging_page_mode common_blue_font common_hover">合页显示</span>
 			 <span class="note_book_main_info_swtich_spliting_page_mode common_blue_font common_hover">分页显示</span>
 			 
+			 <span class="note_book_main_info_show_hidden_notes common_blue_font common_hover">显示隐藏页</span>
+			 <span class="note_book_main_info_close_show_hidden_notes common_blue_font common_hover">取消显示隐藏页</span>
+			 
+			 
 			 <span class="note_book_main_info_open_note_page_edit_mode common_blue_font common_hover" >编辑笔记页（ctrl+q）</span>
 			 <span class="note_book_main_info_close_note_page_edit_mode common_blue_font common_hover" >取消编辑笔记页（ctrl+q）</span>
 			 <span class="note_book_main_info_open_note_list_edit_mode common_blue_font common_hover">编辑目录（拖动调整顺序）</span>
@@ -220,6 +224,8 @@
 				<div class="one_note_book_content_unit_delete_mark">&times;</div>
 			</div>
 			<div class="one_note_book_content_unit_page_control_btns">
+				<span class="one_note_book_content_unit_page_control_mark_hidden common_blue_font common_hover" note_hidden="true">隐藏</span>
+				<span class="one_note_book_content_unit_page_control_mark_show common_blue_font common_hover" note_hidden="false">取消隐藏</span>
 				<span class="one_note_book_content_unit_page_control_mark_important common_blue_font common_hover" note_important="true">标为重要</span>
 				<span class="one_note_book_content_unit_page_control_mark_general common_blue_font common_hover" note_important="false">标为普通</span>
 				<span class="one_note_book_content_unit_page_control_delete_btn common_blue_font common_hover" note_important="true">删除</span>

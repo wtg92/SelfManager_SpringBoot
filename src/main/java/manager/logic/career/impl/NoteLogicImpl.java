@@ -112,16 +112,34 @@ public class NoteLogicImpl extends NoteLogic {
 
 		checkBookOpened(book);
 
-		if (important == note.getImportant()) {
-			throw new LogicException(SMError.EDIT_NOTE_ERROR, "不能将重要的笔记标为重要或将普通笔记标为普通");
-		}
-		
 		note.setImportant(important);
 		
 		CacheScheduler.saveEntity(note, one -> nDAO.updateExistedNote(one));
 
 		return noteBookId;
 	}
+	
+	
+	@Override
+	public long saveNoteHidden(long saverId, long noteId, boolean hidden) throws DBException, LogicException {
+		Note note = CacheScheduler.getOne(CacheMode.E_ID, noteId, Note.class, () -> nDAO.selectExistedNote(noteId));
+
+		long noteBookId = note.getNoteBookId();
+		NoteBook book = CacheScheduler.getOne(CacheMode.E_ID, noteBookId, NoteBook.class,
+				() -> nDAO.selectExistedNoteBook(noteBookId));
+		if (saverId != book.getOwnerId()) {
+			throw new LogicException(SMError.EDIT_NOTE_ERROR, "无权修改别人的笔记");
+		}
+
+		checkBookOpened(book);
+
+		note.setHidden(hidden);
+		
+		CacheScheduler.saveEntity(note, one -> nDAO.updateExistedNote(one));
+
+		return noteBookId;
+	}
+	
 	
 	@Override
 	public void saveNote(long saverId, long noteId, String name, String content, boolean withTodos)
