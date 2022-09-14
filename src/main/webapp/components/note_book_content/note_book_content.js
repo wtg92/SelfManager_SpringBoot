@@ -1223,6 +1223,8 @@ function saveNoteContent($noteContent){
         fillNotePageByData($noteContent,{
             "note" : inCache
         });
+
+        removeBookNavagtionLoadingState(bookId);
     });
 }
 

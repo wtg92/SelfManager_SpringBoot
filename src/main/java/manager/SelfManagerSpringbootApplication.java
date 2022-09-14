@@ -6,12 +6,11 @@ import java.net.UnknownHostException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.core.env.Environment;
 
 /*!!! 测试时打开该注解*/
-@SpringBootApplication
+//@SpringBootApplication
 @ServletComponentScan
 public class SelfManagerSpringbootApplication {
 	
