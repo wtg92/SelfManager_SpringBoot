@@ -449,6 +449,14 @@ function preventDoubleClick(dom){
 }
 
 
+function confirmInfoConditionally(trueCondition,text,positiveFunc,positiveButtonText,negativeButtonText,negativeFunc){
+    if(trueCondition){
+        confirmInfoUnit($("#including_confirm_dialog"),text,positiveFunc,positiveButtonText,negativeButtonText,negativeFunc);
+    }else{
+        positiveFunc();
+    }
+}
+
 
 /** 
  * positiveButtonText 可缺省 默认为 确定

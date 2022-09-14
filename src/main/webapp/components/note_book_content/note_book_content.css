@@ -807,6 +807,12 @@ sm_label[label_name="DONE"],.one_note_label_of_manager_introduction[label_name="
     display: none;
 }
 
+.note_book_title_item_cotnainer[hidden_note='true']{
+    opacity: 0.8;
+}
+
+
+
 .note_book_for_unit_body_container[show_hidden_notes='true'] .note_book_main_info_show_hidden_notes{
     display: none;
 }

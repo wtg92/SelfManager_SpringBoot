@@ -3,7 +3,8 @@ const NOTE_BOOK_NAMESPACE = {
     LABEL_TAG : "sm_label",
     WAITING_TO_SAVED_NOTES:[],
     MEMO:undefined,
-    NEEDING_SAVING:false
+    NEEDING_SAVING:false,
+    INITIAL_NOTES:[]
 }
 
 $(function(){
@@ -494,25 +495,21 @@ function changeNoteHidden(){
 
 
 function changeNoteImportant(){
-    let text = $(this).text();
-    confirmInfo("确定要将该笔记页<em>"+text+"</em>吗？始终出现在笔记列表的头部，并且有金色边框。",()=>{
-        let $bookContainer = $(this).parents(".note_book_for_unit_body_container");
-        let $page = $(this).parents(".one_note_book_content_unit");
-        let bookId = $bookContainer.attr("book_id");
-        let noteId = $page.attr("note_id");
-        addBookNavagtionLoadingState(bookId);
-        $(this).addClass("common_prevent_double_click");
-        sendAjaxBySmartParams("CareerServlet", "c_save_important", {
-            "note_id":noteId,
-            "important" : $(this).attr("note_important")
-        }, (data) => {
-            fillNotePageByData($page,data.firstRlt);
-            refillNoteList($bookContainer,data.secondRlt);
-        }, () => {
-            removeBookNavagtionLoadingState(bookId);
-            $(this).removeClass("common_prevent_double_click");
-        });
-
+    let $bookContainer = $(this).parents(".note_book_for_unit_body_container");
+    let $page = $(this).parents(".one_note_book_content_unit");
+    let bookId = $bookContainer.attr("book_id");
+    let noteId = $page.attr("note_id");
+    addBookNavagtionLoadingState(bookId);
+    $(this).addClass("common_prevent_double_click");
+    sendAjaxBySmartParams("CareerServlet", "c_save_important", {
+        "note_id":noteId,
+        "important" : $(this).attr("note_important")
+    }, (data) => {
+        fillNotePageByData($page,data.firstRlt);
+        refillNoteList($bookContainer,data.secondRlt);
+    }, () => {
+        removeBookNavagtionLoadingState(bookId);
+        $(this).removeClass("common_prevent_double_click");
     });
 }
 
@@ -878,29 +875,80 @@ function getEditor(noteId){
 /*editor可能存在加载延迟导致setContent失效 需要做点保护手段*/
 function setEditorContent(noteId,content){
     let targetEditor = getEditor(noteId);
-    if(targetEditor.contentDocument != null){
-        targetEditor.setContent(content);
-    }else{
-        setTimeout(()=>{
-            targetEditor = getEditor(noteId);
-            targetEditor.setContent(content)
-        },500);
-    }
+    targetEditor.setContent(content);   
+    setTimeout(()=>{
+        let checkContent = tinymce.get(generateEditorId(noteId)).getContent();
+        if(!isBlankNoteContent(content) && 
+                isBlankNoteContent(checkContent)){
+            console.log("递归校验content 为空机制 is working !!!")
+            setEditorContent(noteId,content);
+        }
+    },500);
 }
+
+function getNoteFromCache(noteId){
+    let cache = NOTE_BOOK_NAMESPACE.INITIAL_NOTES;
+    let identify = parseInt(noteId);
+    return cache.find(one=>one.id == identify)
+}
+
+
+function addOrUpdateToNotesCache(note){
+
+    let cache = NOTE_BOOK_NAMESPACE.INITIAL_NOTES;
+
+    let existedIndex = cache.findIndex(one=>one.id == note.id)
+    if(existedIndex != -1){
+        cache.splice(existedIndex, 1);
+    }
+
+
+    let afterlength = cache.push(note);
+    
+    console.log("Print Cache Size ::: "+afterlength+ "::" +cache.length);
+}
+
+function removeNoteFromCache(noteId){
+
+    let cache = NOTE_BOOK_NAMESPACE.INITIAL_NOTES;
+
+    let identify = parseInt(noteId);
+    let existedIndex = cache.findIndex(one=>one.id == identify)
+    if(existedIndex != -1){
+        cache.splice(existedIndex, 1);
+    }
+
+    console.log("Print Cache Size ::: " +cache.length);
+}
+
+function removeNotesFromCacheByBook(bookId){
+
+    let identify = parseInt(bookId);
+    let cache = NOTE_BOOK_NAMESPACE.INITIAL_NOTES;
+
+    cache.filter(one => one.noteBookId == identify).forEach(e=>{
+        removeNoteFromCache(e.id)
+    });
+}
+
 
 function fillNotePageByData($page,data){
     let noteId = data.note.id;
     let content = data.note.content;
     let calculateLabeledRlt = calculateNoteLabels(content);
     
+    addOrUpdateToNotesCache(data.note);
+
+    let noteHidden = data.note.hidden == null ? false : data.note.hidden;
+
     $page.attr({
         "note_id":noteId,
         "hidden_note":data.note.hidden
     }).find(".one_note_book_content_unit_page_name").text(data.note.name).end()
     .find(".one_note_book_content_unit_page_control_mark_important").toggle(!data.note.important).end()
     .find(".one_note_book_content_unit_page_control_mark_general").toggle(data.note.important).end()
-    .find(".one_note_book_content_unit_page_control_mark_hidden").toggle(!data.note.hidden).end()
-    .find(".one_note_book_content_unit_page_control_mark_show").toggle(data.note.hidden).end()
+    .find(".one_note_book_content_unit_page_control_mark_hidden").toggle(!noteHidden).end()
+    .find(".one_note_book_content_unit_page_control_mark_show").toggle(noteHidden).end()
     .find(".one_note_book_content_unit_page_name_input").val(data.note.name).end()
     .find(".page_create_time").text(new Date(data.note.createTime).toSmartString()).end()
     .find(".page_update_time").text(new Date(data.note.updateTime).toSmartString()).end()
@@ -1008,7 +1056,13 @@ function switchNotePageByClick(){
 }
 
 
+
+
 function removeNotePageIfExisted($container,noteId){
+    
+    removeNoteFromCache(noteId);
+    
+    
     let $existed = $container.find(".one_note_book_content_unit[note_id='"+noteId+"']");
     if($existed.length == 0){
         return;
@@ -1068,6 +1122,17 @@ function isCtrlS(e){
 }
 
 
+function isBlankNoteContent(content){
+    return content == null || content.replaceAll("\n","")
+    .replaceAll("</p>","")
+    .replaceAll("<p>","")
+    .replaceAll("&nbsp;","")
+    .trim().length == 0;
+}
+
+
+
+
 /** 
  * 这里必须要保证页面的同步 即编辑器和DIV的同步
  * 理论上 我这里得防止它连点 我让它延迟个300毫秒再发送请求 (防止更新过于频繁)
@@ -1090,54 +1155,79 @@ function saveNoteContent($noteContent){
 
     let content = tinymce.get(generateEditorId(noteId)).getContent();
 
-    /*只需要同步即可*/
-    let calculateLabeledRlt = calculateNoteLabels(content);
-    $noteContent.find(".one_note_book_content_unit_body_show_info").html(calculateLabeledRlt);
+    /**
+     * 检验Content 和 缓存里的Content:
+     * 当缓存里的content不为空  这里为空时候 我会认为他恨可疑 从而提示confirm框。
+     */
+    let existedInCache = getNoteFromCache(noteId);
+    confirmInfoConditionally(existedInCache != null 
+        && !isBlankNoteContent(existedInCache.content)
+        && isBlankNoteContent(content)
+        ,"你似乎删除了笔记页全部的内容，确定保存清空吗？",()=>{
+                /*只需要同步即可*/
+            let calculateLabeledRlt = calculateNoteLabels(content);
+            $noteContent.find(".one_note_book_content_unit_body_show_info").html(calculateLabeledRlt);
 
-    let withTodos = $noteContent.find("sm_label[label_name='TODO']").length>0;
-    refreshNoteLabelsManager($container);
+            let withTodos = $noteContent.find("sm_label[label_name='TODO']").length>0;
+            refreshNoteLabelsManager($container);
 
-
-    let existedSavingNote = NOTE_BOOK_NAMESPACE.WAITING_TO_SAVED_NOTES.find(e=>e.noteId == noteId);
-    if(existedSavingNote != undefined){
-        clearTimeout(existedSavingNote.timeoutId);
-        let indexForDelete = NOTE_BOOK_NAMESPACE.WAITING_TO_SAVED_NOTES.indexOf(existedSavingNote);
-        NOTE_BOOK_NAMESPACE.WAITING_TO_SAVED_NOTES.splice(indexForDelete,1);
-        if(indexForDelete == -1){
-            throw "unbelieveable? 用错API了";
-        }
-    }
-
-    let savingMark = {
-        "noteId" : noteId
-    };
-    
-    savingMark.timeoutId= setTimeout(()=>{
-        sendAjaxBySmartParams("CareerServlet", "c_save_note", {
-            "note_id":noteId,
-            "name":name,
-            "content":content,
-            "with_todos" : withTodos
-        }, (data) => {
-            $noteContent.find(".page_update_time").text(new Date(data.note.updateTime).toSmartString()).end()
-            let $navagation = $container.find(".note_book_title_item_cotnainer[note_id='"+noteId+"']");
-            fillNoteNavagationByData($navagation,data.note);
-        
-            /*假如NoteName变了 刷新一下memo缓存 防止《来自》的数据不一致*/
-            if(srcNoteName!=name){
-                loadMemo();
+            let existedSavingNote = NOTE_BOOK_NAMESPACE.WAITING_TO_SAVED_NOTES.find(e=>e.noteId == noteId);
+            if(existedSavingNote != undefined){
+                clearTimeout(existedSavingNote.timeoutId);
+                let indexForDelete = NOTE_BOOK_NAMESPACE.WAITING_TO_SAVED_NOTES.indexOf(existedSavingNote);
+                NOTE_BOOK_NAMESPACE.WAITING_TO_SAVED_NOTES.splice(indexForDelete,1);
+                if(indexForDelete == -1){
+                    throw "unbelieveable? 用错API了";
+                }
             }
-        }, () => {
-            removeBookNavagtionLoadingState(bookId);
+
+            let savingMark = {
+                "noteId" : noteId
+            };
+            
+            savingMark.timeoutId= setTimeout(()=>{
+                sendAjaxBySmartParams("CareerServlet", "c_save_note", {
+                    "note_id":noteId,
+                    "name":name,
+                    "content":content,
+                    "with_todos" : withTodos
+                }, (data) => {
+
+                    addOrUpdateToNotesCache(data.note);
+
+                    $noteContent.find(".page_update_time").text(new Date(data.note.updateTime).toSmartString()).end()
+                    let $navagation = $container.find(".note_book_title_item_cotnainer[note_id='"+noteId+"']");
+                    fillNoteNavagationByData($navagation,data.note);
+                
+                    /*假如NoteName变了 刷新一下memo缓存 防止《来自》的数据不一致*/
+                    if(srcNoteName!=name){
+                        loadMemo();
+                    }
+                }, () => {
+                    removeBookNavagtionLoadingState(bookId);
+                });
+
+
+            NOTE_BOOK_NAMESPACE.NEEDING_SAVING = false;
+
+            },WAITING_MILL_SECONDS);
+
+            NOTE_BOOK_NAMESPACE.WAITING_TO_SAVED_NOTES.push(savingMark);
+    },"确定","还原",()=>{
+
+        let inCache = getNoteFromCache(noteId);
+
+        /**
+         * 函数的遗留问题 需要包一层
+         */
+        fillNotePageByData($noteContent,{
+            "note" : inCache
         });
-
-
-    NOTE_BOOK_NAMESPACE.NEEDING_SAVING = false;
-
-    },WAITING_MILL_SECONDS);
-
-    NOTE_BOOK_NAMESPACE.WAITING_TO_SAVED_NOTES.push(savingMark);
+    });
 }
+
+
+
 
 function prependNewLineIfNotExists(content){
     let rlt = content;
@@ -1345,6 +1435,9 @@ function closeBookWindowByClick(e){
  * 无next() 跳转到prev()
  */
 function closeBookWindowAndRemoveFromNavagation(bookId){
+
+    removeNotesFromCacheByBook(bookId);
+
     getWindowBodyById(bookId).remove();
     let $targetNavagtion = getWindowNavagationById(bookId);
 

@@ -230,7 +230,7 @@
 				<span class="one_note_book_content_unit_page_control_mark_general common_blue_font common_hover" note_important="false">标为普通</span>
 				<span class="one_note_book_content_unit_page_control_delete_btn common_blue_font common_hover" note_important="true">删除</span>
 			</div>
-			<div class="one_note_book_content_unit_page_info"><em>鼠标失焦</em>和<em>ctrl+s</em>时触发保存，笔记页创建于<span class="page_create_time"></span>，保存于<span class="page_update_time"></span></div>
+			<div class="one_note_book_content_unit_page_info"><em>鼠标失焦</em>和<em>ctrl+s</em>时触发保存，创建于<span class="page_create_time"></span>，保存于<span class="page_update_time"></span></div>
 		</div>
 		<div class="one_note_book_content_unit_body">
 			<textarea></textarea>
