@@ -7,5 +7,8 @@ package manager.logic;
  *
  */
 public class SyncDataLogic {
-
+	
+	public static void main(String[] args) {
+		System.out.println("WTF");
+	}
 }

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <script src="https://cdn.bootcdn.net/ajax/libs/flv.js/1.6.2/flv.min.js"></script>
+</head>
+<style>
+  .rtsp-wrapper{
+    width: 100vw;
+    height: 100vh
+  }
+</style>
+<body>
+  <div class="rtsp-wrapper">
+    <video id="videoEl" style="width: 100%;height: 100%" controls></video>
+  </div>
+</body>
+<script>
+  if (flvjs.isSupported()) {
+    let rtspUrl = "rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mp4"
+    let flvUrl = `ws://192.168.1.12:8100/rtsp?url=${window.btoa(rtspUrl)}`
+    let remoteUrl = "test/getVideo?id=0"
+    console.log(flvUrl)
+    var videoEl = document.getElementById('videoEl')
+    var flvPlayer = flvjs.createPlayer({
+      type: 'flv',
+      isLive:true,
+      // hasAudio:true,
+      // hasVideo:true,
+      url: remoteUrl
+    })
+
+    // 监听错误事件
+    flvPlayer.on(flvjs.Events.ERROR, (err, errdet) => {
+      // 参数 err 是一级异常，errdet 是二级异常
+      if (err == flvjs.ErrorTypes.MEDIA_ERROR) {
+        console.log('媒体错误')
+        if(errdet == flvjs.ErrorDetails.MEDIA_FORMAT_UNSUPPORTED) {
+          console.log('媒体格式不支持')
+        }
+      }
+      if (err == flvjs.ErrorTypes.NETWORK_ERROR) {
+        console.log('网络错误')
+        if(errdet == flvjs.ErrorDetails.NETWORK_STATUS_CODE_INVALID) {
+          console.log('http状态码异常')
+        }
+      }
+      if(err == flvjs.ErrorTypes.OTHER_ERROR) {
+        console.log('其他异常：', errdet)
+      }
+    })
+
+    flvPlayer.attachMediaElement(videoEl)
+    flvPlayer.load()
+    flvPlayer.play()
+  }else {
+    alert("您的浏览器不支持flv播放")
+  }
+</script>
+</html>
