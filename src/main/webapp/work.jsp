@@ -35,7 +35,7 @@
   							<span aria-hidden="true">&times;</span>
 						</button>
  						 <h4 class="alert-heading">嗨!</h4>
- 						 <p>您还没有进行中的计划，快来<em><span class="work_plan_create_plan_in_hint common_hover">创建</span></em>一个吧。如果有些困惑，也可以先<em><span class="work_leran_to_use_work_sheet common_hover">简单了解</span></em>工作表的使用方式。</p>
+ 						 <p>没有进行中的计划，<em><span class="work_plan_create_plan_in_hint common_hover">创建</span></em>计划。如果困惑，可以<em><span class="work_leran_to_use_work_sheet common_hover">了解</span></em>工作表的使用方式。</p>
 					</div>
 					
 						<div class="common_loading_message">加载中......</div>
@@ -55,7 +55,7 @@
 						<span class="btn btn-outline-primary" id="batch_sync_wss_in_ws_infos_recently">同步列表内工作表</span>
 						<span class="btn btn-outline-primary" id="work_open_ws_stat_of_date_range_dialog_btn">时间范围分析</span>
 						<span class="btn btn-outline-primary" id="work_open_plan_dept_dialog_btn">历史欠账</span>
-						<span class="btn btn-outline-primary common_go_to_page" href="all_ws.jsp" >查看所有</span>
+						<span class="btn btn-outline-primary common_go_to_page" href="all_ws.jsp" >看所有</span>
 					</div>
 					<div class="common_loading_message">加载中......</div>
 					<div id="work_work_sheet_main_body" class="common_grey_background">
@@ -65,7 +65,7 @@
 							</div>
 							<div id="work_ws_sub_left_container_body"></div>
 							<div id="work_ws_sub_left_container_footer">
-								<div class="work_see_more_ws common_grey_button_hover">查看更多......</div>
+								<div class="work_see_more_ws common_grey_button_hover">看更多......</div>
 								<div class="work_no_more_ws" >没有更多了......</div>
 							</div>
 						</div>
@@ -75,7 +75,7 @@
 								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
   									<span aria-hidden="true">&times;</span>
 								</button>
- 						 		<p>到现在为止，已经有<em></em>个人和您一样，开启了今天的工作表</p>
+ 						 		<p>今天已有<em></em>人开启工作表</p>
 							</div>
 							<div id="work_ws_count_ws_prev_day_alert" class="alert alert-success fade show" role="alert">
 								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -90,7 +90,7 @@
 								</div>
 							</div>
 							<div class="work_ws_blank_container">
-								您没有开启任何工作表
+								未开启工作表
 							</div>
 						</div>
 					</div>
@@ -215,7 +215,7 @@
   			当登记完工作之后，系统会根据登记的工作，生成可供分析的报表，无论是每日的工作统计，还是在一段时间内的工作统计。
   		</p>
   		 <p>
-  			以上就是对工作表的简单介绍，祝您使用愉快。
+  			以上就是对工作表的简单介绍，使用愉快。
   		</p>
 		<a href="<%=SM.BASIC_FILES_FOLDER%>plan_example1_report.jpg" data-fancybox data-caption="2021.9.18" >
     		<img src="<%=SM.BASIC_FILES_FOLDER%>plan_example1_report.jpg" />

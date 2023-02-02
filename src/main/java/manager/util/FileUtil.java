@@ -54,6 +54,7 @@ public class FileUtil {
 		while ((b = in.read()) != -1) {
 			out.write(b);
 		}
+		out.flush();
 	}
 
 	public static String getSuffix(String fileName) {
