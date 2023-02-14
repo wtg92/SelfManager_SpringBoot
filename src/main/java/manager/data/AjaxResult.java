@@ -50,8 +50,9 @@ public class AjaxResult extends HashMap<String, Object>
     {
         super.put(CODE_TAG, code);
         super.put(MSG_TAG, msg);
+        
         if (data != null)
-        {
+        {	
             super.put(DATA_TAG, data);
         }
     }
@@ -63,7 +64,7 @@ public class AjaxResult extends HashMap<String, Object>
      */
     public static AjaxResult success()
     {
-        return AjaxResult.success("操作成功");
+        return AjaxResult.success("");
     }
 
     /**
@@ -73,7 +74,7 @@ public class AjaxResult extends HashMap<String, Object>
      */
     public static AjaxResult success(Object data)
     {
-        return AjaxResult.success("操作成功", data);
+        return AjaxResult.success("", data);
     }
 
     /**

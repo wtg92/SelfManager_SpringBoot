@@ -3,7 +3,17 @@ $(function (){
     $("#footer_information_groups_container").on("click","[container]",function(){
         window.location.href = "web_info.jsp?container="+$(this).attr("container")
     });
+
+    reloadAppStartTimeInfo();
 });
+
+
+function reloadAppStartTimeInfo(){
+    sendGet("common/getBasicInfo",(data)=>{
+        let timeInfo = new Date(data.data.appStartTime)
+        $("#bei_an_mes_container .version_mes>span").text(timeInfo);
+    })
+}
 
 
 

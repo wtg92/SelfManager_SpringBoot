@@ -399,17 +399,17 @@
 						
 						<div class="web_info_my_work_container">
 							<div class="web_info_my_work_title">我的作品列表（由新到旧）</div>
-							<div class="web_info_my_work_content"><span class="common_open_new_window" href="https://book.qidian.com/info/1035044128/">陆想的史诗（连载中-异术超能-长篇小说）</span></div>
+							<div class="web_info_my_work_content"><span class="common_open_new_window" href="https://www.xrzww.com/bookdetail/95702">陆想的史诗（连载中-异术超能-长篇小说）</span></div>
 							<div class="web_info_my_work_content"><pdf pdf="howToBeAGoodCoder">如何成为一流程序员？Java，JavaScript（已完成-计算机技术）</pdf>注：积极寻求出版</div>
 							<div class="web_info_my_work_content"><pdf pdf="原点（The Essence Of Everything）">原点（The Essence Of Everything）（已完成-哲学）</pdf>注：积极寻求出版</div>
 							<div class="web_info_my_work_content"><span class="common_open_new_window" href="https://www.xrzww.com/bookdetail/27200">低俗家庭（未完成-搞笑生活-长篇小说）</span></div>
 							<div class="web_info_my_work_content"><span class="common_open_new_window" href="https://www.xrzww.com/bookdetail/19237">换天记（未完成-玄幻-长篇小说）</span></div>
 							<div class="web_info_my_work_content"><pdf pdf="理想之剑">理想之剑（已完成-励志-剧本）</pdf></div>
-							<div class="web_info_my_work_content"><pdf pdf="如水的青春年华_小说">如水的青春年华（已完成-爱情-小说）</pdf></div>
+							<div class="web_info_my_work_content"><span class="common_open_new_window" href="https://www.xrzww.com/column/userpage?id=42">如水的青春年华（已完成-爱情-小说）</span></div>
 							<div class="web_info_my_work_content"><pdf pdf="如水的青春年华_剧本">如水的青春年华（已完成-爱情-剧本）</pdf></div>
 							<div class="web_info_my_work_content"><pdf pdf="许氏异闻-新租客">许氏异闻-新租客（已完成-悬疑爱情短片-剧本）</pdf></div>
 							<div class="web_info_my_work_content"><pdf pdf="许氏异闻-少女的祈祷">许氏异闻-少女的祈祷（已完成-悬疑短片-剧本）</pdf></div>
-							<div class="web_info_my_work_content"><pdf pdf="死无对证_小说">死无对证（已完成-校园悬疑-小说）</pdf></div>
+							<div class="web_info_my_work_content"><span class="common_open_new_window" href="https://www.xrzww.com/column/userpage?id=42">死无对证（已完成-校园悬疑-小说）</span></div>
 							<div class="web_info_my_work_content"><pdf pdf="死无对证_剧本">死无对证（已完成-校园悬疑-剧本）</pdf></div>
 							<div class="web_info_my_work_content"><pdf pdf="最佳损友的爱情故事">最佳损友的爱情故事（已完成-喜剧-剧本）</pdf></div>
 							<div class="web_info_my_work_content"><pdf pdf="中国设施农业现状、基于五天的实习经历">中国设施农业现状、基于五天的实习经历（学术，大三写的实习报告）</pdf></div>

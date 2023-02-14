@@ -132,8 +132,8 @@
 			 <span class="note_book_main_info_close_show_hidden_notes common_blue_font common_hover">取消显示隐藏页</span>
 			 
 			 
-			 <span class="note_book_main_info_open_note_page_edit_mode common_blue_font common_hover" >编辑笔记页（ctrl+q）</span>
-			 <span class="note_book_main_info_close_note_page_edit_mode common_blue_font common_hover" >取消编辑笔记页（ctrl+q）</span>
+			 <span class="note_book_main_info_open_note_page_edit_mode common_blue_font common_hover" >编辑页（ctrl+q）</span>
+			 <span class="note_book_main_info_close_note_page_edit_mode common_blue_font common_hover" >取消编辑页（ctrl+q）</span>
 			 <span class="note_book_main_info_open_note_list_edit_mode common_blue_font common_hover">编辑目录（拖动调整顺序）</span>
 			 <span class="note_book_main_info_close_note_list_edit_mode common_blue_font common_hover">取消编辑目录</span>
 			 <span class="note_book_baisc_info_infos_list_main_container common_blue_font common_hover"></span>
@@ -141,7 +141,7 @@
 		</div>
 		<div class="note_book_baisc_info_for_unit_body_container">
 			<div class="note_book_baisc_info_header">
-      			<div class="note_book_baisc_info_title">笔记本信息</div>
+      			<div class="note_book_baisc_info_title">基本信息</div>
       			<div class="note_book_baisc_info_controlgroup">
       			    <span class="note_book_baisc_info_open_edit_mode common_blue_font common_hover">编辑</span>
       			    <span class="note_book_baisc_info_close_edit_mode common_blue_font common_hover">取消编辑</span>

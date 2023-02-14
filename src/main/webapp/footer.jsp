@@ -15,7 +15,7 @@
 			<img src="<%=SM.BASIC_FILES_FOLDER%>beian.png"/>
 			<a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=32011202000541">苏公网安备 32011202000541号</a>
 		</div>
-		<span  class="version_mes common_grey_font">更新于2020-2-1 <%=SM.VERSION %> </span>
+		<span  class="version_mes common_grey_font">更新于 <span></span> </span>
 	</div>
 </div>
 	

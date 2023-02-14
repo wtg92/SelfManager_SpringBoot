@@ -575,6 +575,17 @@ function sendAjax(url,op,params,suncFunc,requireSignIn,errorFunc,completeFunc){
 }
 
 /**
+ * 
+ * @param {*} url 
+ * @param {*} successFunc 
+ * @param {*} paramsOrNull TODO 待处理
+ */
+function sendGet(url,successFunc,paramsOrNull){
+    $.get(url,successFunc)
+}
+
+
+/**
  * colorClass:
  * 
  * btn-primary
@@ -1145,6 +1156,9 @@ function calculateMinutesForWorkItem(startTime,endTime){
  * 根据planItemId merge
  * 去掉进行中的 
  * 去掉同步项
+ * 
+ * 处理当天的时间 起止大的 则用结束时间 - 开始时间——认为是当天的
+ * 
  */
  function mergeWorkItemsExceptUndone(content){
     let rlt = [];
