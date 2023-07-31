@@ -10,7 +10,7 @@ import manager.exception.SMException;
 public class ServletExceptionHandler {
 	
 	public ServletExceptionHandler() {
-		System.out.println("ServletExceptionHandler created..");
+		System.out.println("ServletExceptionHandler created.. TODO Finish Something ???");
 	}
 	
 	@ExceptionHandler(SMException.class)
