@@ -2,7 +2,7 @@ package manager.exception;
 
 import manager.system.SMError;
 
-public abstract class SMException extends Exception{
+public abstract class SMException extends RuntimeException{
 
 	private static final long serialVersionUID = 3135260691229951722L;
 	public SMError type = null;

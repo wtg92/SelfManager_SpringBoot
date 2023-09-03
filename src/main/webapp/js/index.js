@@ -3,24 +3,28 @@ const INDEX_NAMESPACES = {
     TEL_METHOD:3
 }
 
+//TODO Migrate.
 claimPageRequireSignOut();
 
 /**
  * 每次进入该页面需要验证登录信息 假如登录成功会跳转
  */
 $(function(){
-
-    initPwdVisibilityUI();
-
-    $("#index_switch_log_in_method_container .btn-group").on("click","input",switchSignInMethod)
-        .find("input").eq(0).click();
-
-    $(".index_control_pwd_visibility_container").click(function(){
-        switchPwdVisibility(this, $(this).parents(".index_entity_for_sign_in").find("[name='account_pwd'],[name='email_pwd']"));
-    });
     $(".intex_control_reset_pwd_visibility_container").click(function(){
         switchPwdVisibility(this,$(this).parents("#index_reset_pwd_form").find("[name='reset_pwd_val']"));
     });
+
+
+    //DONE
+    initPwdVisibilityUI();
+    //DONE
+    $("#index_switch_log_in_method_container .btn-group").on("click","input",switchSignInMethod)
+        .find("input").eq(0).click();
+    //DONE
+    $(".index_control_pwd_visibility_container").click(function(){
+        switchPwdVisibility(this, $(this).parents(".index_entity_for_sign_in").find("[name='account_pwd'],[name='email_pwd']"));
+    });
+
 
     $("#index_sign_in_button").click(signIn);
 

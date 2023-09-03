@@ -1,8 +1,11 @@
 package manager.system;
 
+import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import manager.exception.NoSuchElement;
 import manager.util.SystemUtil;
 
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum VerifyUserMethod {
 	UNDECIDED(0,""),
 	ACCOUNT_PWD(1,"账号"),
@@ -11,6 +14,7 @@ public enum VerifyUserMethod {
 	;
 	private int dbCode;
 	private String name;
+
 	private VerifyUserMethod(int dbCode, String name) {
 		this.dbCode = dbCode;
 		this.name = name;

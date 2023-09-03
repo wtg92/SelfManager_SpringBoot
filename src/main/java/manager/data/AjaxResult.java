@@ -1,6 +1,9 @@
 package manager.data;
 
+import com.alibaba.fastjson.JSON;
+
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * 操作消息提醒

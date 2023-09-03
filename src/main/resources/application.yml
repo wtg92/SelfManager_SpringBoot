@@ -1,0 +1,24 @@
+# 应用程序配置
+spring:
+  application:
+    name: self_manager
+  mvc:
+    view:
+      prefix: /WEB-INF/jsp/
+      suffix: .jsp
+server:
+  error:
+    include-exception: true
+    include-message: always
+  port: 8080
+
+# 日志配置示例
+logging:
+  level:
+    root: DEBUG
+    manager: DEBUG
+
+# 其他自定义配置
+custom:
+  property1: value1
+  property2: value2
