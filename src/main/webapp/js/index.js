@@ -14,7 +14,6 @@ $(function(){
         switchPwdVisibility(this,$(this).parents("#index_reset_pwd_form").find("[name='reset_pwd_val']"));
     });
 
-
     //DONE
     initPwdVisibilityUI();
     //DONE
@@ -25,7 +24,7 @@ $(function(){
         switchPwdVisibility(this, $(this).parents(".index_entity_for_sign_in").find("[name='account_pwd'],[name='email_pwd']"));
     });
 
-
+    //DONE
     $("#index_sign_in_button").click(signIn);
 
     $("#index_send_email_verify_code_btn").click(sendEmailVerifyCodeForSignIn);

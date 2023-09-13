@@ -15,7 +15,7 @@ server:
 # 日志配置示例
 logging:
   level:
-    root: DEBUG
+    root: INFO
     manager: DEBUG
 
 # 其他自定义配置

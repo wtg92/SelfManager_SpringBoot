@@ -3,6 +3,8 @@ package manager.controller;
 import com.alibaba.fastjson.JSONObject;
 import manager.data.AjaxResult;
 import manager.data.proxy.UserProxy;
+import manager.exception.DBException;
+import manager.exception.LogicException;
 import manager.logic.UserLogic;
 import manager.servlet.ServletAdapter;
 import manager.system.VerifyUserMethod;
@@ -16,8 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import static manager.system.SMParm.*;
 import static manager.system.SMParm.TEMP_USER_ID;
-import static manager.util.UIUtil.getNonNullParam;
-import static manager.util.UIUtil.getNonNullParamInInt;
+import static manager.util.UIUtil.*;
 
 @RestController
 @RequestMapping("/user")
@@ -43,6 +44,10 @@ public class UserController {
         return AjaxResult.success(ServletAdapter.process(proxy));
     }
 
-
+    @PostMapping("/sendEmailVerifyCodeForSignIn")
+    private void sendEmailVerifyCodeForSignIn(@RequestBody JSONObject param){
+        String email = param.getString(EMAIL);
+        uL.sendEmailVerifyCodeForSignIn(email);
+    }
 
 }

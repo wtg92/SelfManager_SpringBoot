@@ -38,6 +38,8 @@ public abstract class CacheUtil {
 	private static Logger logger = Logger.getLogger(CacheUtil.class.getName());
 	
 	public final static long ALIVE_SECONDS = CommonUtil.getIntValFromPropertiesFileInResource("redis_cache_alive_seconds");
+	public final static long TEMP_ALIVE_SECONDS = CommonUtil.getIntValFromPropertiesFileInResource("redis_temp_cache_alive_seconds");
+
 	private final static int SCANNER_COUNT = CommonUtil.getIntValFromPropertiesFileInResource("redis_scanner_count");
 	
 	
@@ -86,7 +88,7 @@ public abstract class CacheUtil {
 		}
 	}
 	
-	public static List<String> getOnesWihoutNull(List<String> keys) {
+	public static List<String> getOnesWithoutNull(List<String> keys) {
 		return getOnes(keys).stream().filter(one->one != null).collect(toList());
 	}
 	
@@ -136,14 +138,21 @@ public abstract class CacheUtil {
 			return jedis.set(key, value);
 		}
 	}
-	
+	/*key相同会覆盖*/
+	public static void setTemp(String key, String value) {
+		try(Jedis jedis = getJedis()){
+			jedis.setex(key, TEMP_ALIVE_SECONDS, value);
+		}
+	}
 	/*key相同会覆盖*/
 	public static synchronized void set(String key, String value) {
 		try(Jedis jedis = getJedis()){
 			jedis.setex(key, ALIVE_SECONDS, value);
 		}
 	}
-	
+
+
+
 	/*key相同会覆盖*/
 	public static synchronized void set(Map<String,String> ones) {
 		try(Jedis jedis = getJedis()){
@@ -1090,11 +1099,4 @@ public abstract class CacheUtil {
 			}
 		}
 	}
-
-
-
-
-
-
-	
 }

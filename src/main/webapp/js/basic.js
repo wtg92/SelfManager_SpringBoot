@@ -539,6 +539,10 @@ function sendAjax(url,op,params,suncFunc,requireSignIn,errorFunc,completeFunc){
     if(addUserToken){
         /**
          * 解决校验登录的时间差 导致的问题
+         *
+         * 这是个回调？
+         * 什么场景会出现这种问题呢
+         *
          */
         if(!sessionStorage[CONFIG.SIGN_IN_KEY]){
             setTimeout(()=>sendAjax(url,op,params,suncFunc,requireSignIn,errorFunc,completeFunc),1000);

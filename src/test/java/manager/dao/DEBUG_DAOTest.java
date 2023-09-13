@@ -42,5 +42,11 @@ public class DEBUG_DAOTest {
 		user.setGender(Gender.OTHERS);
 		uDAO.insertUser(user);
 	}
+
+
+	@Test
+	public void getPWD() throws Exception{
+		System.out.println(SecurityUtil.decodeInfo("5EE3E9B630BD3222"));
+	}
 	
 }

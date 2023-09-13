@@ -46,7 +46,10 @@ import manager.util.ThrowableSupplier;
  *  普遍的策略是：保存数据库-删除缓存。 本逻辑采用保存数据库-保存缓存。
  *  这样做的原因，是当发生了并发问题时，在保存方法内是可以通过DB的乐观锁异常得知的，此时save会做删除缓存的操作，然后抛出异常，迫使用户重新保存。
  *  这样就万无一失了，因为即便是普遍策略，也解决不了并发问题，即便是几率很小。
- *  
+ *
+ *  问题：
+ *  TODO setTempMap 的功能好像并不是完全对的 本身Map的Temp 无法实现 ？？ 总之 这里还是使用的配置文件里的缓存时间而并非temp缓存时间
+ *
  * @author 王天戈
  *
  */
@@ -163,7 +166,7 @@ public abstract class CacheScheduler {
 		
 		if(matchedExistedKeys.size() > 0) {
 			/*防止find key失效问题*/
-			List<T> ones = CacheUtil.getOnesWihoutNull(matchedExistedKeys).stream()
+			List<T> ones = CacheUtil.getOnesWithoutNull(matchedExistedKeys).stream()
 						.map(js->JSON.parseObject(js, cla))
 						.collect(toList());
 			
@@ -336,11 +339,11 @@ public abstract class CacheScheduler {
 	
 	
 	public static boolean deleteTempKey(CacheMode mode, Object identifier) {
+		String key = createTempKey(mode, pretreatForString(identifier).toString());
 		if(!USING_REDIS_CACHE ) {
+			redisSubstitute.remove(key);
 			return true;
 		}
-		
-		String key = createTempKey(mode, pretreatForString(identifier).toString());
 		return CacheUtil.deleteOne(key);
 	}
 	/**
@@ -450,7 +453,7 @@ public abstract class CacheScheduler {
 		List<String> existedKeysInCache = CacheUtil.findKeys(patternKey);
 		if(existedKeysInCache.size() > 0) {
 			/*防止find key失效问题*/
-			List<T> onesInCache = CacheUtil.getOnesWihoutNull(existedKeysInCache).stream()
+			List<T> onesInCache = CacheUtil.getOnesWithoutNull(existedKeysInCache).stream()
 						.map(js->JSON.parseObject(js, cla))
 						.collect(toList());
 			
@@ -526,7 +529,7 @@ public abstract class CacheScheduler {
 			return;
 		}
 		
-		CacheUtil.set(key, value);
+		CacheUtil.setTemp(key, value);
 	}
 	
 	public static void setTempByBiIdentifiers(CacheMode mode, Object identifier1,Object identifier2,String value){
@@ -537,7 +540,7 @@ public abstract class CacheScheduler {
 			return;
 		}
 
-		CacheUtil.set(key, value);
+		CacheUtil.setTemp(key, value);
 	}
 	
 	
@@ -573,7 +576,7 @@ public abstract class CacheScheduler {
 		return CacheUtil.exists(key);
 	}
 
-	public static String getTempMapValWihoutReset(CacheMode mode, String identifier, String mapKey) throws NoSuchElement{
+	public static String getTempMapValWithoutReset(CacheMode mode, String identifier, String mapKey) throws NoSuchElement{
 		String key = createTempKey(mode, identifier);
 		
 		if(!USING_REDIS_CACHE) {
@@ -654,5 +657,4 @@ public abstract class CacheScheduler {
 		
 		CacheUtil.clearAllCache_ONLYFORTEST();
 	}
-
 }

@@ -110,6 +110,7 @@ public class UserLogicImpl extends UserLogic {
 			try {
 				String ans = CacheScheduler.getTempVal(CacheMode.T_EMAIL_FOR_SIGN_IN, email);
 				if(!ans.equals(emailVerifyCode)) {
+					CacheScheduler.deleteTempKey(CacheMode.T_EMAIL_FOR_SIGN_IN, email);
 					throw new LogicException(SMError.EMAIL_VERIFY_WRONG,emailVerifyCode);
 				}
 				
@@ -127,6 +128,7 @@ public class UserLogicImpl extends UserLogic {
 			try {
 				String ans = CacheScheduler.getTempVal(CacheMode.T_TEL_FOR_SIGN_IN, tel);
 				if(!ans.equals(telVerifyCode)) {
+					CacheScheduler.deleteTempKey(CacheMode.T_TEL_FOR_SIGN_IN, tel);
 					throw new LogicException(SMError.TEL_VERIFY_WRONG,telVerifyCode);
 				}
 				
@@ -191,11 +193,11 @@ public class UserLogicImpl extends UserLogic {
 		
 		if(email.strip().length()>0) {
 			try {
-				String ans = CacheScheduler.getTempMapValWihoutReset(CacheMode.T_USER, uuId, EMAIL_VERIFY_CODE_KEY_FOR_SIGN_UP);
+				String ans = CacheScheduler.getTempMapValWithoutReset(CacheMode.T_USER, uuId, EMAIL_VERIFY_CODE_KEY_FOR_SIGN_UP);
 				if(!ans.equals(emailVerifyCode)) {
 					throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL,"邮箱验证码错误");
 				}
-				String matchEmail = CacheScheduler.getTempMapValWihoutReset(CacheMode.T_USER, uuId, EMAIL_KEY_FOR_SIGN_UP);
+				String matchEmail = CacheScheduler.getTempMapValWithoutReset(CacheMode.T_USER, uuId, EMAIL_KEY_FOR_SIGN_UP);
 				if(!matchEmail.equals(email)) {
 					throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL,"注册邮箱与验证邮箱不匹配");
 				}
@@ -209,11 +211,11 @@ public class UserLogicImpl extends UserLogic {
 		
 		if(tel.strip().length()>0) {
 			try {
-				String ans = CacheScheduler.getTempMapValWihoutReset(CacheMode.T_USER, uuId, TEL_VERIFY_CODE_KEY_FOR_SIGN_UP);
+				String ans = CacheScheduler.getTempMapValWithoutReset(CacheMode.T_USER, uuId, TEL_VERIFY_CODE_KEY_FOR_SIGN_UP);
 				if(!ans.equals(telVerifyCode)) {
 					throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL,"手机验证码错误");
 				}
-				String matchTel = CacheScheduler.getTempMapValWihoutReset(CacheMode.T_USER, uuId, TEL_KEY_FOR_SIGN_UP);
+				String matchTel = CacheScheduler.getTempMapValWithoutReset(CacheMode.T_USER, uuId, TEL_KEY_FOR_SIGN_UP);
 				if(!matchTel.equals(tel)) {
 					throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL,"注册手机与验证手机不匹配");
 				}
@@ -373,7 +375,7 @@ public class UserLogicImpl extends UserLogic {
 	
 	private boolean checkTelYZM(String uuId,int x) throws LogicException {
 		try {
-			String answer = CacheScheduler.getTempMapValWihoutReset(CacheMode.T_USER,uuId,TEL_YZM_KEY);
+			String answer = CacheScheduler.getTempMapValWithoutReset(CacheMode.T_USER,uuId,TEL_YZM_KEY);
 			int ans = Integer.parseInt(answer);
 			return Math.abs(ans-x) <= RIGHT_RANGE_FOR_YZM;
 		} catch (NoSuchElement e) {
@@ -383,7 +385,7 @@ public class UserLogicImpl extends UserLogic {
 	
 	private boolean checkEmailYZM(String uuId,int x) throws LogicException {
 		try {
-			String answer = CacheScheduler.getTempMapValWihoutReset(CacheMode.T_USER,uuId,EMAIL_YZM_KEY);
+			String answer = CacheScheduler.getTempMapValWithoutReset(CacheMode.T_USER,uuId,EMAIL_YZM_KEY);
 			int ans = Integer.parseInt(answer);
 			return Math.abs(ans-x) <= RIGHT_RANGE_FOR_YZM;
 		} catch (NoSuchElement e) {
@@ -398,18 +400,18 @@ public class UserLogicImpl extends UserLogic {
 		}
 		/*checkEmailYZM 保证了key一定存在（极小的可能性不存在，但那不考虑了）*/
 		try {
-			String verifyCode = CacheScheduler.getTempMapValWihoutReset(CacheMode.T_USER,uuId,TEL_VERIFY_CODE_KEY_FOR_SIGN_UP);
+			String verifyCode = CacheScheduler.getTempMapValWithoutReset(CacheMode.T_USER,uuId,TEL_VERIFY_CODE_KEY_FOR_SIGN_UP);
 			CacheScheduler.setTempMap(CacheMode.T_USER, uuId, TEL_KEY_FOR_SIGN_UP, tel);
 			/*代表需要重发*/
 			/*TODO 逻辑层未来做点时间校验？别发的太频繁*/
-			SMSUtil.sendSMS(SMSUtil.SIGN_UP_TEMPLETE_ID, tel, verifyCode,CacheUtil.ALIVE_SECONDS/60);
+			SMSUtil.sendSMS(SMSUtil.SIGN_UP_TEMPLETE_ID, tel, verifyCode,CacheUtil.TEMP_ALIVE_SECONDS/60);
 			return verifyCode;
 		} catch (NoSuchElement e) {
 			try {
 				String verifyCode = createVerifiCode();
 				CacheScheduler.setTempMap(CacheMode.T_USER, uuId, TEL_VERIFY_CODE_KEY_FOR_SIGN_UP, verifyCode);
 				CacheScheduler.setTempMap(CacheMode.T_USER, uuId, TEL_KEY_FOR_SIGN_UP, tel);
-				SMSUtil.sendSMS(SMSUtil.SIGN_UP_TEMPLETE_ID, tel, verifyCode,CacheUtil.ALIVE_SECONDS/60);
+				SMSUtil.sendSMS(SMSUtil.SIGN_UP_TEMPLETE_ID, tel, verifyCode,CacheUtil.TEMP_ALIVE_SECONDS/60);
 				return verifyCode;
 			} catch (NoSuchElement e1) {
 				assert e.type ==  NoSuchElementType.REDIS_KEY_NOT_EXISTS;
@@ -426,7 +428,7 @@ public class UserLogicImpl extends UserLogic {
 		}
 		/*checkEmailYZM 保证了key一定存在（极小的可能性不存在，但那不考虑了）*/
 		try {
-			String verifyCode = CacheScheduler.getTempMapValWihoutReset(CacheMode.T_USER,uuId,EMAIL_VERIFY_CODE_KEY_FOR_SIGN_UP);
+			String verifyCode = CacheScheduler.getTempMapValWithoutReset(CacheMode.T_USER,uuId,EMAIL_VERIFY_CODE_KEY_FOR_SIGN_UP);
 			CacheScheduler.setTempMap(CacheMode.T_USER, uuId, EMAIL_KEY_FOR_SIGN_UP, email);
 			/*代表需要重发*/
 			/*TODO 逻辑层未来做点时间校验？别发的太频繁*/
@@ -494,7 +496,7 @@ public class UserLogicImpl extends UserLogic {
 		}
 		String verifyCode = createVerifiCode();
 		CacheScheduler.setTemp(CacheMode.T_TEL_FOR_SIGN_IN, tel, verifyCode);
-		SMSUtil.sendSMS(SMSUtil.SIGN_IN_TEMPLETE_ID, tel, verifyCode,CacheUtil.ALIVE_SECONDS/60);
+		SMSUtil.sendSMS(SMSUtil.SIGN_IN_TEMPLETE_ID, tel, verifyCode,CacheUtil.TEMP_ALIVE_SECONDS/60);
 		return verifyCode;
 	}
 
