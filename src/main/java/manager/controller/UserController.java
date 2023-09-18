@@ -50,4 +50,41 @@ public class UserController {
         uL.sendEmailVerifyCodeForSignIn(email);
     }
 
+    @PostMapping("/sendTelVerifyCodeForSignIn")
+    private void sendTelVerifyCodeForSignIn(@RequestBody JSONObject param){
+        String email = param.getString(TEL);
+        uL.sendTelVerifyCodeForSignIn(email);
+    }
+
+    @PostMapping("/sendVerifyCodeForResetPWD")
+    private void sendVerifyCodeForResetPWD(@RequestBody JSONObject param){
+        String val = param.getString(VAL);
+        VerifyUserMethod method = VerifyUserMethod.valueOfDBCode(
+                param.getInteger(SIGN_IN_METHOD));
+        String account = param.getString(ACCOUNT);
+        uL.sendVerifyCodeForResetPWD(account, val, method);
+    }
+
+
+    @PostMapping("/retrieveAccount")
+    private void retrieveAccount(@RequestBody JSONObject param){
+        String val = param.getString(VAL);
+        VerifyUserMethod method = VerifyUserMethod.valueOfDBCode(
+                param.getInteger(SIGN_IN_METHOD));
+        uL.retrieveAccount(method, val);
+    }
+
+    @PostMapping("/resetPWD")
+    private void resetPWD(@RequestBody JSONObject param){
+        String val = param.getString(VERIFY_SRC);
+        VerifyUserMethod method = VerifyUserMethod.valueOfDBCode(
+                param.getInteger(SIGN_IN_METHOD));
+        String account = param.getString( ACCOUNT);
+        String verifyCode = param.getString( VERIFY_CODE);
+        String resetPWD = param.getString(RESET_PWD_VAL);
+        uL.resetPWD(account,val, method,verifyCode,resetPWD);
+    }
+
+
+
 }

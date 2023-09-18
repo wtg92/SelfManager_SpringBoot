@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import manager.entity.general.User;
 import org.apache.commons.collections4.map.HashedMap;
 
 import com.alibaba.fastjson.JSON;
@@ -228,11 +229,24 @@ public abstract class CacheScheduler {
 		
 		return JSON.parseObject(jsonStr, cla);
 	}
-	
+
+	public static<T extends SMEntity> void saveEntityAndDeleteCache(T one,ThrowableConsumer<T, DBException> updator) {
+		if(!USING_REDIS_CACHE) {
+			updator.accept(one);
+			return;
+		}
+
+		updator.accept(one);
+
+		String key = createKey(CacheMode.E_ID,one.getId(),getEntityTableName(one.getClass()));
+		CacheUtil.deleteOne(key);
+	}
 	
 	/**
 	 * 加入缓存/刷新已有缓存
 	 * 判断是否发生了并发危险，假设发生了这种危险，则删除缓存
+	 *
+	 * TODO 有精力或许应该想想 这样的缓存更新 有风险吗？
 	 * @throws LogicException 
 	 */
 	public static<T extends SMEntity> void saveEntity(T one,ThrowableConsumer<T, DBException> updator) throws DBException, LogicException {
@@ -629,8 +643,17 @@ public abstract class CacheScheduler {
 
 		return CacheUtil.getOne(key);
 	}
-	
-	
+
+	public static boolean deleteTempValByBiIdentifiers(CacheMode mode, Object identifier1,Object identifier2) throws DBException, NoSuchElement {
+
+		String key = createTempKeyByBiIdentifiers(mode, pretreatForString(identifier1).toString(),pretreatForString(identifier2).toString());
+
+		if(!USING_REDIS_CACHE) {
+			return redisSubstitute.remove(key) != null;
+		}
+
+		return CacheUtil.deleteOne(key);
+	}
 	
 	
 	public static void appendROnlyIfExists(CacheMode mode,String tableName, long theOneId,
@@ -657,4 +680,6 @@ public abstract class CacheScheduler {
 		
 		CacheUtil.clearAllCache_ONLYFORTEST();
 	}
+
+
 }

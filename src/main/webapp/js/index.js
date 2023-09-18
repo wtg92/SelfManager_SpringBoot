@@ -10,6 +10,7 @@ claimPageRequireSignOut();
  * 每次进入该页面需要验证登录信息 假如登录成功会跳转
  */
 $(function(){
+    //DONE
     $(".intex_control_reset_pwd_visibility_container").click(function(){
         switchPwdVisibility(this,$(this).parents("#index_reset_pwd_form").find("[name='reset_pwd_val']"));
     });
@@ -26,16 +27,20 @@ $(function(){
 
     //DONE
     $("#index_sign_in_button").click(signIn);
-
+    //DONE
     $("#index_send_email_verify_code_btn").click(sendEmailVerifyCodeForSignIn);
+    //DONE
     $("#index_send_tel_verify_code_btn").click(sendTelVerfyCodeForSignIn);
+    //DONE
     $("#index_forgot_account_btn").click(openRetrieveAccountDialog);
+    //DONE
     $("#send_account_for_find_account_btn").click(retrieveAccount);
+
     $("#index_forgot_pwd_btn").click(openResetPwdDialog);
+
 
     $("#send_verify_code_for_reset_pwd_btn").click(sendVerifyCodeForResetPwd);
     $("#commit_reset_pwd_btn").click(commitResetPWD);
-
 });
 
 

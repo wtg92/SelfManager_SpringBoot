@@ -12,6 +12,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.alibaba.fastjson.JSON;
 import manager.dao.DAOFactory;
 import manager.dao.UserDAO;
 import manager.data.UserSummary;
@@ -42,6 +43,10 @@ import manager.util.ThrowableSupplier;
 import manager.util.YZMUtil;
 import manager.util.YZMUtil.YZMInfo;
 
+/**
+ * 2023.9.19 Review了一次 主要修改的是 在验证验证码时 如果验证失效 应当删除验证码缓存 使其验证码失效
+ * TODO 但对CacheScheduler不放心 找机会Review一下CacheScheduler
+ */
 public class UserLogicImpl extends UserLogic {
 	final private static Logger logger = Logger.getLogger(UserLogicImpl.class.getName());
 
@@ -95,6 +100,7 @@ public class UserLogicImpl extends UserLogic {
 				User user = uDAO.selectUniqueUserByField(SMDB.F_ACCOUNT, account);
 
 				if (!SecurityUtil.verifyUserPwd(user, accountPwd)) {
+					//TODO 未来做点处理  防止连续登录
 					throw new LogicException(SMError.PWD_WRONG);
 				}
 				
@@ -108,9 +114,10 @@ public class UserLogicImpl extends UserLogic {
 		}
 		case EMAIL_VERIFY_CODE:{
 			try {
-				String ans = CacheScheduler.getTempVal(CacheMode.T_EMAIL_FOR_SIGN_IN, email);
+				CacheMode mode = CacheMode.T_EMAIL_FOR_SIGN_IN;
+				String ans = CacheScheduler.getTempVal(mode, email);
 				if(!ans.equals(emailVerifyCode)) {
-					CacheScheduler.deleteTempKey(CacheMode.T_EMAIL_FOR_SIGN_IN, email);
+					CacheScheduler.deleteTempKey(mode, email);
 					throw new LogicException(SMError.EMAIL_VERIFY_WRONG,emailVerifyCode);
 				}
 				
@@ -126,9 +133,10 @@ public class UserLogicImpl extends UserLogic {
 
 		case TEL_VERIFY_CODE:{
 			try {
-				String ans = CacheScheduler.getTempVal(CacheMode.T_TEL_FOR_SIGN_IN, tel);
+				CacheMode mode = CacheMode.T_TEL_FOR_SIGN_IN;
+				String ans = CacheScheduler.getTempVal(mode, tel);
 				if(!ans.equals(telVerifyCode)) {
-					CacheScheduler.deleteTempKey(CacheMode.T_TEL_FOR_SIGN_IN, tel);
+					CacheScheduler.deleteTempKey(mode, tel);
 					throw new LogicException(SMError.TEL_VERIFY_WRONG,telVerifyCode);
 				}
 				
@@ -155,7 +163,7 @@ public class UserLogicImpl extends UserLogic {
 
 	@Override
 	public UserProxy loadUser(long userId, long loginerId) throws LogicException, DBException {
-		/*TODO loginerId决定能看到什么信息 但先不管了*/
+		/*TODO loginerId决定能看到什么信息 但先不管了 不管的原因：似乎现在只有admin才会调用该函数*/
 		User user=  getUser(userId);
 		UserProxy proxy = new UserProxy();
 		proxy.user = user;
@@ -236,9 +244,12 @@ public class UserLogicImpl extends UserLogic {
 		
 		return uId;
 	}
-	
-	
-	
+
+
+	/**
+	 * 似乎不用缓存比较好 但底层如果是用缓存取每一个的话 如果底层置信 则本函数置信
+	 * TODO 校验一下返回值数量是否和usersId 一致
+	 */
 	@Override
 	public List<User> getUsers(List<Long> usersId) throws LogicException, DBException {
 		ThrowableFunction<Long,User, DBException> generator = (userId)-> uDAO.selectExistedUser(userId);
@@ -631,12 +642,16 @@ public class UserLogicImpl extends UserLogic {
 				throw new LogicException(SMError.RESET_PWD_ERROR,"验证码已失效，请重新获取");
 			}
 			if(!forCheck.equals(verifyCode)) {
+				boolean debugFlag = CacheScheduler.deleteTempValByBiIdentifiers(CacheMode.T_EMAIL_FOR_RESET_PWD,account,val);
+				if(!debugFlag){
+					logger.log(Level.SEVERE,"THIS Must Be Wrong::Should Be Deleted "+ account+":"+val);
+				}
 				throw new LogicException(SMError.RESET_PWD_ERROR,"验证码错误 "+verifyCode);
 			}
 			
 			user.setPassword(resetPWD);
 			SecurityUtil.encodeUserPwd(user);
-			CacheScheduler.saveEntity(user, one -> uDAO.updateExistedUser(user));
+			CacheScheduler.saveEntityAndDeleteCache(user, one -> uDAO.updateExistedUser(user));
 			return;
 		}
 		case TEL_VERIFY_CODE:{
@@ -651,11 +666,15 @@ public class UserLogicImpl extends UserLogic {
 				throw new LogicException(SMError.RESET_PWD_ERROR,"验证码已失效，请重新获取");
 			}
 			if(!forCheck.equals(verifyCode)) {
+				boolean debugFlag = CacheScheduler.deleteTempValByBiIdentifiers(CacheMode.T_TEL_FOR_RESET_PWD,account,val);
+				if(!debugFlag){
+					logger.log(Level.SEVERE,"THIS Must Be Wrong::Should Be Deleted ZZ");
+				}
 				throw new LogicException(SMError.RESET_PWD_ERROR,"验证码错误 "+verifyCode);
 			}		
 			user.setPassword(resetPWD);
 			SecurityUtil.encodeUserPwd(user);
-			CacheScheduler.saveEntity(user, one -> uDAO.updateExistedUser(user));
+			CacheScheduler.saveEntityAndDeleteCache(user, one -> uDAO.updateExistedUser(user));
 			return;
 		}
 		default:

@@ -120,7 +120,7 @@
       	<div class="one_row_of_find_acount">
       	<div class="one_row_of_find_acount_title">找回方式</div>
      
-		<div id="index_switch_find_account_method_container">
+			<div id="index_switch_find_account_method_container">
 						<div class="btn-group btn-group-toggle" data-toggle="buttons">
 					<%
 						for(VerifyUserMethod method:VerifyUserMethod.values()){
