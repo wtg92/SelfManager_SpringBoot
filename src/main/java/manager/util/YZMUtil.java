@@ -16,6 +16,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
@@ -23,6 +24,7 @@ import javax.imageio.ImageIO;
 
 import com.alibaba.fastjson.annotation.JSONField;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import manager.exception.LogicException;
 import manager.system.SM;
 import manager.system.SMError;
@@ -34,7 +36,7 @@ import manager.system.SMError;
  * @author 王天戈
  *
  */
-public abstract class YZMUtil {
+public abstract class YZMUtil implements Serializable {
 
 	public final static File YZM_SRC_DIRECTORY = new File(SM.SM_EXTERNAL_FILES_DIRECTORY, "yzm");
 
@@ -43,16 +45,19 @@ public abstract class YZMUtil {
 	/* 距离图片边缘最小值 */
 	private final static double DISTANCE_EDGE_RATIO = 0.1;
 
-	public static class YZMInfo {
+	public static class YZMInfo implements Serializable {
 		@JSONField(serialize = false)
+		@JsonIgnore
 		public int xForCheck;
 		
 		public String srcImg;
 		public int yOffset;
 		
 		@JSONField(serialize = false)
+		@JsonIgnore
 		public BufferedImage cutImg;
 		@JSONField(serialize = false)
+		@JsonIgnore
 		public BufferedImage backgroundImg;
 		
 		/*For UI*/
@@ -60,7 +65,7 @@ public abstract class YZMUtil {
 		public int heightForSrc;
 		public String cutImgBase64;
 		public String backgroundImgBase64;
-		public boolean checkSeccuss = false;
+		public boolean checkSuccess = false;
 	}
 
 	public static YZMInfo createYZM(String alreadyUsedImg) throws LogicException {

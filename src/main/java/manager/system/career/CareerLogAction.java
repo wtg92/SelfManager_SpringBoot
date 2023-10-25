@@ -1,8 +1,10 @@
 package manager.system.career;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import manager.exception.NoSuchElement;
 import manager.util.SystemUtil;
 
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum CareerLogAction {
 	UNDECIDED(0),
 	ADD_ROOT_ITEM_TO_PLAN(1),

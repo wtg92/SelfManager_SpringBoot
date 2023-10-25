@@ -1,8 +1,9 @@
 package manager.system.career;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import manager.exception.NoSuchElement;
 import manager.util.SystemUtil;
-
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum PlanSetting {
 	UNDECIDED(0,""),
 	ALLOW_OTHERS_COPY_PLAN_ITEMS(1,"允许计划项被其它用户复制"),

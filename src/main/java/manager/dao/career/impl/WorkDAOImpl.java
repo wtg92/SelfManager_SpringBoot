@@ -36,7 +36,9 @@ import manager.system.SMDB;
 import manager.system.career.PlanState;
 import manager.system.career.WorkSheetState;
 import manager.util.TimeUtil;
+import org.springframework.stereotype.Component;
 
+@Component
 public class WorkDAOImpl implements WorkDAO {
 	private final SessionFactory hbFactory = getHibernateSessionFactory();
 	@Override

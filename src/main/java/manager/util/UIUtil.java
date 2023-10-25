@@ -31,6 +31,17 @@ import manager.system.SMError;
 
 public abstract class UIUtil {
 
+	/**
+	 *  New version migration....
+	 */
+	public static long getLoginId(String auth) throws LogicException {
+		return ServletAdapter.getUserId(auth.replace("Bearer ",""));
+	}
+	/**
+	 *
+	 */
+
+
 	public static String getParam(HttpServletRequest request, String key) throws NoSuchElement {
 		String value = request.getParameter(key);
 		if(value == null)
@@ -164,7 +175,15 @@ public abstract class UIUtil {
 			return Collections.emptyList();
 		}
 	}
-	
+
+	public static Map<String,Object> generateResObj(Object ...params){
+    	Map<String,Object> rlt = new HashMap<>();
+    	for(int i=0;i<params.length;i++){
+    		rlt.put("res"+i,params[i]);
+		}
+    	return rlt;
+	}
+
 	public static int getParamOrZeroDefault(HttpServletRequest request, String key) throws LogicException{
 		try {
 			String val = getParam(request, key);
@@ -301,8 +320,10 @@ public abstract class UIUtil {
 		rlt.put("secondRlt", arg2);
 		return JSON.toJSONString(rlt,config);
 	}
-	
-	public static long getLoginerId(HttpServletRequest request) throws LogicException {
+
+
+
+	public static long getLoginId(HttpServletRequest request) throws LogicException {
 		String token = getNonNullParam(request,USER_TOKEN); 
 		return ServletAdapter.getUserId(token);
 	}

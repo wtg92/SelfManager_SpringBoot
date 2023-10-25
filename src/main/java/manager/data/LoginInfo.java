@@ -11,7 +11,9 @@ public class LoginInfo {
 	
 	public boolean seeUsersModule;
 	public boolean seeNotesModule;
-	
+	public boolean seeToolsModule;
+	public boolean seeWorkSheetModule;
+
 	
 	public LoginInfo(UserProxy user) {
 		this.user = user;
@@ -21,6 +23,8 @@ public class LoginInfo {
 	private void initPerms() {
 		seeUsersModule = hasPerm(SMPerm.SEE_USERS_MODULE);
 		seeNotesModule = hasPerm(SMPerm.SEE_NOTES_MODULE);
+		seeToolsModule = hasPerm(SMPerm.SEE_TOOLS_MODULE);
+		seeWorkSheetModule = hasPerm(SMPerm.SEE_WORKSHEET_MODULE);
 	}
 	
 	

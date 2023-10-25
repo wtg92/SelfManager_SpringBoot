@@ -16,9 +16,13 @@ server:
 logging:
   level:
     root: INFO
-    manager: DEBUG
+    manager: INFO
 
 # 其他自定义配置
 custom:
   property1: value1
   property2: value2
+
+lock:
+  expirationCheckCron: 0/30 * * * * ?
+  expirationSeconds: 60

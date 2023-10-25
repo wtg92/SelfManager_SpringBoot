@@ -51,7 +51,7 @@ public abstract class WorkLogic{
 	
 	protected UserLogic uL = UserLogic.getInstance();
 
-	public static int DEFAULT_WS_LIMITE_OF_ONE_PAGE = 20;
+	public static int DEFAULT_WS_LIMIT_OF_ONE_PAGE = 20;
 	
 	
 	/**

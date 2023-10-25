@@ -49,6 +49,11 @@ import manager.system.career.WorkItemType;
 import manager.system.career.WorkSheetState;
 import manager.util.CommonUtil;
 import manager.util.TimeUtil;
+import manager.util.locks.LockHandler;
+import manager.util.locks.UserLockManager;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
 
 /**
  * 是否加 synchronized 修饰 总是一个很纠结的问题。
@@ -62,12 +67,17 @@ import manager.util.TimeUtil;
  * @author 王天戈
  *
  */
+@Service
 public class WorkLogicImpl extends WorkLogic{
 	
 	final private static Logger logger = Logger.getLogger(WorkLogicImpl.class.getName());
 
-	private WorkDAO wDAO = DAOFactory.getWorkDAO();
-	
+	@Resource
+	private WorkDAO wDAO;
+
+	@Resource
+	private UserLockManager locker;
+
 	@Override
 	public long createPlan(long ownerId, String name, Calendar startDate, Calendar endDate, String note) throws LogicException, DBException {
 		
@@ -119,7 +129,7 @@ public class WorkLogicImpl extends WorkLogic{
 		WorkContentConverter.addItemToWSPlan(ws, adderId, categoryName, value, note, type, fatherId, mappingVal);
 		
 		refreshStateAfterItemModified(ws);
-		
+
 		CacheScheduler.saveEntity(ws,w->wDAO.updateExistedWorkSheet(w));
 	}
 	
@@ -391,7 +401,7 @@ public class WorkLogicImpl extends WorkLogic{
 	
 	@Override
 	public List<WorkSheet> loadWorkSheetInfosRecently(long opreatorId, int page) throws DBException, LogicException {
-		List<WorkSheet> sheetInfos = wDAO.selectWorkSheetInfoRecentlyByOwner(opreatorId, page, DEFAULT_WS_LIMITE_OF_ONE_PAGE);
+		List<WorkSheet> sheetInfos = wDAO.selectWorkSheetInfoRecentlyByOwner(opreatorId, page, DEFAULT_WS_LIMIT_OF_ONE_PAGE);
 		
 		List<WorkSheet> actives = sheetInfos.stream().filter(ws->ws.getState() == WorkSheetState.ACTIVE
 				&& TimeUtil.isNotSameByDate(ws.getDate(), TimeUtil.getCurrentDate())).collect(toList());
@@ -475,55 +485,63 @@ public class WorkLogicImpl extends WorkLogic{
 
 	
 	@Override
-	public List<Plan> loadActivePlans(long loginerId) throws LogicException, DBException {
-		
-		uL.checkPerm(loginerId, SMPerm.SEE_SELF_PLANS);
-		
-		List<Plan> target = wDAO.selectPlansByOwnerAndStates(loginerId,Arrays.asList(PlanState.ACTIVE,PlanState.PREPARED));
-		List<Plan> prepared = target.stream().filter(one->
-			one.getState()== PlanState.PREPARED
-		).collect(toList());
-		
-		List<Plan> stateChangedForPrepared = prepared.stream().filter(one->{
-			PlanState stateByNow =  calculateStateByNow(one);
-			
-			one.setState(stateByNow);
-			
-			return stateByNow != PlanState.PREPARED;
-		}).collect(toList());
-		
-		for(Plan needToUpdate : stateChangedForPrepared) {
-			WorkContentConverter.addLog(needToUpdate, CareerLogAction.PLAN_STATE_CHANGED_BY_DATE,
-					SM.SYSTEM_ID,
-					TimeUtil.parseDate(needToUpdate.getStartDate()),
-					TimeUtil.parseDate(needToUpdate.getEndDate()),
-					PlanState.PREPARED.getDbCode(),needToUpdate.getState().getDbCode());
-		}
-		CacheScheduler.saveEntities(stateChangedForPrepared, (p)->wDAO.updateExistedPlan(p));
-		
-		prepared.removeAll(stateChangedForPrepared);
-		target.removeAll(prepared);
-		
-		List<Plan> stateChangedForActive = target.stream().filter(one->{
-			PlanState stateByNow =  calculateStateByNow(one);
-			
-			one.setState(stateByNow);
-			
-			return stateByNow != PlanState.ACTIVE;
-		}).collect(toList());
-		
-		for(Plan needToUpdate : stateChangedForActive) {
-			WorkContentConverter.addLog(needToUpdate, CareerLogAction.PLAN_STATE_CHANGED_BY_DATE,
-					SM.SYSTEM_ID,
-					TimeUtil.parseDate(needToUpdate.getStartDate()),
-					TimeUtil.parseDate(needToUpdate.getEndDate()),
-					PlanState.ACTIVE.getDbCode(),needToUpdate.getState().getDbCode());
-		}
-		CacheScheduler.saveEntities(stateChangedForActive, (p)->wDAO.updateExistedPlan(p));
-		
-		target.removeAll(stateChangedForActive);
-		CacheScheduler.putEntitiesToCacheById(target);
-		return target;
+	public List<Plan> loadActivePlans(long loginId) throws LogicException, DBException {
+		LockHandler<List<Plan>> handler = new LockHandler<>();
+		locker.lockByUserAndEvent(loginId,()->{
+			/**
+			 * 核心是最终返回所有激活的
+			 */
+			uL.checkPerm(loginId, SMPerm.SEE_SELF_PLANS);
+
+			List<Plan> target = wDAO.selectPlansByOwnerAndStates(loginId,Arrays.asList(PlanState.ACTIVE,PlanState.PREPARED));
+
+			List<Plan> prepared = target.stream().filter(one->
+					one.getState()== PlanState.PREPARED
+			).collect(toList());
+
+			List<Plan> stateChangedForPrepared = prepared.stream().filter(one->{
+				PlanState stateByNow =  calculateStateByNow(one);
+
+				one.setState(stateByNow);
+
+				return stateByNow != PlanState.PREPARED;
+			}).collect(toList());
+
+			for(Plan needToUpdate : stateChangedForPrepared) {
+				WorkContentConverter.addLog(needToUpdate, CareerLogAction.PLAN_STATE_CHANGED_BY_DATE,
+						SM.SYSTEM_ID,
+						TimeUtil.parseDate(needToUpdate.getStartDate()),
+						TimeUtil.parseDate(needToUpdate.getEndDate()),
+						PlanState.PREPARED.getDbCode(),needToUpdate.getState().getDbCode());
+			}
+
+			CacheScheduler.saveEntities(stateChangedForPrepared, (p)->wDAO.updateExistedPlan(p));
+
+			prepared.removeAll(stateChangedForPrepared);
+			target.removeAll(prepared);
+
+			List<Plan> stateChangedForActive = target.stream().filter(one->{
+				PlanState stateByNow =  calculateStateByNow(one);
+
+				one.setState(stateByNow);
+
+				return stateByNow != PlanState.ACTIVE;
+			}).collect(toList());
+
+			for(Plan needToUpdate : stateChangedForActive) {
+				WorkContentConverter.addLog(needToUpdate, CareerLogAction.PLAN_STATE_CHANGED_BY_DATE,
+						SM.SYSTEM_ID,
+						TimeUtil.parseDate(needToUpdate.getStartDate()),
+						TimeUtil.parseDate(needToUpdate.getEndDate()),
+						PlanState.ACTIVE.getDbCode(),needToUpdate.getState().getDbCode());
+			}
+
+			CacheScheduler.saveEntities(stateChangedForActive, (p)->wDAO.updateExistedPlan(p));
+			target.removeAll(stateChangedForActive);
+			CacheScheduler.putEntitiesToCacheById(target);
+			handler.val = target;
+		});
+		return handler.val;
 	}
 	
 	@Override

@@ -86,7 +86,7 @@ public abstract class UserLogic {
 	 */
 	public abstract String createTempUser() throws LogicException;
 	
-	protected static String createVerifiCode(){
+	protected static String createVerifyCode(){
 		StringBuffer str = new StringBuffer();
 		for(int i=0;i<6;i++) {
 			str.append(CommonUtil.getByRandom(0, 10));

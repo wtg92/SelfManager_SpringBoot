@@ -25,7 +25,7 @@ import static manager.system.SMParm.VAL;
 import static manager.system.SMParm.VERIFY_CODE;
 import static manager.system.SMParm.VERIFY_SRC;
 import static manager.system.SMParm.X;
-import static manager.util.UIUtil.getLoginerId;
+import static manager.util.UIUtil.getLoginId;
 import static manager.util.UIUtil.getNonNullParam;
 import static manager.util.UIUtil.getNonNullParamInBool;
 import static manager.util.UIUtil.getNonNullParamInInt;
@@ -147,7 +147,7 @@ public class UserServlet extends SMServlet{
 	}
 
 	private String overrideGroupPerms(HttpServletRequest request) throws LogicException, DBException {
-		long loginerId = getLoginerId(request);
+		long loginerId = getLoginId(request);
 		long groupId = getNonNullParamInInt(request,GROUP_ID);
 		List<SMPerm> perms = getNonNullParamsInInt(request,PERMS).stream().map(SMPerm::valueOfDBCode).collect(toList());
 		uL.overrideGroupPerms(perms, groupId, loginerId);
@@ -156,7 +156,7 @@ public class UserServlet extends SMServlet{
 
 	@SuppressWarnings("unchecked")
 	private String loadPermsOfGroup(HttpServletRequest request) throws LogicException, DBException {
-		long loginerId = getLoginerId(request);
+		long loginerId = getLoginId(request);
 		long groupId = getNonNullParamInInt(request,GROUP_ID);
 		SerializeConfig conf = new SerializeConfig();
 		conf.configEnumAsJavaBean(SMPerm.class);
@@ -164,18 +164,18 @@ public class UserServlet extends SMServlet{
 	}
 
 	private String loadUsersOfGroup(HttpServletRequest request) throws LogicException, DBException {
-		long loginerId = getLoginerId(request);
+		long loginerId = getLoginId(request);
 		long groupId = getNonNullParamInInt(request,GROUP_ID);
 		return JSON.toJSONString(uL.loadUsersOfGroup(groupId, loginerId));
 	}
 
 	private String loadAllUserGroups(HttpServletRequest request) throws LogicException, DBException {
-		long userId = getLoginerId(request);
+		long userId = getLoginId(request);
 		return JSON.toJSONString(uL.loadAllUserGroups(userId));
 	}
 
 	private String loadUserSummary(HttpServletRequest request) throws LogicException, DBException {
-		long userId = getLoginerId(request);
+		long userId = getLoginId(request);
 		return JSON.toJSONString(uL.loadUserSummary(userId));
 	}
 

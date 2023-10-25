@@ -9,10 +9,12 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.core.env.Environment;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /*!!! 测试时打开该注解*/
 @SpringBootApplication
 @ServletComponentScan
+@EnableScheduling
 public class SelfManagerSpringbootApplication {
 	
 	

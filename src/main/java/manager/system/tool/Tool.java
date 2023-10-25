@@ -1,9 +1,11 @@
 package manager.system.tool;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import manager.exception.NoSuchElement;
 import manager.util.SystemUtil;
 
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum Tool {
 	UNDECIDED(0,"","","",""),
 	IMGS_EXTRACTOR_OF_PPT(1,"PPT图片提取","允许上传单个PPT或Zip包（多份PPT），提取PPT内所有的图片。单次上传文件大小不超过20M。Zip只处理一层嵌套。","zip,pptx","0.1"),

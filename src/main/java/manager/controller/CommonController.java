@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import manager.system.Gender;
 import manager.system.VerifyUserMethod;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,6 +33,11 @@ public class CommonController {
                 .stream(VerifyUserMethod.values())
                 .filter(one->one!=VerifyUserMethod.UNDECIDED)
                 .collect(Collectors.toList()));
+    }
+
+    @GetMapping("/getGenders")
+    public AjaxResult getGenders() {
+        return AjaxResult.success(Gender.getGenders());
     }
 
 }

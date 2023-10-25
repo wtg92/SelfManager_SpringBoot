@@ -4,6 +4,7 @@ import java.util.Set;
 
 import com.alibaba.fastjson.annotation.JSONField;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import manager.entity.general.User;
 import manager.system.SMPerm;
 /**
@@ -15,6 +16,7 @@ public class UserProxy{
 	public User user;
 	
 	@JSONField(serialize = false)
+	@JsonIgnore
 	public Set<SMPerm> perms;
 	
 	public String genderInfo;

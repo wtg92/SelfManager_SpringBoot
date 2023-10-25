@@ -31,8 +31,11 @@ const BASIC_NAMESPACE = {
 
 
 $(function(){
-    $("body").on("click",".common_open_new_window",openNewWindow)
+    $("body")
+        //DONE
+        .on("click",".common_open_new_window",openNewWindow)
         .on("click",".common_go_to_page",goToPageByLabel)
+        //DONE
         .on("click","pdf",seePDFFileByOpenNewWindow)
         .on('hidden.bs.modal', function () {
             /*StackOverFlow 救命 这个Bootstrap 在modal切换时滚轮失效的BUG 解决了*/
@@ -873,7 +876,7 @@ function withCtrl(e){
 }
 
 
-/*至少包含大写字母，小写字母，数字，且不少于8位*/
+/*至少包含小写字母，数字，且不少于8位*/
 function checkSignUpPwdLegal(text){
     let re =/^(?=.*[a-z])(?=.*\d)[^]{8,}$/;
     return re.test(text);

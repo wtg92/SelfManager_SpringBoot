@@ -2,27 +2,37 @@
 claimPageRequireSignOut();
 
 $(function(){
+    //DONE
     initSignUpPwdVisibilityUI();
-
+    //DONE
     $(".sign_up_control_pwd_visibility_container").click(swithSignOnPwdVisbiiltiy);
+
     /*MagicNumber 但先不管了，表名未知性别*/
+    //DONE
     $("#sign_up_switch_to_select_gender").find("[value='4']").click();
 
+    //DONE
     $(".sign_up_option_for_email_or_tel [type='checkbox']").click(switchToInputEmailOrTel);
 
+    //DONE
     $(".sign_up_entity_for_sign_up [name='account']").blur(function(){
         if(testSignUpFieldFormat(this,checkSignUpAccountLegal,"5-20个以字母开头，可带数字、下划线的字符")){
             testSignUpUnqiueField(this);
         }
     });
+
+    //DONE
     $(".sign_up_entity_for_sign_up [name='pwd']").blur(function(){
         testSignUpFieldFormat(this,checkSignUpPwdLegal,"包含字母，数字，至少8位");
     });
+    //DONE
     $(".sign_up_entity_for_sign_up [name='nick_name']").blur(function(){
         if(testSignUpFieldFormat(this,checkSignUpNickNameLegal,"1-10个字符")){
             testSignUpUnqiueField(this);
         }
     });
+
+    //DONE
     $(".sign_up_entity_for_sign_up [name='email']").blur(function(){
         if(testSignUpFieldFormat(this,checkSignUpEmailLegal,"请填写正确的邮箱地址")){
             testSignUpUnqiueField(this,()=>unlockEmailOrTelVerifyCodeInputs(true),()=>lockAndClearEmailOrTelVerifyCodeInputs(true));
@@ -32,6 +42,8 @@ $(function(){
     }).change(function(){
         $(".sign_up_send_verify_code_container").find("[name='email_verify_code']").val("");
     });
+
+    //DONE
     $(".sign_up_entity_for_sign_up [name='tel']").blur(function(){
         if(testSignUpFieldFormat(this,checkSignUpTelLegal,"请填写正确的手机号")){
             testSignUpUnqiueField(this,()=>unlockEmailOrTelVerifyCodeInputs(false),()=>lockAndClearEmailOrTelVerifyCodeInputs(false));
@@ -41,19 +53,23 @@ $(function(){
     }).change(function(){
         $(".sign_up_send_verify_code_container").find("[name='tel_verify_code']").val("");
     })
+
+    //DONE
     $(".sign_up_entity_for_sign_up.eamil_or_tel .sign_up_send_verify_code_container [type='text']").blur(function(){
         testVerifyCodeNotNull(this);
     });
-
+    //DONE
+    $("#sign_up_commit_button").click(commitSignUpInfo)
+    //DONE
+    lockAndClearEmailOrTelVerifyCodeInputs(true);
+    //DONE
+    lockAndClearEmailOrTelVerifyCodeInputs(false);
+    //DOING
     $("#sign_up_send_email_verfy_code_button").click(openImgCheckDialogForEmail);
     $("#sign_up_send_tel_verfy_code_button").click(openImgCheckDialogForTel);
 
+    //TODO
     bindYZMEvents();
-
-    lockAndClearEmailOrTelVerifyCodeInputs(true);
-    lockAndClearEmailOrTelVerifyCodeInputs(false);
-
-    $("#sign_up_commit_button").click(commitSignUpInfo)
 });
 
 function commitSignUpInfo(){
@@ -265,6 +281,8 @@ function openImgCheckDialogForEmail(){
         "for_email" : true,
     }
     $("#sign_up_yzm_hint_when_loading").show();
+
+    //DONE
     $("#sign_up_yzm_background_img").css("background","");
     $("#sign_up_yzm_cut_img").css("src","");
 
@@ -274,7 +292,6 @@ function openImgCheckDialogForEmail(){
 function getYZM_render(data){
     initYZMUI();
     $("#sign_up_yzm_hint_when_loading").hide();
-
     let $backGroundContianer = $("#sign_up_yzm_background_img");
     let $cutImg = $("#sign_up_yzm_cut_img");
     $cutImg.css("top",data.yOffset+"px");

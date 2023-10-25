@@ -1,8 +1,9 @@
 package manager.system.career;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import manager.exception.NoSuchElement;
 import manager.util.SystemUtil;
-
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum WorkItemType {
 	UNDECIDED(0),
 	GENERAL(1),

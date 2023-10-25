@@ -2,7 +2,7 @@ package manager.servlet;
 
 import static manager.system.SMParm.OP;
 import static manager.system.SMParm.TOOL;
-import static manager.util.UIUtil.getLoginerId;
+import static manager.util.UIUtil.getLoginId;
 import static manager.util.UIUtil.getNonNullParam;
 import static manager.util.UIUtil.getNonNullParamInInt;
 
@@ -52,13 +52,13 @@ public class ToolServlet extends SMServlet{
 	}
 	
 	private String loadToolRecord(HttpServletRequest request) throws SMException {
-		getLoginerId(request);
+		getLoginId(request);
 		Tool tool = Tool.valueOfDBCode(getNonNullParamInInt(request, TOOL));
 		return JSON.toJSONString(tL.loadToolRecord(tool),toolConfig); 
 	}
 
 	private String loadToolRecordSummary(HttpServletRequest request) throws SMException {
-		long loginerId = getLoginerId(request);
+		long loginerId = getLoginId(request);
 		return JSON.toJSONString(tL.loadToolRecordSummary(loginerId),toolConfig); 
 	}
 

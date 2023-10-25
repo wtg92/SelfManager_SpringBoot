@@ -12,7 +12,6 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.alibaba.fastjson.JSON;
 import manager.dao.DAOFactory;
 import manager.dao.UserDAO;
 import manager.data.UserSummary;
@@ -331,6 +330,10 @@ public class UserLogicImpl extends UserLogic {
 		String uuId = "";
 		while(true) {
 			uuId = UUID.randomUUID().toString();
+			/**
+			 * 这里其实分了两步：
+			 * 临时用户的数据结构是  用户:::uuId {} 这里只是为了初始化一个临时用户
+			 */
 			if(CacheScheduler.setTempMapOnlyIfKeyNotExists(CacheMode.T_USER,uuId,"","")) {
 				break;
 			}else {
@@ -368,7 +371,7 @@ public class UserLogicImpl extends UserLogic {
 	public YZMInfo checkTelYZMAndRefreshIfFailed(String uuId, int x, String imgSrc) throws LogicException {
 		if(checkTelYZM(uuId, x)) {
 			YZMInfo rlt = new YZMInfo();
-			rlt.checkSeccuss = true;
+			rlt.checkSuccess = true;
 			return rlt;
 		}
 		return createTelYZM(uuId, imgSrc);
@@ -378,7 +381,7 @@ public class UserLogicImpl extends UserLogic {
 	public YZMInfo checkEmailYZMAndRefreshIfFailed(String uuId, int x, String imgSrc) throws LogicException {
 		if(checkEmailYZM(uuId, x)) {
 			YZMInfo rlt = new YZMInfo();
-			rlt.checkSeccuss = true;
+			rlt.checkSuccess = true;
 			return rlt;
 		}
 		return createEmailYZM(uuId, imgSrc);
@@ -419,7 +422,7 @@ public class UserLogicImpl extends UserLogic {
 			return verifyCode;
 		} catch (NoSuchElement e) {
 			try {
-				String verifyCode = createVerifiCode();
+				String verifyCode = createVerifyCode();
 				CacheScheduler.setTempMap(CacheMode.T_USER, uuId, TEL_VERIFY_CODE_KEY_FOR_SIGN_UP, verifyCode);
 				CacheScheduler.setTempMap(CacheMode.T_USER, uuId, TEL_KEY_FOR_SIGN_UP, tel);
 				SMSUtil.sendSMS(SMSUtil.SIGN_UP_TEMPLETE_ID, tel, verifyCode,CacheUtil.TEMP_ALIVE_SECONDS/60);
@@ -447,7 +450,7 @@ public class UserLogicImpl extends UserLogic {
 			return verifyCode;
 		} catch (NoSuchElement e) {
 			try {
-				String verifyCode = createVerifiCode();
+				String verifyCode = createVerifyCode();
 				CacheScheduler.setTempMap(CacheMode.T_USER, uuId, EMAIL_KEY_FOR_SIGN_UP, email);
 				CacheScheduler.setTempMap(CacheMode.T_USER, uuId, EMAIL_VERIFY_CODE_KEY_FOR_SIGN_UP, verifyCode);
 	
@@ -477,7 +480,7 @@ public class UserLogicImpl extends UserLogic {
 				throw new LogicException(SMError.RESET_PWD_ERROR,"账号和邮箱不匹配"+val);
 			}
 			
-			String verifyCode = createVerifiCode();
+			String verifyCode = createVerifyCode();
 			CacheScheduler.setTempByBiIdentifiers(CacheMode.T_EMAIL_FOR_RESET_PWD,account,val, verifyCode);
 			EmailUtil.sendSimpleEmail(val,VERIFY_CODE_EMAIL_SUBJECT , createResetPwdMes(verifyCode));
 			return;
@@ -487,7 +490,7 @@ public class UserLogicImpl extends UserLogic {
 				throw new LogicException(SMError.RESET_PWD_ERROR,"账号和手机号不匹配"+val);
 			}
 			
-			String verifyCode = createVerifiCode();
+			String verifyCode = createVerifyCode();
 			CacheScheduler.setTempByBiIdentifiers(CacheMode.T_TEL_FOR_RESET_PWD, account,val, verifyCode);
 			SMSUtil.sendSMS(SMSUtil.RESET_PWD_TEMPLETE_ID, val, verifyCode);
 			return;
@@ -505,7 +508,7 @@ public class UserLogicImpl extends UserLogic {
 		if(!uDAO.includeUniqueUserByField(SMDB.F_TEL_NUM, tel)) {
 			throw new LogicException(SMError.NON_EXISTED_TEL,tel);
 		}
-		String verifyCode = createVerifiCode();
+		String verifyCode = createVerifyCode();
 		CacheScheduler.setTemp(CacheMode.T_TEL_FOR_SIGN_IN, tel, verifyCode);
 		SMSUtil.sendSMS(SMSUtil.SIGN_IN_TEMPLETE_ID, tel, verifyCode,CacheUtil.TEMP_ALIVE_SECONDS/60);
 		return verifyCode;
@@ -516,7 +519,7 @@ public class UserLogicImpl extends UserLogic {
 		if(!uDAO.includeUniqueUserByField(SMDB.F_EMAIL, email)) {
 			throw new LogicException(SMError.NON_EXISTED_EMAIL,email);
 		}
-		String verifyCode = createVerifiCode();
+		String verifyCode = createVerifyCode();
 		CacheScheduler.setTemp(CacheMode.T_EMAIL_FOR_SIGN_IN, email, verifyCode);
 		EmailUtil.sendSimpleEmail(email,VERIFY_CODE_EMAIL_SUBJECT , createSignInEmailMes(verifyCode));
 		return verifyCode;

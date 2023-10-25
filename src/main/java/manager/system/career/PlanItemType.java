@@ -1,8 +1,9 @@
 package manager.system.career;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import manager.exception.NoSuchElement;
 import manager.util.SystemUtil;
-
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum PlanItemType {
 	UNDECIDED(0,""),
 	MINUTES(1,"分钟"),

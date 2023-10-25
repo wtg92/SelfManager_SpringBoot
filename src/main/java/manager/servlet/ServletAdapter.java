@@ -89,7 +89,7 @@ public class ServletAdapter {
 	}
 
 	public static YZMInfo process(YZMInfo createEmailYZM) throws LogicException {
-		if(createEmailYZM.checkSeccuss) {
+		if(createEmailYZM.checkSuccess) {
 			return createEmailYZM;
 		}
 		createEmailYZM.xForCheck = 0;

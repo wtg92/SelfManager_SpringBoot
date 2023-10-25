@@ -3,15 +3,23 @@ const WORK_NAMESPACE = {
 }
 
 $(function(){
-
+    //DONE
     openWsContainer();
-    loadWorkSheetInfosRecentlyForFirstLoading();
+    //DONE
+    $(".work_switch_to_show_plan_sub_container").click(switchToShowPlansContainer);
+    //DONE
+    $(".work_switch_to_show_ws_sub_container").click(switchToShowWSContainer);
+    //TODO
     loadActivePlans();
+
+    $("#work_open_ws_today_button").click(openWorkSheetToday);
+
+    //TODO
+    loadWorkSheetInfosRecentlyForFirstLoading();
+
     showWsInfosRecently();
 
-    $(".work_switch_to_show_plan_sub_container").click(switchToShowPlansContainer);
-    $(".work_switch_to_show_ws_sub_container").click(switchToShowWSContainer);
-    $("#work_open_ws_today_button").click(openWorkSheetToday);
+
 
     $("#work_create_plan_button,.work_plan_create_plan_in_hint").click(openCreatePlanDialog);
 
@@ -88,12 +96,7 @@ function showWsDetail(){
     sendAjax("CareerServlet","c_load_work_sheet_count",{
         "date":new Date(parseInt($(this).attr("ws_date"))).getDateStr()
     },(data)=>{
-        if(isWsToday){
-            /*-1是由于要减去自己*/
-            $("#work_ws_count_ws_today_alert em").text(data.rlt-1);
-        }else{
-            $("#work_ws_count_ws_prev_day_alert em").text(data.rlt);
-        }
+        $("#work_ws_count_ws_today_alert em").text(data.rlt);
     })
 
     $(this).addClass("common_prevent_double_click");
@@ -149,6 +152,7 @@ function openWorkSheetToday(){
  * 当今天已经开了ws后 closePlans openWsContainer 
  * 否则 openPlan
  **/
+//TODO
 function loadWorkSheetInfosRecentlyForFirstLoading(){
     closePlansContainer();
     closeWsActualContainer();

@@ -18,8 +18,6 @@
 	<div id="header_sign_in_container" class="common_sub_main_container">
 		<div id="left_flex_header_sign_in_container">
 	<img class="web_logo" src="<%=SM.BASIC_FILES_FOLDER %>web_logo_white.png" title="返回首页"/> 
-
-	
 		</div>
 		<div id="middle_flex_header_sign_in_container">
 			<span class="users_module_button">

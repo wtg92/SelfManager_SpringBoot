@@ -1,18 +1,22 @@
 claimPageNonRequireSignIn();
 
+//DONE
 $(function(){
+    //DONE
     drawWebInfoTitles();
+    //DONE
     $("#web_info_main_invagation_container").on("click","[container_id]",function(){
         switchWebInfoContainer($(this).attr("container_id"),$(this).text());
     });
-
+    //DONE
     $(".go_click_connection_btn").click(()=>{
         $("#web_info_main_invagation_container [container_id='web_info_connect_with_us']").click();
     })
-
+    //DONE
     let goToContainerId = getUrlParam("container") == undefined ? "web_info_what_sm_to_do" :  getUrlParam("container");
-
+    //DONE
     $("#web_info_main_invagation_container [container_id='"+goToContainerId+"']").click();
+    //DONE
     $("#web_info_connect_with_us").find(".common_copy_font").click(copyConnectionInfoToClipboard);
 })  
 

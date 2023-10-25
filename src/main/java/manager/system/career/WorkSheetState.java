@@ -1,9 +1,11 @@
 package manager.system.career;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import manager.exception.NoSuchElement;
 import manager.util.ColorUtil;
 import manager.util.SystemUtil;
 
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum WorkSheetState {
 	UNDECIDED(0,""),
 	ACTIVE(1,"进行中"),

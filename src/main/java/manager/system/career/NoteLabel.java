@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import manager.exception.NoSuchElement;
 import manager.util.SystemUtil;
 
@@ -11,6 +12,7 @@ import manager.util.SystemUtil;
  * 对于该枚举，Color 应该放到枚举里，因为这是它独有的，不存在复用的问题。
  * 该枚举 无需要DBCode 是靠name来唯一标志的
  * */
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum NoteLabel {
 	UNDECIDED("",""),
 	EM("EM","强调，点击复制"),

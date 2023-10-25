@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import manager.controller.UserController;
 import manager.entity.general.User;
 import org.apache.commons.collections4.map.HashedMap;
 
@@ -36,6 +37,8 @@ import manager.util.CacheUtil;
 import manager.util.ThrowableConsumer;
 import manager.util.ThrowableFunction;
 import manager.util.ThrowableSupplier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
   *  缓存基本策略：先看缓存是否有，有则直接返回，无则依赖generator取，加入缓存，返回经过字符串转化的结果（为了保持一致）
@@ -56,8 +59,9 @@ import manager.util.ThrowableSupplier;
  */
 public abstract class CacheScheduler {
 	private final static boolean USING_REDIS_CACHE = getBoolValFromPropertiesFileInResource("using_redis_cache");
-	
-	
+
+	private static final Logger logger = LoggerFactory.getLogger(CacheScheduler.class);
+
 	public static <T extends SMEntity> T getOne(CacheMode mode, long identifier, Class<T> cla,
 			ThrowableSupplier<T, DBException> generator) throws LogicException, DBException {
 		
@@ -489,11 +493,14 @@ public abstract class CacheScheduler {
 		String key = createTempKey(mode, identifier);
 		if(!USING_REDIS_CACHE) {
 			if(redisMapSubstitute.containsKey(key)) {
+				Map<String,String> existed = redisMapSubstitute.get(key);
+				existed.put(mapKey,mapVal);
 				return false;
 			}
-			Map<String,String> initor = new HashedMap<String, String>();
-			initor.put(mapKey, mapVal);
-			redisMapSubstitute.put(key,initor);
+			Map<String,String> init = new HashedMap<String, String>();
+			init.put(mapKey, mapVal);
+			redisMapSubstitute.put(key,init);
+			System.out.println("redisMapSubstitute Added A Temp KEY:"+key);
 			return true;
 		}
 		
@@ -584,9 +591,9 @@ public abstract class CacheScheduler {
 		String key = createTempKey(mode, identifier);
 		
 		if(!USING_REDIS_CACHE) {
-			return redisSubstitute.containsKey(key);
+			boolean existed = redisSubstitute.containsKey(key) || redisMapSubstitute.containsKey(key);
+			return existed;
 		}
-
 		return CacheUtil.exists(key);
 	}
 

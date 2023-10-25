@@ -3,7 +3,6 @@ const INDEX_NAMESPACES = {
     TEL_METHOD:3
 }
 
-//TODO Migrate.
 claimPageRequireSignOut();
 
 /**
@@ -35,11 +34,11 @@ $(function(){
     $("#index_forgot_account_btn").click(openRetrieveAccountDialog);
     //DONE
     $("#send_account_for_find_account_btn").click(retrieveAccount);
-
+    //DONE
     $("#index_forgot_pwd_btn").click(openResetPwdDialog);
-
-
+    //DONE
     $("#send_verify_code_for_reset_pwd_btn").click(sendVerifyCodeForResetPwd);
+    //DONE
     $("#commit_reset_pwd_btn").click(commitResetPWD);
 });
 
@@ -120,7 +119,6 @@ function sendVerifyCodeForResetPwd(){
 
 function commitResetPWD(){
     let params = $("#index_reset_pwd_form").serializeArray();
-
 
     if(!checkSignUpPwdLegal(params.find(e=>e.name=='reset_pwd_val').value)){
         alertInfo("重置密码格式错误");
