@@ -13,6 +13,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.alibaba.fastjson.JSONObject;
 import org.apache.tomcat.util.http.fileupload.FileItem;
 import org.apache.tomcat.util.http.fileupload.FileUploadException;
 import org.apache.tomcat.util.http.fileupload.disk.DiskFileItemFactory;
@@ -31,12 +32,40 @@ import manager.system.SMError;
 
 public abstract class UIUtil {
 
+	public static List<Integer> transferToIntList(JSONArray jsonArray) {
+		List<Integer> rlt = new ArrayList<>();
+
+		for(int i=0;i<jsonArray.size();i++){
+			rlt.add(jsonArray.getInteger(i));
+		}
+
+		return rlt;
+	}
+
+
 	/**
 	 *  New version migration....
 	 */
 	public static long getLoginId(String auth) throws LogicException {
 		return ServletAdapter.getUserId(auth.replace("Bearer ",""));
 	}
+
+	public static int getParamIntegerOrZeroDefault(JSONObject param, String key){
+		Integer val = param.getInteger(key);
+		if(val == null){
+			return 0;
+		}
+		return val;
+	}
+
+	public static double getParamDoubleOrZeroDefault(JSONObject param, String key){
+		Double val = param.getDouble(key);
+		if(val == null){
+			return 0;
+		}
+		return val;
+	}
+
 	/**
 	 *
 	 */
@@ -109,20 +138,32 @@ public abstract class UIUtil {
 			throw new LogicException(SMError.REQUEST_ARG_ILLEGAL,"String boolean 转化失败 "+key);
 		}
 	}
-	
+
+	@Deprecated
 	public static Calendar getNonNullParamInDate(HttpServletRequest request, String key) throws LogicException {
 		try {
-			return TimeUtil.parseDate((getNonNullParam(request, key)));
+			return TimeUtil.parseDate(Long.parseLong(getParam(request, key)));
 		} catch (Exception e) {
-			throw new LogicException(SMError.REQUEST_ARG_ILLEGAL,"String date 转化失败 "+key);
+			e.printStackTrace();
+			//TODO TEMP
+			try{
+				return TimeUtil.parseDate(getParam(request,key));
+			}catch(Exception e2){
+				throw new LogicException(SMError.REQUEST_ARG_ILLEGAL,"String date 转化失败 "+key);
+			}
 		}
 	}
 	
 	public static Calendar getNonNullParamInTime(HttpServletRequest request, String key) throws LogicException {
 		try {
-			return TimeUtil.parseTime((getNonNullParam(request, key)));
+			return TimeUtil.parseTime(Long.parseLong(getParam(request, key)));
 		} catch (Exception e) {
-			throw new LogicException(SMError.REQUEST_ARG_ILLEGAL,"String time 转化失败 "+key);
+			e.printStackTrace();
+			try{
+				return TimeUtil.parseTime(getParam(request,key));
+			}catch(Exception e2){
+				throw new LogicException(SMError.REQUEST_ARG_ILLEGAL,"String date 转化失败 "+key);
+			}
 		}
 	}
 
@@ -184,7 +225,7 @@ public abstract class UIUtil {
     	return rlt;
 	}
 
-	public static int getParamOrZeroDefault(HttpServletRequest request, String key) throws LogicException{
+	public static int getParamIntegerOrZeroDefault(HttpServletRequest request, String key) throws LogicException{
 		try {
 			String val = getParam(request, key);
 			if(val.length() == 0)

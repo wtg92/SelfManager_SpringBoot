@@ -8,6 +8,8 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import manager.system.SMDB;
 
+import java.util.Calendar;
+
 @Entity
 @Table(name = SMDB.T_USER_GROUP)
 @DynamicInsert
@@ -17,6 +19,14 @@ public class UserGroup extends SMGeneralEntity {
 	
 	@Column
 	private String name;
+
+	@Column
+	@Deprecated
+	private Calendar createTime;
+	@Column
+	@Deprecated
+	private Calendar updateTime;
+
 
 	/*======================== Auto-Genrated Code==================================*/
 	
@@ -29,4 +39,19 @@ public class UserGroup extends SMGeneralEntity {
 	public void setName(String name) {
 		this.name = name;
 	}
+
+	public Calendar getCreateTime() {
+		return createTime;
+	}
+	public void setCreateTime(Calendar createTime) {
+		this.createTime = createTime;
+	}
+	public Calendar getUpdateTime() {
+		return updateTime;
+	}
+	public void setUpdateTime(Calendar updateTime) {
+		this.updateTime = updateTime;
+	}
+
+
 }

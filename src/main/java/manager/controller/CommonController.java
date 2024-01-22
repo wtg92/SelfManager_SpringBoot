@@ -1,12 +1,14 @@
 package manager.controller;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.ZoneId;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import manager.system.Gender;
 import manager.system.VerifyUserMethod;
+import manager.system.career.PlanItemType;
+import manager.system.career.PlanSetting;
+import manager.system.career.PlanState;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,5 +41,26 @@ public class CommonController {
     public AjaxResult getGenders() {
         return AjaxResult.success(Gender.getGenders());
     }
+
+    @GetMapping("/getPlanSettings")
+    public List<PlanSetting> getPlanSettings() {
+        return PlanSetting.getSettings();
+    }
+
+    @GetMapping("/getPlanStates")
+    public List<PlanState> getPlanStates() {
+        return PlanState.getStates();
+    }
+
+    @GetMapping("/getPlanItemTypes")
+    public List<PlanItemType> getPlanItemTypes() {
+        return PlanItemType.getTypes();
+    }
+
+    @GetMapping("/getTimezones")
+    public Set<String> getTimezones() {
+        return ZoneId.getAvailableZoneIds();
+    }
+
 
 }

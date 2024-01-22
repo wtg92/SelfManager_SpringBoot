@@ -645,7 +645,7 @@ function translateUndefinedForDataTable(val){
 
     return val;
 }
-
+//DONE
 function getFontColorAndBorderColor(color) {
     return {
         "border-color": color,

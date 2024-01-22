@@ -19,10 +19,11 @@ public abstract class SMGeneralEntity extends SMEntity implements Cloneable{
 	private static final long serialVersionUID = 6178314886295205584L;
 	
 	@Column
-	private Calendar createTime;
+	private Long createUtc;
 	@Column
-	private Calendar updateTime;
-	
+	private Long updateUtc;
+
+
 	@Column(name="hb_version")
 	@Version
 	/**
@@ -32,22 +33,26 @@ public abstract class SMGeneralEntity extends SMEntity implements Cloneable{
 	private Integer version;
 
 
-	public Calendar getCreateTime() {
-		return createTime;
-	}
-	public void setCreateTime(Calendar createTime) {
-		this.createTime = createTime;
-	}
-	public Calendar getUpdateTime() {
-		return updateTime;
-	}
-	public void setUpdateTime(Calendar updateTime) {
-		this.updateTime = updateTime;
-	}
 	public Integer getVersion() {
 		return version;
 	}
 	public void setVersion(Integer version) {
 		this.version = version;
+	}
+
+	public Long getCreateUtc() {
+		return createUtc;
+	}
+
+	public void setCreateUtc(Long createUtc) {
+		this.createUtc = createUtc;
+	}
+
+	public Long getUpdateUtc() {
+		return updateUtc;
+	}
+
+	public void setUpdateUtc(Long updateUtc) {
+		this.updateUtc = updateUtc;
 	}
 }

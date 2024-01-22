@@ -5,6 +5,10 @@ import manager.exception.NoSuchElement;
 import manager.util.ColorUtil;
 import manager.util.SystemUtil;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum PlanState {
 	UNDECIDED(0,""),
@@ -17,12 +21,17 @@ public enum PlanState {
 	private int dbCode;
 	private String name;
 	
-	private PlanState(int dbCode,String name) {
+	PlanState(int dbCode,String name) {
 		this.dbCode = dbCode;
 		this.name = name;
 	}
 
-	public String getColor() {
+    public static List<PlanState> getStates() {
+		return Arrays.stream(values()).filter(one->one!= UNDECIDED)
+				.collect(Collectors.toList());
+    }
+
+    public String getColor() {
 		return ColorUtil.getColor(this.getName());
 	}
 	

@@ -14,7 +14,6 @@ public class DEBUG_Neo4jUtil {
 	public void testTransferToNeo4j() {
 		Asset one = new Asset();
 		one.setName("Test");
-		one.setCreateTime(Calendar.getInstance());
 		String rlt = Neo4jUtil.transferToNeo4jObj(one,"a");
 		System.out.println(rlt);
 	}

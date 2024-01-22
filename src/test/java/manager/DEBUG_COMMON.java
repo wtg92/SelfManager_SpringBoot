@@ -1,12 +1,22 @@
 package manager;
 
+import com.alibaba.fastjson.JSONObject;
 import org.junit.Test;
 
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 public class DEBUG_COMMON {
+
+    @Test
+    public void test15() {
+        JSONObject param = new JSONObject();
+        param.put("a", "");
+        Integer i = param.getInteger("a");
+        System.out.println(i);
+    }
 
     @Test
     public void test1(){
@@ -23,6 +33,20 @@ public class DEBUG_COMMON {
         cache.entrySet().removeIf(one->one.getKey().equals("1"));
         System.out.println(cache.size());
 
+    }
+
+
+    @Test
+    public void testTimeZone(){
+        String str = "Asia/Tokyo";
+        final ZoneId of = ZoneId.of(str);
+        System.out.println(of.getId());
+    }
+
+
+    @Test
+    public void testDefaultTimeZone(){
+        System.out.println(ZoneId.systemDefault());
     }
 
 }

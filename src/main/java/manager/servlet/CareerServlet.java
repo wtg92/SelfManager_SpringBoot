@@ -38,7 +38,6 @@ import static manager.system.SMParm.STYLE;
 import static manager.system.SMParm.TAGS;
 import static manager.system.SMParm.TARGET_ID;
 import static manager.system.SMParm.TARGET_PLAN_ID;
-import static manager.system.SMParm.TEMPLE_PLAN_ID;
 import static manager.system.SMParm.VAL;
 import static manager.system.SMParm.WITH_TODOS;
 import static manager.system.SMParm.WORK_ITEM_ID;
@@ -60,7 +59,7 @@ import static manager.util.UIUtil.getParamOrBlankDefault;
 import static manager.util.UIUtil.getParamOrBlankDefaultInDate;
 import static manager.util.UIUtil.getParamOrBlankDefaultInTime;
 import static manager.util.UIUtil.getParamOrFalseDefault;
-import static manager.util.UIUtil.getParamOrZeroDefault;
+import static manager.util.UIUtil.getParamIntegerOrZeroDefault;
 import static manager.util.UIUtil.getParamOrZeroDefaultInDouble;
 import static manager.util.UIUtil.getParamOrZeroDefaultInInt;
 import static manager.util.UIUtil.getParamsInIntOrZeroDefault;
@@ -418,11 +417,11 @@ public class CareerServlet extends SMServlet{
 	}
 
 	private String createNote(HttpServletRequest request) throws DBException, LogicException {
-		long loginerId = getLoginId(request);
+		long loginId = getLoginId(request);
 		long bookId = getNonNullParamInInt(request, BOOK_ID);
 		String name = getNonNullParam(request, NAME);
-		long noteId = nL.createNote(loginerId, bookId, name);
-		return getBiParamsJSON(nL.loadBookContent(loginerId, bookId),noteId,noteConf); 
+		long noteId = nL.createNote(loginId, bookId, name);
+		return getBiParamsJSON(nL.loadBookContent(loginId, bookId),noteId,noteConf);
 	}
 
 	private String saveNoteBook(HttpServletRequest request) throws LogicException, DBException {
@@ -472,7 +471,7 @@ public class CareerServlet extends SMServlet{
 	private String copyPlanItemsById(HttpServletRequest request) throws LogicException, DBException {
 		long loginerId = getLoginId(request);
 		int targetPlanId = getNonNullParamInInt(request, TARGET_PLAN_ID);
-		String templePlanId = getNonNullParam(request, TEMPLE_PLAN_ID);
+		String templePlanId = getNonNullParam(request, "temple_plan_id");
 		int templetePlanId = ServletAdapter.getCommonId(templePlanId);
 		wL.copyPlanItemsFrom(loginerId, targetPlanId, templetePlanId);
 		return JSON.toJSONString(ServletAdapter.process(wL.loadPlan(loginerId, targetPlanId)),workConf);
@@ -510,7 +509,7 @@ public class CareerServlet extends SMServlet{
 
 	private String loadWSByState(HttpServletRequest request) throws LogicException, DBException {
 		long loginerId = getLoginId(request);
-		WorkSheetState stateZT = WorkSheetState.valueOfDBCode(getParamOrZeroDefault(request, STATE));
+		WorkSheetState stateZT = WorkSheetState.valueOfDBCode(getParamIntegerOrZeroDefault(request, STATE));
 		return JSON.toJSONString(wL.loadWorkSheetByState(loginerId,stateZT),workConf);
 	}
 
@@ -593,7 +592,7 @@ public class CareerServlet extends SMServlet{
 		long loginerId = getLoginId(request);
 		int wsId = getNonNullParamInInt(request, WS_ID);
 		String catName = getNonNullParam(request, CAT_NAME);
-		int val = getParamOrZeroDefault(request, VAL);
+		int val = getParamIntegerOrZeroDefault(request, VAL);
 		String note = getParamOrBlankDefault(request, NOTE);
 		int itemId = getNonNullParamInInt(request, ITEM_ID);
 		double mappingVal = getParamOrZeroDefaultInDouble(request, MAPPING_VAL);
@@ -615,7 +614,7 @@ public class CareerServlet extends SMServlet{
 		long loginerId = getLoginId(request);
 		int wsId = getNonNullParamInInt(request, WS_ID);
 		String catName = getNonNullParam(request, CAT_NAME);
-		int val = getParamOrZeroDefault(request, VAL);
+		int val = getParamIntegerOrZeroDefault(request, VAL);
 		String note = getParamOrBlankDefault(request, NOTE);
 		PlanItemType type = PlanItemType.valueOfDBCode(getNonNullParamInInt(request, CAT_TYPE));
 		int fatherId = getNonNullParamInInt(request, FATHER_ID);
@@ -680,7 +679,7 @@ public class CareerServlet extends SMServlet{
 
 	private String loadPlansByState(HttpServletRequest request) throws LogicException, DBException {
 		long loginerId = getLoginId(request);
-		PlanState stateZT = PlanState.valueOfDBCode(getParamOrZeroDefault(request, STATE));
+		PlanState stateZT = PlanState.valueOfDBCode(getParamIntegerOrZeroDefault(request, STATE));
 		return JSON.toJSONString(wL.loadPlansByState(loginerId,stateZT),workConf);
 	}
 
@@ -736,7 +735,7 @@ public class CareerServlet extends SMServlet{
 		long loginerId = getLoginId(request);
 		int planId = getNonNullParamInInt(request, PLAN_ID);
 		String catName = getNonNullParam(request, CAT_NAME);
-		int val = getParamOrZeroDefault(request, VAL);
+		int val = getParamIntegerOrZeroDefault(request, VAL);
 		String note = getParamOrBlankDefault(request, NOTE);
 		int itemId = getNonNullParamInInt(request, ITEM_ID);
 		double mappingVal = getParamOrZeroDefaultInDouble(request, MAPPING_VAL);
@@ -749,8 +748,8 @@ public class CareerServlet extends SMServlet{
 	private String savePlan(HttpServletRequest request) throws LogicException, DBException {
 		long loginerId = getLoginId(request);
 		String name = getNonNullParam(request, NAME);
-		Calendar startDate = getNonNullParamInDate(request, START_DATE);
-		Calendar endDate = getParamOrBlankDefaultInDate(request, END_DATE);
+		Calendar startDate =  getNonNullParamInDate(request, START_DATE);
+		Calendar endDate = getNonNullParamInDate(request, END_DATE);
 		String note = getParamOrBlankDefault(request, NOTE);
 		boolean recalculateState = getParamOrFalseDefault(request, RECALCULATE_STATE);
 		int planId = getNonNullParamInInt(request, PLAN_ID);
@@ -792,7 +791,7 @@ public class CareerServlet extends SMServlet{
 		long loginerId = getLoginId(request);
 		int planId = getNonNullParamInInt(request, PLAN_ID);
 		String catName = getNonNullParam(request, CAT_NAME);
-		int val = getParamOrZeroDefault(request, VAL);
+		int val = getParamIntegerOrZeroDefault(request, VAL);
 		String note = getParamOrBlankDefault(request, NOTE);
 		PlanItemType type = PlanItemType.valueOfDBCode(getNonNullParamInInt(request, CAT_TYPE));
 		int fatherId = getNonNullParamInInt(request, FATHER_ID);

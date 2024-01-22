@@ -11,7 +11,7 @@ public enum WorkItemType {
 	 * startTime=endTime=同步历史欠账的时间。
 	 * note=""
 	 */
-	DEPT(2),
+	DEBT(2),
 	;
 	
 	private int dbCode;

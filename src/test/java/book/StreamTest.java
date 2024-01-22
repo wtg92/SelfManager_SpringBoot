@@ -372,7 +372,11 @@ public class StreamTest {
 			grade.students.stream()
 			.sorted(Comparator.comparing(Student::getGPA).reversed())
 			.limit(100), toList()));
-				
+
+		allGrades.stream().flatMap((keu)->{
+			return keu.students.stream();
+		}).collect(Collectors.toList());
+
 		target.forEach(this::grantScholarship);
 	}
 	

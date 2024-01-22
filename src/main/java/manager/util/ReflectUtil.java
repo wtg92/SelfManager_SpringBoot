@@ -12,4 +12,8 @@ public abstract class ReflectUtil {
        return stackTrace[3].getMethodName();
     }
 
+    public static String getInvokerClassName() {
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        return stackTrace[3].getClassName();
+    }
 }

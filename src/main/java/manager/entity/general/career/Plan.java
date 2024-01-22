@@ -8,6 +8,7 @@ import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import manager.util.TimeUtil;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -26,12 +27,15 @@ import manager.system.converter.TagsConverter;
 @DynamicUpdate
 public class Plan extends SMGeneralEntity {
 	private static final long serialVersionUID = -2783464030882407249L;
-	
+
 	@Column
-	private Calendar startDate;
-	
+	private String timezone;
+
 	@Column
-	private Calendar endDate;
+	private Long startUtc;
+
+	@Column
+	private Long endUtc;
 	
 	@Column
 	private String note;
@@ -44,7 +48,7 @@ public class Plan extends SMGeneralEntity {
 	
 	@Column
 	private Long ownerId;
-	
+
 	@Column
 	@Convert(converter = PlanStateConverter.class)
 	private PlanState state;
@@ -59,7 +63,24 @@ public class Plan extends SMGeneralEntity {
 	
 	@Column
 	private Integer seqWeight;
-	
+
+
+	@Column
+	@Deprecated
+	private Calendar endDate = TimeUtil.getBlank();
+
+	@Column
+	@Deprecated
+	private Calendar createTime = TimeUtil.getBlank();
+
+	@Column
+	@Deprecated
+	private Calendar updateTime = TimeUtil.getBlank();
+
+	@Column
+	@Deprecated
+	private Calendar startDate = TimeUtil.getBlank();
+
 	public Plan() {}
 	
 	public boolean hasSetting(PlanSetting target) {
@@ -68,9 +89,45 @@ public class Plan extends SMGeneralEntity {
 		
 		return setting.contains(target);
 	}
-	
-	
-	
+
+
+	public Calendar getCreateTime() {
+		return createTime;
+	}
+	public void setCreateTime(Calendar createTime) {
+		this.createTime = createTime;
+	}
+	public Calendar getUpdateTime() {
+		return updateTime;
+	}
+	public void setUpdateTime(Calendar updateTime) {
+		this.updateTime = updateTime;
+	}
+
+	public String getTimezone() {
+		return timezone;
+	}
+
+	public void setTimezone(String timezone) {
+		this.timezone = timezone;
+	}
+
+	public Long getStartUtc() {
+		return startUtc;
+	}
+
+	public void setStartUtc(Long startUtc) {
+		this.startUtc = startUtc;
+	}
+
+	public Long getEndUtc() {
+		return endUtc;
+	}
+
+	public void setEndUtc(Long endUtc) {
+		this.endUtc = endUtc;
+	}
+
 	public List<EntityTag> getTags() {
 		return tags;
 	}
@@ -96,19 +153,22 @@ public class Plan extends SMGeneralEntity {
 		this.setting = setting;
 	}
 
-
+	@Deprecated
 	public Calendar getStartDate() {
 		return startDate;
 	}
 
+	@Deprecated
 	public void setStartDate(Calendar startDate) {
 		this.startDate = startDate;
 	}
 
+	@Deprecated
 	public Calendar getEndDate() {
 		return endDate;
 	}
 
+	@Deprecated
 	public void setEndDate(Calendar endDate) {
 		this.endDate = endDate;
 	}

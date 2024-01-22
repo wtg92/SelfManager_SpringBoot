@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -19,7 +18,7 @@ public class UserLockManager {
     private ConcurrentHashMap<String, LockProxy> userLocks = new ConcurrentHashMap<>();
 
     @Value("${lock.expirationSeconds}")
-    private Integer expirationSeconds;
+    public Integer expirationSeconds;
 
     private final static String Default_User_Event = "default";
 
@@ -38,7 +37,7 @@ public class UserLockManager {
         }
     }
 
-    public void lockByUserAndEvent(long userId,String event,Runnable run) {
+    public void lockByUserAndEvent(long userId, String event, Runnable run) {
         String userKey = LockKeyGenerator.generateUserKey(userId,event);
         LockProxy userLock = userLocks.computeIfAbsent(userKey, key -> {
             LockProxy lock = new LockProxy();
@@ -55,7 +54,13 @@ public class UserLockManager {
         }
     }
 
-    public void lockByUserAndEvent(long userId,Runnable run) {
+    //粒子度会变得更小 理论上 是否与其他逻辑不影响  理论上 这个应该比lockByUser用的更多
+    public void lockByUserAndClass(long userId, Runnable run) {
+        String eventName = ReflectUtil.getInvokerClassName();
+        lockByUserAndEvent(userId,eventName,run);
+    }
+
+    public void lockByUserAndMethod(long userId, Runnable run) {
         String eventName = ReflectUtil.getInvokerMethodName();
         lockByUserAndEvent(userId,eventName,run);
     }
@@ -63,5 +68,4 @@ public class UserLockManager {
     public void lockByUser(long userId,Runnable run) {
         lockByUserAndEvent(userId,Default_User_Event,run);
     }
-
 }

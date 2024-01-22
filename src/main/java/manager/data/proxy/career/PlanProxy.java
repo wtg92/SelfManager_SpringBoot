@@ -9,7 +9,6 @@ public class PlanProxy {
 	public Plan plan;
 	public String planId;
 	public PlanContent content;
-	public Long countWS;
 	
 	public boolean getAllowOthersCopy() {
 		return plan.hasSetting(PlanSetting.ALLOW_OTHERS_COPY_PLAN_ITEMS);

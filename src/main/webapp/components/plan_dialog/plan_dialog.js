@@ -6,48 +6,76 @@ const PLAN_DIALOG_NAMESPACE = {
  * plan item id ==0 means root
  */
 $(function(){
-
+    //DONE DONE
     drawCommonIcon("including_modify_mark",$("#plan_dialog_pattern_container .plan_item_modify_mark"));
+    //DONE DONE
     drawCommonIcon("including_add_mark",$("#plan_dialog_pattern_container .plan_item_add_mark"));
+    //DONE DONE
     drawCommonIcon("including_minus_mark",$("#plan_dialog_pattern_container .plan_item_delete_mark"));
+    //DONE DONE
     drawCommonIcon("including_circle_mark",$("#plan_dialog_pattern_container .plan_item_circle_container"));
+    //DONE DONE
     drawCommonIcon("including_circle_with_left_line_mark",$("#plan_dialog_pattern_container .plan_item_root_add_mark"));
-
+    //DONE DONE
     drawCommonIcon("including_open_folder_mark",$("#plan_dialog_pattern_container .plan_item_unfold_btn"));
+    //DONE DONE
     drawCommonIcon("including_close_folder_mark",$("#plan_dialog_pattern_container .plan_item_fold_btn"));
+    //DONE DONE
     drawCommonIcon("including_common_edit_shape",$("#plan_dialog_basic_unit_container_edit_btn"));
 
+    //DONE
+    $("#plan_dialog_save_plan_basic_info_button").click(commitBasicInfo);
 
-    $("#plan_dialog_basic_unit_container_edit_btn").click(openPlanTagEditDialog);
+    //DONE
+    $("#plan_dialog_close_edit_mode").click(closePlanDialogEditMode);
+    //DONE
+    $("#plan_dialog_open_edit_mode").click(openPlanDialogEditMode);
 
+    //DONE
     $("#plan_dialog_basic_info_main_container")
         .find(".plan_dialog_switch_container_visibility").click(function(){
-            switchToShowPlanDialogContainer(this,showPlanDialogBasicInfoContainer,hidePlanDialogBasicInfoContainer)
-        })
-
+        switchToShowPlanDialogContainer(this,showPlanDialogBasicInfoContainer,hidePlanDialogBasicInfoContainer)
+    })
+    //DONE
     $("#plan_dialog_items_main_container")
         .find(".plan_dialog_switch_container_visibility").click(function(){
-            switchToShowPlanDialogContainer(this,showPlanDialogItemsContainer,hidePlanDialogItemsContainer)
-        })
-
+        switchToShowPlanDialogContainer(this,showPlanDialogItemsContainer,hidePlanDialogItemsContainer)
+    })
+    //DONE
     $("#plan_dialog_logs_main_container")
         .find(".plan_dialog_switch_container_visibility").click(function(){
-            switchToShowPlanDialogContainer(this,showPlanDialogLogsContainer,hidePlanDialogLogsContainer)
-        })    
+        switchToShowPlanDialogContainer(this,showPlanDialogLogsContainer,hidePlanDialogLogsContainer)
+    })
 
-
-    $("#plan_dialog_save_plan_basic_info_button").click(commitBasicInfo);
+    //DONE
     $("#plan_dialog_basic_info_sub_container").find("[name='name']").change(checkPlanBasicInfoNameLegal)
         .end().find("[name='start_date']").change(checkPlanBaickInfoStartDateLegal)
         .end().find("[name='end_date']").change(checkPlanBaickInfoEndDateLegal)
         .end().find("[name='seq_weight']").on("input",inputOnlyAllowInt);
 
-    
-    $("#plan_dialog_close_edit_mode").click(closePlanDialogEditMode);
-    $("#plan_dialog_open_edit_mode").click(openPlanDialogEditMode);
-
+    //DONE
     $("#work_end_date_null_for_save_plan").click(switchPlanBasicInfoEndDateNull);
 
+    //DONE
+    $("#plan_dialog_copy_plan_btn").click(copyPlanItemsById);
+    //DONE
+    $(".plan_dialog_basic_info_copy_btn").click(() => {
+        copyToClipboard($(".plan_dialog_basic_info_decoded_id").text(), $("#plan_dialog"));
+        showForAWhile("成功", $(".plan_dialog_basic_info_copy_hint"));
+    })
+
+    //DONE
+    $("#plan_dialog_sync_plan_tags_to_ws_container_btn").click(syncPlanTagsToWS);
+
+    //DONE
+    $("#plan_dialog_add_item_button").click(addItemToPlan);
+    //TODO
+    $("#plan_dialog_save_item_button").click(savePlanItem);
+
+
+    $("#plan_dialog_basic_unit_container_edit_btn").click(openPlanTagEditDialog);
+
+    //DONE
     $("#plan_dialog_items_control_group_container").find("[name='cat_name']").change(switchToShowItemsValContainer)
     .autocomplete({
         minLength:0,
@@ -59,36 +87,36 @@ $(function(){
             minLength:0,
             source : []
     }).focus(getPlanDeptItemNamesForPlanDialog)
-        .change(checkCatNameLegalWhenModifying).on("input",syncCatNameWhenModify)
-        .on("autocompletechange",syncCatNameWhenModify).end()
+        //DONE 无需校验 即便是空 后台校验过 不许重名
+        .change(checkCatNameLegalWhenModifying)
+        //DONE 这个是热更新 所谓的绑定 理论上是直接解决的
+        .on("input",syncCatNameWhenModify)
+        //DONE
+        .on("autocompletechange",syncCatNameWhenModify)
+        .end()
+        //DONE
         .find("[name='cat_type']").click(switchToShowItemsValContainer).end()
+        //DONE
         .find("[name='value_by_minutes']").on("input",inputOnlyAllowInt).end()
+        //DONE
         .find("[name='value_by_times']").on("input",inputOnlyAllowInt).end()
+        //DONE
         .find("[name='mapping_val_for_differ_type']").on("input",inputOnlyAllowInt).end()
+        //DONE
         .find("[name='mapping_val_for_same_type']").on("input",inputOnlyAllowFloat).end()
-
+    //TODO FOCUS!!
     $("#plan_dialog_items_father_and_son_relationship_container").on("click",".dropdown-item",switchToShowItemsValContainerThroughFatherRealtion);
 
-    $("#plan_dialog_add_item_button").click(addItemToPlan);
-    $("#plan_dialog_save_item_button").click(savePlanItem);
 
+    //TODO
     $("#plan_dialog_items_cards_container").on("click",".plan_item_root_add_mark",addRootItemByClickMark)
+
         .on("click",".plan_item_add_mark",addItemByClickMark)
         .on("click",".plan_item_delete_mark",deleteItemByClickMark)
         .on("click",".plan_item_modify_mark",modifyItemByClickMark)
         .on("click",".plan_item_fold_btn",foldPlanItemFoldBtn)
         .on("click",".plan_item_unfold_btn",unfoldPlanItemFoldBtn)
         .on("click",".plan_item_save_fold_info",savePlanItemFoldInfo);
-
-
-    $(".plan_dialog_basic_info_copy_btn").click(() => {
-        copyToClipboard($(".plan_dialog_basic_info_decoded_id").text(), $("#plan_dialog"));
-        showForAWhile("成功", $(".plan_dialog_basic_info_copy_hint"));
-    })
-    
-    $("#plan_dialog_copy_plan_btn").click(copyPlanItemsById);
-
-    $("#plan_dialog_sync_plan_tags_to_ws_container_btn").click(syncPlanTagsToWS);
 
 })
 
@@ -192,6 +220,7 @@ function modifyItemByClickMark(){
     let $container = $("#plan_dialog_items_control_group_container");
     let $footer  =  $(this).parent(".plan_item_container_footer");
     let $item = findDropDownItemByItemId($footer.attr("item_id"));
+    //直接上层 也就是说 我需要从
     let fatherId = parseInt($(this).parent(".plan_item_container_footer").attr("father_id"));
     let $fatherItem = findDropDownItemByItemId(fatherId);
     let itemTypeCode= parseInt($item.attr("cat_type"));
@@ -264,6 +293,7 @@ function deleteItemByClickMark(){
 
 
 /**本质就是 通过itemId 来找到对应从属表，模拟点击 */
+//TODO
 function addRootItemByClickMark(){
     let itemId = $(this).parent(".plan_item_container_root_controlgroup").attr("item_id");
     findSubItemAndClick(itemId);
@@ -399,6 +429,9 @@ function addItemToPlan(){
         if(val.length == 0){
             confirmInfo(BASIC_NAMESPACE.WS_HINT_FOR_NULL_PLAN_ITEM_VAL,()=>{
                 sendAjax("CareerServlet","c_add_item_to_plan",param,(data)=>{
+                    /**
+                     * 既然有回显了 就不必有提示信息了
+                     */
                     showForAWhile("添加成功",$("#plan_dialog_save_or_add_item_hint_mes"));
                     fillPlanDialogByDate(data);
                 })
@@ -471,6 +504,7 @@ function initItemsValContainer(){
 
 }
 
+//DONE Focus Important!!
 function switchToShowItemsValContainer(){
     let $container = $("#plan_dialog_items_control_group_container");
 
@@ -481,7 +515,11 @@ function switchToShowItemsValContainer(){
     let $catNameInput = $container.find("[name='cat_name']");
     let catName = $catNameInput.val().trim();
     
-    /*当从属关系非无时，需要校验名称不能为空*/
+    /*当从属关系非无时，需要校验名称不能为空  */
+    /**
+     * I ll leave this away 2024.1.15
+     * @type {*|Window.jQuery|HTMLElement}
+     */
     $errorContainer = $(".plan_dialog_items_error_mes.items_header");
     if(catName.length == 0 && !isFather){
         return;
@@ -491,18 +529,19 @@ function switchToShowItemsValContainer(){
     }
 
     if(isFather){
+        //DONE
         $("#plan_dialog_items_inputs_for_minutes_type").toggle($container.find("[name='cat_type'][minutes]").prop("checked"));
         $("#plan_dialog_items_inputs_for_times_type").toggle($container.find("[name='cat_type'][times]").prop("checked"));
-
+        //DONE
         initItemsValContainer();
         return;
     }
-
+    //DONE
     if($container.find("[name='cat_type']:checked").length == 0){
         alertInfo("当选择从属关系时，请先确定计划项类型");
         return;
     }
-    
+    //DONE
     initItemsValContainer();
 
     let sonType = parseInt($container.find("[name='cat_type']:checked").val());
@@ -623,7 +662,7 @@ function checkPlanBaickInfoStartDateLegal(){
     }
 }
 
-
+//DONE
 function commitBasicInfo(){
     if(!checkPlanBaickInfoEndDateLegal()
         || !checkPlanBaickInfoStartDateLegal()
@@ -636,6 +675,16 @@ function commitBasicInfo(){
     param.push({
         "name":"plan_id",
         "value":$("#plan_dialog").attr("plan_id")
+    })
+    param = param.filter(one=>one.name!='start_date' && one.name!='end_date');
+    param.push({
+        "name":"start_date",
+        "value":$("[name='start_date']").attr("abs_time_in_millis")
+    })
+
+    param.push({
+        "name":"end_date",
+        "value":$("[name='end_date']").attr("abs_time_in_millis")
     })
 
     sendAjax("CareerServlet","c_save_plan",param,(data)=>{
@@ -674,8 +723,10 @@ function switchToShowPlanDialogContainer(dom,showFunc,hideFunc){
 }
 
 /*画两个东西 1.PlanItems的条目  2.从属的上拉框 */
+//DONE
 function drawPlanItemsFromCache(){
     /*从属的上拉框*/
+    //DONE
     let $dropUpContainer  =$("#plan_dialog_items_control_group_container").find(".dropdown-menu");
     $dropUpContainer.empty();
     let cats = [];
@@ -703,6 +754,8 @@ function drawPlanItemsFromCache(){
 
     })
 
+
+    //DONE
     /*PlanItems的条目*/
     let $itemsCardContainer = $("#plan_dialog_items_cards_container");
     let $pattern = $("#plan_dialog_pattern_container");
@@ -720,6 +773,7 @@ function drawPlanItemsFromCache(){
         $firstLevelContainer.attr({
             "fold" : items[i].fold
         }).find(".plan_item_container_footer").attr({
+            //TODO
             "item_id":items[i].id,
             "father_id" : 0,
             "cat_name" : items[i].name,
@@ -782,7 +836,7 @@ function drawSonPlanItemCards(fatherItem,$container){
 
 
 
-
+//DONE
 function fillPlanDialogByDate(data,openEditMode){
 
     PLAN_DIALOG_NAMESPACE.CURRENT_PLAN = cloneObj(data);
@@ -792,38 +846,46 @@ function fillPlanDialogByDate(data,openEditMode){
         openEditMode = parseToBool($planDialog.attr("open_edit_mode")); 
     }
 
-   
+    //almost DONE
     drawPlanItemsFromCache();
 
     /*下拉框默认选择 无 默认启动增加模式*/
     openItemControgroupAddMode();
+    //DONE
     $("#plan_dialog_items_control_group_container").find(".dropdown-item[item_id='0']").click();
 
 
     $(".plan_dialog_basic_info_form_error_mes,.plan_dialog_items_error_mes").hide();
-
+    //DONE
     let title = data.countWS == 0 ? data.plan.name : "共有<em>"+data.countWS+"</em>天的工作表基于本计划";
-
     $planDialog.attr({
         "plan_id":data.plan.id
     }).find(".modal-header .modal-title").html(title);
 
+    //DONE
     $("#plan_dialog_basic_info_form").find("[name='name']").val(data.plan.name)
         .end().find(".plan_dialog_basic_info_state").text(data.plan.state.name).css(getFontColorAndBorderColor(data.plan.state.color));
 
+    //DONE
     $("#plan_dialog_basic_info_form").find("[name='start_date']").attr("abs_time_in_millis",data.plan.startDate).end()
         .find("[name='end_date']").attr("abs_time_in_millis",data.plan.endDate).end()
         .find(".plan_dialog_basic_info_decoded_id").text(data.planId).end()
         .find(".allow_others_copy_plan_items").prop("checked",data.allowOthersCopy).end()
-        .find(".plan_dialog_basic_allow_others_copy_plan_items_rlt").text(data.allowOthersCopy?"是":"否").attr("p_setting",data.allowOthersCopy).end()
+        .find(".plan_dialog_basic_allow_others_copy_plan_items_rlt").text(data.allowOthersCopy?"是":"否")
+        //TOOD
+        .attr("p_setting",data.allowOthersCopy).end()
+
         .find(".plan_dialog_basic_info_sub_title_seq_weight_span").text(data.plan.seqWeight).end()
         .find("[name='seq_weight']").val(data.plan.seqWeight).end()
-
+    //DONE
     fillTextareaVal(data.plan.note,$("#plan_dialog_basic_info_form").find("[name='note'"));
-
+    //DONE
     drawCommonLogs(data.content.logs,$("#plan_dialog_plan_logs_container"))
+
+    //DONE
     $("#plan_dialog_plan_latest_update_time>span").text(new Date(data.plan.updateTime).toSmartString());
 
+    //DONE
     $tagContainer = $(".plan_dialog_basic_unit_container_plan_tags");
     $tagContainer.empty();
     data.plan.tags.forEach(tag=>{
@@ -832,6 +894,7 @@ function fillPlanDialogByDate(data,openEditMode){
         $tagContainer.append($unit);
     })
 
+    //DONE
     if(openEditMode){
         openPlanDialogEditMode();
     }else{
@@ -839,36 +902,40 @@ function fillPlanDialogByDate(data,openEditMode){
     }
     
 }
-
+//DONE
 function openPlanDialogEditMode(){
-
+    //DONE
     $("#plan_dialog").attr("open_edit_mode",true);
 
+    //DONE
     let startDate = new Date(parseInt($("#plan_dialog_basic_info_form").find("[name='start_date']").attr("abs_time_in_millis")));
     let endDate = new Date(parseInt($("#plan_dialog_basic_info_form").find("[name='end_date']").attr("abs_time_in_millis")));
     $("#plan_dialog_basic_info_form").find("[name='start_date']").prop("type","date").val(startDate.getDateStr()).end()
         .find("[name='end_date']").prop("type","date").val(endDate.isBlank() ?"":endDate.getDateStr()).end();
     
-
+    //EXTRA
     $(".plan_dialog_items_form_one_row.plan_dialog_items_values_container>div").hide();    
     $("#plan_dialog_items_main_container").find("[type='text'],textarea").val("");
-    
+
+    //DONE
     $("#plan_dialog_close_edit_mode").show();
     $("#plan_dialog_open_edit_mode").hide();
 }
 
 
 function closePlanDialogEditMode(){
-
+    //DONE
     $("#plan_dialog").attr("open_edit_mode",false);
-
+    //DONE
     let startDate = new Date(parseInt($("#plan_dialog_basic_info_form").find("[name='start_date']").attr("abs_time_in_millis")));
     let endDate = new Date(parseInt($("#plan_dialog_basic_info_form").find("[name='end_date']").attr("abs_time_in_millis")));
     $("#plan_dialog_basic_info_form").find("[name='start_date']").prop("type","text").val(startDate.toChineseDate()).end()
         .find("[name='end_date']").prop("type","text").val(endDate.toChineseDate("至今")).end();
 
+    //DONE switch to null 是 暂时没想好 这块的交互要改    test 是校验
     $(".plan_dialog_basic_unit_container").removeAttr("switch_to_null").removeAttr("test");
 
+    //DONE
     $("#plan_dialog_close_edit_mode").hide();
     $("#plan_dialog_open_edit_mode").show();
 }
@@ -883,7 +950,7 @@ function openPlanDialog(id,openEditMode,reloadFuncForSyncPlanTags){
     },(data)=>openPlanDialogByDate(data,openEditMode,reloadFuncForSyncPlanTags));
 }
 
-
+//TODO
 function openPlanDialogByDate(data,openEditMode,reloadFuncForSyncPlanTags){
 
     PLAN_DIALOG_NAMESPACE.RELOAD_FUNC_FOR_SYNC_PLAN_TAGS = reloadFuncForSyncPlanTags;

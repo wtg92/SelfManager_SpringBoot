@@ -13,6 +13,8 @@ import manager.system.Gender;
 import manager.system.SMDB;
 import manager.system.converter.GenderConverter;
 
+import java.util.Calendar;
+
 
 @Entity
 @Table(name = SMDB.T_USER)
@@ -21,6 +23,14 @@ import manager.system.converter.GenderConverter;
 public class User extends SMGeneralEntity{
 	
 	private static final long serialVersionUID = 4205890933324878246L;
+
+	@Column
+	@Deprecated
+	private Calendar createTime;
+	@Column
+	@Deprecated
+	private Calendar updateTime;
+
 
 	@Column
 	private String account;
@@ -73,10 +83,22 @@ public class User extends SMGeneralEntity{
 	
 	/*======================== Auto-Genrated Code==================================*/
 
-	
-	
-	
-	
+
+
+	public Calendar getCreateTime() {
+		return createTime;
+	}
+	public void setCreateTime(Calendar createTime) {
+		this.createTime = createTime;
+	}
+	public Calendar getUpdateTime() {
+		return updateTime;
+	}
+	public void setUpdateTime(Calendar updateTime) {
+		this.updateTime = updateTime;
+	}
+
+
 	public Double getDonationAmount() {
 		return donationAmount;
 	}

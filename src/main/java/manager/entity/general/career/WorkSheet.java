@@ -25,7 +25,13 @@ import manager.system.converter.TagsConverter;
 public class WorkSheet extends SMGeneralEntity {
 	
 	private static final long serialVersionUID = 7632220752878325383L;
-	
+	@Column
+	@Deprecated
+	private Calendar createTime;
+	@Column
+	@Deprecated
+	private Calendar updateTime;
+
 	@Column
 	private Calendar date;
 	
@@ -55,7 +61,20 @@ public class WorkSheet extends SMGeneralEntity {
 	
 	public WorkSheet() {}
 
-	
+	public Calendar getCreateTime() {
+		return createTime;
+	}
+	public void setCreateTime(Calendar createTime) {
+		this.createTime = createTime;
+	}
+	public Calendar getUpdateTime() {
+		return updateTime;
+	}
+	public void setUpdateTime(Calendar updateTime) {
+		this.updateTime = updateTime;
+	}
+
+
 	public List<EntityTag> getTags() {
 		return tags;
 	}

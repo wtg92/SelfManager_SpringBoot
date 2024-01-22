@@ -9,8 +9,19 @@ $(function(){
     $(".work_switch_to_show_plan_sub_container").click(switchToShowPlansContainer);
     //DONE
     $(".work_switch_to_show_ws_sub_container").click(switchToShowWSContainer);
-    //TODO
+    //DONE
     loadActivePlans();
+    //DONE
+    $("#work_plan_cards_container").on("click",".work_plan_card_content",switchToSelectPlanCard)
+        //DONE
+        .on("click",".work_abandon_plan",abandonPlan)
+        //DONE
+        .on("click",".work_see_plan_detail",seePlanDetail)
+        .on("click",".work_edit_plan_button",editPlanDetail)
+        //DONE
+        .on("click",".work_finish_plan",finishPlan);
+
+
 
     $("#work_open_ws_today_button").click(openWorkSheetToday);
 
@@ -23,17 +34,22 @@ $(function(){
 
     $("#work_create_plan_button,.work_plan_create_plan_in_hint").click(openCreatePlanDialog);
 
+    //DONE
     $("#work_set_start_date_today_for_create_plan").click(changeStartDateWithTodayForCreatePlan);
-
+    //DONE
     $("#work_create_plan_form [name='end_date_null']").click(switchToDisableEndateForCreatePlan);
-    $("#work_commit_create_plan_button").click(createPlan);
 
+    //DONE
+    $("#work_commit_create_plan_button").click(createPlan);
+    //DONE
     $(".work_create_plan_entity [name='name']").blur(function(){
         testCreatePlanFormat(this,(text)=>checkPlanName(text),"1-20个字符");
     });
+    //DONE
     $(".work_create_plan_entity [name='start_date']").blur(function(){
         testCreatePlanFormat(this,checkDateFormat,"日期格式非法，建议使用插件来选择日期，如果没有弹出插件，请更新浏览器版本");
     });
+    //DONE
     $(".work_create_plan_entity [name='end_date']").blur(function(){
         testCreatePlanFormat(this,checkDateFormat,"日期格式非法，建议使用插件来选择日期，如果没有弹出插件，请更新浏览器版本");
     });
@@ -42,11 +58,7 @@ $(function(){
 
     $(".work_leran_to_use_work_sheet").click(()=>$("#work_getting_start_dialog").modal("show"));
 
-    $("#work_plan_cards_container").on("click",".work_plan_card_content",switchToSelectPlanCard)
-        .on("click",".work_abandon_plan",abandonPlan)
-        .on("click",".work_see_plan_detail",seePlanDetail)
-        .on("click",".work_edit_plan_button",editPlanDetail)
-        .on("click",".work_finish_plan",finishPlan);
+
 
     $("#work_ws_sub_left_container_footer .work_see_more_ws").click(seeMoreWsInfos);
 
@@ -94,7 +106,7 @@ function showWsDetail(){
     $("#work_ws_count_ws_prev_day_alert").toggle(!isWsToday);
 
     sendAjax("CareerServlet","c_load_work_sheet_count",{
-        "date":new Date(parseInt($(this).attr("ws_date"))).getDateStr()
+        "date":new Date(parseInt($(this).attr("ws_date"))).valueOf()
     },(data)=>{
         $("#work_ws_count_ws_today_alert em").text(data.rlt);
     })
@@ -244,6 +256,11 @@ function fillWsDateInfosContainer(data,pageOfData){
     }    
 }
 
+/**
+ *  TODO 这个是当修改了对应计划后 是否需要刷新对应的工作表？？
+ *  细节问题 或许之后可以不管
+ */
+
 function refreshCurrentWorkSheetIfOpen(){
     if(WORK_NAMESPACE.OPENED_WS_ID){
         drawWorkSheetDetail(WORK_NAMESPACE.OPENED_WS_ID); 
@@ -256,6 +273,7 @@ function editPlanDetail(){
     openPlanDialog(id,true,refreshCurrentWorkSheetIfOpen); 
 }
 
+//DONE
 function seePlanDetail(){
     preventDoubleClick(this);
     let id = $(this).parents(".work_plan_card_container").attr("plan_id");
@@ -321,7 +339,7 @@ function loadActivePlans(){
         $("#work_plan_mes_when_zero_plan").toggle(data.length == 0);
         const NUM_FOR_ONE_ROW = 5;
         $(data.sort((a,b)=>{
-            /*根据seqWeight 决定瞬息*/
+            /*根据seqWeight 决定顺序*/
             return b.seqWeight-a.seqWeight;
         })).each((i,plan)=>{
             let $card = $("#work_pattern_container").find(".work_plan_card_container").clone();
@@ -354,7 +372,7 @@ function testCreatePlanFormat(inputDom,checkFunc,errorAppendInfo) {
     return test && text.length != 0;
 }
 
-
+//DONE
 function createPlan(){
     let test = $("#work_create_plan_form .work_create_plan_entity").get().every(one=>parseToBool($(one).attr("test")));
     if(!test){
@@ -370,6 +388,7 @@ function createPlan(){
    sendAjax("CareerServlet","c_create_plan",param,createPlan_render,true,()=>{},()=>$("#work_commit_create_plan_button").text(buttonText).removeClass("common_waiting_button"));
 }
 
+//DONE
 function createPlan_render(data){
     $("#work_create_plan_dialog").modal("hide");
     loadActivePlans();
@@ -380,7 +399,7 @@ function createPlan_render(data){
 }
 
 
-
+//DONE
 function switchToDisableEndateForCreatePlan(){
     let checked = $(this).prop("checked");
     let $container = $(this).parents(".work_create_plan_entity");
@@ -396,6 +415,7 @@ function switchToDisableEndateForCreatePlan(){
 }
 
 
+//DONE
 function changeStartDateWithTodayForCreatePlan(){
     $("#work_create_plan_form [name='start_date']").val(new Date().getDateStr()).parents(".work_create_plan_entity").attr("test",true);
 }

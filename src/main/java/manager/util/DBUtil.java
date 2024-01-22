@@ -337,8 +337,8 @@ public abstract class DBUtil {
 
 	}
 	public static<T extends SMGeneralEntity> long insertEntity(T one,SessionFactory hbFactory) throws DBException {
-		one.setCreateTime(TimeUtil.getCurrentTime());
-		one.setUpdateTime(TimeUtil.getCurrentTime());
+		one.setCreateUtc(TimeUtil.getCurrentTime().getTime().getTime());
+		one.setUpdateUtc(TimeUtil.getCurrentTime().getTime().getTime());
 
 		Transaction trans = null;
 		Session session = null;
@@ -374,7 +374,7 @@ public abstract class DBUtil {
 	
 	
 	public static<T extends SMGeneralEntity> void updateExistedEntity(T one,SessionFactory hbFactory) throws DBException {
-		one.setUpdateTime(TimeUtil.getCurrentTime());
+		one.setUpdateUtc(TimeUtil.getCurrentTime().getTime().getTime());
 		assert one.getId() != 0;
 		Transaction trans = null;
 		Session session = null;

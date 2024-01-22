@@ -1,5 +1,7 @@
 package manager.logic;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -13,6 +15,16 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 public class DEBUG_TestJWT {
+
+	@Test
+	public void test3(){
+		long t1 = Long.parseLong("1699346580000");
+		Date d = new Date();
+		d.setTime(t1);
+		System.out.println(d);
+
+	}
+
 
 	@Test
 	public void test() {

@@ -172,7 +172,7 @@ public class NoteDAOImpl implements NoteDAO {
 			trans = session.beginTransaction();
 			session.doWork(conn -> {
 				String sql = String.format("SELECT %s,%s,%s,%s,%s,%s FROM %s WHERE %s=?",
-						SMDB.F_ID,SMDB.F_NAME,SMDB.F_WITH_TODOS,SMDB.F_IMPORTANT,SMDB.F_HIDDEN ,SMDB.F_UPDATE_TIME,SMDB.T_NOTE,SMDB.F_NOTE_BOOK_ID);
+						SMDB.F_ID,SMDB.F_NAME,SMDB.F_WITH_TODOS,SMDB.F_IMPORTANT,SMDB.F_HIDDEN ,SMDB.F_UPDATE_UTC,SMDB.T_NOTE,SMDB.F_NOTE_BOOK_ID);
 				try (PreparedStatement ps = conn.prepareStatement(sql)) {
 					ps.setLong(1, noteBookId);
 					
@@ -184,9 +184,7 @@ public class NoteDAOImpl implements NoteDAO {
 						note.setWithTodos(rs.getBoolean(3));
 						note.setImportant(rs.getBoolean(4));
 						note.setHidden(rs.getBoolean(5));
-						Calendar updateTime = Calendar.getInstance();
-						updateTime.setTime(rs.getDate(SMDB.F_UPDATE_TIME));
-						note.setUpdateTime(updateTime);
+						note.setUpdateUtc(rs.getLong(SMDB.F_UPDATE_UTC));
 						note.setNoteBookId(noteBookId);
 						rlt.add(note);
 					}

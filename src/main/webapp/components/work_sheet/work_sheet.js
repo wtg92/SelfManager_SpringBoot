@@ -669,7 +669,7 @@ function addItemToWS(){
         "val" : 0,
         "mood":0,
         "for_add":false,
-        "start_time":date.toString()
+        "start_time":date.valueOf()
     },(data)=>{
         loadWorkSheetDetail_render(data)
     },()=>{
@@ -1439,8 +1439,8 @@ function parseWorkItemSaveParam($ws){
         "mood":$ws.find(".work_sheet_work_item_container_mood_body").attr("mood"),
         "forAdd":$ws.find(".work_sheet_work_item_container_calculate_info_mark").attr("for_add"),
         "id":$ws.attr("item_id"),
-        "startTime":startTime.toString(),
-        "endTime":endTime.toString(),
+        "startTime":startTime.valueOf(),
+        "endTime":endTime.valueOf(),
         "value":$ws.find("[name='val']").val(),
         "note":$ws.find("[name='note']").val()
     };

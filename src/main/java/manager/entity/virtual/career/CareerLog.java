@@ -16,9 +16,20 @@ public class CareerLog extends SMVirtualEntity{
 	private LinkedList<String> params = new LinkedList<String>();
 	@JSONField(serialize = false)
 	private Long creatorId ;
-	
+
+	@Deprecated
 	private Calendar createTime;
-	
+
+	private Long createUTC;
+
+	public Long getCreateUTC() {
+		return createUTC;
+	}
+
+	public void setCreateUTC(Long createUTC) {
+		this.createUTC = createUTC;
+	}
+
 	public Calendar getCreateTime() {
 		return createTime;
 	}

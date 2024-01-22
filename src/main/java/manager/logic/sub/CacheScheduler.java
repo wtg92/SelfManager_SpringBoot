@@ -251,6 +251,8 @@ public abstract class CacheScheduler {
 	 * 判断是否发生了并发危险，假设发生了这种危险，则删除缓存
 	 *
 	 * TODO 有精力或许应该想想 这样的缓存更新 有风险吗？
+	 *
+	 * 单个的更新 我暂且忍受他是更新缓存 而非删除的？  -- 2024.1.15
 	 * @throws LogicException 
 	 */
 	public static<T extends SMEntity> void saveEntity(T one,ThrowableConsumer<T, DBException> updator) throws DBException, LogicException {
@@ -271,16 +273,18 @@ public abstract class CacheScheduler {
 		String jsonStr = JSON.toJSONString(one);
 		CacheUtil.set(key,jsonStr);
 	}
-	
+
 	/**
-	 * 与saveEntity不同的是，这里的更新缓存 只会在缓存已有的时候 才会进行
-	 * @param <T>
+	 * 之前这种逻辑是错误的
+	 * 缓存原则上不该有更新缓存的逻辑
+	 * 如果有 通常是上层逻辑耦合导致
 	 * @param ones
 	 * @param updator
+	 * @param <T>
 	 * @throws DBException
 	 * @throws LogicException
 	 */
-	public static<T extends SMEntity> void saveEntities(List<T> ones,ThrowableConsumer<T, DBException> updator) throws DBException, LogicException {
+	public static<T extends SMEntity> void saveInDBAndDeleteAllInCache(List<T> ones, ThrowableConsumer<T, DBException> updator) throws DBException, LogicException {
 		if(!USING_REDIS_CACHE) {
 			for(T one: ones) {
 				updator.accept(one);	
@@ -292,18 +296,11 @@ public abstract class CacheScheduler {
 			for(T one: ones) {
 				updator.accept(one);	
 			}
-		}catch(DBException e) {
-			if(e.type == SMError.DB_SYNC_ERROR) {
-				if(ones.size() > 0) {
-					CacheUtil.deleteOnes(ones.stream().map(one->createKey(CacheMode.E_ID,one.getId(),getEntityTableName(one.getClass()))).collect(toList()));
-				}
+		}finally {
+			if(ones.size() > 0) {
+				CacheUtil.deleteOnes(ones.stream().map(one->createKey(CacheMode.E_ID,one.getId(),getEntityTableName(one.getClass()))).collect(toList()));
 			}
-			throw e;
 		}
-		
-		Map<String,String> onesMap = ones.stream().collect(toMap(one->createKey(CacheMode.E_ID,one.getId(),getEntityTableName(one.getClass()))
-				, one->JSON.toJSONString(one)));
-		CacheUtil.setOnlyIfKeyExists(onesMap);
 	}
 	
 	/**

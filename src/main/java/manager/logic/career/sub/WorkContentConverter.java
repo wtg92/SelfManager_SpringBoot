@@ -106,14 +106,20 @@ public abstract class WorkContentConverter {
 	private final static String A_VALUE = "val";
 	private final static String A_FOR_ADD = "f_add";
 	private final static String A_MODE = "mode";
+
 	private final static String A_CREATE_TIME= "c_time";
+	private final static String A_CREATE_TIME_UTC= "c_time_utc";
+
 	private final static String A_PARAMS = "params";
 	private final static String A_ACTION = "ac";
 	private final static String A_CREATOR_ID = "c_id";
 	private final static String A_PLAN_ITEM_ID ="pl_item_id";
+
 	private final static String A_START_TIME ="s_time";
+	private final static String A_START_TIME_UTC ="s_time_utc";
+
 	private final static String A_END_TIME ="e_time";
-	
+	private final static String A_END_TIME_UTC ="e_time_utc";
 	
 	private final static String PARAM_SPLITOR = "_";
 	
@@ -1055,7 +1061,7 @@ public abstract class WorkContentConverter {
 		
 		WorkItem item = new WorkItem();
 		Calendar syncTime = TimeUtil.getCurrentTime();
-		item.setType(WorkItemType.DEPT);
+		item.setType(WorkItemType.DEBT);
 		item.setValue(planItem.remainingValForCur);
 		item.setPlanItemId(planItem.item.getId());
 		item.setNote("");

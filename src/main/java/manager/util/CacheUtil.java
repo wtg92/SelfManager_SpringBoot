@@ -133,7 +133,7 @@ public abstract class CacheUtil {
 	}
 	
 	/*特殊情况使用该方法*/
-	public static synchronized String setForever(String key,String value) {
+	public static  String setForever(String key,String value) {
 		try(Jedis jedis = getJedis()){
 			return jedis.set(key, value);
 		}
@@ -145,7 +145,7 @@ public abstract class CacheUtil {
 		}
 	}
 	/*key相同会覆盖*/
-	public static synchronized void set(String key, String value) {
+	public static  void set(String key, String value) {
 		try(Jedis jedis = getJedis()){
 			jedis.setex(key, ALIVE_SECONDS, value);
 		}
@@ -154,15 +154,16 @@ public abstract class CacheUtil {
 
 
 	/*key相同会覆盖*/
-	public static synchronized void set(Map<String,String> ones) {
+	public static  void set(Map<String,String> ones) {
 		try(Jedis jedis = getJedis()){
 			ones.forEach((key,value)->{
 				jedis.setex(key, ALIVE_SECONDS, value);
 			});
 		}
 	}
-	
-	public static synchronized void setOnlyIfKeyExists(Map<String,String> ones) {
+
+	@Deprecated
+	public static  void setOnlyIfKeyExists(Map<String,String> ones) {
 		try(Jedis jedis = getJedis()){
 			ones.forEach((key,value)->{
 				if(!jedis.exists(key))
@@ -173,7 +174,7 @@ public abstract class CacheUtil {
 		}
 	}
 	
-	public static synchronized void setOnlyIfKeyExists(String key, String value) {
+	public static  void setOnlyIfKeyExists(String key, String value) {
 		try(Jedis jedis = getJedis()){
 			if(!jedis.exists(key))
 				return;
@@ -242,7 +243,7 @@ public abstract class CacheUtil {
 	 * @param pattern
 	 * @return 不会包含null
 	 */
-	public synchronized static List<String> findValues(String pattern){
+	public  static List<String> findValues(String pattern){
 		Set<String> matchedKeys = new HashSet<String>();
 		List<String> values = new ArrayList<String>();
 		String startString = "0";
@@ -277,14 +278,7 @@ public abstract class CacheUtil {
 		return values;
 	}
 	
-	
-	/**
-	  *  注意: find函数不会刷新AliveTime!因此有极小的可能性当findKeys时能找到，但当真正使用时，keys失效了，需要上层做处理
-	 * @param pattern
-	 * @author 王天戈
-	 * @return
-	 */
-	public synchronized static List<String> findKeys(String pattern){
+	public static List<String> findKeys(String pattern){
 		Set<String> rlt = new HashSet<String>();
 		String startString = "0";
 		String curStr = startString;
@@ -664,7 +658,7 @@ public abstract class CacheUtil {
 	 * @param key
 	 * @return
 	 */
-	public static synchronized String lpop(String key) {
+	public static  String lpop(String key) {
 		Jedis jedis = getJedis();
 		return jedis.lpop(key);
 	}
@@ -675,7 +669,7 @@ public abstract class CacheUtil {
 	 * @param key
 	 * @return
 	 */
-	synchronized static public String rpop(String key) {
+	 static public String rpop(String key) {
 		Jedis jedis = getJedis();
 		return jedis.rpop(key);
 	}

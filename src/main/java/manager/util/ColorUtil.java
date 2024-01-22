@@ -15,8 +15,8 @@ public abstract class ColorUtil {
 		mapper.put("废弃", "#6c757d");
 		/*绿色*/
 		mapper.put("完成", "#28a745");
-		/*青色*/
-		mapper.put("预备", "#d1ecf1");
+		/*青蓝色*/
+		mapper.put("预备", "rgb(111, 116, 241)");
 		/*红色*/
 		mapper.put("超期", "#e48383");
 		/*黄色*/

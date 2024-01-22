@@ -10,6 +10,8 @@ import org.hibernate.annotations.DynamicUpdate;
 import manager.entity.general.SMGeneralEntity;
 import manager.system.SMDB;
 
+import java.util.Calendar;
+
 
 @Entity
 @Table(name = SMDB.T_NOTE)
@@ -18,7 +20,14 @@ import manager.system.SMDB;
 public class Note extends SMGeneralEntity {
 
 	private static final long serialVersionUID = 6913789086585365898L;
-	
+
+	@Column
+	@Deprecated
+	private Calendar createTime;
+	@Column
+	@Deprecated
+	private Calendar updateTime;
+
 	@Column
 	private String content;
 	
@@ -37,9 +46,21 @@ public class Note extends SMGeneralEntity {
 	@Column
 	private Boolean hidden;
 
-	
-	
-	
+
+	public Calendar getCreateTime() {
+		return createTime;
+	}
+	public void setCreateTime(Calendar createTime) {
+		this.createTime = createTime;
+	}
+	public Calendar getUpdateTime() {
+		return updateTime;
+	}
+	public void setUpdateTime(Calendar updateTime) {
+		this.updateTime = updateTime;
+	}
+
+
 	public Boolean getHidden() {
 		return hidden;
 	}

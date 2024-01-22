@@ -3,6 +3,9 @@ package manager.logic.career;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
@@ -31,7 +34,7 @@ import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.SMException;
 import manager.logic.UserLogic;
-import manager.logic.career.impl.WorkLogicImpl;
+import manager.logic.career.impl.WorkLogicImpl_Legacy;
 import manager.logic.career.sub.LogParser;
 import manager.logic.career.sub.WorkContentConverter;
 import manager.system.SM;
@@ -42,6 +45,7 @@ import manager.system.career.PlanState;
 import manager.system.career.WorkItemType;
 import manager.system.career.WorkSheetState;
 import manager.util.TimeUtil;
+import manager.util.ZonedTimeUtils;
 
 public abstract class WorkLogic{
 	
@@ -61,7 +65,12 @@ public abstract class WorkLogic{
 	 * @throws DBException 
 	 * @throws LogicException 
 	 */
+	@Deprecated
 	public abstract long createPlan(long ownerId,String name,Calendar startDate,Calendar endDate,String note) throws LogicException, DBException;
+
+	public abstract long createPlan(long ownerId,String name,Long startDate,Long endDate,String timezone,String note) throws LogicException, DBException;
+
+
 	/**
 	 * 可以暂且无权限，但是只能修改自己的
 	 * 需要有Log
@@ -85,7 +94,7 @@ public abstract class WorkLogic{
 	 *  
 	 */
 	public abstract List<Plan> loadActivePlans(long loginerId) throws LogicException, DBException;
-	
+	public abstract void calculatePlanStatesRoutinely(long loginId);
 	/**
 	 * @return key state.dbCode.toString value count
 	 */
@@ -123,7 +132,7 @@ public abstract class WorkLogic{
 	public abstract List<String> loadAllPlanTagsByUser(long loginerId) throws SMException;
 	public abstract List<String> loadAllWorkSheetTagsByUser(long loginerId) throws SMException;
 	public abstract PlanDeptProxy loadPlanDept(long loginerId) throws DBException, LogicException;
-	public abstract List<String> loadPlanDeptItemNames(long loginerId) throws DBException, LogicException;
+	public abstract List<String> loadPlanDeptItemNames(long loginerId);
 	/**
 	  * 假如存在一个WorkItem 依据该Plan 建立(No Cache)，那么会将改plan的EndDate设为今天，并且将状态设置为abandon.
 	  * 否则，直接删除
@@ -138,10 +147,20 @@ public abstract class WorkLogic{
 	
 	public abstract void saveWorkItemPlanItemId(long updaterId,long wsId,int workItemId, int planItemId) throws LogicException, DBException;
 	public abstract void saveWorkItems(long loginerId, long wsId, List<WorkItem> workItems) throws SMException;
+
+	/**
+	 * 之所以不允许修改类型及父ID 是因为 mappingval 是基于这两个值而设置的
+	 * 如果修改了类型及父ID 则全部都没有了意义
+	 */
 	public abstract void savePlanItem(long loginerId, long planId,int itemId,String catName,int value,String note,double mappingVal) throws LogicException, DBException;
 	public abstract void savePlanItemFold(long loginerId, long planId, int itemId, boolean fold) throws LogicException, DBException;
 	public abstract void saveWSPlanItem(long loginerId, long wsId,int itemId,String catName,int value,String note,double mappingVal) throws LogicException, DBException;
 	public abstract void saveWSPlanItemFold(long loginerId, long wsId, int itemId, boolean fold) throws DBException, LogicException;
+	public abstract void savePlan(long loginId, long planId, String name, Long startDate, Long endDate,String timezone,
+								  String note,List<PlanSetting> settings,int seqWeight);
+	public abstract void recalculatePlanState(long loginId, long planId);
+
+	@Deprecated
 	public abstract void savePlan(long loginerId, long planId, String name, Calendar startDate, Calendar endDate,
 			String note, boolean recalculateState, List<PlanSetting> settings,int seqWeight) throws LogicException, DBException;
 	public abstract void saveWorkSheet(long updaterId,long wsId,String note) throws LogicException, DBException;	
@@ -168,13 +187,18 @@ public abstract class WorkLogic{
 	
 	
 	public abstract void copyPlanItemsFrom(long loginerId,int targetPlanId,int templetePlanId) throws DBException, LogicException;
-	
+
+	public abstract long getCountWSBasedOfPlan(Integer planId, long loginId);
+
+
+
 /*=================================================NOT ABSTRACT ==============================================================*/	
 	
-	
+
+
 	public static synchronized WorkLogic getInstance() {
 		if(instance == null) {
-			instance = new WorkLogicImpl();
+			instance = new WorkLogicImpl_Legacy();
 		}
 		return instance;
 	}
@@ -199,17 +223,22 @@ public abstract class WorkLogic{
 	 *  应当是只有在savePlan 和 loadActivePlans时触发状态的重新计算，如果Abandon ， 前者不会触发计算，后者通过用户选择来决定是否重新计算
 	 * 
 	 */
-	protected static PlanState calculateStateByNow(Plan plan) {
-		
-		if(TimeUtil.isBeforeByDate(TimeUtil.getCurrentDate(), plan.getStartDate())) {
+	public static PlanState calculateStateByNow(Plan plan) {
+
+		ZoneId zone = ZoneId.of(plan.getTimezone());
+		ZonedDateTime startDateZonedDateTime = Instant.ofEpochMilli(plan.getStartUtc()).atZone(zone);
+		ZonedDateTime endDateZonedDateTime = Instant.ofEpochMilli(plan.getEndUtc()).atZone(zone);
+		ZonedDateTime now = Instant.now().atZone(zone);
+
+		if(ZonedTimeUtils.isAfterByDate(startDateZonedDateTime,now)){
 			return PlanState.PREPARED;
 		}
-		
-		if(TimeUtil.isBlank(plan.getEndDate())) {
+
+		if(plan.getEndUtc() == 0) {
 			return PlanState.ACTIVE;
 		}
 		
-		if(TimeUtil.isAfterByDate(TimeUtil.getCurrentDate(), plan.getEndDate())) {
+		if(ZonedTimeUtils.isAfterByDate(now, endDateZonedDateTime)) {
 			return PlanState.FINISHED;
 		}
 		
@@ -278,7 +307,7 @@ public abstract class WorkLogic{
 	  * 计算一个workSheet的平均mood
 	  * 依据时间计算
 	 */
-	protected static double calculateMoodByWokrItems(List<WorkItemProxy> workItems) {
+	protected static double calculateMoodByWorkItems(List<WorkItemProxy> workItems) {
 		List<WorkItem> itemsWithMoodAndEndTime = workItems.stream()
 				.filter(wi->wi.item.getMood()>0
 						&&TimeUtil.isNotBlank(wi.item.getEndTime()))
@@ -468,7 +497,6 @@ public abstract class WorkLogic{
 			}
 		}
 	}
-	
 
 
 

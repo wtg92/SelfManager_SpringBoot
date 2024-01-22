@@ -56,6 +56,7 @@ public abstract class SMDB {
 	public static final String F_NOTE_BOOK_ID = "note_book_id";
 	public static final String F_WITH_TODOS = "with_todos";
 	public static final String F_UPDATE_TIME = "update_time";
+	public static final String F_UPDATE_UTC = "update_utc";
 	public static final String F_CREATE_TIME = "create_time";
 	public static final String F_IMPORTANT = "important";
 	public static final String F_HIDDEN = "hidden";

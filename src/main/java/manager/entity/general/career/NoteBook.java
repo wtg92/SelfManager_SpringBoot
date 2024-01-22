@@ -13,6 +13,8 @@ import manager.system.SMDB;
 import manager.system.career.BookStyle;
 import manager.system.career.converter.BookStyleConverter;
 
+import java.util.Calendar;
+
 
 @Entity
 @Table(name = SMDB.T_NOTE_BOOK)
@@ -21,7 +23,14 @@ import manager.system.career.converter.BookStyleConverter;
 public class NoteBook extends SMGeneralEntity {
 
 	private static final long serialVersionUID = 6913789086585365898L;
-	
+
+	@Column
+	@Deprecated
+	private Calendar createTime;
+	@Column
+	@Deprecated
+	private Calendar updateTime;
+
 	/*备注*/
 	@Column
 	private String note;
@@ -44,10 +53,22 @@ public class NoteBook extends SMGeneralEntity {
 	
 	@Column
 	private String notesSeq;
-	
-	
-	
-	
+
+
+	public Calendar getCreateTime() {
+		return createTime;
+	}
+	public void setCreateTime(Calendar createTime) {
+		this.createTime = createTime;
+	}
+	public Calendar getUpdateTime() {
+		return updateTime;
+	}
+	public void setUpdateTime(Calendar updateTime) {
+		this.updateTime = updateTime;
+	}
+
+
 	public String getNotesSeq() {
 		return notesSeq;
 	}

@@ -107,8 +107,10 @@ public class TimeUtil {
 	    return calendar1.after(calendar2);
 	  }
 	  
-	  public static boolean isBlank(Calendar paramCalendar) { 
-		  return (paramCalendar.getTimeInMillis() == 0L); 
+	  public static boolean isBlank(Calendar paramCalendar) {
+		  return paramCalendar.get(Calendar.YEAR) == 1970 &&
+				  paramCalendar.get(Calendar.MONTH) == 0 &&
+				  paramCalendar.get(Calendar.DATE) ==1;
 	  }
 	  
 	  public static boolean isNotBlank(Calendar paramCalendar) {
@@ -119,7 +121,25 @@ public class TimeUtil {
 	    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(paramString, Locale.CHINA);
 	    return simpleDateFormat.format(paramCalendar.getTime());
 	  }
-	  
+
+	public static Calendar parseTime(Long paramCalendar) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis(paramCalendar);
+		return cal;
+	}
+
+	/**
+	 * 如果是Date的话 前台处理 输入时处理 输出后处理 为何后台要丢失信息？
+	 * @param paramCalendar
+	 * @return
+	 */
+	@Deprecated
+	public static Calendar parseDate(Long paramCalendar) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis(paramCalendar);
+		return cal;
+	}
+
 	  public static String parseTime(Calendar paramCalendar) { 
 		  return getTimeFormatInChina().format(paramCalendar.getTime()); 
 	  }

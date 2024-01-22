@@ -31,7 +31,7 @@ public abstract class SMParm {
 	public final static String TAGS = "tags";
 	public final static String FOLD = "fold";
 	public final static String TARGET_PLAN_ID = "target_plan_id";
-	public final static String TEMPLE_PLAN_ID = "temple_plan_id";
+	public final static String TEMPLATE_ID = "template_id";
 	public final static String ID = "id";
 	public final static String IDS = "ids";
 	public final static String BOOK_ID = "book_id";
@@ -39,10 +39,11 @@ public abstract class SMParm {
 	public final static String CONTENT = "content";
 	public final static String WITH_TODOS = "with_todos";
 	public final static String IMPORTANT = "important";
-	
+
+	public final static String TIMEZONE = "timezone";
+
 	public final static String TARGET_ID = "target_id";
 	public final static String NOTES_SEQ = "notes_seq";
-	
 	public final static String CAT_NAME= "cat_name";
 	public final static String NOTE = "note";
 	public final static String SRC_NOTE_ID = "src_note_id";

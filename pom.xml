@@ -169,15 +169,28 @@
 		    <groupId>org.neo4j.driver</groupId>
 		    <artifactId>neo4j-java-driver</artifactId>
 		</dependency>
+
 	    <dependency>
 	      <groupId>co.elastic.clients</groupId>
 	      <artifactId>elasticsearch-java</artifactId>
-	      <version>7.16.2</version>
+	      <version>8.11.1</version>
 	    </dependency>
+		<dependency>
+			<groupId>org.elasticsearch.client</groupId>
+			<artifactId>elasticsearch-rest-client</artifactId>
+			<version>8.11.1</version>
+		</dependency>
 	    <dependency>
 	      <groupId>com.fasterxml.jackson.core</groupId>
 	      <artifactId>jackson-databind</artifactId>
+			<version>2.12.3</version>
 	    </dependency>
+		<dependency>
+			<groupId>jakarta.json</groupId>
+			<artifactId>jakarta.json-api</artifactId>
+			<version>2.0.1</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
