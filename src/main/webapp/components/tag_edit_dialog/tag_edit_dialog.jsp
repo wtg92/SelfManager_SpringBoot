@@ -30,8 +30,6 @@
   </div>
 </div>
 
-
-
 <div id="tag_edit_dialog_pattern_container" class="common_pattern_container">
 	<div class="tag_unit_container">
 		<span class="tag_unit_container_content"></span>

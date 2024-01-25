@@ -69,11 +69,10 @@ $(function(){
 
     //DONE
     $("#plan_dialog_add_item_button").click(addItemToPlan);
-    //TODO
+    //DONE
     $("#plan_dialog_save_item_button").click(savePlanItem);
 
 
-    $("#plan_dialog_basic_unit_container_edit_btn").click(openPlanTagEditDialog);
 
     //DONE
     $("#plan_dialog_items_control_group_container").find("[name='cat_name']").change(switchToShowItemsValContainer)
@@ -104,20 +103,28 @@ $(function(){
         .find("[name='mapping_val_for_differ_type']").on("input",inputOnlyAllowInt).end()
         //DONE
         .find("[name='mapping_val_for_same_type']").on("input",inputOnlyAllowFloat).end()
-    //TODO FOCUS!!
+    //DONE
     $("#plan_dialog_items_father_and_son_relationship_container").on("click",".dropdown-item",switchToShowItemsValContainerThroughFatherRealtion);
 
-
-    //TODO
-    $("#plan_dialog_items_cards_container").on("click",".plan_item_root_add_mark",addRootItemByClickMark)
-
+    //DONE
+    $("#plan_dialog_items_cards_container")
+        //DONE
+        .on("click",".plan_item_root_add_mark",addRootItemByClickMark)
+        //DONE
         .on("click",".plan_item_add_mark",addItemByClickMark)
+        //DONE
         .on("click",".plan_item_delete_mark",deleteItemByClickMark)
+        //DONE
         .on("click",".plan_item_modify_mark",modifyItemByClickMark)
+        //DONE 我要做一个搜索 在非编辑界面的时候 为了看备注 难道不是吗？ 这样的话
+        //DONE
         .on("click",".plan_item_fold_btn",foldPlanItemFoldBtn)
+        //DONE
         .on("click",".plan_item_unfold_btn",unfoldPlanItemFoldBtn)
+        //DONE
         .on("click",".plan_item_save_fold_info",savePlanItemFoldInfo);
 
+    $("#plan_dialog_basic_unit_container_edit_btn").click(openPlanTagEditDialog);
 })
 
 function syncPlanTagsToWS(){
@@ -293,7 +300,7 @@ function deleteItemByClickMark(){
 
 
 /**本质就是 通过itemId 来找到对应从属表，模拟点击 */
-//TODO
+//DONE
 function addRootItemByClickMark(){
     let itemId = $(this).parent(".plan_item_container_root_controlgroup").attr("item_id");
     findSubItemAndClick(itemId);
@@ -773,7 +780,6 @@ function drawPlanItemsFromCache(){
         $firstLevelContainer.attr({
             "fold" : items[i].fold
         }).find(".plan_item_container_footer").attr({
-            //TODO
             "item_id":items[i].id,
             "father_id" : 0,
             "cat_name" : items[i].name,
@@ -950,7 +956,7 @@ function openPlanDialog(id,openEditMode,reloadFuncForSyncPlanTags){
     },(data)=>openPlanDialogByDate(data,openEditMode,reloadFuncForSyncPlanTags));
 }
 
-//TODO
+
 function openPlanDialogByDate(data,openEditMode,reloadFuncForSyncPlanTags){
 
     PLAN_DIALOG_NAMESPACE.RELOAD_FUNC_FOR_SYNC_PLAN_TAGS = reloadFuncForSyncPlanTags;

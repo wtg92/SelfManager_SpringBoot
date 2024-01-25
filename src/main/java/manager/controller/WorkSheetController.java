@@ -137,6 +137,16 @@ public class WorkSheetController {
         wL.addItemToPlan(loginId, planId, catName, val, note, type, fatherId, mappingVal);
     }
 
+    @PatchMapping(PLAN_PATH+"/item/fold")
+    private void patchPlanItemFold( @RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody JSONObject param ){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        int planId = param.getInteger(PLAN_ID);
+        int itemId = param.getInteger( ITEM_ID);
+        boolean fold = param.getBoolean(FOLD);
+        wL.savePlanItemFold(loginId, planId, itemId, fold);
+    }
+
     @PatchMapping(PLAN_PATH+"/item")
     private void patchPlanItem( @RequestHeader("Authorization") String authorizationHeader
             , @RequestBody JSONObject param ){
@@ -148,6 +158,15 @@ public class WorkSheetController {
         double mappingVal = getParamDoubleOrZeroDefault(param,MAPPING_VAL);
         int itemId = param.getInteger( ITEM_ID);
         wL.savePlanItem(loginId, planId, itemId, catName, val, note, mappingVal);
+    }
+
+    @DeleteMapping(PLAN_PATH+"/item")
+    private void deletePlanItem( @RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody JSONObject param ){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        int planId = param.getInteger(PLAN_ID);
+        int itemId = param.getInteger(ITEM_ID);
+        wL.removeItemFromPlan(loginId, planId, itemId);
     }
 
 
