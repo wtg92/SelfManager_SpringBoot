@@ -8,13 +8,12 @@ import static manager.util.UIUtil.getNonNullParamInInt;
 
 import java.io.IOException;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServletRequest;
+import com.alibaba.fastjson2.JSON;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializeConfig;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServletRequest;
 import manager.exception.LogicException;
 import manager.exception.SMException;
 import manager.logic.tool.ToolLogic;
@@ -28,15 +27,7 @@ public class ToolServlet extends SMServlet{
 	
 	private ToolLogic tL = ToolLogic.getInstance();
 	
-	private SerializeConfig toolConfig = createToolEnumConfig();
-	
-	@SuppressWarnings("unchecked")
-	private SerializeConfig createToolEnumConfig() {
-		SerializeConfig conf = new SerializeConfig();
-		conf.configEnumAsJavaBean(Tool.class);
-		return conf;
-	}
-	
+
 	@Override
 	public String process(HttpServletRequest request) throws ServletException, IOException, SMException {
 		SMOP op = SMOP.valueOfName(getNonNullParam(request,OP));
@@ -54,12 +45,12 @@ public class ToolServlet extends SMServlet{
 	private String loadToolRecord(HttpServletRequest request) throws SMException {
 		getLoginId(request);
 		Tool tool = Tool.valueOfDBCode(getNonNullParamInInt(request, TOOL));
-		return JSON.toJSONString(tL.loadToolRecord(tool),toolConfig); 
+		return JSON.toJSONString(tL.loadToolRecord(tool));
 	}
 
 	private String loadToolRecordSummary(HttpServletRequest request) throws SMException {
 		long loginerId = getLoginId(request);
-		return JSON.toJSONString(tL.loadToolRecordSummary(loginerId),toolConfig); 
+		return JSON.toJSONString(tL.loadToolRecordSummary(loginerId));
 	}
 
 }

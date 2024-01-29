@@ -3,7 +3,6 @@ package manager.dao.impl;
 import static manager.util.DBUtil.countAllEntities;
 import static manager.util.DBUtil.countByField;
 import static manager.util.DBUtil.deleteGeneralRTableData;
-import static manager.util.DBUtil.getHibernateSessionFactory;
 import static manager.util.DBUtil.includeUniqueEntityByField;
 import static manager.util.DBUtil.insertEntity;
 import static manager.util.DBUtil.insertGeneralRTableData;
@@ -30,10 +29,17 @@ import manager.exception.DBException;
 import manager.exception.NoSuchElement;
 import manager.system.SMDB;
 import manager.system.SMPerm;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
+import javax.annotation.Resource;
+
+
+@Repository
 public class UserDAOImpl implements UserDAO {
 
-	private final SessionFactory hbFactory = getHibernateSessionFactory();
+	@Resource
+	private SessionFactory hbFactory;
 
 	@Override
 	public long insertUser(User user) throws DBException {
@@ -147,7 +153,8 @@ public class UserDAOImpl implements UserDAO {
 			trans = session.beginTransaction();
 			String sql = String.format("SELECT * FROM %s WHERE %s in (select %s FROM %s WHERE %s=?) limit %s", SMDB.T_USER,SMDB.F_ID,SMDB.F_USER_ID,SMDB.T_R_USER_GROUP,SMDB.F_USER_GROUP_ID,limit);
 			@SuppressWarnings("unchecked")
-			List<User> entities = session.createSQLQuery(sql).setParameter(1, groupId).addEntity(User.class).list();
+			List<User> entities = session.createQuery(sql,User.class)
+					.setParameter(1, groupId).list();
 			trans.commit();
 			return entities;
 		} catch (Exception e) {

@@ -5,12 +5,12 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Enumeration;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
 
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
 
-public class ContextFinalizer implements ServletContextListener{
+public class ContextFinalizer implements ServletContextListener {
 	public void contextInitialized(ServletContextEvent servletContextEvent) {
 
     }

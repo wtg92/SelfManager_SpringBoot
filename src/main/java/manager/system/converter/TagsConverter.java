@@ -2,9 +2,9 @@ package manager.system.converter;
 
 import java.util.List;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
 
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 import manager.data.EntityTag;
 import manager.logic.sub.TagCalculator;
 

@@ -41,11 +41,13 @@ import manager.util.ThrowableFunction;
 import manager.util.ThrowableSupplier;
 import manager.util.YZMUtil;
 import manager.util.YZMUtil.YZMInfo;
+import org.springframework.stereotype.Service;
 
 /**
  * 2023.9.19 Review了一次 主要修改的是 在验证验证码时 如果验证失效 应当删除验证码缓存 使其验证码失效
  * TODO 但对CacheScheduler不放心 找机会Review一下CacheScheduler
  */
+@Service
 public class UserLogicImpl extends UserLogic {
 	final private static Logger logger = Logger.getLogger(UserLogicImpl.class.getName());
 

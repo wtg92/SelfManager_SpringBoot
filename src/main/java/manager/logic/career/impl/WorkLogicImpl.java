@@ -82,7 +82,7 @@ public class WorkLogicImpl extends WorkLogic{
 	}
 
 	private long addPlanSynchronously(Plan plan, long loginId){
-		LockHandler<Long> handler = new LockHandler();
+		LockHandler<Long> handler = new LockHandler<>();
 		locker.lockByUserAndClass(loginId,()->{
 			handler.val = wDAO.insertPlan(plan);
 		});
@@ -517,8 +517,7 @@ public class WorkLogicImpl extends WorkLogic{
 	@Override
 	public long loadWorkSheetCount(long loginerId,Calendar date) throws SMException {
 		uL.checkPerm(loginerId, SMPerm.SEE_TODAY_WS_COUNT);
-		long count = Long.parseLong(CacheScheduler.getTempValOrInit(CacheMode.T_WS_COUNT_FOR_DATE, date, ()->wDAO.countWorkSheetByDate(date)));
-		return count;
+		return Long.parseLong(CacheScheduler.getTempValOrInit(CacheMode.T_WS_COUNT_FOR_DATE, date, ()->wDAO.countWorkSheetByDate(date)));
 	}
 
 	

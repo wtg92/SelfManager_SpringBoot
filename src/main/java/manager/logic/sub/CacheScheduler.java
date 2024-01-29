@@ -22,7 +22,7 @@ import manager.controller.UserController;
 import manager.entity.general.User;
 import org.apache.commons.collections4.map.HashedMap;
 
-import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson2.JSON;
 
 import manager.entity.SMEntity;
 import manager.exception.DBException;

@@ -18,8 +18,8 @@ import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.persistence.Table;
 
+import jakarta.persistence.Table;
 import manager.system.SM;
 
 public abstract class CommonUtil {

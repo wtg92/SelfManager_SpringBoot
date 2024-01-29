@@ -8,8 +8,9 @@ import manager.exception.DBException;
 import manager.exception.NoSuchElement;
 import manager.system.SMError;
 import manager.system.SMPerm;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface UserDAO {
+public interface  UserDAO {
 	
 	long insertUser(User user) throws DBException;
 	void updateExistedUser(User user) throws DBException;

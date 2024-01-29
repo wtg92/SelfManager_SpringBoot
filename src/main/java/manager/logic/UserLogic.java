@@ -22,6 +22,9 @@ import manager.util.YZMUtil.YZMInfo;
  * temp相关 性能考虑 就不sync了 原因是 sync是为了addPermsToGroup 和 addUsersToGroup 这两个都和temp无关
  * @author 王天戈
  *
+ *  加了用户锁 那就全sync 只不过现在没有时间review 找时间Review一遍 看上述问题是否嗨存在
+ *  2024.1.26 王天戈
+ *
  */
 public abstract class UserLogic {
 	

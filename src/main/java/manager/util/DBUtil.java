@@ -2,7 +2,6 @@ package manager.util;
 
 
 
-import java.math.BigInteger;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,9 +15,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import javax.persistence.OptimisticLockException;
-import javax.persistence.TypedQuery;
-
+import jakarta.persistence.OptimisticLockException;
+import jakarta.persistence.TypedQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -52,8 +50,7 @@ public abstract class DBUtil {
 			final StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder().configure("hb.cfg.xml");
 			builder.applySetting("password",
 					CommonUtil.getValFromPropertiesFileInResource("mysql_pwd"));
-			
-			
+
 			final StandardServiceRegistry registry = builder.build();
 
 			return new MetadataSources(registry).buildMetadata().buildSessionFactory();
@@ -86,7 +83,7 @@ public abstract class DBUtil {
 			SessionFactory hbFactory) throws NoSuchElement, DBException {
 		List<T> rlt = selectEntitiesByField(cla, fieldName, val, hbFactory);
 
-		if (rlt.size() == 0)
+		if (rlt.isEmpty())
 			throw new NoSuchElement();
 
 		if (rlt.size() == 1)
@@ -99,7 +96,7 @@ public abstract class DBUtil {
 			SessionFactory hbFactory) throws NoSuchElement, DBException {
 		List<T> rlt = selectEntitiesByBiFields(cla, field1Name, val1, field2Name, val2, hbFactory);
 
-		if (rlt.size() == 0)
+		if (rlt.isEmpty())
 			throw new NoSuchElement();
 
 		if (rlt.size() == 1)
@@ -132,7 +129,7 @@ public abstract class DBUtil {
 	public static<T,E> List<T> selectEntitiesByFieldAndManyField(Class<T> cla, String theOneField, Object theOneVal,
 			String theManyField, List<E> theManyVals,Function<E,Object> theManyValsTranslator,
 			SessionFactory hbFactory) throws DBException {
-		if(theManyVals.size() == 0) {
+		if(theManyVals.isEmpty()) {
 			return new ArrayList<>();
 		}
 		try {
@@ -158,7 +155,7 @@ public abstract class DBUtil {
 	 */
 	public static<T,E> List<T> selectEntitiesByManyField(Class<T> cla,String theManyField, List<E> theManyVals,Function<E,Object> theManyValsTranslator,
 			SessionFactory hbFactory) throws DBException {
-		if(theManyVals.size() == 0) {
+		if(theManyVals.isEmpty()) {
 			return new ArrayList<>();
 		}
 		try {
@@ -253,21 +250,27 @@ public abstract class DBUtil {
 		String tableName = CommonUtil.getEntityTableName(cla);
 		return countByBiFields(tableName, field1, val1, field2, val2, hbFactory);
 	}
-	
+	private static <T> T transactionalRunAndGetSingle(SessionFactory hbFactory
+		,Function<Session,T> run){
+		Session session = hbFactory.getCurrentSession();
+		Transaction trans = session.beginTransaction();
+		T rlt = run.apply(session);
+		trans.rollback();
+		return rlt;
+	}
+
 	/*闭区间*/
 	public static<T> long countEntitiesByRange(Class<T> cla, String field, Object min,Object max,
 			SessionFactory hbFactory) throws DBException {
 		String tableName = CommonUtil.getEntityTableName(cla);
 		try {
-			Session session = hbFactory.getCurrentSession();
-			Transaction trans = session.beginTransaction();
-			String sql = String.format("SELECT COUNT(*) FROM %s WHERE %s>=? and %s<=?", tableName, field,field);
-			@SuppressWarnings("rawtypes")
-			List rlt = session.createSQLQuery(sql).setParameter(1, CommonUtil.pretreatForString(min)).setParameter(2, CommonUtil.pretreatForString(max)).getResultList();
-			trans.commit();
-			assert rlt.size() == 1;
-			BigInteger r =  (BigInteger)rlt.get(0);
-			return r.longValue();
+			return transactionalRunAndGetSingle(hbFactory,(session)->{
+				String sql = String.format("SELECT COUNT(*) FROM %s WHERE %s>=? and %s<=?", tableName, field,field);
+				return session.createQuery(sql, Long.class)
+					.setParameter(1, CommonUtil.pretreatForString(min))
+					.setParameter(2, CommonUtil.pretreatForString(max))
+					.getSingleResult();
+			});
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new DBException(SMError.UNKNOWN_DB_ERROR, e.getMessage());
@@ -284,16 +287,12 @@ public abstract class DBUtil {
 	
 	public static long countAllEntities(Class<? extends SMEntity> cla,SessionFactory hbFactory) throws DBException {
 		try {
-			Session session = hbFactory.getCurrentSession();
 			String tableName = CommonUtil.getEntityTableName(cla);
-			Transaction trans = session.beginTransaction();
-			String sql = String.format("SELECT COUNT(*) FROM %s", tableName);
-			@SuppressWarnings("rawtypes")
-			List rlt = session.createSQLQuery(sql).getResultList();
-			trans.commit();
-			assert rlt.size() == 1;
-			BigInteger r =  (BigInteger)rlt.get(0);
-			return r.longValue();
+			return transactionalRunAndGetSingle(hbFactory,(session)->{
+				String sql = String.format("SELECT COUNT(*) FROM %s", tableName);
+				return session.createQuery(sql, Long.class)
+						.getSingleResult();
+			});
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new DBException(SMError.UNKNOWN_DB_ERROR, e.getMessage());
@@ -304,15 +303,13 @@ public abstract class DBUtil {
 	
 	public static long countByBiFields(String tableName, String field1, Object val1,String field2,Object val2,SessionFactory hbFactory) throws DBException {
 		try {
-			Session session = hbFactory.getCurrentSession();
-			Transaction trans = session.beginTransaction();
-			String sql = String.format("SELECT COUNT(*) FROM %s WHERE %s=? and %s=?", tableName, field1,field2);
-			@SuppressWarnings("rawtypes")
-			List rlt = session.createSQLQuery(sql).setParameter(1, CommonUtil.pretreatForString(val1)).setParameter(2, CommonUtil.pretreatForString(val2)).getResultList();
-			trans.commit();
-			assert rlt.size() == 1;
-			BigInteger r =  (BigInteger)rlt.get(0);
-			return r.longValue();
+			return transactionalRunAndGetSingle(hbFactory,(session)->{
+				String sql = String.format("SELECT COUNT(*) FROM %s WHERE %s=? and %s=?", tableName, field1,field2);
+				return session.createQuery(sql, Long.class)
+						.setParameter(1, CommonUtil.pretreatForString(val1))
+						.setParameter(2, CommonUtil.pretreatForString(val2))
+						.getSingleResult();
+			});
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new DBException(SMError.UNKNOWN_DB_ERROR, e.getMessage());
@@ -321,21 +318,18 @@ public abstract class DBUtil {
 	
 	public static long countByField(String tableName, String fieldName, Object val,SessionFactory hbFactory) throws DBException {
 		try {
-			Session session = hbFactory.getCurrentSession();
-			Transaction trans = session.beginTransaction();
-			String sql = String.format("SELECT COUNT(*) FROM %s WHERE %s=?", tableName, fieldName);
-			@SuppressWarnings("rawtypes")
-			List rlt = session.createSQLQuery(sql).setParameter(1, CommonUtil.pretreatForString(val)).getResultList();
-			trans.commit();
-			assert rlt.size() == 1;
-			BigInteger r =  (BigInteger)rlt.get(0);
-			return r.longValue();
+			return transactionalRunAndGetSingle(hbFactory,(session)->{
+				String sql = String.format("SELECT COUNT(*) FROM %s WHERE %s=?", tableName, fieldName);
+				return session.createQuery(sql, Long.class)
+						.setParameter(1, CommonUtil.pretreatForString(val))
+						.getSingleResult();
+			});
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new DBException(SMError.UNKNOWN_DB_ERROR, e.getMessage());
 		}
-
 	}
+
 	public static<T extends SMGeneralEntity> long insertEntity(T one,SessionFactory hbFactory) throws DBException {
 		one.setCreateUtc(TimeUtil.getCurrentTime().getTime().getTime());
 		one.setUpdateUtc(TimeUtil.getCurrentTime().getTime().getTime());
@@ -345,9 +339,9 @@ public abstract class DBUtil {
 		try {
 			session = hbFactory.getCurrentSession();
 			trans = session.beginTransaction();
-			Long id = (Long) session.save(one);
+			session.persist(one);
 			trans.commit();
-			return id;
+			return one.getId();
 		} catch (Exception e) {
 			throw processDBExcpetion(trans, session, e);
 		}
@@ -525,7 +519,7 @@ public abstract class DBUtil {
 	 * @throws DBException 
 	 */
 	public static void insertGeneralRTableData(String tableName, List<Long> argIds1, long argId2, SessionFactory hbFactory) throws DBException {
-		if (argIds1.size() == 0)
+		if (argIds1.isEmpty())
 			return;
 		
 		Session session = null;
@@ -606,7 +600,7 @@ public abstract class DBUtil {
 	
 	public static void deleteGeneralRTableData(String tableName, String fieldForTheMany, String fieldForTheOne,
 			List<Long> theManyIds, long theOneId, SessionFactory hbFactory) throws DBException {
-		if(theManyIds.size() == 0) {
+		if(theManyIds.isEmpty()) {
 			return ;
 		}
 		

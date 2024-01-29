@@ -3,7 +3,7 @@ package manager.entity.virtual.career;
 import java.util.Calendar;
 import java.util.LinkedList;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson2.annotation.JSONField;
 
 import manager.entity.virtual.SMVirtualEntity;
 import manager.system.career.CareerLogAction;

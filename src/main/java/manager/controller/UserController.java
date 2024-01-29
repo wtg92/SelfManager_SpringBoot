@@ -1,11 +1,8 @@
 package manager.controller;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import manager.data.AjaxResult;
+import com.alibaba.fastjson2.JSONObject;
 import manager.data.LoginInfo;
 import manager.data.proxy.UserProxy;
-import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.logic.UserLogic;
 import manager.servlet.ServletAdapter;
@@ -14,17 +11,14 @@ import manager.system.UserUniqueField;
 import manager.system.VerifyUserMethod;
 import manager.util.YZMUtil;
 import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
+
+import javax.annotation.Resource;
 
 import static manager.system.SMParm.*;
 import static manager.system.SMParm.TEMP_USER_ID;
-import static manager.util.UIUtil.*;
 
 @RestController
 @RequestMapping("/user")
@@ -32,7 +26,8 @@ public class UserController {
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-    private UserLogic uL = UserLogic.getInstance();
+    @Resource
+    private UserLogic uL;
 
     @PostMapping("/signIn")
     public LoginInfo signIn(@RequestBody JSONObject param) {
@@ -73,7 +68,7 @@ public class UserController {
     @PostMapping("/sendVerifyCode")
     private void sendVerifyCode(@RequestBody JSONObject param){
         String tempUserId = param.getString(TEMP_USER_ID);
-        boolean forEmail = param.getBoolean(FOR_EMAIL);
+        boolean forEmail = param.getBooleanValue(FOR_EMAIL);
         int x = param.getInteger(X);
         String val =  param.getString(VAL);
         if(forEmail) {
@@ -127,7 +122,7 @@ public class UserController {
     @PostMapping("/getYZM")
     private YZMUtil.YZMInfo getYZM(@RequestBody JSONObject param){
         String tempUserId = param.getString(TEMP_USER_ID);
-        boolean forEmail = param.getBoolean(FOR_EMAIL);
+        boolean forEmail = param.getBooleanValue(FOR_EMAIL);
         if(forEmail) {
             return ServletAdapter.process(uL.createEmailYZM(tempUserId, ""));
         }else {
@@ -160,7 +155,7 @@ public class UserController {
     @PostMapping("/checkYZM")
     private YZMUtil.YZMInfo checkYZM(@RequestBody JSONObject param) throws LogicException {
         String tempUserId = param.getString(TEMP_USER_ID);
-        boolean forEmail = param.getBoolean(FOR_EMAIL);
+        boolean forEmail = param.getBooleanValue(FOR_EMAIL);
         int x = param.getInteger(X);
         String imgSrc = param.getString(IMG_SRC);
         if(forEmail) {

@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/scientific_manager?useUnicode=true&amp;autoReconnect=true;
+    username: root
+    password: Expensivewin110
+
+
+#自定义
+hibernate:
+  showSQL: true

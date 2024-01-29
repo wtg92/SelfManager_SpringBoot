@@ -2,7 +2,6 @@ package manager.servlet;
 
 import static manager.system.SMParm.OP;
 import static manager.util.UIUtil.getNonNullParam;
-import static manager.util.UIUtil.parseSingleFile;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -13,12 +12,12 @@ import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import manager.data.SingleFileUnit;
 import manager.exception.LogicException;
 import manager.exception.SMException;
@@ -105,7 +104,9 @@ public class DownloadServlet extends HttpServlet{
 	
 	}
 	private byte[] modifyImgsDPI(HttpServletRequest request, HttpServletResponse response) throws LogicException {
-		SingleFileUnit file = parseSingleFile(request);
+//		SingleFileUnit file = parseSingleFile(request);
+
+
 		return null;
 	}
 
@@ -116,8 +117,8 @@ public class DownloadServlet extends HttpServlet{
 	
 	
 	private byte[] extractPPTImgs(HttpServletRequest request, HttpServletResponse response) throws LogicException {
-		SingleFileUnit file = parseSingleFile(request);
-		return tL.extractPPTImgs(file);
+//		SingleFileUnit file = parseSingleFile(request);
+		return tL.extractPPTImgs(null);
 	}
 	
 	

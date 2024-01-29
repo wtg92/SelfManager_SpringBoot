@@ -37,10 +37,14 @@ import manager.system.career.PlanState;
 import manager.system.career.WorkSheetState;
 import manager.util.TimeUtil;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
-@Component
+import javax.annotation.Resource;
+
+@Repository
 public class WorkDAOImpl implements WorkDAO {
-	private final SessionFactory hbFactory = getHibernateSessionFactory();
+	@Resource
+	private SessionFactory hbFactory;
 	@Override
 	public long insertPlan(Plan plan) throws DBException {
 		return insertEntity(plan, hbFactory);

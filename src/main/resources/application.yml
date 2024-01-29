@@ -1,11 +1,9 @@
 # 应用程序配置
 spring:
+  profiles:
+    active: dev
   application:
     name: self_manager
-  mvc:
-    view:
-      prefix: /WEB-INF/jsp/
-      suffix: .jsp
 server:
   error:
     include-exception: true

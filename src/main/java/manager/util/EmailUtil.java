@@ -12,6 +12,7 @@ import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 
 import com.sun.mail.smtp.SMTPMessage;
 
@@ -35,7 +36,8 @@ public abstract class EmailUtil {
 		try {
 			Session session = Session.getInstance(SENDING_SMTP_CONFIG);
 			session.setDebug(SHOW_DEBUG_MES);
-			Message mes = createSMTPMessage(session, Arrays.asList(recipient), subject, content);
+			Message mes =
+					createSMTPMessage(session, Arrays.asList(recipient), subject, content);
 			try(Transport transport = session.getTransport()){
 				transport.connect(SENDER_ACCOUNT, SENDER_PWD);
 				transport.sendMessage(mes, mes.getAllRecipients());
@@ -61,14 +63,14 @@ public abstract class EmailUtil {
 	}
 	
 	/*TODO recipent 非法问题 需要处理*/
-	private static SMTPMessage createSMTPMessage(Session session,List<String> recipients,String subject,String mesInfo) throws MessagingException {
-		SMTPMessage mes =  new SMTPMessage(session);
+	private static Message createSMTPMessage(Session session,List<String> recipients,String subject,String mesInfo) throws MessagingException {
+		Message mes =  new MimeMessage(session);
 		List<Address> addresses = new ArrayList<>();
 		for(int i=0;i<recipients.size();i++) {
 			addresses.add(new InternetAddress(recipients.get(i)));
 		}
 		mes.setRecipients(Message.RecipientType.TO,addresses.toArray(new Address[0]));
-		mes.setFrom(SENDER_ADDRESS);
+		mes.setFrom(new InternetAddress(SENDER_ADDRESS));
 		
 		mes.setSubject(subject);
 		mes.setContent(mesInfo, "text/html;charset=UTF-8");

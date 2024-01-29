@@ -3,9 +3,9 @@ package manager.system.career.converter;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
 
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 import manager.system.career.PlanSetting;
 import manager.util.SystemUtil;
 

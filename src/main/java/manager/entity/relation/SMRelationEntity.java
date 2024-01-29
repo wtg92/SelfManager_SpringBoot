@@ -1,7 +1,7 @@
 package manager.entity.relation;
 
-import javax.persistence.MappedSuperclass;
 
+import jakarta.persistence.MappedSuperclass;
 import manager.entity.SMEntity;
 
 @MappedSuperclass

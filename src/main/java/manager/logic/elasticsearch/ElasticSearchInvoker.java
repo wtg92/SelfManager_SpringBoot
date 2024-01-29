@@ -1,15 +1,12 @@
 package manager.logic.elasticsearch;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch.core.GetResponse;
 import co.elastic.clients.elasticsearch.core.IndexResponse;
-import co.elastic.clients.elasticsearch.core.SearchResponse;
-import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.ElasticsearchTransport;
 import co.elastic.clients.transport.TransportUtils;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
-import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson2.JSON;
 import manager.util.ThrowableConsumer;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;

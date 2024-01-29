@@ -69,13 +69,11 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServletRequest;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializeConfig;
+import com.alibaba.fastjson2.JSON;
 
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServletRequest;
 import manager.entity.virtual.career.WorkItem;
 import manager.exception.DBException;
 import manager.exception.LogicException;
@@ -99,30 +97,10 @@ public class CareerServlet extends SMServlet{
 	private WorkLogic wL = WorkLogic.getInstance();
 	private NoteLogic nL = NoteLogic.getInstance();
 	
-	private SerializeConfig workConf = createWorkEnumConfig();
-	private SerializeConfig noteConf = createNoteEnumConfig();
-	
-	@SuppressWarnings("unchecked")
-	private SerializeConfig createWorkEnumConfig() {
-		SerializeConfig conf = new SerializeConfig();
-		conf.configEnumAsJavaBean(PlanState.class);
-		conf.configEnumAsJavaBean(PlanItemType.class);
-		conf.configEnumAsJavaBean(WorkSheetState.class);
-		conf.configEnumAsJavaBean(WorkItemType.class);
-		conf.configEnumAsJavaBean(PlanSetting.class);
-		return conf;
-	}
-	
-	@SuppressWarnings("unchecked")
-	private SerializeConfig createNoteEnumConfig() {
-		SerializeConfig conf = new SerializeConfig();
-		conf.configEnumAsJavaBean(NoteLabel.class);
-		conf.configEnumAsJavaBean(BookStyle.class);
-		return conf;
-	}
-	
+
+
 	@Override
-	public String process(HttpServletRequest request) throws SMException, ServletException, IOException {
+	public String process(HttpServletRequest request) throws SMException, IOException {
 		SMOP op = SMOP.valueOfName(getNonNullParam(request,OP));
 		switch (op) {
 		case C_LOAD_ACTIVE_PLANS:
@@ -289,7 +267,7 @@ public class CareerServlet extends SMServlet{
 		long loginerId = getLoginId(request);
 		Calendar startDate = getNonNullParamInDate(request, START_DATE);
 		Calendar endDate = getNonNullParamInDate(request, END_DATE);
-		return JSON.toJSONString(wL.loadWorkSheetsByDateScope(loginerId, startDate, endDate),workConf);
+		return JSON.toJSONString(wL.loadWorkSheetsByDateScope(loginerId, startDate, endDate));
 	}
 
 	private String saveMemoItemLabel(HttpServletRequest request) throws DBException, LogicException {
@@ -297,21 +275,21 @@ public class CareerServlet extends SMServlet{
 		int itemId  = getNonNullParamInInt(request, ITEM_ID);
 		NoteLabel label = NoteLabel.valueOfName(getNonNullParam(request, LABEL));
 		nL.saveMemoItemLabel(loginerId, itemId, label);
-		return JSON.toJSONString(nL.loadMemo(loginerId), noteConf); 
+		return JSON.toJSONString(nL.loadMemo(loginerId)); 
 	}
 
 	private String saveMemoItemsSeq(HttpServletRequest request) throws DBException, LogicException {
 		long loginerId = getLoginId(request);
 		List<Integer> ids  = getNonNullParamsInInt(request, IDS);
 		nL.saveMemoItemsSeq(loginerId, ids);
-		return JSON.toJSONString(nL.loadMemo(loginerId), noteConf); 
+		return JSON.toJSONString(nL.loadMemo(loginerId)); 
 	}
 
 	private String removeItemFromMemo(HttpServletRequest request) throws DBException, LogicException {
 		long loginerId = getLoginId(request);
 		int itemId  = getNonNullParamInInt(request, ITEM_ID);
 		nL.removeItemFromMemo(loginerId, itemId);
-		return JSON.toJSONString(nL.loadMemo(loginerId), noteConf); 
+		return JSON.toJSONString(nL.loadMemo(loginerId)); 
 	}
 
 	private String saveMemoItem(HttpServletRequest request) throws LogicException, DBException {
@@ -321,19 +299,19 @@ public class CareerServlet extends SMServlet{
 		String note = getParamOrBlankDefault(request, NOTE);
 		NoteLabel label = NoteLabel.valueOfName(getNonNullParam(request, LABEL));
 		nL.saveMemoItem(loginerId, itemId, content, label, note);
-		return JSON.toJSONString(nL.loadMemo(loginerId), noteConf); 
+		return JSON.toJSONString(nL.loadMemo(loginerId)); 
 	}
 
 	private String saveMemo(HttpServletRequest request) throws LogicException, DBException {
 		long loginerId = getLoginId(request);
 		String note = getParamOrBlankDefault(request, NOTE);
 		nL.saveMemo(loginerId, note);
-		return JSON.toJSONString(nL.loadMemo(loginerId), noteConf); 
+		return JSON.toJSONString(nL.loadMemo(loginerId)); 
 	}
 
 	private String loadMemo(HttpServletRequest request) throws LogicException, DBException {
 		long loginerId = getLoginId(request);
-		return JSON.toJSONString(nL.loadMemo(loginerId), noteConf); 
+		return JSON.toJSONString(nL.loadMemo(loginerId)); 
 	}
 
 	private String addItemToMemo(HttpServletRequest request) throws LogicException, DBException {
@@ -343,7 +321,7 @@ public class CareerServlet extends SMServlet{
 		NoteLabel label = NoteLabel.valueOfName(getNonNullParam(request, LABEL));
 		long srcNoteId = getNonNullParamInInt(request, SRC_NOTE_ID);
 		nL.addItemToMemo(loginerId, content, label, note,srcNoteId);
-		return JSON.toJSONString(nL.loadMemo(loginerId), noteConf); 
+		return JSON.toJSONString(nL.loadMemo(loginerId)); 
 	}
 	
 	
@@ -352,8 +330,7 @@ public class CareerServlet extends SMServlet{
 		int noteId = getNonNullParamInInt(request, NOTE_ID);
 		boolean hidden = getNonNullParamInBool(request,HIDDEN);
 		long bookId = nL.saveNoteHidden(loginerId, noteId, hidden);
-		
-		return getBiParamsJSON(nL.loadNote(loginerId, noteId),nL.loadBookContent(loginerId, bookId),noteConf);
+		return getBiParamsJSON(nL.loadNote(loginerId, noteId),nL.loadBookContent(loginerId, bookId));
 	}
 	
 	private String saveNoteImportant(HttpServletRequest request) throws LogicException, DBException {
@@ -362,12 +339,12 @@ public class CareerServlet extends SMServlet{
 		boolean important = getNonNullParamInBool(request,IMPORTANT);
 		long bookId = nL.saveNoteImportant(loginerId, noteId, important);
 		
-		return getBiParamsJSON(nL.loadNote(loginerId, noteId),nL.loadBookContent(loginerId, bookId),noteConf);
+		return getBiParamsJSON(nL.loadNote(loginerId, noteId),nL.loadBookContent(loginerId, bookId));
 	}
 
 	private String loadNoteLabels(HttpServletRequest request) throws LogicException {
 		getLoginId(request);
-		return JSON.toJSONString(NoteLabel.loadCommonLabels(),noteConf);
+		return JSON.toJSONString(NoteLabel.loadCommonLabels());
 	}
 
 	private String saveNote(HttpServletRequest request) throws LogicException, DBException {
@@ -378,13 +355,13 @@ public class CareerServlet extends SMServlet{
 		boolean withTodos = getNonNullParamInBool(request,WITH_TODOS);
 		nL.saveNote(loginerId, noteId, name, content,withTodos);
 		/*withTodo前台维护*/
-		return JSON.toJSONString(nL.loadNote(loginerId, noteId),noteConf);
+		return JSON.toJSONString(nL.loadNote(loginerId, noteId));
 	}
 
 	private String loadNote(HttpServletRequest request) throws LogicException, DBException {
 		long loginerId = getLoginId(request);
 		int noteId = getNonNullParamInInt(request, NOTE_ID);
-		return JSON.toJSONString(nL.loadNote(loginerId, noteId),noteConf);
+		return JSON.toJSONString(nL.loadNote(loginerId, noteId));
 	}
 
 	private String saveNotesSeq(HttpServletRequest request) throws SMException {
@@ -421,7 +398,7 @@ public class CareerServlet extends SMServlet{
 		long bookId = getNonNullParamInInt(request, BOOK_ID);
 		String name = getNonNullParam(request, NAME);
 		long noteId = nL.createNote(loginId, bookId, name);
-		return getBiParamsJSON(nL.loadBookContent(loginId, bookId),noteId,noteConf);
+		return getBiParamsJSON(nL.loadBookContent(loginId, bookId),noteId);
 	}
 
 	private String saveNoteBook(HttpServletRequest request) throws LogicException, DBException {
@@ -432,13 +409,13 @@ public class CareerServlet extends SMServlet{
 		BookStyle style = BookStyle.valueOfDBCode(getNonNullParamInInt(request, STYLE));
 		int seqWeight = getParamOrZeroDefaultInInt(request, SEQ_WEIGHT);
 		nL.saveNoteBook(loginerId, bookId, name, note,style,seqWeight);
-		return JSON.toJSONString(nL.loadBook(loginerId, bookId),noteConf);
+		return JSON.toJSONString(nL.loadBook(loginerId, bookId));
 	}
 
 	private String loadBookContent(HttpServletRequest request) throws DBException, LogicException {
 		long loginerId = getLoginId(request);
 		long bookId = getNonNullParamInInt(request, BOOK_ID);
-		return JSON.toJSONString(nL.loadBookContent(loginerId, bookId),noteConf);
+		return JSON.toJSONString(nL.loadBookContent(loginerId, bookId));
 	}
 
 	private String closeBook(HttpServletRequest request) throws LogicException, DBException {
@@ -451,12 +428,12 @@ public class CareerServlet extends SMServlet{
 	private String loadBook(HttpServletRequest request) throws LogicException, DBException {
 		long loginerId = getLoginId(request);
 		long bookId = getNonNullParamInInt(request, BOOK_ID);
-		return JSON.toJSONString(nL.loadBook(loginerId, bookId),noteConf);
+		return JSON.toJSONString(nL.loadBook(loginerId, bookId));
 	}
 
 	private String loadBooks(HttpServletRequest request) throws LogicException, DBException {
 		long loginerId = getLoginId(request);
-		return JSON.toJSONString(nL.loadBooks(loginerId),noteConf);
+		return JSON.toJSONString(nL.loadBooks(loginerId));
 	}
 
 	private String createNoteBook(HttpServletRequest request) throws LogicException, DBException {
@@ -465,7 +442,7 @@ public class CareerServlet extends SMServlet{
 		String note = getParamOrBlankDefault(request, NOTE);
 		BookStyle style = BookStyle.valueOfDBCode(getNonNullParamInInt(request, STYLE));
 		long id = nL.createNoteBook(loginerId, name, note,style);
-		return JSON.toJSONString(nL.loadBook(loginerId, id),noteConf);
+		return JSON.toJSONString(nL.loadBook(loginerId, id));
 	}
 
 	private String copyPlanItemsById(HttpServletRequest request) throws LogicException, DBException {
@@ -474,7 +451,7 @@ public class CareerServlet extends SMServlet{
 		String templePlanId = getNonNullParam(request, "temple_plan_id");
 		int templetePlanId = ServletAdapter.getCommonId(templePlanId);
 		wL.copyPlanItemsFrom(loginerId, targetPlanId, templetePlanId);
-		return JSON.toJSONString(ServletAdapter.process(wL.loadPlan(loginerId, targetPlanId)),workConf);
+		return JSON.toJSONString(ServletAdapter.process(wL.loadPlan(loginerId, targetPlanId)));
 	}
 
 	private String saveDeptItem(HttpServletRequest request) throws LogicException, DBException {
@@ -483,14 +460,14 @@ public class CareerServlet extends SMServlet{
 		String name = getNonNullParam(request, NAME);
 		double val = getNonNullParamInDouble(request, VAL);
 		wL.savePlanDeptItem(loginerId, itemId, name, val);
-		return JSON.toJSONString(wL.loadPlanDept(loginerId),workConf);
+		return JSON.toJSONString(wL.loadPlanDept(loginerId));
 	}
 
 	private String syncAllToPlanDept(HttpServletRequest request) throws DBException, LogicException {
 		long loginerId = getLoginId(request);
 		int wsId = getNonNullParamInInt(request, WS_ID);
 		wL.syncAllToPlanDept(loginerId, wsId);
-		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId),workConf);
+		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId));
 	}
 	
 	private String syncAllToPlanDeptBatch(HttpServletRequest request) throws SMException {
@@ -499,18 +476,18 @@ public class CareerServlet extends SMServlet{
 		int wsIdForRefresh = getNonNullParamInInt(request, WS_ID);
 		wL.syncAllToPlanDeptBatch(loginerId, wsIds);
 		/*0 means no refresh*/
-		return wsIdForRefresh == 0 ? getNullObjJSON() : JSON.toJSONString(wL.loadWorkSheet(loginerId, wsIdForRefresh),workConf);
+		return wsIdForRefresh == 0 ? getNullObjJSON() : JSON.toJSONString(wL.loadWorkSheet(loginerId, wsIdForRefresh));
 	}
 	
 	private String loadPlanDeptItemNames(HttpServletRequest request) throws LogicException, DBException {
 		long loginerId = getLoginId(request);
-		return JSON.toJSONString(wL.loadPlanDeptItemNames(loginerId),workConf);
+		return JSON.toJSONString(wL.loadPlanDeptItemNames(loginerId));
 	}
 
 	private String loadWSByState(HttpServletRequest request) throws LogicException, DBException {
 		long loginerId = getLoginId(request);
 		WorkSheetState stateZT = WorkSheetState.valueOfDBCode(getParamIntegerOrZeroDefault(request, STATE));
-		return JSON.toJSONString(wL.loadWorkSheetByState(loginerId,stateZT),workConf);
+		return JSON.toJSONString(wL.loadWorkSheetByState(loginerId,stateZT));
 	}
 
 	private String loadWSStateStatistics(HttpServletRequest request) throws LogicException, DBException {
@@ -520,7 +497,7 @@ public class CareerServlet extends SMServlet{
 
 	private String loadPlanDept(HttpServletRequest request) throws LogicException, DBException {
 		long loginerId = getLoginId(request);
-		return JSON.toJSONString(wL.loadPlanDept(loginerId),workConf);
+		return JSON.toJSONString(wL.loadPlanDept(loginerId));
 	}
 
 	private String syncToPlanDept(HttpServletRequest request) throws LogicException, DBException {
@@ -528,7 +505,7 @@ public class CareerServlet extends SMServlet{
 		int wsId = getNonNullParamInInt(request, WS_ID);
 		int planItemId = getNonNullParamInInt(request, PLAN_ITEM_ID);
 		wL.syncToPlanDept(loginerId, wsId, planItemId);
-		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId),workConf);
+		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId));
 	}
 
 	private String removeItemFromWorkSheet(HttpServletRequest request) throws LogicException, DBException {
@@ -536,7 +513,7 @@ public class CareerServlet extends SMServlet{
 		int wsId = getNonNullParamInInt(request, WS_ID);
 		int itemId = getNonNullParamInInt(request, ITEM_ID);
 		wL.removeItemFromWorkSheet(loginerId, wsId, itemId);
-		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId),workConf);
+		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId));
 	}
 
 	private String saveWorkItems(HttpServletRequest request) throws SMException {
@@ -546,7 +523,7 @@ public class CareerServlet extends SMServlet{
 		
 		wL.saveWorkItems(loginerId, wsId,workItems);
 		
-		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId),workConf);
+		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId));
 	}
 	
 	private String saveWorkSheetPlanId(HttpServletRequest request) throws SMException {
@@ -554,7 +531,7 @@ public class CareerServlet extends SMServlet{
 		int planId = ServletAdapter.getCommonId(getNonNullParam(request, PLAN_ID));
 		int wsId = getNonNullParamInInt(request, WS_ID);
 		wL.saveWorkSheetPlanId(loginerId, wsId, planId);
-		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId),workConf);
+		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId));
 	}
 	
 	private String saveWorkItemPlanItemId(HttpServletRequest request) throws SMException {
@@ -563,7 +540,7 @@ public class CareerServlet extends SMServlet{
 		int workItemId = getNonNullParamInInt(request, WORK_ITEM_ID);
 		int planItimId = getNonNullParamInInt(request, PLAN_ITEM_ID);
 		wL.saveWorkItemPlanItemId(loginerId, wsId, workItemId, planItimId);
-		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId),workConf);
+		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId));
 	}
 
 	private String addItemToWS(HttpServletRequest request) throws LogicException, DBException {
@@ -577,7 +554,7 @@ public class CareerServlet extends SMServlet{
 		Calendar startTime = getNonNullParamInTime(request, START_TIME);
 		Calendar endTime = getParamOrBlankDefaultInTime(request, END_TIME);
 		wL.addItemToWS(loginerId, wsId, planItemId, val, note, mood, forAdd, startTime, endTime);
-		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId),workConf);
+		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId));
 	}
 
 	private String removeItemFromWSPlan(HttpServletRequest request) throws LogicException, DBException {
@@ -585,7 +562,7 @@ public class CareerServlet extends SMServlet{
 		int wsId = getNonNullParamInInt(request, WS_ID);
 		int itemId = getNonNullParamInInt(request, ITEM_ID);
 		wL.removeItemFromWSPlan(loginerId, wsId, itemId);
-		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId),workConf);
+		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId));
 	}
 
 	private String saveWSPlanItem(HttpServletRequest request) throws LogicException, DBException {
@@ -597,7 +574,7 @@ public class CareerServlet extends SMServlet{
 		int itemId = getNonNullParamInInt(request, ITEM_ID);
 		double mappingVal = getParamOrZeroDefaultInDouble(request, MAPPING_VAL);
 		wL.saveWSPlanItem(loginerId, wsId, itemId, catName, val, note, mappingVal);
-		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId),workConf);
+		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId));
 	}
 	
 	
@@ -620,7 +597,7 @@ public class CareerServlet extends SMServlet{
 		int fatherId = getNonNullParamInInt(request, FATHER_ID);
 		double mappingVal = getParamOrZeroDefaultInDouble(request, MAPPING_VAL);
 		wL.addItemToWSPlan(loginerId, wsId, catName, val, note, type, fatherId, mappingVal);
-		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId),workConf);
+		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId));
 	}
 
 	private String loadTodaySheetCount(HttpServletRequest request) throws SMException {
@@ -632,27 +609,27 @@ public class CareerServlet extends SMServlet{
 	private String loadWorkSheet(HttpServletRequest request) throws LogicException, DBException {
 		long loginerId = getLoginId(request);
 		int wsId = getNonNullParamInInt(request, WS_ID);
-		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId),workConf);
+		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId));
 	}
 	
 	private String loadWorkSheetInfosRecently(HttpServletRequest request) throws LogicException, DBException {
 		long loginerId = getLoginId(request);
 		int page = getNonNullParamInInt(request, PAGE);
-		return JSON.toJSONString(wL.loadWorkSheetInfosRecently(loginerId, page),workConf);
+		return JSON.toJSONString(wL.loadWorkSheetInfosRecently(loginerId, page));
 	}
 
 	private String cacelAssumeWorkSheetFinished(HttpServletRequest request) throws LogicException, DBException {
 		long loginerId = getLoginId(request);
 		int wsId = getNonNullParamInInt(request, WS_ID);
 		wL.cancelAssumeWorkSheetFinished(loginerId, wsId);
-		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId),workConf);
+		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId));
 	}
 
 	private String assumeWorkSheetFinished(HttpServletRequest request) throws LogicException, DBException {
 		long loginerId = getLoginId(request);
 		int wsId = getNonNullParamInInt(request, WS_ID);
 		wL.assumeWorkSheetFinished(loginerId, wsId);
-		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId),workConf);
+		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId));
 	}
 
 	private String deleteWorkSheet(HttpServletRequest request) throws LogicException, DBException {
@@ -674,13 +651,13 @@ public class CareerServlet extends SMServlet{
 		long loginerId = getLoginId(request);
 		int planId = getNonNullParamInInt(request, PLAN_ID);
 		wL.openWorkSheetToday(loginerId, planId);
-		return JSON.toJSONString(wL.loadWorkSheetInfosRecently(loginerId, 0),workConf) ;
+		return JSON.toJSONString(wL.loadWorkSheetInfosRecently(loginerId, 0)) ;
 	}
 
 	private String loadPlansByState(HttpServletRequest request) throws LogicException, DBException {
 		long loginerId = getLoginId(request);
 		PlanState stateZT = PlanState.valueOfDBCode(getParamIntegerOrZeroDefault(request, STATE));
-		return JSON.toJSONString(wL.loadPlansByState(loginerId,stateZT),workConf);
+		return JSON.toJSONString(wL.loadPlansByState(loginerId,stateZT));
 	}
 
 	private String loadPlanStatesStatistics(HttpServletRequest request) throws LogicException, DBException {
@@ -708,7 +685,7 @@ public class CareerServlet extends SMServlet{
 		int wsId = getNonNullParamInInt(request, WS_ID);
 		List<String> tags = getParamsOrEmptyList(request, TAGS);
 		wL.resetWorkSheetTags(loginerId, wsId, tags);
-		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId),workConf);
+		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId));
 	}
 	
 	
@@ -717,7 +694,7 @@ public class CareerServlet extends SMServlet{
 		int planId = getNonNullParamInInt(request, PLAN_ID);
 		List<String> tags = getParamsOrEmptyList(request, TAGS);
 		wL.resetPlanTags(loginerId, planId,tags);
-		return JSON.toJSONString(ServletAdapter.process(wL.loadPlan(loginerId, planId)),workConf);
+		return JSON.toJSONString(ServletAdapter.process(wL.loadPlan(loginerId, planId)));
 	}
 	
 	
@@ -740,7 +717,7 @@ public class CareerServlet extends SMServlet{
 		int itemId = getNonNullParamInInt(request, ITEM_ID);
 		double mappingVal = getParamOrZeroDefaultInDouble(request, MAPPING_VAL);
 		wL.savePlanItem(loginerId, planId, itemId, catName, val, note, mappingVal);
-		return JSON.toJSONString(ServletAdapter.process(wL.loadPlan(loginerId, planId)),workConf);
+		return JSON.toJSONString(ServletAdapter.process(wL.loadPlan(loginerId, planId)));
 	}
 
 
@@ -757,13 +734,13 @@ public class CareerServlet extends SMServlet{
 		List<PlanSetting> settings = getParamsInIntOrZeroDefault(request, PLAN_SETTING).stream().map(PlanSetting::valueOfDBCode).collect(toList());
 		
 		wL.savePlan(loginerId,planId,name,startDate,endDate,note,recalculateState,settings,seqWeight);
-		return JSON.toJSONString(ServletAdapter.process(wL.loadPlan(loginerId, planId)),workConf);
+		return JSON.toJSONString(ServletAdapter.process(wL.loadPlan(loginerId, planId)));
 	}
 
 	private String loadPlan(HttpServletRequest request) throws LogicException, DBException {
 		long loginerId = getLoginId(request);
 		int planId = getNonNullParamInInt(request, PLAN_ID);
-		return JSON.toJSONString(ServletAdapter.process(wL.loadPlan(loginerId, planId)),workConf);
+		return JSON.toJSONString(ServletAdapter.process(wL.loadPlan(loginerId, planId)));
 	}
 
 	private String removeItemFromPlan(HttpServletRequest request) throws LogicException, DBException {
@@ -771,7 +748,7 @@ public class CareerServlet extends SMServlet{
 		int planId = getNonNullParamInInt(request, PLAN_ID);
 		int itemId = getNonNullParamInInt(request, ITEM_ID);
 		wL.removeItemFromPlan(loginerId, planId, itemId);
-		return JSON.toJSONString(ServletAdapter.process(wL.loadPlan(loginerId, planId)),workConf);
+		return JSON.toJSONString(ServletAdapter.process(wL.loadPlan(loginerId, planId)));
 	}
 
 	/**
@@ -784,7 +761,7 @@ public class CareerServlet extends SMServlet{
 		Calendar endDate = getParamOrBlankDefaultInDate(request, END_DATE);
 		String note = getParamOrBlankDefault(request, NOTE);
 		long id = wL.createPlan(loginerId, name, startDate, endDate, note);
-		return JSON.toJSONString(ServletAdapter.process(wL.loadPlan(loginerId, id)),workConf);
+		return JSON.toJSONString(ServletAdapter.process(wL.loadPlan(loginerId, id)));
 	}
 
 	private String addItemToPlan(HttpServletRequest request) throws LogicException, DBException {
@@ -797,12 +774,12 @@ public class CareerServlet extends SMServlet{
 		int fatherId = getNonNullParamInInt(request, FATHER_ID);
 		double mappingVal = getParamOrZeroDefaultInDouble(request, MAPPING_VAL);
 		wL.addItemToPlan(loginerId, planId, catName, val, note, type, fatherId, mappingVal);
-		return JSON.toJSONString(ServletAdapter.process(wL.loadPlan(loginerId, planId)),workConf);
+		return JSON.toJSONString(ServletAdapter.process(wL.loadPlan(loginerId, planId)));
 	}
 
 	private String loadActivePlans(HttpServletRequest request) throws LogicException, DBException {
 		long loginerId = getLoginId(request);
-		return JSON.toJSONString(wL.loadActivePlans(loginerId),workConf);
+		return JSON.toJSONString(wL.loadActivePlans(loginerId));
 	}
 	
 }

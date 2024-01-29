@@ -8,16 +8,16 @@ import java.io.Writer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import manager.exception.LogicException;
 import manager.exception.SMException;
 import manager.system.SMOP;
 
-public abstract class SMServlet extends HttpServlet{
+public abstract class SMServlet extends HttpServlet {
 	final private static Logger logger = Logger.getLogger(SMServlet.class.getName());
 
 	private static final long serialVersionUID = 2442482414960821919L;

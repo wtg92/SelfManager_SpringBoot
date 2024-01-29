@@ -2,7 +2,7 @@ package manager.controller;
 
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import manager.data.AjaxResult;
 import manager.logic.elasticsearch.ElasticSearchInvoker;
 import manager.system.Gender;

@@ -36,13 +36,12 @@ import static manager.util.UIUtil.getParamJSON;
 import java.io.IOException;
 import java.util.List;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServletRequest;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializeConfig;
+import com.alibaba.fastjson2.JSON;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServletRequest;
 import manager.data.proxy.UserProxy;
 import manager.exception.DBException;
 import manager.exception.LogicException;
@@ -158,9 +157,7 @@ public class UserServlet extends SMServlet{
 	private String loadPermsOfGroup(HttpServletRequest request) throws LogicException, DBException {
 		long loginerId = getLoginId(request);
 		long groupId = getNonNullParamInInt(request,GROUP_ID);
-		SerializeConfig conf = new SerializeConfig();
-		conf.configEnumAsJavaBean(SMPerm.class);
-		return JSON.toJSONString(uL.loadPermsOfGroup(groupId, loginerId),conf);
+		return JSON.toJSONString(uL.loadPermsOfGroup(groupId, loginerId));
 	}
 
 	private String loadUsersOfGroup(HttpServletRequest request) throws LogicException, DBException {

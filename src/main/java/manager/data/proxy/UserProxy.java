@@ -2,7 +2,7 @@ package manager.data.proxy;
 
 import java.util.Set;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson2.annotation.JSONField;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import manager.entity.general.User;

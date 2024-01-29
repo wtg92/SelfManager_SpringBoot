@@ -15,8 +15,8 @@ import manager.system.NoSuchElementType;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
-import redis.clients.jedis.ScanParams;
-import redis.clients.jedis.ScanResult;
+import redis.clients.jedis.params.ScanParams;
+import redis.clients.jedis.resps.ScanResult;
 
 /**
  *  该Util管理与redis服务器的通信，调用。与CacheConverter互不知晓
@@ -954,7 +954,7 @@ public abstract class CacheUtil {
 	 * @param end
 	 * @return
 	 */
-	public static Set<String> zrevrange(String key, long start, long end) {
+	public static List<String> zrevrange(String key, long start, long end) {
 		Jedis jedis = getJedis();
 		return jedis.zrevrange(key, start, end);
 	}
@@ -967,7 +967,7 @@ public abstract class CacheUtil {
 	 * @param min
 	 * @return
 	 */
-	public static Set<String> zrangebyscore(String key, String max, String min) {
+	public static List<String> zrangebyscore(String key, String max, String min) {
 		Jedis jedis = getJedis();
 		return jedis.zrevrangeByScore(key, max, min);
 	}
@@ -980,7 +980,7 @@ public abstract class CacheUtil {
 	 * @param min
 	 * @return
 	 */
-	public static Set<String> zrangeByScore(String key, double max, double min) {
+	public static List<String> zrangeByScore(String key, double max, double min) {
 		Jedis jedis = getJedis();
 		return jedis.zrevrangeByScore(key, max, min);
 	}

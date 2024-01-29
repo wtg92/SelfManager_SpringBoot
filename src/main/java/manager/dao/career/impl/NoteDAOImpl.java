@@ -32,11 +32,16 @@ import manager.exception.DBException;
 import manager.exception.NoSuchElement;
 import manager.system.SMDB;
 import manager.util.TimeUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
+import javax.annotation.Resource;
+
+@Repository
 public class NoteDAOImpl implements NoteDAO {
 	
-	
-	private final SessionFactory hbFactory = getHibernateSessionFactory();
+	@Resource
+	private SessionFactory hbFactory;
 	
 	@Override
 	public long insertNoteBook(NoteBook book) throws DBException {

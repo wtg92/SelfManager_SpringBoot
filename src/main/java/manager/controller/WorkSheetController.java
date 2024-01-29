@@ -1,6 +1,6 @@
 package manager.controller;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import manager.data.proxy.career.PlanProxy;
 import manager.entity.general.career.Plan;
 import manager.entity.general.career.WorkSheet;
