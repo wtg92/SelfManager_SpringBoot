@@ -168,8 +168,9 @@ public abstract class CommonUtil {
 	 *  这个函数 现在遇到的情况是 只处理Calendar 把它转换成对应字符串
 	 *  
 	 * 假如传入字节码对象 则返回对象名称 
-	 *  
+	 *  TODO 似乎不需要了 当国际化之后 不会再使用Calendar了
 	 */
+	@Deprecated
 	public static Object pretreatForString(Object val) {
 		if(val instanceof Calendar) {
 			return TimeUtil.parseTime((Calendar)val);

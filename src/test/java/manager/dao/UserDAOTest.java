@@ -7,8 +7,11 @@ import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 
-import javax.persistence.OptimisticLockException;
 
+import jakarta.persistence.OptimisticLockException;
+import manager.SelfManagerSpringbootApplication;
+import manager.exception.DBException;
+import manager.system.SMError;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.Before;
@@ -21,14 +24,16 @@ import manager.system.SMDB;
 import manager.system.SMPerm;
 import manager.util.DBUtil;
 import manager.util.SecurityUtil;
+import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.annotation.Resource;
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes =  SelfManagerSpringbootApplication.class)
 public class UserDAOTest {
 	
-	@Before
-	public void setUp() {
-		DAOFactory.deleteAllTables();
-	}
-	
+
 	@Test
 	public void testBasic() throws Exception {
 		UserDAO uDAO = DAOFactory.getUserDAO();
@@ -79,21 +84,21 @@ public class UserDAOTest {
 		uDAO.insertUsersToGroup(Arrays.asList((long)1,(long)2),(long)1);
 		uDAO.deleteUsersFromGroup(Arrays.asList((long)1,(long)2), (long)1);
 	}
-	
-	
+
+	@Resource
+	SessionFactory sessionFactory;
+
+	@Resource
+	UserDAO uDAO;
 	@Test
 	public void testConcurrent() throws Exception {
-		UserDAO uDAO = DAOFactory.getUserDAO();
 		User user = new User();
 		user.setNickName("hh");
 		user.setPassword("hhhhhhhhhhhhhhhhhhhhhhhhhh");
 		SecurityUtil.encodeUserPwd(user);
 		long uId = uDAO.insertUser(user);
 		assertTrue(user.getId() == uId);
-		assertEquals(1, uId);
-		
-		
-		SessionFactory sessionFactory = DBUtil.getHibernateSessionFactory();
+
 		try(Session s1 = sessionFactory.openSession();
 				Session s2 = sessionFactory.openSession()){
 			s1.beginTransaction();
@@ -111,8 +116,31 @@ public class UserDAOTest {
 			//ok
 		}
 	}
-	
-	
+
+	@Test
+	public void testConcurrent2() throws Exception {
+		User user = new User();
+		user.setNickName("hh"+System.currentTimeMillis());
+		user.setPassword("hhhhhhhhhhhhhhhhhhhhhhhhhh");
+		SecurityUtil.encodeUserPwd(user);
+		long uId = uDAO.insertUser(user);
+		assertTrue(user.getId() == uId);
+		User user1 = uDAO.selectExistedUser(uId);
+		User user2 = uDAO.selectExistedUser(uId);
+		user1.setName("222");
+		user2.setName("333");
+		try{
+			uDAO.updateExistedUser(user1);
+			uDAO.updateExistedUser(user2);
+			fail();
+		}catch (DBException e){
+			assert e.type == SMError.DB_SYNC_ERROR;
+		}
+
+	}
+
+
+
 	@Test
 	public void batchInsert() throws Exception{
 		UserDAO uDAO = DAOFactory.getUserDAO();

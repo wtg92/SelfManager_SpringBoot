@@ -66,23 +66,6 @@ public abstract class DAOFactory {
 	}
 	
 	public static void deleteTable(String tableName) {
-	    try (Session session = DBUtil.getHibernateSessionFactory().openSession()) {
-	        session.doWork(connection -> {
-	        	/**
-	        	 * 需要关掉外键约束，貌似选错了引擎而不得不手动关掉约束
-	        	 */
-	            try (PreparedStatement p1 = connection.prepareStatement("SET FOREIGN_KEY_CHECKS=0");
-	            		PreparedStatement p2 = connection.prepareStatement("TRUNCATE TABLE " + tableName);
-	            		PreparedStatement p3 = connection.prepareStatement("SET FOREIGN_KEY_CHECKS=1")) {
-	            	p1.execute();
-	                p2.executeUpdate();
-	                p3.execute();
-	            } catch (SQLException e) {
-	            	e.printStackTrace();
-	            	assert false;
-	            }
-	        });
-	    }
-		
+		throw new RuntimeException("Haven't finished yet");
 	}
 }

@@ -8,7 +8,7 @@ import java.io.InputStream;
 
 import org.junit.Test;
 
-import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson2.JSON;
 
 import jep.JepException;
 import manager.TestUtil;

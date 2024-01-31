@@ -3,11 +3,10 @@ package manager.dao.career.impl;
 import static manager.util.DBUtil.countEntitiesByBiFields;
 import static manager.util.DBUtil.countEntitiesByRange;
 import static manager.util.DBUtil.deleteEntity;
-import static manager.util.DBUtil.getHibernateSessionFactory;
 import static manager.util.DBUtil.includeEntitiesByField;
 import static manager.util.DBUtil.includeUniqueEntityByBiFields;
 import static manager.util.DBUtil.insertEntity;
-import static manager.util.DBUtil.processDBExcpetion;
+import static manager.util.DBUtil.processDBException;
 import static manager.util.DBUtil.selectEntitiesByDateScopeAndField;
 import static manager.util.DBUtil.selectEntitiesByField;
 import static manager.util.DBUtil.selectEntitiesByFieldAndManyField;
@@ -36,7 +35,6 @@ import manager.system.SMDB;
 import manager.system.career.PlanState;
 import manager.system.career.WorkSheetState;
 import manager.util.TimeUtil;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
@@ -44,75 +42,75 @@ import javax.annotation.Resource;
 @Repository
 public class WorkDAOImpl implements WorkDAO {
 	@Resource
-	private SessionFactory hbFactory;
+	private SessionFactory sessionFactory;
 	@Override
 	public long insertPlan(Plan plan) throws DBException {
-		return insertEntity(plan, hbFactory);
+		return insertEntity(plan, sessionFactory);
 	}
 
 	@Override
 	public long insertWorkSheet(WorkSheet sheet) throws DBException {
-		return insertEntity(sheet, hbFactory);
+		return insertEntity(sheet, sessionFactory);
 	}
 	
 	@Override
 	public long insertPlanDept(PlanDept dept) throws DBException {
-		return insertEntity(dept, hbFactory);
+		return insertEntity(dept, sessionFactory);
 	}
 
 	@Override
 	public Plan selectPlan(long id) throws NoSuchElement, DBException {
-		return selectEntity(id,Plan.class, hbFactory);
+		return selectEntity(id,Plan.class, sessionFactory);
 	}
 
 	@Override
 	public WorkSheet selectWorkSheet(long id) throws NoSuchElement, DBException {
-		return selectEntity(id, WorkSheet.class, hbFactory);
+		return selectEntity(id, WorkSheet.class, sessionFactory);
 	}
 
 	@Override
 	public void updateExistedPlan(Plan existed) throws DBException {
-		updateExistedEntity(existed, hbFactory);
+		updateExistedEntity(existed, sessionFactory);
 	}
 
 	@Override
 	public List<Plan> selectPlansByOwnerAndStates(long ownerId,List<PlanState> states) throws DBException {
-		return selectEntitiesByFieldAndManyField(Plan.class,SMDB.F_OWNER_ID,ownerId, SMDB.F_STATE, states,PlanState::getDbCode,hbFactory);
+		return selectEntitiesByFieldAndManyField(Plan.class,SMDB.F_OWNER_ID,ownerId, SMDB.F_STATE, states,PlanState::getDbCode, sessionFactory);
 	}
 
 	@Override
 	public void deleteExistedPlan(long planId) throws DBException {
-		deleteEntity(Plan.class, planId, hbFactory);
+		deleteEntity(Plan.class, planId, sessionFactory);
 	}
 	
 	@Override
 	public long countPlansByOwnerAndState(long ownerId, PlanState state) throws DBException {
-		return countEntitiesByBiFields(Plan.class,SMDB.F_OWNER_ID,ownerId, SMDB.F_STATE,state.getDbCode(), hbFactory);
+		return countEntitiesByBiFields(Plan.class,SMDB.F_OWNER_ID,ownerId, SMDB.F_STATE,state.getDbCode(), sessionFactory);
 	}
 
 	@Override
 	public long countWorkSheetByOwnerAndState(long ownerId, WorkSheetState state) throws DBException {
-		return countEntitiesByBiFields(WorkSheet.class,SMDB.F_OWNER_ID,ownerId, SMDB.F_STATE,state.getDbCode(), hbFactory);
+		return countEntitiesByBiFields(WorkSheet.class,SMDB.F_OWNER_ID,ownerId, SMDB.F_STATE,state.getDbCode(), sessionFactory);
 	}
 	
 	@Override
 	public List<Plan> selectPlansByField(String field, Object val) throws DBException {
-		return selectEntitiesByField(Plan.class, field, val, hbFactory);
+		return selectEntitiesByField(Plan.class, field, val, sessionFactory);
 	}
 
 	@Override
 	public boolean includeUniqueWorkSheetByOwnerAndDate(long ownerId, Calendar date) throws DBException {
-		return includeUniqueEntityByBiFields(WorkSheet.class,SMDB.F_OWNER_ID,ownerId,SMDB.F_DATE,date,hbFactory);
+		return includeUniqueEntityByBiFields(WorkSheet.class,SMDB.F_OWNER_ID,ownerId,SMDB.F_DATE,date, sessionFactory);
 	}
 
 	@Override
 	public void updateExistedWorkSheet(WorkSheet ws) throws DBException {
-		updateExistedEntity(ws, hbFactory);
+		updateExistedEntity(ws, sessionFactory);
 	}
 
 	@Override
 	public void deleteExistedWorkSheet(long wsId) throws DBException {
-		deleteEntity(WorkSheet.class, wsId, hbFactory);
+		deleteEntity(WorkSheet.class, wsId, sessionFactory);
 	}
 
 	@Override
@@ -121,7 +119,7 @@ public class WorkDAOImpl implements WorkDAO {
 		Session session = null;
 		Transaction trans = null;
 		try {
-			session = hbFactory.getCurrentSession();
+			session = sessionFactory.getCurrentSession();
 			trans = session.beginTransaction();
 			session.doWork(conn -> {
 				String sql = String.format("SELECT %s,%s,%s FROM %s WHERE %s=? ORDER BY %s DESC LIMIT %s,%s",
@@ -145,39 +143,39 @@ public class WorkDAOImpl implements WorkDAO {
 			trans.commit();
 			return rlt;
 		} catch (Exception e) {
-			throw processDBExcpetion(trans, session, e);
+			throw processDBException(trans, session, e);
 		}
 	}
 
 	@Override
 	public long countWorkSheetByDate(Calendar date) throws DBException {
-		return countEntitiesByRange(WorkSheet.class, SMDB.F_DATE, TimeUtil.getMinTimeOfDay(date), TimeUtil.getMaxTimeOfDay(date), hbFactory);
+		return countEntitiesByRange(WorkSheet.class, SMDB.F_DATE, TimeUtil.getMinTimeOfDay(date), TimeUtil.getMaxTimeOfDay(date), sessionFactory);
 	}
 
 	@Override
 	public boolean includeWorkSheetByPlanId(long planId) throws DBException {
-		return includeEntitiesByField(WorkSheet.class, SMDB.F_PLAN_ID, planId, hbFactory);
+		return includeEntitiesByField(WorkSheet.class, SMDB.F_PLAN_ID, planId, sessionFactory);
 	}
 
 	@Override
 	public PlanDept selectPlanDeptByOwner(long ownerId) throws NoSuchElement, DBException {
-		return selectUniqueEntityByField(PlanDept.class, SMDB.F_OWNER_ID, ownerId, hbFactory);
+		return selectUniqueEntityByField(PlanDept.class, SMDB.F_OWNER_ID, ownerId, sessionFactory);
 	}
 
 	@Override
 	public void updateExistedPlanDept(PlanDept dept) throws DBException {
-		updateExistedEntity(dept, hbFactory);
+		updateExistedEntity(dept, sessionFactory);
 	}
 
 	@Override
 	public List<WorkSheet> selectWorkSheetByField(String field, Object val) throws DBException {
-		return selectEntitiesByField(WorkSheet.class, field, val, hbFactory);
+		return selectEntitiesByField(WorkSheet.class, field, val, sessionFactory);
 	}
 
 	@Override
 	public List<WorkSheet> selectWorkSheetByOwnerAndStates(long ownerId, List<WorkSheetState> states)
 			throws DBException {
-		return selectEntitiesByFieldAndManyField(WorkSheet.class,SMDB.F_OWNER_ID,ownerId, SMDB.F_STATE, states,WorkSheetState::getDbCode,hbFactory);
+		return selectEntitiesByFieldAndManyField(WorkSheet.class,SMDB.F_OWNER_ID,ownerId, SMDB.F_STATE, states,WorkSheetState::getDbCode, sessionFactory);
 	}
 	
 	@Override
@@ -186,7 +184,7 @@ public class WorkDAOImpl implements WorkDAO {
 		Session session = null;
 		Transaction trans = null;
 		try {
-			session = hbFactory.getCurrentSession();
+			session = sessionFactory.getCurrentSession();
 			trans = session.beginTransaction();
 			session.doWork(conn -> {
 				String sql = String.format("select %s From %s where %s=? and %s is not null and trim(%s) != ''",
@@ -203,7 +201,7 @@ public class WorkDAOImpl implements WorkDAO {
 			trans.commit();
 			return rlt;
 		} catch (Exception e) {
-			throw processDBExcpetion(trans, session, e);
+			throw processDBException(trans, session, e);
 		}
 	}
 
@@ -213,7 +211,7 @@ public class WorkDAOImpl implements WorkDAO {
 		Session session = null;
 		Transaction trans = null;
 		try {
-			session = hbFactory.getCurrentSession();
+			session = sessionFactory.getCurrentSession();
 			trans = session.beginTransaction();
 			session.doWork(conn -> {
 				String sql = String.format("select %s From %s where %s=? and %s is not null and trim(%s) != ''",
@@ -230,7 +228,7 @@ public class WorkDAOImpl implements WorkDAO {
 			trans.commit();
 			return rlt;
 		} catch (Exception e) {
-			throw processDBExcpetion(trans, session, e);
+			throw processDBException(trans, session, e);
 		}
 	}
 	
@@ -245,7 +243,7 @@ public class WorkDAOImpl implements WorkDAO {
 		Session session = null;
 		Transaction trans = null;
 		try {
-			session = hbFactory.getCurrentSession();
+			session = sessionFactory.getCurrentSession();
 			trans = session.beginTransaction();
 			session.doWork(conn -> {
 				String theManySql = planIds.stream().map(val -> val.toString()).collect(Collectors.joining(","));
@@ -265,18 +263,18 @@ public class WorkDAOImpl implements WorkDAO {
 			trans.commit();
 			return rlt;
 		} catch (Exception e) {
-			throw processDBExcpetion(trans, session, e);
+			throw processDBException(trans, session, e);
 		}
 	}
 
 	@Override
 	public long countWorkSheetByOwnerAndPlanId(long ownerId, long planId) throws DBException {
-		return countEntitiesByBiFields(WorkSheet.class,SMDB.F_OWNER_ID,ownerId, SMDB.F_PLAN_ID,planId, hbFactory);
+		return countEntitiesByBiFields(WorkSheet.class,SMDB.F_OWNER_ID,ownerId, SMDB.F_PLAN_ID,planId, sessionFactory);
 	}
 
 	@Override
 	public List<WorkSheet> selectWorkSheetsByOwnerAndDateScope(long ownerId, Calendar startDate, Calendar endDate) throws DBException {
-		return selectEntitiesByDateScopeAndField(WorkSheet.class, SMDB.F_DATE, startDate, endDate, SMDB.F_OWNER_ID, ownerId, hbFactory);
+		return selectEntitiesByDateScopeAndField(WorkSheet.class, SMDB.F_DATE, startDate, endDate, SMDB.F_OWNER_ID, ownerId, sessionFactory);
 	}
 
 

@@ -1,6 +1,5 @@
 package manager.dao.tool.impl;
 
-import static manager.util.DBUtil.getHibernateSessionFactory;
 import static manager.util.DBUtil.insertEntity;
 import static manager.util.DBUtil.selectAllEntities;
 import static manager.util.DBUtil.selectUniqueExistedEntityByField;
@@ -15,30 +14,34 @@ import manager.entity.general.tool.ToolRecord;
 import manager.exception.DBException;
 import manager.system.SMDB;
 import manager.system.tool.Tool;
+import org.springframework.stereotype.Repository;
 
+import javax.annotation.Resource;
+@Repository
 public class ToolDAOImpl implements ToolDAO {
 
-	private final SessionFactory hbFactory = getHibernateSessionFactory();
+	@Resource
+	private SessionFactory sessionFactory;
 
 	@Override
 	public long insertToolRecord(ToolRecord record) throws DBException {
-		return insertEntity(record, hbFactory);
+		return insertEntity(record, sessionFactory);
 	}
 
 	@Override
 	public void updateExistedToolRecord(ToolRecord record) throws DBException {
-		updateExistedEntity(record, hbFactory);
+		updateExistedEntity(record, sessionFactory);
 		
 	}
 
 	@Override
 	public List<ToolRecord> selectAllToolRecords() throws DBException {
-		return selectAllEntities(ToolRecord.class, hbFactory);
+		return selectAllEntities(ToolRecord.class, sessionFactory);
 	}
 
 	@Override
 	public ToolRecord selectToolRecordByTool(Tool tool) throws DBException {
-		return selectUniqueExistedEntityByField(ToolRecord.class, SMDB.F_TOOL, tool, hbFactory);
+		return selectUniqueExistedEntityByField(ToolRecord.class, SMDB.F_TOOL, tool, sessionFactory);
 	}
 	
 	

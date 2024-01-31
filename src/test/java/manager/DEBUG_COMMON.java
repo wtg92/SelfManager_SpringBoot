@@ -1,14 +1,22 @@
 package manager;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import org.junit.Test;
 
 import java.time.ZoneId;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 public class DEBUG_COMMON {
+
+    @Test
+    public void testTime(){
+        long t1 = System.currentTimeMillis();
+        long t2 = Calendar.getInstance().getTime().getTime();
+        System.out.println(t2-t1);
+    }
 
     @Test
     public void test15() {

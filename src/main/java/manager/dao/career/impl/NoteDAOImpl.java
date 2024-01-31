@@ -3,20 +3,17 @@ package manager.dao.career.impl;
 import static manager.util.DBUtil.countEntitiesByField;
 import static manager.util.DBUtil.deleteEntitiesByField;
 import static manager.util.DBUtil.deleteEntity;
-import static manager.util.DBUtil.getHibernateSessionFactory;
 import static manager.util.DBUtil.includeEntitiesByField;
 import static manager.util.DBUtil.insertEntity;
-import static manager.util.DBUtil.processDBExcpetion;
 import static manager.util.DBUtil.selectEntitiesByField;
 import static manager.util.DBUtil.selectEntity;
 import static manager.util.DBUtil.selectUniqueEntityByField;
 import static manager.util.DBUtil.updateExistedEntity;
-
+import static manager.util.DBUtil.processDBException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,7 +29,6 @@ import manager.exception.DBException;
 import manager.exception.NoSuchElement;
 import manager.system.SMDB;
 import manager.util.TimeUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
@@ -41,52 +37,52 @@ import javax.annotation.Resource;
 public class NoteDAOImpl implements NoteDAO {
 	
 	@Resource
-	private SessionFactory hbFactory;
+	private SessionFactory sessionFactory;
 	
 	@Override
 	public long insertNoteBook(NoteBook book) throws DBException {
-		return insertEntity(book, hbFactory);
+		return insertEntity(book, sessionFactory);
 	}
 
 	@Override
 	public long insertNote(Note note) throws DBException {
-		return insertEntity(note, hbFactory);
+		return insertEntity(note, sessionFactory);
 	}
 
 	@Override
 	public long insertMemo(Memo memo) throws DBException {
-		return insertEntity(memo, hbFactory);
+		return insertEntity(memo, sessionFactory);
 	}
 
 	@Override
 	public NoteBook selectNoteBook(long id) throws NoSuchElement, DBException {
-		return selectEntity(id,NoteBook.class, hbFactory);
+		return selectEntity(id,NoteBook.class, sessionFactory);
 	}
 
 	@Override
 	public Note selectNote(long id) throws NoSuchElement, DBException {
-		return selectEntity(id,Note.class, hbFactory);
+		return selectEntity(id,Note.class, sessionFactory);
 	}
 
 	@Override
 	public Memo selectMemoByOwner(long ownerId) throws NoSuchElement, DBException {
-		return selectUniqueEntityByField(Memo.class, SMDB.F_OWNER_ID, ownerId, hbFactory);
+		return selectUniqueEntityByField(Memo.class, SMDB.F_OWNER_ID, ownerId, sessionFactory);
 	}
 	
 	@Override
 	public void updateExistedNoteBook(NoteBook book) throws DBException {
-		updateExistedEntity(book, hbFactory);
+		updateExistedEntity(book, sessionFactory);
 		
 	}
 
 	@Override
 	public void updateExistedNote(Note note) throws DBException {
-		updateExistedEntity(note, hbFactory);
+		updateExistedEntity(note, sessionFactory);
 	}
 	
 	@Override
 	public void updateExistedMemo(Memo memo) throws DBException {
-		updateExistedEntity(memo, hbFactory);
+		updateExistedEntity(memo, sessionFactory);
 	}
 	
 	@Override
@@ -95,7 +91,7 @@ public class NoteDAOImpl implements NoteDAO {
 		Transaction trans = null;
 		note.setUpdateTime(TimeUtil.getCurrentTime());
 		try {
-			session = hbFactory.getCurrentSession();
+			session = sessionFactory.getCurrentSession();
 			trans = session.beginTransaction();
 			session.doWork(conn -> {
 				String sql = String.format("UPDATE %s SET %s=? ,%s=?, %s=? , %s=? WHERE %s=?",
@@ -112,24 +108,24 @@ public class NoteDAOImpl implements NoteDAO {
 			});
 			trans.commit();
 		} catch (Exception e) {
-			throw processDBExcpetion(trans, session, e);
+			throw processDBException(trans, session, e);
 		}
 	}
 	
 	
 	@Override
 	public List<NoteBook> selectBooksByOwner(long ownerId) throws DBException {
-		return selectEntitiesByField(NoteBook.class, SMDB.F_OWNER_ID, ownerId, hbFactory);
+		return selectEntitiesByField(NoteBook.class, SMDB.F_OWNER_ID, ownerId, sessionFactory);
 	}
 
 	@Override
 	public void deleteExistedNoteBook(long bookId) throws DBException {
-		deleteEntity(NoteBook.class, bookId, hbFactory);
+		deleteEntity(NoteBook.class, bookId, sessionFactory);
 	}
 
 	@Override
 	public void deleteExistedNote(long noteId) throws DBException {
-		deleteEntity(Note.class, noteId, hbFactory);
+		deleteEntity(Note.class, noteId, sessionFactory);
 	}
 	
 	
@@ -139,7 +135,7 @@ public class NoteDAOImpl implements NoteDAO {
 		Session session = null;
 		Transaction trans = null;
 		try {
-			session = hbFactory.getCurrentSession();
+			session = sessionFactory.getCurrentSession();
 			trans = session.beginTransaction();
 			session.doWork(conn -> {
 				String sql = String.format("SELECT %s,%s,%s FROM %s WHERE %s=? and %s=?",
@@ -163,7 +159,7 @@ public class NoteDAOImpl implements NoteDAO {
 			trans.commit();
 			return rlt;
 		} catch (Exception e) {
-			throw processDBExcpetion(trans, session, e);
+			throw processDBException(trans, session, e);
 		}
 	}
 	
@@ -173,7 +169,7 @@ public class NoteDAOImpl implements NoteDAO {
 		Session session = null;
 		Transaction trans = null;
 		try {
-			session = hbFactory.getCurrentSession();
+			session = sessionFactory.getCurrentSession();
 			trans = session.beginTransaction();
 			session.doWork(conn -> {
 				String sql = String.format("SELECT %s,%s,%s,%s,%s,%s FROM %s WHERE %s=?",
@@ -198,23 +194,23 @@ public class NoteDAOImpl implements NoteDAO {
 			trans.commit();
 			return rlt;
 		} catch (Exception e) {
-			throw processDBExcpetion(trans, session, e);
+			throw processDBException(trans, session, e);
 		}
 	}
 
 	@Override
 	public Long countNotesByBook(long noteBookId) throws DBException {
-		return countEntitiesByField(Note.class, SMDB.F_NOTE_BOOK_ID, noteBookId, hbFactory);
+		return countEntitiesByField(Note.class, SMDB.F_NOTE_BOOK_ID, noteBookId, sessionFactory);
 	}
 
 	@Override
 	public boolean includeNotesByBook(long noteBookId) throws DBException {
-		return includeEntitiesByField(Note.class, SMDB.F_NOTE_BOOK_ID, noteBookId, hbFactory);
+		return includeEntitiesByField(Note.class, SMDB.F_NOTE_BOOK_ID, noteBookId, sessionFactory);
 	}
 
 	@Override
 	public void deleteNotesByBook(long bookId) throws DBException {
-		deleteEntitiesByField(Note.class, SMDB.F_NOTE_BOOK_ID, bookId, hbFactory);
+		deleteEntitiesByField(Note.class, SMDB.F_NOTE_BOOK_ID, bookId, sessionFactory);
 	}
 
 	@Override
@@ -227,7 +223,7 @@ public class NoteDAOImpl implements NoteDAO {
 		Session session = null;
 		Transaction trans = null;
 		try {
-			session = hbFactory.getCurrentSession();
+			session = sessionFactory.getCurrentSession();
 			trans = session.beginTransaction();
 			session.doWork(conn -> {
 				String theManySql = ids.stream().map(val -> val.toString()).collect(Collectors.joining(","));
@@ -247,7 +243,7 @@ public class NoteDAOImpl implements NoteDAO {
 			trans.commit();
 			return rlt;
 		} catch (Exception e) {
-			throw processDBExcpetion(trans, session, e);
+			throw processDBException(trans, session, e);
 		}
 	}
 
@@ -261,7 +257,7 @@ public class NoteDAOImpl implements NoteDAO {
 		Session session = null;
 		Transaction trans = null;
 		try {
-			session = hbFactory.getCurrentSession();
+			session = sessionFactory.getCurrentSession();
 			trans = session.beginTransaction();
 			session.doWork(conn -> {
 				String theManySql = ids.stream().map(val -> val.toString()).collect(Collectors.joining(","));
@@ -281,7 +277,7 @@ public class NoteDAOImpl implements NoteDAO {
 			trans.commit();
 			return rlt;
 		} catch (Exception e) {
-			throw processDBExcpetion(trans, session, e);
+			throw processDBException(trans, session, e);
 		}
 	}
 

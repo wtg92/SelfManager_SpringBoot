@@ -2,12 +2,9 @@ package manager.dao.finance.impl;
 
 import java.util.logging.Logger;
 
-import org.neo4j.driver.Session;
-import org.neo4j.driver.Transaction;
 
 import manager.dao.finance.FinanceDAO;
 import manager.exception.DBException;
-import manager.util.Neo4jUtil;
 
 public class FinanceDAOImpl implements FinanceDAO {
 
@@ -27,11 +24,11 @@ public class FinanceDAOImpl implements FinanceDAO {
 	
 	@Override
 	public void test() throws DBException {
-		try(Session session = Neo4jUtil.getDriver().session()){
-			Transaction trans = session.beginTransaction();
-			long countInsearted = 0;
-			
-		}
+//		try(Session session = Neo4jUtil.getDriver().session()){
+//			Transaction trans = session.beginTransaction();
+//			long countInsearted = 0;
+//
+//		}
 	}
 	
 	
