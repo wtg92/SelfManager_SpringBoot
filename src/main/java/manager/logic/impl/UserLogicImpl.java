@@ -12,6 +12,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.alibaba.fastjson2.JSON;
 import manager.dao.DAOFactory;
 import manager.dao.UserDAO;
 import manager.data.UserSummary;
@@ -64,7 +65,7 @@ public class UserLogicImpl extends UserLogic {
 		}
 		ThrowableSupplier<List<Long>, DBException> userGroupGenerator = ()-> uDAO.selectGroupsByUser(userId);
 		List<Long> groupsId = CacheScheduler.getRIds(CacheMode.R_ONE_TO_MANY_FORMER,SMDB.T_R_USER_GROUP,userId,userGroupGenerator);
-		
+		System.out.println("UserLogicImpl.hasPerm"+ JSON.toJSON(groupsId));
 		for(Long groupId : groupsId) {
 			ThrowableSupplier<List<Integer>, DBException> groupPermGenerator = ()-> uDAO.selectPermsByGroup(groupId);
 			List<Integer> permsId = CacheScheduler.getRIdsInInt(CacheMode.R_ONE_TO_MANY_FORMER, SMDB.T_R_GROUP_PERM, groupId, groupPermGenerator);
@@ -160,7 +161,7 @@ public class UserLogicImpl extends UserLogic {
 	}
 
 	@Override
-	public User getUser(long userId) throws LogicException, DBException {
+	public User getUser(long userId){
 		ThrowableSupplier<User, DBException> generator = ()-> uDAO.selectExistedUser(userId);
 		return CacheScheduler.getOne(CacheMode.E_ID,userId,User.class,generator);
 	}

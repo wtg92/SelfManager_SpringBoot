@@ -47,17 +47,18 @@ import manager.system.career.WorkSheetState;
 import manager.util.TimeUtil;
 import manager.util.ZonedTimeUtils;
 
+import javax.annotation.Resource;
+
 public abstract class WorkLogic{
-	
+
+	@Resource
+	protected UserLogic uL;
 	final private static Logger logger = Logger.getLogger(WorkLogic.class.getName());
 
 	private static WorkLogic instance = null;
-	
-	protected UserLogic uL = UserLogic.getInstance();
 
 	public static int DEFAULT_WS_LIMIT_OF_ONE_PAGE = 20;
-	
-	
+
 	/**
 	 * 检验权限
 	 * 需要有Log
@@ -202,7 +203,7 @@ public abstract class WorkLogic{
 		}
 		return instance;
 	}
-	
+
 	
 	protected static List<WorkSheetProxy> clearUnnecessaryInfo(List<WorkSheetProxy> base){
 		base.forEach(WorkLogic::clearUnnecessaryInfo);

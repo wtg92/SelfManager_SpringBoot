@@ -115,19 +115,15 @@ public class WorkDAOImpl implements WorkDAO {
 
 	@Override
 	public List<WorkSheet> selectWorkSheetInfoRecentlyByOwner(long ownerId, long page,long limit) throws DBException {
-		List<WorkSheet> rlt = new ArrayList<WorkSheet>();
-		Session session = null;
-		Transaction trans = null;
-		try {
-			session = sessionFactory.getCurrentSession();
-			trans = session.beginTransaction();
+		List<WorkSheet> rlt = new ArrayList<>();
+		sessionFactory.inStatelessSession(session->{
 			session.doWork(conn -> {
 				String sql = String.format("SELECT %s,%s,%s FROM %s WHERE %s=? ORDER BY %s DESC LIMIT %s,%s",
 						SMDB.F_ID,SMDB.F_DATE,SMDB.F_STATE,
 						SMDB.T_WORK_SHEET, SMDB.F_OWNER_ID,SMDB.F_DATE,(page*limit),limit);
 				try (PreparedStatement ps = conn.prepareStatement(sql)) {
 					ps.setLong(1, ownerId);
-					
+
 					ResultSet rs = ps.executeQuery();
 					while(rs.next()) {
 						WorkSheet ws =new WorkSheet();
@@ -140,11 +136,8 @@ public class WorkDAOImpl implements WorkDAO {
 					}
 				}
 			});
-			trans.commit();
-			return rlt;
-		} catch (Exception e) {
-			throw processDBException(trans, session, e);
-		}
+		});
+		return rlt;
 	}
 
 	@Override

@@ -12,6 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.alibaba.fastjson2.JSON;
 import jakarta.persistence.OptimisticLockException;
 import jakarta.persistence.TypedQuery;
 import org.hibernate.Session;
@@ -442,9 +443,8 @@ public abstract class DBUtil {
 				String rSql = argIds1.stream().map(argId1 ->
 					"(null," + argId1 + "," + argId2 + ")"
 				).collect(Collectors.joining(","));
-				one.createNativeQuery("INSERT INTO ? values ?",Object.class)
-						.setParameter(1,tableName)
-						.setParameter(2,rSql)
+				one.createNativeQuery("INSERT INTO "+tableName+" values ?",Object.class)
+						.setParameter(1,rSql)
 						.executeUpdate();
 			} catch (Exception e) {
 				throw processDBException(e);
@@ -508,12 +508,11 @@ public abstract class DBUtil {
 		String theManySql = theManyIds.stream().map(String::valueOf).collect(Collectors.joining(","));
 		hbFactory.fromTransaction(session ->{
 			try {
-				return session.createNativeQuery("DELETE FROM ? WHERE (? in (?)) and ?=?  ", Long.class)
-					.setParameter(1, tableName)
-					.setParameter(2, fieldForTheMany)
-					.setParameter(3, theManySql)
-					.setParameter(4, fieldForTheOne)
-					.setParameter(5, theOneId)
+				return session.createNativeQuery("DELETE FROM "+tableName+" WHERE (? in (?)) and ?=?  ", Long.class)
+					.setParameter(1, fieldForTheMany)
+					.setParameter(2, theManySql)
+					.setParameter(3, fieldForTheOne)
+					.setParameter(4, theOneId)
 					.executeUpdate();
 			} catch (Exception e) {
 				throw processDBException(e);
@@ -524,11 +523,8 @@ public abstract class DBUtil {
 			long theOneId, SessionFactory hbFactory) throws DBException {
 			return hbFactory.fromStatelessSession(session->{
 				try {
-					return session.createNativeQuery("SELECT ? FROM ? WHERE ? = ?  ", Long.class)
-							.setParameter(1, fieldForTheMany)
-							.setParameter(2, tableName)
-							.setParameter(3, fieldForTheOne)
-							.setParameter(4,theOneId)
+					return session.createNativeQuery("SELECT "+fieldForTheMany+" FROM "+tableName+" WHERE "+fieldForTheOne+" = ?  ", Long.class)
+							.setParameter(1,theOneId)
 							.getResultList();
 				} catch (Exception e) {
 					throw processDBException(e);
