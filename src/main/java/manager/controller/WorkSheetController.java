@@ -1,5 +1,6 @@
 package manager.controller;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import manager.data.proxy.career.PlanProxy;
 import manager.entity.general.career.Plan;
@@ -89,6 +90,14 @@ public class WorkSheetController {
         return wL.loadPlanDeptItemNames(loginId);
     }
 
+    @GetMapping(PLAN_PATH+"/tags")
+    public List<String> loadAllPlanTagsByUser(
+            @RequestHeader("Authorization") String authorizationHeader) {
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        return wL.loadAllPlanTagsByUser(loginId);
+    }
+
+
     @PostMapping(PLAN_PATH+"/copyPlanItemsById")
     private void copyPlanItemsById( @RequestHeader("Authorization") String authorizationHeader
             , @RequestBody JSONObject param ){
@@ -120,6 +129,19 @@ public class WorkSheetController {
         int planId = param.getInteger(ID);
         wL.syncPlanTagsToWorkSheet(loginId, planId);
     }
+
+
+    @PostMapping(PLAN_PATH+"/tags/reset")
+    private void resetPlanTags( @RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody JSONObject param ){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        int planId = param.getInteger(ID);
+        List<String> tags = param.getList(TAGS,String.class);
+        wL.resetPlanTags(loginId, planId,tags);
+    }
+
+
+
 
     @PostMapping(PLAN_PATH+"/item")
     private void postPlanItem( @RequestHeader("Authorization") String authorizationHeader

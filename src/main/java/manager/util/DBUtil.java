@@ -223,14 +223,15 @@ public abstract class DBUtil {
 		});
 	}
 
-	public static long countByBiFields(String tableName, String field1, Object val1,String field2,Object val2,SessionFactory hbFactory) throws DBException {
+	public static long  countByBiFields(String tableName, String field1, Object val1,String field2,Object val2,SessionFactory hbFactory) throws DBException {
 		return hbFactory.fromStatelessSession(session->{
 			try {
-				String sql = String.format("SELECT COUNT(*) FROM %s WHERE %s=? and %s=?", tableName, field1,field2);
-				return session.createQuery(sql, Long.class)
+				String sql = String.format("SELECT COUNT(*) FROM %s WHERE %s=? and %s=?"
+						, tableName, field1,field2);
+				return session.createNativeQuery(sql, Long.class)
 						.setParameter(1, CommonUtil.pretreatForString(val1))
 						.setParameter(2, CommonUtil.pretreatForString(val2))
-						.getSingleResult();
+						.uniqueResult();
 			} catch (Exception e) {
 				throw processDBException(e);
 			}
@@ -242,7 +243,7 @@ public abstract class DBUtil {
 		return hbFactory.fromStatelessSession(session->{
 			try {
 				String sql = String.format("SELECT COUNT(*) FROM %s WHERE %s=?", tableName, fieldName);
-				return session.createQuery(sql, Long.class)
+				return session.createNativeQuery(sql, Long.class)
 						.setParameter(1, CommonUtil.pretreatForString(val))
 						.getSingleResult();
 			} catch (Exception e) {
@@ -478,10 +479,8 @@ public abstract class DBUtil {
 
 		return hbFactory.fromTransaction(session ->{
 			try {
-				return session.createNativeQuery("DELETE FROM ? WHERE ?=?  ", Long.class)
-								.setParameter(1, CommonUtil.getEntityTableName(cla))
-								.setParameter(2, field)
-								.setParameter(3, val)
+				return session.createNativeQuery("DELETE FROM "+CommonUtil.getEntityTableName(cla)+" WHERE "+field+"=?  ", Long.class)
+								.setParameter(1, val)
 								.executeUpdate();
 			} catch (Exception e) {
 				throw processDBException(e);

@@ -26,7 +26,6 @@ import manager.system.converter.TagsConverter;
 @DynamicInsert
 @DynamicUpdate
 public class Plan extends SMGeneralEntity {
-	private static final long serialVersionUID = -2783464030882407249L;
 
 	@Column
 	private String timezone;
