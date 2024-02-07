@@ -31,10 +31,16 @@ public class WorkSheet extends SMGeneralEntity {
 	@Column
 	@Deprecated
 	private Calendar updateTime;
+	@Column
+	@Deprecated
+	private Calendar date;
 
 	@Column
-	private Calendar date;
-	
+	private String timezone;
+
+	@Column
+	private Long dateUtc;
+
 	@Column
 	private String content;
 	
@@ -60,6 +66,22 @@ public class WorkSheet extends SMGeneralEntity {
 	private List<EntityTag> tags;
 	
 	public WorkSheet() {}
+
+	public String getTimezone() {
+		return timezone;
+	}
+
+	public void setTimezone(String timezone) {
+		this.timezone = timezone;
+	}
+
+	public Long getDateUtc() {
+		return dateUtc;
+	}
+
+	public void setDateUtc(Long dateUtc) {
+		this.dateUtc = dateUtc;
+	}
 
 	public Calendar getCreateTime() {
 		return createTime;

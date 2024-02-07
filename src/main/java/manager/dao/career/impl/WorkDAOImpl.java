@@ -4,7 +4,7 @@ import static manager.util.DBUtil.countEntitiesByBiFields;
 import static manager.util.DBUtil.countEntitiesByRange;
 import static manager.util.DBUtil.deleteEntity;
 import static manager.util.DBUtil.includeEntitiesByField;
-import static manager.util.DBUtil.includeUniqueEntityByBiFields;
+import static manager.util.DBUtil.includeUniqueEntityByTriFields;
 import static manager.util.DBUtil.insertEntity;
 import static manager.util.DBUtil.processDBException;
 import static manager.util.DBUtil.selectEntitiesByDateScopeAndField;
@@ -99,8 +99,12 @@ public class WorkDAOImpl implements WorkDAO {
 	}
 
 	@Override
-	public boolean includeUniqueWorkSheetByOwnerAndDate(long ownerId, Calendar date) throws DBException {
-		return includeUniqueEntityByBiFields(WorkSheet.class,SMDB.F_OWNER_ID,ownerId,SMDB.F_DATE,date, sessionFactory);
+	public boolean includeUniqueWorkSheetByOwnerAndDateAndTimezone(long ownerId,long date,String timezone) throws DBException {
+		return includeUniqueEntityByTriFields(WorkSheet.class
+				,SMDB.F_OWNER_ID,ownerId
+				,SMDB.F_DATE_UTC,date
+				,SMDB.F_TIMEZONE,timezone
+				, sessionFactory);
 	}
 
 	@Override
@@ -118,9 +122,9 @@ public class WorkDAOImpl implements WorkDAO {
 		List<WorkSheet> rlt = new ArrayList<>();
 		sessionFactory.inStatelessSession(session->{
 			session.doWork(conn -> {
-				String sql = String.format("SELECT %s,%s,%s FROM %s WHERE %s=? ORDER BY %s DESC LIMIT %s,%s",
-						SMDB.F_ID,SMDB.F_DATE,SMDB.F_STATE,
-						SMDB.T_WORK_SHEET, SMDB.F_OWNER_ID,SMDB.F_DATE,(page*limit),limit);
+				String sql = String.format("SELECT %s,%s,%s,%s FROM %s WHERE %s=? ORDER BY %s DESC LIMIT %s,%s",
+						SMDB.F_ID,SMDB.F_DATE_UTC,SMDB.F_STATE,SMDB.F_TIMEZONE,
+						SMDB.T_WORK_SHEET, SMDB.F_OWNER_ID,SMDB.F_DATE_UTC,(page*limit),limit);
 				try (PreparedStatement ps = conn.prepareStatement(sql)) {
 					ps.setLong(1, ownerId);
 
@@ -128,10 +132,9 @@ public class WorkDAOImpl implements WorkDAO {
 					while(rs.next()) {
 						WorkSheet ws =new WorkSheet();
 						ws.setId(rs.getLong(1));
-						Calendar date = Calendar.getInstance();
-						date.setTime(rs.getDate(2));
-						ws.setDate(date);
+						ws.setDateUtc(rs.getLong(2));
 						ws.setState(WorkSheetState.valueOfDBCode(rs.getInt(3)));
+						ws.setTimezone(rs.getString(4));
 						rlt.add(ws);
 					}
 				}

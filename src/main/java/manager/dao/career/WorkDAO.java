@@ -20,8 +20,9 @@ public interface WorkDAO {
 	long insertPlanDept(PlanDept dept) throws DBException;
 	
 	Plan selectPlan(long id) throws NoSuchElement, DBException;
-	List<Plan> selectPlansByOwnerAndStates(long ownerId,List<PlanState> states) throws DBException;
-	List<WorkSheet> selectWorkSheetByOwnerAndStates(long ownerId,List<WorkSheetState> states) throws DBException;
+	List<Plan> selectPlansByOwnerAndStates(long ownerId,List<PlanState> states);
+
+	List<WorkSheet> selectWorkSheetByOwnerAndStates(long ownerId,List<WorkSheetState> states);
 	long countPlansByOwnerAndState(long ownerId,PlanState state) throws DBException;
 	long countWorkSheetByOwnerAndState(long ownerId,WorkSheetState state) throws DBException;
 	long countWorkSheetByOwnerAndPlanId(long ownerId,long planId) throws DBException;
@@ -63,8 +64,10 @@ public interface WorkDAO {
 	List<Plan> selectPlansByField(String field, Object val) throws DBException;
 	List<WorkSheet> selectWorkSheetByField(String field, Object val) throws DBException;
 	
-	boolean includeUniqueWorkSheetByOwnerAndDate(long ownerId,Calendar date) throws DBException;
-	
+
+	boolean includeUniqueWorkSheetByOwnerAndDateAndTimezone(long ownerId,long date,String timezone);
+
+
 	/*只查询date排序的最新几条 id state date三个字段*/
 	/*page从0开始*/
 	List<WorkSheet> selectWorkSheetInfoRecentlyByOwner(long ownerId,long page,long limit) throws DBException;

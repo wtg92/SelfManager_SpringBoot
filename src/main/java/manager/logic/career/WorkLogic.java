@@ -96,6 +96,10 @@ public abstract class WorkLogic{
 	 */
 	public abstract List<Plan> loadActivePlans(long loginerId) throws LogicException, DBException;
 	public abstract void calculatePlanStatesRoutinely(long loginId);
+
+	public abstract void calculateWorksheetStatesRoutinely(long loginId);
+
+
 	/**
 	 * @return key state.dbCode.toString value count
 	 */
@@ -110,12 +114,10 @@ public abstract class WorkLogic{
 	public abstract PlanProxy loadPlan(long loginerId,long planId) throws LogicException, DBException;
 	
 	/**
-	 * dao 只取三个字段 id date state 
+	 * dao 取四个字段 id dateUtc state timezone
 	 *  对于取出来Active的WS(不包括今天) 进行状态计算
-	 * 不用缓存
+	 *  								2024-02-07
 	 * @param page 从0开始
-	 * @return 只包含 id date state信息 state的信息不一定准确
-	 * @throws LogicException 
 	 */
 	public abstract List<WorkSheet> loadWorkSheetInfosRecently(long opreatorId,int page) throws DBException, LogicException;
 	
@@ -220,7 +222,6 @@ public abstract class WorkLogic{
 	/**
 	 * state 即便为ABANDON（用户手动废除）/Finished(时间到了或手动完成) 也会根据日期重新计算 假如不想令其其计算，应当上层处理
 	 * plan的endDate is null 意味着永远实行
-	 * 
 	 *  应当是只有在savePlan 和 loadActivePlans时触发状态的重新计算，如果Abandon ， 前者不会触发计算，后者通过用户选择来决定是否重新计算
 	 * 
 	 */
@@ -281,23 +282,28 @@ public abstract class WorkLogic{
 	 *  假如今天比date还早 报一条errorLog（古怪数据）
 	 *  假如这一天所有的planItem的remaingVal等于0 认为完成
 	 *  >0  今天超过 则超期 <0 则进行中
-	 *  
+	 *
+	 *  ABCD
 	 *   
 	 * @throws LogicException 
 	 */
-	protected static WorkSheetState calculateStateByNow(WorkSheet workSheet,WorkSheetContent contentWithDetail) throws LogicException {
+	protected static WorkSheetState calculateStateByNow(WorkSheet workSheet,WorkSheetContent contentWithDetail){
+
+		ZoneId zone = ZoneId.of(workSheet.getTimezone());
+
 		if(contentWithDetail.planItems.stream().allMatch(planItem->planItem.remainingValForCur == 0)) {
 			return WorkSheetState.FINISHED;
 		}
 		if(contentWithDetail.planItems.stream().anyMatch(planItem->planItem.remainingValForCur > 0)) {
-			Calendar today = TimeUtil.getCurrentDate();
-			if(TimeUtil.isAfterByDate(today, workSheet.getDate())) {
+			ZonedDateTime today = ZonedTimeUtils.getCurrentDate(zone);
+			ZonedDateTime date = Instant.ofEpochMilli(workSheet.getDateUtc()).atZone(zone);
+			if(ZonedTimeUtils.isAfterByDate(today,date)) {
 				return WorkSheetState.OVERDUE;
 			}
-			if(TimeUtil.isBeforeByDate(today, workSheet.getDate())) {
-				logger.log(Level.WARNING,"诡异的数据，今天在workSheet的date之前",TimeUtil.parseDate(today)+" vs "+TimeUtil.parseDate(workSheet.getDate()));
+			if(ZonedTimeUtils.isBeforeByDate(today, date)) {
+				logger.log(Level.WARNING,"诡异的数据，今天在workSheet的date之前"
+						,ZonedTimeUtils.parseDate(today)+" vs "+ZonedTimeUtils.parseDate(date));
 			}
-			
 			return WorkSheetState.ACTIVE;
 		}
 		

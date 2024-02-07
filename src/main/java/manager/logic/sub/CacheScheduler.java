@@ -351,10 +351,10 @@ public abstract class CacheScheduler {
 		deletor.accept(entity.getId());
 		deleteEntityByIdOnlyForCache(entity);
 	}
-	
-	
-	public static boolean deleteTempKey(CacheMode mode, Object identifier) {
-		String key = createTempKey(mode, pretreatForString(identifier).toString());
+
+
+	public static boolean deleteTempKey(CacheMode mode, Object ...identifier) {
+		String key = createTempKey(mode, identifier);
 		if(!USING_REDIS_CACHE ) {
 			redisSubstitute.remove(key);
 			return true;

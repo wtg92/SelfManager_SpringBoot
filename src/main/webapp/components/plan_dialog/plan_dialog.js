@@ -123,7 +123,7 @@ $(function(){
         .on("click",".plan_item_unfold_btn",unfoldPlanItemFoldBtn)
         //DONE
         .on("click",".plan_item_save_fold_info",savePlanItemFoldInfo);
-
+    //DONE
     $("#plan_dialog_basic_unit_container_edit_btn").click(openPlanTagEditDialog);
 })
 

@@ -21,7 +21,8 @@ const WS_NAMESPACE = {
 
 /**为了解耦，这里关于WS.planItems的部分多数是从plan_dialog.js copy过来的 当修改时，应当修改两处地方 */
 $(function(){
-
+    //理论上不需要了 我现在需要实时保存
+    //DONE
     window.onbeforeunload = ()=>{
         saveChangedWorkItemUnits();
     };
@@ -39,7 +40,7 @@ $(function(){
 
 
     $("body").on("keydown",monitorHotKeys);
-
+    //TODO
     $(".work_sheet_switch_to_show_ws_note").click(switchToShowWSNote);
     $(".work_sheet_switch_to_show_today_plan_main_container").click(switchToShowTodayPlan);
     $("#work_note_textarea").change(saveWorkSheet).on("focus",lockSaveWorkItem).on("blur",unlockSaveWorkItem);

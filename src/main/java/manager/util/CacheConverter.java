@@ -3,7 +3,9 @@ package manager.util;
 import static java.util.stream.Collectors.joining;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import manager.system.CacheMode;
 import manager.system.SM;
@@ -41,18 +43,21 @@ public abstract class CacheConverter {
 			throw new RuntimeException("未配置的缓存模型 "+mode);
 		}
 	}
-	public static String createTempKey(CacheMode mode,String identifier) {
+	public static String createTempKey(CacheMode mode, Object ...identifier) {
+		String identifierStr = Arrays.stream(identifier)
+				.map(Object::toString)
+				.collect(Collectors.joining(SPLIT_CHAR));
 		switch(mode) {
 		case T_USER:
-			return TEMP_PREFIX+SPLIT_CHAR+"user"+SPLIT_CHAR+identifier;
+			return TEMP_PREFIX+SPLIT_CHAR+"user"+SPLIT_CHAR+identifierStr;
 		case T_WS_COUNT_FOR_DATE:
-			return TEMP_PREFIX+SPLIT_CHAR+"ws"+SPLIT_CHAR+identifier;
+			return TEMP_PREFIX+SPLIT_CHAR+"ws"+SPLIT_CHAR+identifierStr;
 		case T_EMAIL_FOR_SIGN_IN:
-			return TEMP_PREFIX+SPLIT_CHAR+"email"+SPLIT_CHAR+identifier;
+			return TEMP_PREFIX+SPLIT_CHAR+"email"+SPLIT_CHAR+identifierStr;
 		case T_TEL_FOR_SIGN_IN:
-			return TEMP_PREFIX+SPLIT_CHAR+"tel"+SPLIT_CHAR+identifier;
+			return TEMP_PREFIX+SPLIT_CHAR+"tel"+SPLIT_CHAR+identifierStr;
 		case T_UNIQUE_OBJ:
-			return TEMP_PREFIX+SPLIT_CHAR+"uni"+SPLIT_CHAR+identifier;
+			return TEMP_PREFIX+SPLIT_CHAR+"uni"+SPLIT_CHAR+identifierStr;
 		default:
 			assert false : mode;
 		throw new RuntimeException("未配置的缓存模型 "+mode);

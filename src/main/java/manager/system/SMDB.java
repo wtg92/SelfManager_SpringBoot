@@ -52,6 +52,10 @@ public abstract class SMDB {
 	public static final String F_TAGS = "tags";
 	public static final String F_OWNER_ID = "owner_id";
 	public static final String F_DATE = "date";
+	public static final String F_DATE_UTC = "date_utc";
+
+	public static final String F_TIMEZONE = "timezone";
+
 	public static final String F_PLAN_ID = "plan_id";
 	public static final String F_NOTE_BOOK_ID = "note_book_id";
 	public static final String F_WITH_TODOS = "with_todos";

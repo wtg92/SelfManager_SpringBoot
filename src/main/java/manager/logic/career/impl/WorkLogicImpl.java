@@ -436,37 +436,30 @@ public class WorkLogicImpl extends WorkLogic{
 		updatePlanSynchronously(plan,loginId);
 	}
 
-	//TODO 和计划一样 去掉耦合功能的代码
+	@Override
+	public void calculateWorksheetStatesRoutinely(long loginId) {
+
+		locker.lockByUserAndClass(loginId,()->{
+			List<WorkSheet> toUpdate = wDAO.selectWorkSheetByOwnerAndStates(loginId
+							,List.of(WorkSheetState.ACTIVE)).stream()
+					.filter(one->calculateStateByNow(one) != one.getState())
+					.collect(Collectors.toList());
+
+			toUpdate.forEach(one->{
+				WorkSheetState stateByNow =  calculateStateByNow(one);
+				WorkContentConverter.addLog(one, CareerLogAction.WS_STATE_CHANGED_BY_DATE, SM.SYSTEM_ID,
+						one.getState().getDbCode(),
+						stateByNow.getDbCode());
+				one.setState(stateByNow);
+			});
+
+			CacheScheduler.saveInDBAndDeleteAllInCache(toUpdate, (p)->wDAO.updateExistedWorkSheet(p));
+		});
+	}
+
 	@Override
 	public List<WorkSheet> loadWorkSheetInfosRecently(long operateId, int page) throws DBException, LogicException {
-		List<WorkSheet> sheetInfos = wDAO.selectWorkSheetInfoRecentlyByOwner(operateId, page, DEFAULT_WS_LIMIT_OF_ONE_PAGE);
-		
-		List<WorkSheet> actives = sheetInfos.stream().filter(ws->ws.getState() == WorkSheetState.ACTIVE
-				&& TimeUtil.isNotSameByDate(ws.getDate(), TimeUtil.getCurrentDate())).collect(toList());
-		
-		List<WorkSheet> toSave = new ArrayList<WorkSheet>();
-		
-		for(WorkSheet active:actives) {
-			assert active.getState() == WorkSheetState.ACTIVE;
-			WorkSheet fullWs = wDAO.selectExistedWorkSheet(active.getId());
-			WorkSheetState stateByNow = calculateStateByNow(fullWs);
-			if(stateByNow == fullWs.getState()) {
-				continue;
-			}
-			
-			WorkContentConverter.addLog(fullWs, CareerLogAction.WS_STATE_CHANGED_BY_DATE, SM.SYSTEM_ID,
-					fullWs.getState().getDbCode(),
-					stateByNow.getDbCode());
-			
-			fullWs.setState(stateByNow);
-			toSave.add(fullWs);
-			
-			active.setState(stateByNow);
-		}
-		
-		CacheScheduler.saveInDBAndDeleteAllInCache(toSave, one->wDAO.updateExistedWorkSheet(one));
-		
-		return sheetInfos;
+		return wDAO.selectWorkSheetInfoRecentlyByOwner(operateId, page, DEFAULT_WS_LIMIT_OF_ONE_PAGE);
 	}
 	
 	
@@ -554,8 +547,10 @@ public class WorkLogicImpl extends WorkLogic{
 		});
 	}
 
+
+
 	@Override
-	public PlanProxy loadPlan(long loginId,long planId) throws LogicException, DBException {
+	public PlanProxy loadPlan(long loginId,long planId) {
 
 		Plan plan = getPlan(planId);
 
@@ -575,6 +570,7 @@ public class WorkLogicImpl extends WorkLogic{
 	/**
 	 * 所有的时间类型需要处理时区问题 因此改用utc时间戳的方式记载时间
 	 * TODO 最终处理数据问题
+	 * 处理之后 理论上说 本方法就没有了
 	 * @param plan
 	 */
 	public Plan tryToFixPlanTimeTypeIssue(Plan plan,long loginId) {
@@ -600,7 +596,6 @@ public class WorkLogicImpl extends WorkLogic{
 		}
 
 		if(shouldFixUtcBasedOnDate(plan.getEndUtc(),plan.getEndDate())){
-			System.out.println();
 			plan.setEndUtc(plan.getEndDate().getTime().getTime());
 			needToSave = true;
 		}
@@ -698,48 +693,43 @@ public class WorkLogicImpl extends WorkLogic{
 				.distinct().collect(toList());
 	}
 	
-	
 	@Override
-	public long openWorkSheetToday(long opreatorId, long planId) throws DBException, LogicException {
-		Calendar today = TimeUtil.getCurrentDate();
-		if(CacheScheduler.existsByBiFields(CacheMode.E_ID,
-				WorkSheet::getOwnerId,opreatorId,
-				WorkSheet::getDate,today,
-				WorkSheet.class,()-> wDAO.includeUniqueWorkSheetByOwnerAndDate(opreatorId, today))) {
-			throw new LogicException(SMError.OPEN_WORK_SHEET_SYNC_ERROR);
-		}
-		
-		Plan plan = CacheScheduler.getOne(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
-		
+	public long openWorkSheetToday(long loginId, long planId){
+
+		Plan plan = getPlan(planId);
 		if(plan.getState() != PlanState.ACTIVE) {
 			throw new LogicException(SMError.OPEN_WORK_BASE_WRONG_STATE_PLAN,plan.getState().getName());
 		}
-		
-		if(plan.getOwnerId() != opreatorId) {
-			throw new LogicException(SMError.CANNOTE_OPEN_OTHERS_PLAN,plan.getOwnerId()+":"+opreatorId);
+		if(plan.getOwnerId() != loginId) {
+			throw new LogicException(SMError.CANNOTE_OPEN_OTHERS_PLAN,plan.getOwnerId()+":"+loginId);
 		}
-		
-		WorkSheet ws = new WorkSheet();
-		ws.setOwnerId(opreatorId);
-		ws.setDate(today);
-		ws.setPlanId(planId);
-		/*新创建的工作表的Tag和计划保持一致*/
-		ws.setTags(plan.getTags());
-		WorkContentConverter.pushToWorkSheet(plan, ws);
-		
-		ws.setState(calculateStateByNow(ws));
-		
-		WorkContentConverter.addLog(ws, CareerLogAction.OPEN_WS_TODAY, opreatorId,
-				plan.getName(),ws.getState().getDbCode());
-		
-		long id = wDAO.insertWorkSheet(ws);
-		
-		CacheScheduler.deleteTempKey(CacheMode.T_WS_COUNT_FOR_DATE, ws.getDate());
-		
-		return id;
+
+		LockHandler<Long> handler = new LockHandler<>();
+
+		locker.lockByUserAndClass(loginId,()->{
+			tryToFixPlanTimeTypeIssue(plan,loginId);
+			final String timezone = plan.getTimezone();
+			long today = ZonedTimeUtils.getCurrentDateUtc(timezone);
+			if(wDAO.includeUniqueWorkSheetByOwnerAndDateAndTimezone(loginId, today,timezone)) {
+				throw new LogicException(SMError.OPEN_WORK_SHEET_SYNC_ERROR);
+			}
+			WorkSheet ws = new WorkSheet();
+			ws.setOwnerId(loginId);
+			ws.setDateUtc(today);
+			ws.setTimezone(timezone);
+			ws.setPlanId(planId);
+			/*新创建的工作表的Tag和计划保持一致*/
+			ws.setTags(plan.getTags());
+			WorkContentConverter.pushToWorkSheet(plan, ws);
+			ws.setState(calculateStateByNow(ws));
+			WorkContentConverter.addLog(ws, CareerLogAction.OPEN_WS_TODAY, loginId,
+					plan.getName(),ws.getState().getDbCode());
+			handler.val = wDAO.insertWorkSheet(ws);
+			CacheScheduler.deleteTempKey(CacheMode.T_WS_COUNT_FOR_DATE, ws.getDateUtc(),ws.getTimezone());
+		});
+		return handler.val;
 	}
 
-	
 	@Override
 	public void saveWorkSheet(long updaterId, long wsId, String note) throws LogicException, DBException {
 		WorkSheet ws = CacheScheduler.getOne(CacheMode.E_ID,wsId, WorkSheet.class, ()->wDAO.selectExistedWorkSheet(wsId));

@@ -46,7 +46,7 @@ public enum SMError {
 	ILLEGAL_WORK_SHEET_CONTENT("非法的工作表结构"),
 	INCONSISTANT_WS_DATA("不一致的工作表数据"),
 	UNEXPCETED_OP_ERROR_FOR_WS("工作表数据操作出现意外错误"),
-	OPEN_WORK_SHEET_SYNC_ERROR("今天的工作表已经存在，不能重复开启"),
+	OPEN_WORK_SHEET_SYNC_ERROR("(计划时区)今天的工作表已经存在，不能重复开启"),
 	OPEN_WORK_BASE_WRONG_STATE_PLAN("只能基于进行中的计划开启工作表"),
 	CANNOTE_OPEN_OTHERS_PLAN("无权限以他人的计划开启工作表"),
 	CANNOTE_OPREATE_OTHERS_WS("无权限对他人的工作表进行编辑、删除等修改性操作"),

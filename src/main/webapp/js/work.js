@@ -17,21 +17,12 @@ $(function(){
         .on("click",".work_abandon_plan",abandonPlan)
         //DONE
         .on("click",".work_see_plan_detail",seePlanDetail)
+        //DONE
         .on("click",".work_edit_plan_button",editPlanDetail)
         //DONE
         .on("click",".work_finish_plan",finishPlan);
 
-
-
-    $("#work_open_ws_today_button").click(openWorkSheetToday);
-
-    //TODO
-    loadWorkSheetInfosRecentlyForFirstLoading();
-
-    showWsInfosRecently();
-
-
-
+    //DONE
     $("#work_create_plan_button,.work_plan_create_plan_in_hint").click(openCreatePlanDialog);
 
     //DONE
@@ -54,9 +45,22 @@ $(function(){
         testCreatePlanFormat(this,checkDateFormat,"日期格式非法，建议使用插件来选择日期，如果没有弹出插件，请更新浏览器版本");
     });
 
+    //TODO
+    $("#work_open_ws_today_button").click(openWorkSheetToday);
+
+    //TODO 需要我在家把相关图片 用微信上传后 现在不必做 但是这个优先 因为简单
+    $(".work_leran_to_use_work_sheet").click(()=>$("#work_getting_start_dialog").modal("show"));
+
+
+
+    //TODO
+    loadWorkSheetInfosRecentlyForFirstLoading();
+
+    showWsInfosRecently();
+
+
     $("#switch_to_show_ws_infos_recently").click(switchToShowWsInfosRecently);
 
-    $(".work_leran_to_use_work_sheet").click(()=>$("#work_getting_start_dialog").modal("show"));
 
 
 
@@ -133,7 +137,7 @@ function seeMoreWsInfos(){
 }
 
 
-
+//TODO
 function openWorkSheetToday(){
     let $slectedPlan = $("#work_plan_cards_container .work_plan_card_container[select='true']");
     if($slectedPlan.length == 0){
@@ -149,11 +153,19 @@ function openWorkSheetToday(){
         sendAjax("CareerServlet","c_open_work_sheet_today",{
             "plan_id":planId
         },(data)=>{
+            //DONE
             loadWorkSheetInfosRecently_render(data);
+            //DONE
             closeAllPlanCards();
+            //DONE
             openWsContainer();
+            //DONE
             closePlansContainer();
+
+            //DONE
             $("#work_ws_main_container").get(0).scrollIntoView();
+
+            //TODO 工作表内左侧列表 打开今天的工作表
             $("#work_ws_sub_left_container_body").find(".work_ws_date_cotnainer").filter((i, v) => new Date(parseInt($(v).attr("ws_date"))).isSameByDate(new Date())).click();
         })
     });
@@ -207,27 +219,35 @@ function closeWsActualContainer(){
     WORK_NAMESPACE.OPENED_WS_ID = null;
 }
 
+//DONE
 function loadWorkSheetInfosRecently_render(data,page){
     let pageOfData = page == undefined ? 0 : page;
     /*兼容之前写的不严谨的地方*/
+    //React的逻辑 理论上 不需要再传分页了
     pageOfData = isNaN(pageOfData) ? 0 : pageOfData;
-
+    //DONE
     let hasTodayWS = data.some((one)=>{
         let today = new Date();
         return new Date(one.date).isSameByDate(today);
     })
     $("#work_open_ws_today_button").toggle(!hasTodayWS);
+
     $("#work_ws_sub_left_container_body").empty();
     fillWsDateInfosContainer(data,pageOfData);
 }
+//DONE
 function fillWorkListUnit(ws,$unit){
     $unit.attr({
         "ws_id":ws.id,
         "ws_date":ws.date
     }).find(".work_ws_date_cotnainer_title").text(new Date(ws.date).toChineseDate())
+        //DONE
         .end().toggleClass("warning_date",ws.state.dbCode==WS_NAMESPACE.WS_STATE_OF_OVERDUE)
+        //DONE
         .prop("title",ws.state.dbCode==WS_NAMESPACE.WS_STATE_OF_OVERDUE ? "该日工作存在未完成项，请尽快处理或同步进历史欠账":"")
+        //DONE
         .toggleClass("over_finished_date",ws.state.dbCode==WS_NAMESPACE.WS_STATE_OF_OVER_FINISHED)
+        //DONE
         .prop("title",ws.state.dbCode==WS_NAMESPACE.WS_STATE_OF_OVER_FINISHED ? "该日工作超额完成，可同步进历史欠账":"")
 }
 
@@ -240,13 +260,15 @@ function refreshWokrListUnitForExternalInvoker(ws){
     fillWorkListUnit(ws,$target);
 }
 
+//TODO
 function fillWsDateInfosContainer(data,pageOfData){
+    //DONE
     data.forEach(ws=>{
         let $dateUnit = $("#work_pattern_container").find(".work_ws_date_cotnainer").clone();
         fillWorkListUnit(ws,$dateUnit);
         $("#work_ws_sub_left_container_body").append($dateUnit);
     })
-
+    //TODO 我认为我暂且无法往下写了
     let wsSheetOfOnPage =  parseInt($("#default_ws_limit_of_one_page").val());
 
     $("#work_ws_sub_left_container_footer .work_see_more_ws").attr("start_page",parseInt(pageOfData)+1).toggle(wsSheetOfOnPage == data.length);

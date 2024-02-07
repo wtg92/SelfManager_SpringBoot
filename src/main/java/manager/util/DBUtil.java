@@ -187,6 +187,18 @@ public abstract class DBUtil {
 		String tableName = CommonUtil.getEntityTableName(cla);
 		return countByBiFields(tableName, field1, val1, field2, val2, hbFactory);
 	}
+
+
+	public static<T> long countEntitiesByTriFields(Class<T> cla,
+												   String field1, Object val1,
+												   String field2, Object val2,
+												   String field3, Object val3,
+												  SessionFactory hbFactory) throws DBException {
+		String tableName = CommonUtil.getEntityTableName(cla);
+		return countByTriFields(tableName, field1, val1, field2, val2,field3,val3,hbFactory);
+	}
+
+
 	/*闭区间*/
 	public static<T> long countEntitiesByRange(Class<T> cla, String field, Object min,Object max,
 			SessionFactory hbFactory) throws DBException {
@@ -222,6 +234,27 @@ public abstract class DBUtil {
 			}
 		});
 	}
+
+	public static long  countByTriFields(String tableName
+			, String field1, Object val1
+			,String field2,Object val2
+			,String field3,Object val3
+			,SessionFactory hbFactory) throws DBException {
+		return hbFactory.fromStatelessSession(session->{
+			try {
+				String sql = String.format("SELECT COUNT(*) FROM %s WHERE %s=? and %s=? and %s=?"
+						, tableName, field1,field2,field3);
+				return session.createNativeQuery(sql, Long.class)
+						.setParameter(1, val1)
+						.setParameter(2, val2)
+						.setParameter(3, val3)
+						.uniqueResult();
+			} catch (Exception e) {
+				throw processDBException(e);
+			}
+		});
+	}
+
 
 	public static long  countByBiFields(String tableName, String field1, Object val1,String field2,Object val2,SessionFactory hbFactory) throws DBException {
 		return hbFactory.fromStatelessSession(session->{
@@ -387,7 +420,29 @@ public abstract class DBUtil {
 		} catch (DBException e) {
 			throw e;
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new DBException(SMError.UNKNOWN_DB_ERROR, e.getMessage());
+		}
+	}
+
+	public static<T> boolean includeUniqueEntityByTriFields(Class<T> entityCla
+			, String field1, Object val1
+			,String field2,Object val2
+			,String field3,Object val3
+			,SessionFactory hbFactory){
+		try {
+			long count = countEntitiesByTriFields(entityCla
+					, field1, val1
+					, field2, val2
+					, field3, val3
+					, hbFactory);
+			if (count == 0)
+				return false;
+			if (count == 1)
+				return true;
+			throw new DBException(SMError.INCONSISTANT_DB_ERROR, count);
+		} catch (DBException e) {
+			throw e;
+		} catch (Exception e) {
 			throw new DBException(SMError.UNKNOWN_DB_ERROR, e.getMessage());
 		}
 	}

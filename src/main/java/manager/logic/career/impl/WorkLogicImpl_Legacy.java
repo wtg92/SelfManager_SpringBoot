@@ -530,6 +530,11 @@ public class WorkLogicImpl_Legacy extends WorkLogic{
 	}
 
 	@Override
+	public void calculateWorksheetStatesRoutinely(long loginId) {
+
+	}
+
+	@Override
 	public PlanProxy loadPlan(long loginerId,long planId) throws LogicException, DBException {
 		Plan plan = CacheScheduler.getOne(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
 		if(plan.getOwnerId() != loginerId) {
@@ -634,12 +639,12 @@ public class WorkLogicImpl_Legacy extends WorkLogic{
 	@Override
 	public synchronized long openWorkSheetToday(long opreatorId, long planId) throws DBException, LogicException {
 		Calendar today = TimeUtil.getCurrentDate();
-		if(CacheScheduler.existsByBiFields(CacheMode.E_ID,
-				WorkSheet::getOwnerId,opreatorId,
-				WorkSheet::getDate,today,
-				WorkSheet.class,()-> wDAO.includeUniqueWorkSheetByOwnerAndDate(opreatorId, today))) {
-			throw new LogicException(SMError.OPEN_WORK_SHEET_SYNC_ERROR);
-		}
+//		if(CacheScheduler.existsByBiFields(CacheMode.E_ID,
+//				WorkSheet::getOwnerId,opreatorId,
+//				WorkSheet::getDate,today,
+//				WorkSheet.class,()-> wDAO.includeUniqueWorkSheetByOwnerAndDate(opreatorId, today))) {
+//			throw new LogicException(SMError.OPEN_WORK_SHEET_SYNC_ERROR);
+//		}
 		
 		Plan plan = CacheScheduler.getOne(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
 		

@@ -25,20 +25,23 @@ import static manager.util.UIUtil.*;
 @RequestMapping("/ws")
 public class WorkSheetController {
 
-    private static final Logger logger = LoggerFactory.getLogger(WorkSheetController.class);
-
     @Resource
     private WorkLogic wL;
 
-    @PostMapping("/loadWorkSheetInfosRecently")
+    @GetMapping("/worksheetRecently")
     public List<WorkSheet> loadWorkSheetInfosRecently(
             @RequestHeader("Authorization") String authorizationHeader
-            , @RequestBody JSONObject param) {
+            ,@RequestParam(PAGE)Integer page ) {
         long loginId = UIUtil.getLoginId(authorizationHeader);
-        int page = param.getInteger(PAGE);
         return wL.loadWorkSheetInfosRecently(loginId, page);
-
     }
+
+    @PostMapping(WORK_SHEET_PATH+"/calculateStatesRoutinely")
+    private void calculateWorksheetStatesRoutinely( @RequestHeader("Authorization") String authorizationHeader){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        wL.calculateWorksheetStatesRoutinely(loginId);
+    }
+
 
     @PostMapping("/loadActivePlans")
     public List<Plan> loadActivePlans(
@@ -67,6 +70,9 @@ public class WorkSheetController {
 
     private static final String PLAN_PATH = "/plan";
 
+    private static final String WORK_SHEET_PATH = "/ws";
+
+
     @GetMapping(PLAN_PATH)
     public PlanProxy getPlan(
             @RequestHeader("Authorization") String authorizationHeader
@@ -82,6 +88,8 @@ public class WorkSheetController {
         long loginId = UIUtil.getLoginId(authorizationHeader);
         return wL.getCountWSBasedOfPlan(planId,loginId);
     }
+
+
 
     @GetMapping(PLAN_PATH+"/deptItemNames")
     public List<String> getPlanDeptItemNames(
@@ -219,6 +227,16 @@ public class WorkSheetController {
         String note = param.getString(NOTE);
         String timezone = param.getString(TIMEZONE);
         return wL.createPlan(loginId, name, startDate, endDate,timezone, note);
+    }
+
+
+
+    @PostMapping(WORK_SHEET_PATH)
+    private void openWorkSheetToday( @RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody JSONObject param ){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        int targetPlanId = param.getInteger(TARGET_PLAN_ID);
+        wL.openWorkSheetToday(loginId, targetPlanId);
     }
 
 }

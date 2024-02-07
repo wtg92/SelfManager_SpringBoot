@@ -1,6 +1,8 @@
 package manager;
 
 import com.alibaba.fastjson2.JSONObject;
+import manager.util.RefiningUtil;
+import manager.util.ZonedTimeUtils;
 import org.junit.Test;
 
 import java.time.ZoneId;
@@ -16,6 +18,12 @@ public class DEBUG_COMMON {
         long t1 = System.currentTimeMillis();
         long t2 = Calendar.getInstance().getTime().getTime();
         System.out.println(t2-t1);
+    }
+
+    @Test
+    public void testTime2(){
+        System.out.println(ZonedTimeUtils.getCurrentDateUtc(RefiningUtil.getDefaultTimeZone()));
+        System.out.println(ZonedTimeUtils.getCurrentDateUtc(RefiningUtil.getDefaultTimeZone()));
     }
 
     @Test
