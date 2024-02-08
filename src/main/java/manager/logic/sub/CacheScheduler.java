@@ -607,7 +607,23 @@ public abstract class CacheScheduler {
 	
 		return CacheUtil.getMapVal(key,mapKey);
 	}
-	
+
+	public static String getTempValOrInit(CacheMode mode,ThrowableSupplier<String, SMException> generator, Object ...identifiers) throws SMException {
+		try {
+			return getTempVal(mode, identifiers);
+		} catch (NoSuchElement e) {
+			String key = createTempKey(mode, identifiers);
+			String val = generator.get();
+			if(!USING_REDIS_CACHE) {
+				redisSubstitute.put(key, val);
+				return val;
+			}
+			CacheUtil.set(key, val);
+			return val;
+		}
+	}
+
+	@Deprecated
 	public static String getTempValOrInit(CacheMode mode, Object identifier,ThrowableSupplier<Object, SMException> generator) throws SMException {
 		try {
 			return getTempVal(mode, identifier);
@@ -623,16 +639,13 @@ public abstract class CacheScheduler {
 		}
 	}
 	
-	public static String getTempVal(CacheMode mode, Object identifier) throws DBException, NoSuchElement {
-		String key = createTempKey(mode, pretreatForString(identifier).toString());
-
+	public static String getTempVal(CacheMode mode, Object ...identifiers) throws DBException, NoSuchElement {
+		String key = createTempKey(mode, identifiers);
 		if(!USING_REDIS_CACHE) {
 			if(!redisSubstitute.containsKey(key))
 				throw new NoSuchElement();
-			
 			return redisSubstitute.get(key);
 		}
-	
 		return CacheUtil.getOne(key);
 	}
 	

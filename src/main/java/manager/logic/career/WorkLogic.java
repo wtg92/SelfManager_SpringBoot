@@ -129,9 +129,12 @@ public abstract class WorkLogic{
 	 */
 	public abstract List<WorkSheetProxy> loadWorkSheetsByDateScope(long loginerId,Calendar startDate,Calendar endDate) throws SMException;
 	
-	
+	@Deprecated
 	public abstract long loadWorkSheetCount(long loginerId,Calendar date) throws SMException;
-	
+
+	public abstract long getWorkSheetCount(long loginerId,Long date,String timezone);
+
+
 	public abstract List<String> loadAllPlanTagsByUser(long loginerId) throws SMException;
 	public abstract List<String> loadAllWorkSheetTagsByUser(long loginerId) throws SMException;
 	public abstract PlanDeptProxy loadPlanDept(long loginerId) throws DBException, LogicException;

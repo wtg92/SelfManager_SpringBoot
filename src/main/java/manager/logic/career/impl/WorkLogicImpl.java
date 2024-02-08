@@ -513,7 +513,15 @@ public class WorkLogicImpl extends WorkLogic{
 		return Long.parseLong(CacheScheduler.getTempValOrInit(CacheMode.T_WS_COUNT_FOR_DATE, date, ()->wDAO.countWorkSheetByDate(date)));
 	}
 
-	
+	@Override
+	public long getWorkSheetCount(long loginId, Long date, String timezone) {
+		uL.checkPerm(loginId, SMPerm.SEE_TODAY_WS_COUNT);
+		return Long.parseLong(CacheScheduler.getTempValOrInit(CacheMode.T_WS_COUNT_FOR_DATE
+				,()->String.valueOf(wDAO.countWorkSheetByDateAndTimezone(date,timezone))
+				,date,timezone));
+	}
+
+
 	@Override
 	public List<Plan> loadActivePlans(long loginId) throws LogicException, DBException {
 		uL.checkPerm(loginId, SMPerm.SEE_SELF_PLANS);

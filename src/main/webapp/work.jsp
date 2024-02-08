@@ -44,7 +44,7 @@
 				</div>
 			</div>
 			<div id="work_ws_main_container">
-				<input type="hidden" id="default_ws_limit_of_one_page" value="<%=WorkLogic.DEFAULT_WS_LIMIT_OF_ONE_PAGE%>"/>
+				<input type="hidden" id="default_ws_limit_of_one_page" value="20"/>
 				<div class="work_header_container">
 					<span class="work_title">工作表</span>
 					<span><span class="work_switch_to_show_ws_sub_container common_blue_font common_hover"></span></span>

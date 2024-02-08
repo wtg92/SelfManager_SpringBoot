@@ -149,6 +149,12 @@ public class WorkDAOImpl implements WorkDAO {
 	}
 
 	@Override
+	public long countWorkSheetByDateAndTimezone(Long date, String timezone) {
+		return countEntitiesByBiFields(WorkSheet.class,SMDB.F_DATE_UTC,date
+				,SMDB.F_TIMEZONE,timezone,sessionFactory);
+	}
+
+	@Override
 	public boolean includeWorkSheetByPlanId(long planId) throws DBException {
 		return includeEntitiesByField(WorkSheet.class, SMDB.F_PLAN_ID, planId, sessionFactory);
 	}

@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.Calendar;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -34,6 +35,15 @@ public class WorkSheetController {
             ,@RequestParam(PAGE)Integer page ) {
         long loginId = UIUtil.getLoginId(authorizationHeader);
         return wL.loadWorkSheetInfosRecently(loginId, page);
+    }
+
+    @GetMapping("/worksheetsCount")
+    public long getWorksheetsCount(
+            @RequestHeader("Authorization") String authorizationHeader
+            ,@RequestParam(DATE)Long date
+            ,@RequestParam(TIMEZONE)String timezone) {
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        return wL.getWorkSheetCount(loginId,date,timezone);
     }
 
     @PostMapping(WORK_SHEET_PATH+"/calculateStatesRoutinely")

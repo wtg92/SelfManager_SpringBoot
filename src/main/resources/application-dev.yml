@@ -11,4 +11,4 @@ logging:
 #      springframework: DEBUG
 #自定义
 hibernate:
-  showSQL: true
+  showSQL: false

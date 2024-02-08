@@ -4,6 +4,7 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import manager.logic.career.WorkLogic;
 import manager.system.Gender;
 import manager.system.VerifyUserMethod;
 import manager.system.career.PlanItemType;
@@ -62,5 +63,8 @@ public class CommonController {
         return ZoneId.getAvailableZoneIds();
     }
 
-
+    @GetMapping("/getWorksheetNumOfOnePage")
+    public int getWorksheetNumOfOnePage() {
+        return WorkLogic.DEFAULT_WS_LIMIT_OF_ONE_PAGE;
+    }
 }

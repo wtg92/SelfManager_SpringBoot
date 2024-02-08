@@ -470,7 +470,12 @@ public class WorkLogicImpl_Legacy extends WorkLogic{
 		return count;
 	}
 
-	
+	@Override
+	public long getWorkSheetCount(long loginerId, Long date, String timezone) {
+		return 0;
+	}
+
+
 	@Override
 	public List<Plan> loadActivePlans(long loginId) throws LogicException, DBException {
 		uL.checkPerm(loginId, SMPerm.SEE_SELF_PLANS);

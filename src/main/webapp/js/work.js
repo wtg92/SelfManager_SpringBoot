@@ -52,27 +52,25 @@ $(function(){
     $(".work_leran_to_use_work_sheet").click(()=>$("#work_getting_start_dialog").modal("show"));
 
 
-
     //TODO
     loadWorkSheetInfosRecentlyForFirstLoading();
 
+    //DONE
     showWsInfosRecently();
-
-
+    //DONE
     $("#switch_to_show_ws_infos_recently").click(switchToShowWsInfosRecently);
-
-
-
-
+    //DONE
     $("#work_ws_sub_left_container_footer .work_see_more_ws").click(seeMoreWsInfos);
-
+    //DONE
     $("#work_ws_sub_left_container_header").click(closeWsActualContainer);
+
+
     $("#work_ws_sub_left_container_body").on("click",".work_ws_date_cotnainer",showWsDetail);
-
+    //TODO
     $("#work_open_plan_dept_dialog_btn").click(openPlanDeptDialog);
-
+    //TODO
     $("#work_open_ws_stat_of_date_range_dialog_btn").click(openWSOfDateRangeDialog);
-
+    //TODO
     $("#batch_sync_wss_in_ws_infos_recently").click(batchSyncAllToPlanDept);
 
 });
@@ -103,12 +101,17 @@ function batchSyncAllToPlanDept(){
     });
 }
 
+//TODO MAIN!!! The Hardest Part
 function showWsDetail(){
+    //DONE
     openWsActualContainer();
+    //TODO 这个要引入时区了
     let isWsToday = new Date(parseInt($(this).attr("ws_date"))).isSameByDate(new Date());    
     $("#work_ws_count_ws_today_alert").toggle(isWsToday);
     $("#work_ws_count_ws_prev_day_alert").toggle(!isWsToday);
-
+    /**
+     * 这个需要放到得到时区后 做
+     */
     sendAjax("CareerServlet","c_load_work_sheet_count",{
         "date":new Date(parseInt($(this).attr("ws_date"))).valueOf()
     },(data)=>{
@@ -206,12 +209,12 @@ function loadWorkSheetInfosRecentlyForFirstLoading(){
         }
     })
 }
-
+//DONE
 function openWsActualContainer(){
     $("#work_ws_with_actual_content_container").show();
     $("#work_ws_sub_right_container .work_ws_blank_container").hide();
 }
-
+//DONE
 function closeWsActualContainer(){
     $("#work_ws_with_actual_content_container").hide();
     $("#work_ws_sub_right_container .work_ws_blank_container").show();
@@ -260,7 +263,7 @@ function refreshWokrListUnitForExternalInvoker(ws){
     fillWorkListUnit(ws,$target);
 }
 
-//TODO
+//DONE
 function fillWsDateInfosContainer(data,pageOfData){
     //DONE
     data.forEach(ws=>{
@@ -268,9 +271,9 @@ function fillWsDateInfosContainer(data,pageOfData){
         fillWorkListUnit(ws,$dateUnit);
         $("#work_ws_sub_left_container_body").append($dateUnit);
     })
-    //TODO 我认为我暂且无法往下写了
+    //DONE
     let wsSheetOfOnPage =  parseInt($("#default_ws_limit_of_one_page").val());
-
+    //DONE
     $("#work_ws_sub_left_container_footer .work_see_more_ws").attr("start_page",parseInt(pageOfData)+1).toggle(wsSheetOfOnPage == data.length);
     $("#work_ws_sub_left_container_footer .work_no_more_ws").toggle(wsSheetOfOnPage > data.length);
     if(wsSheetOfOnPage < data.length){
@@ -469,13 +472,13 @@ function switchToShowWsInfosRecently(){
         showWsInfosRecently();
     }     
 }
-
+//DONE
 function hideWsInfosRecently(){
     $("#work_ws_sub_left_container").hide();
     $("#switch_to_show_ws_infos_recently").text("显示"+$("#work_ws_sub_left_container_header").text().trim()).attr("open",false);
 }
 
-
+//DONE
 function showWsInfosRecently(){
     $("#work_ws_sub_left_container").show();
     $("#switch_to_show_ws_infos_recently").text("隐藏"+$("#work_ws_sub_left_container_header").text().trim()).attr("open",true);

@@ -78,8 +78,13 @@ public interface WorkDAO {
 	
 	/*只取名字 Id*/
 	List<Plan> selectPlanInfosByIds(List<Long> planIds) throws DBException;
+
+	@Deprecated
 	long countWorkSheetByDate(Calendar date) throws DBException;
-	
+
+	long countWorkSheetByDateAndTimezone(Long date,String timezone);
+
+
 	boolean includeWorkSheetByPlanId(long planId) throws DBException;
 	List<String> selectNonNullPlanTagsByUser(long loginerId) throws DBException;
 	List<String> selectNonNullWorkSheetTagsByUser(long loginerId) throws DBException;
