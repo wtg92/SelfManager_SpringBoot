@@ -45,15 +45,8 @@ $(function(){
         testCreatePlanFormat(this,checkDateFormat,"日期格式非法，建议使用插件来选择日期，如果没有弹出插件，请更新浏览器版本");
     });
 
-    //TODO
-    $("#work_open_ws_today_button").click(openWorkSheetToday);
-
-    //TODO 需要我在家把相关图片 用微信上传后 现在不必做 但是这个优先 因为简单
+    //DONE
     $(".work_leran_to_use_work_sheet").click(()=>$("#work_getting_start_dialog").modal("show"));
-
-
-    //TODO
-    loadWorkSheetInfosRecentlyForFirstLoading();
 
     //DONE
     showWsInfosRecently();
@@ -65,6 +58,11 @@ $(function(){
     $("#work_ws_sub_left_container_header").click(closeWsActualContainer);
 
 
+    //TODO
+    $("#work_open_ws_today_button").click(openWorkSheetToday);
+    //TODO
+    loadWorkSheetInfosRecentlyForFirstLoading();
+    //TODO
     $("#work_ws_sub_left_container_body").on("click",".work_ws_date_cotnainer",showWsDetail);
     //TODO
     $("#work_open_plan_dept_dialog_btn").click(openPlanDeptDialog);
@@ -105,13 +103,11 @@ function batchSyncAllToPlanDept(){
 function showWsDetail(){
     //DONE
     openWsActualContainer();
-    //TODO 这个要引入时区了
+    //DONE
     let isWsToday = new Date(parseInt($(this).attr("ws_date"))).isSameByDate(new Date());    
     $("#work_ws_count_ws_today_alert").toggle(isWsToday);
     $("#work_ws_count_ws_prev_day_alert").toggle(!isWsToday);
-    /**
-     * 这个需要放到得到时区后 做
-     */
+    //DONE
     sendAjax("CareerServlet","c_load_work_sheet_count",{
         "date":new Date(parseInt($(this).attr("ws_date"))).valueOf()
     },(data)=>{
@@ -122,6 +118,7 @@ function showWsDetail(){
     let wsId = $(this).attr("ws_id");
 
     WORK_NAMESPACE.OPENED_WS_ID = wsId;
+    //TODO
     drawWorkSheetDetail(wsId,()=>$(this).removeClass("common_prevent_double_click"));    
 }
 

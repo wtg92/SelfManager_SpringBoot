@@ -40,8 +40,9 @@ $(function(){
 
 
     $("body").on("keydown",monitorHotKeys);
-    //TODO
+    //DONE
     $(".work_sheet_switch_to_show_ws_note").click(switchToShowWSNote);
+    //DONE
     $(".work_sheet_switch_to_show_today_plan_main_container").click(switchToShowTodayPlan);
     $("#work_note_textarea").change(saveWorkSheet).on("focus",lockSaveWorkItem).on("blur",unlockSaveWorkItem);
     $(".work_sheet_main_container_delete_button").click(deleteWorkSheet);
@@ -51,7 +52,7 @@ $(function(){
     $(".work_sheet_main_container_close_plan_edit_mode").click(closeWSPlanEditMode);
     $(".work_sheet_main_container_switch_to_completion_mode").click(switchWSPlanToCompletioMode);
     $(".work_sheet_main_container_switch_to_plan_mode").click(switchWSPlanToPlanMode);
-
+    //DONE
     $(".work_sheet_logs_switch_container_visibility").click(switchToWSLogsBody);
 
     $(".work_sheet_main_container_open_work_items_edit_mode").click(openWorkItemsEditModeWithoutConfirm);
@@ -1226,6 +1227,7 @@ function switchToShowWorkItemNote(){
     }   
 }
 
+//DONE
 function switchToWSLogsBody(){
     let open = parseToBool($(this).attr("open"));
     if(open){
@@ -1264,8 +1266,6 @@ function showWorkItemsBody(){
     $(".work_sheet_switch_to_show_work_items_main_body").text("收起").attr("open",true);
 }
 
-
-
 function hideTodayPlan(){
     $("#work_sheet_today_play_main_container").hide();
     $(".work_sheet_switch_to_show_today_plan_main_container").text("展开").attr("open",false);
@@ -1291,6 +1291,7 @@ function hideWSNote(){
     $(".work_sheet_switch_to_show_ws_note").text("展开").attr("open",false);
 }
 
+//DONE
 function showWSNote(){
     $("#work_sheet_main_container_for_basic_info").show();
     $(".work_sheet_switch_to_show_ws_note").text("收起").attr("open",true);
@@ -1299,13 +1300,20 @@ function showWSNote(){
 
 
 function drawWorkSheetDetail(wsId,successFunc){
-
+    //DONE
     showWSNote();
+    //DONE
     showTodayPlan();
+    //DONE
     showWorkItemsBody();
-    closeWSPlanEditMode();
-    switchWSPlanToCompletioMode();
+    //DONE
     hideWSLogsBody();
+
+    //TODO
+    closeWSPlanEditMode();
+    //TODO
+    switchWSPlanToCompletioMode();
+    // 理应先做完保存 备注
     /*切换时删掉提示信息*/
     $("#work_sheet_main_container .common_hint_message").text("");
 

@@ -3,6 +3,7 @@ package manager.controller;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import manager.data.proxy.career.PlanProxy;
+import manager.data.proxy.career.WorkSheetProxy;
 import manager.entity.general.career.Plan;
 import manager.entity.general.career.WorkSheet;
 import manager.logic.career.WorkLogic;
@@ -45,6 +46,15 @@ public class WorkSheetController {
         long loginId = UIUtil.getLoginId(authorizationHeader);
         return wL.getWorkSheetCount(loginId,date,timezone);
     }
+
+    @GetMapping(WORK_SHEET_PATH)
+    public WorkSheetProxy getWorksheet(
+            @RequestHeader("Authorization") String authorizationHeader
+            ,@RequestParam(ID)Long wsId) {
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        return wL.loadWorkSheet(loginId, wsId);
+    }
+
 
     @PostMapping(WORK_SHEET_PATH+"/calculateStatesRoutinely")
     private void calculateWorksheetStatesRoutinely( @RequestHeader("Authorization") String authorizationHeader){
