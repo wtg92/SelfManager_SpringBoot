@@ -82,4 +82,13 @@ public class ZonedTimeUtils {
                 ,today.toLocalDate().getDayOfMonth()
                 );
     }
+
+    public static Long copyDateOnly(Long utc, String timezone) {
+//        if(utc == 0 ){
+//            return (long)0;
+//        }
+//        final ZonedDateTime zonedDateTime = get(timezone, utc);
+//        return copyDateOnly(zonedDateTime).toInstant().toEpochMilli();
+        return utc;
+    }
 }

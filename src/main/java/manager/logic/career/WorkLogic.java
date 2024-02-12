@@ -163,7 +163,7 @@ public abstract class WorkLogic{
 	public abstract void saveWSPlanItem(long loginerId, long wsId,int itemId,String catName,int value,String note,double mappingVal) throws LogicException, DBException;
 	public abstract void saveWSPlanItemFold(long loginerId, long wsId, int itemId, boolean fold) throws DBException, LogicException;
 	public abstract void savePlan(long loginId, long planId, String name, Long startDate, Long endDate,String timezone,
-								  String note,List<PlanSetting> settings,int seqWeight);
+								  String note,List<PlanSetting> settings,int seqWeight, boolean recalculateState);
 	public abstract void recalculatePlanState(long loginId, long planId);
 
 	@Deprecated

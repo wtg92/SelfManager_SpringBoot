@@ -233,8 +233,8 @@ public class WorkSheetController {
         int seqWeight = param.getInteger(SEQ_WEIGHT);
         String timezone = param.getString(TIMEZONE);
         List<PlanSetting> settings = transferToIntList(param.getJSONArray(PLAN_SETTING)).stream().map(PlanSetting::valueOfDBCode).collect(toList());
-
-        wL.savePlan(loginId,planId,name,startDate,endDate,timezone,note,settings,seqWeight);
+        Boolean recalculateState = param.getBoolean(RECALCULATE_STATE);
+        wL.savePlan(loginId,planId,name,startDate,endDate,timezone,note,settings,seqWeight,recalculateState);
     }
 
     @PostMapping(PLAN_PATH)

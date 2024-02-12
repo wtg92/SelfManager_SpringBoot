@@ -318,7 +318,7 @@ public class WorkLogicImpl_Legacy extends WorkLogic{
 	}
 
 	@Override
-	public void savePlan(long loginerId, long planId, String name, Long startDate, Long endDate,String timezone, String note, List<PlanSetting> settings, int seqWeight) {
+	public void savePlan(long loginerId, long planId, String name, Long startDate, Long endDate,String timezone, String note, List<PlanSetting> settings, int seqWeight,boolean s) {
 
 	}
 

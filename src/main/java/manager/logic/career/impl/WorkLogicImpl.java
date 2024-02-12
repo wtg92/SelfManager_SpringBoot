@@ -107,8 +107,8 @@ public class WorkLogicImpl extends WorkLogic{
 		plan.setName(name);
 		plan.setNote(note);
 		plan.setOwnerId(loginId);
-		plan.setStartUtc(startDate);
-		plan.setEndUtc(endDate);
+		plan.setStartUtc(ZonedTimeUtils.copyDateOnly(startDate,timezone));
+		plan.setEndUtc(ZonedTimeUtils.copyDateOnly(endDate,timezone));
 		plan.setSeqWeight(0);
 		/**
 		 * 下面两行代码 顺序不能变：
@@ -257,7 +257,9 @@ public class WorkLogicImpl extends WorkLogic{
 
 	@Override
 	public void savePlan(long loginId, long planId, String name, Long startDate
-			, Long endDate,String timezone, String note, List<PlanSetting> settings, int seqWeight) {
+			, Long endDate,String timezone, String note, List<PlanSetting> settings, int seqWeight
+			, boolean recalculateState
+	) {
 		Plan plan = getPlan(planId);
 		if(plan.getOwnerId() != loginId) {
 			throw new LogicException(SMError.CANNOT_SAVE_PLAN);
@@ -276,14 +278,19 @@ public class WorkLogicImpl extends WorkLogic{
 					endDate);
 		}
 		plan.setName(name);
-		plan.setStartUtc(startDate);
-		plan.setEndUtc(endDate);
+		plan.setStartUtc(ZonedTimeUtils.copyDateOnly(startDate,timezone));
+		plan.setEndUtc(ZonedTimeUtils.copyDateOnly(endDate,timezone));
 		plan.setSetting(settings);
 		plan.setSeqWeight(seqWeight);
 		plan.setNote(note);
 		plan.setTimezone(timezone);
 
+
+
 		updatePlanSynchronously(plan,loginId);
+		if(recalculateState){
+			recalculatePlanState(loginId,planId);
+		}
 	}
 
 	@Override

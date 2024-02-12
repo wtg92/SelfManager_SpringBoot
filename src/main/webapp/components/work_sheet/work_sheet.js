@@ -1315,6 +1315,7 @@ function drawWorkSheetDetail(wsId,successFunc){
     switchWSPlanToCompletioMode();
     // 理应先做完保存 备注
     /*切换时删掉提示信息*/
+    //TODO
     $("#work_sheet_main_container .common_hint_message").text("");
 
     $("#work_sheet_work_items_container_main_body_ws_items").empty();
@@ -1605,6 +1606,7 @@ function caclulateWorkItemMarkByForAdd(forAdd){
 
 function loadWorkSheetDetail_render(data) {
     /**加载时，代表着要刷新容器了,那么检查一下有没有需要save的 假如有的话 就重新save一下 */
+    //理论上应该直接删掉
     if(saveChangedWorkItemUnits()){
         return ;
     }
@@ -1614,6 +1616,7 @@ function loadWorkSheetDetail_render(data) {
 
     /*
     * 更新前需要根据Id监控哪些workItem打开/关闭了备注 当重新更新完数据后 要保持原样
+    * TODO
     */
     let idsForOpened = [];
     let idsForClosed = [];
@@ -1643,21 +1646,23 @@ function loadWorkSheetDetail_render(data) {
             
             .find(".work_sheet_main_container_header_mood").empty().append(calculateMoodSpan(data.mood.toFixed(1))).end()
             .find(".work_sheet_main_container_header_state>span").text(data.ws.state.name).css(getFontColorAndBackgroudColor(data.ws.state.color))
-        
+
+        //DONE
         if(!$("#work_note_textarea").is(":focus")){
             /*假设focus了 说明用户正在编辑textarea 就不必打扰了，反正等到它编辑完毕还要保存*/
+            //DONE
             fillTextareaVal(data.ws.note,$("#work_note_textarea"));
         }
-
+        //DONE
         $(".work_sheet_main_container_cancel_assumen_finished").toggle(data.ws.state.dbCode == WS_NAMESPACE.WS_STATE_OF_ASSUME_FINISHED);
         $(".work_sheet_main_container_assume_finsihed").toggle(data.ws.state.dbCode == WS_NAMESPACE.WS_STATE_OF_OVERDUE
                                                                 || data.ws.state.dbCode == WS_NAMESPACE.WS_STATE_OF_ACTIVE
                                                                 || data.ws.state.dbCode == WS_NAMESPACE.WS_STATE_OF_OVER_FINISHED);
-    
+        //DONE 理论上应该删掉
         $("#work_sheet_work_items_container_main_body_save_hint").find(".save_hint_seconds").text(WS_NAMESPACE.SAVE_WORK_ITEM_OP_TIMEOUT_SECONDS).end()
                 .find(".save_hint_update_time").text(new Date(data.ws.updateTime).toSmartString());
     
-    
+        //TODO LAST STEP
         drawWSPlanAndDropDown(data.content.planItems);
         drawWorkItems(data.content.workItems,data.content.planItems);
     
@@ -1741,7 +1746,7 @@ function drawWSPlanAndDropDown(planItems){
             $dropDownContaienrForWorkItem.append($dropDownForWorkItem);
        }
    })
-
+    //TODO
    /*PlanItems的条目*/
    let $itemsCardContainer = $("#work_sheet_today_plan_items_cards_container");
    $itemsCardContainer.empty();
