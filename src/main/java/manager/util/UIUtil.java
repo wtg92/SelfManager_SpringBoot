@@ -15,6 +15,7 @@ import java.util.Map;
 
 import com.alibaba.fastjson2.JSONObject;
 import jakarta.servlet.http.HttpServletRequest;
+import manager.exception.SMException;
 import org.apache.tomcat.util.http.fileupload.FileItem;
 import org.apache.tomcat.util.http.fileupload.FileUploadException;
 import org.apache.tomcat.util.http.fileupload.disk.DiskFileItemFactory;
@@ -46,7 +47,11 @@ public abstract class UIUtil {
 	 *  New version migration....
 	 */
 	public static long getLoginId(String auth) throws LogicException {
-		return ServletAdapter.getUserId(auth.replace("Bearer ",""));
+		try{
+			return ServletAdapter.getUserId(auth.replace("Bearer ",""));
+		}catch(Exception e){
+			throw new LogicException(SMError.LOGIN_FAILED);
+		}
 	}
 
 	public static int getParamIntegerOrZeroDefault(JSONObject param, String key){

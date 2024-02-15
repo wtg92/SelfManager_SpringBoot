@@ -35,7 +35,6 @@ public abstract class SMServlet extends HttpServlet {
 	    	
 	        response.setCharacterEncoding("UTF-8");
 	        response.setContentType("application/json");
-
 	        long t1 = System.currentTimeMillis();
 	        try {
 	            String jsonResult = process(request);

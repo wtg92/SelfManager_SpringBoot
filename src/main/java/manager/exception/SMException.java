@@ -6,7 +6,7 @@ public abstract class SMException extends RuntimeException{
 
 	private static final long serialVersionUID = 3135260691229951722L;
 	public SMError type = null;
-	
+	public String mes = "";
 	
 	public SMException() {}
 	
@@ -20,6 +20,7 @@ public abstract class SMException extends RuntimeException{
 	
 	public SMException(Object mes, SMError error, boolean mesAppend) {
 		this(mesAppend ? error.getDescription() +"   "+ mes : mes + "   "+ error.getDescription());
+		this.mes = mes.toString();
 		this.type = error;
 	}
 	

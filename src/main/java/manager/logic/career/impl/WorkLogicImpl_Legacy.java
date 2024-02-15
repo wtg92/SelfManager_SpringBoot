@@ -55,10 +55,6 @@ public class WorkLogicImpl_Legacy extends WorkLogic{
 		
 		uL.checkPerm(ownerId, SMPerm.CREATE_WORKSHEET_PLAN);
 		
-		if(TimeUtil.isAfterByDate(startDate, endDate) && TimeUtil.isNotBlank(endDate)) {
-			throw new LogicException(SMError.CREATE_PLAN_ERROR,"开始日期不能晚于结束日期");
-		}
-		
 		Plan plan = new Plan();
 		plan.setName(name);
 		plan.setNote(note);

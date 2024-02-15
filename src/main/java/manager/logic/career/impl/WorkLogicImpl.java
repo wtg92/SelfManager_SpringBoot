@@ -99,16 +99,12 @@ public class WorkLogicImpl extends WorkLogic{
 	public long createPlan(long loginId, String name, Long startDate, Long endDate,String timezone, String note) throws LogicException, DBException {
 		uL.checkPerm(loginId, SMPerm.CREATE_WORKSHEET_PLAN);
 
-		if(endDate != 0 && endDate < startDate) {
-			throw new LogicException(SMError.CREATE_PLAN_ERROR,"开始日期不能晚于结束日期");
-		}
-
 		Plan plan = new Plan();
 		plan.setName(name);
 		plan.setNote(note);
 		plan.setOwnerId(loginId);
-		plan.setStartUtc(ZonedTimeUtils.copyDateOnly(startDate,timezone));
-		plan.setEndUtc(ZonedTimeUtils.copyDateOnly(endDate,timezone));
+		plan.setStartUtc(startDate);
+		plan.setEndUtc(endDate);
 		plan.setSeqWeight(0);
 		/**
 		 * 下面两行代码 顺序不能变：
@@ -278,14 +274,12 @@ public class WorkLogicImpl extends WorkLogic{
 					endDate);
 		}
 		plan.setName(name);
-		plan.setStartUtc(ZonedTimeUtils.copyDateOnly(startDate,timezone));
-		plan.setEndUtc(ZonedTimeUtils.copyDateOnly(endDate,timezone));
+		plan.setStartUtc(startDate);
+		plan.setEndUtc(endDate);
 		plan.setSetting(settings);
 		plan.setSeqWeight(seqWeight);
 		plan.setNote(note);
 		plan.setTimezone(timezone);
-
-
 
 		updatePlanSynchronously(plan,loginId);
 		if(recalculateState){

@@ -9,7 +9,7 @@ public abstract class SM {
 
 	public final static String VERSION = "3.0";
 	
-	public final static Calendar APP_STARTING_TIME = Calendar.getInstance();
+	public final static Long APP_STARTING_TIME = System.currentTimeMillis();
 	
 	public final static String PROPERTIES_FILE_NAME = "sm.properties";
 

@@ -47,10 +47,17 @@ $(function(){
     $("#work_note_textarea").change(saveWorkSheet).on("focus",lockSaveWorkItem).on("blur",unlockSaveWorkItem);
     $(".work_sheet_main_container_delete_button").click(deleteWorkSheet);
     $(".work_sheet_main_container_assume_finsihed").click(assumeFinished);
+
+
+
     $(".work_sheet_main_container_cancel_assumen_finished").click(cancelAssumeFinished);
+    //DONE
     $(".work_sheet_main_container_open_plan_edit_mode").click(openWSPlanEditMode);
+    //DONE
     $(".work_sheet_main_container_close_plan_edit_mode").click(closeWSPlanEditMode);
+    //DONE
     $(".work_sheet_main_container_switch_to_completion_mode").click(switchWSPlanToCompletioMode);
+    //DONE
     $(".work_sheet_main_container_switch_to_plan_mode").click(switchWSPlanToPlanMode);
     //DONE
     $(".work_sheet_logs_switch_container_visibility").click(switchToWSLogsBody);
@@ -1309,9 +1316,10 @@ function drawWorkSheetDetail(wsId,successFunc){
     //DONE
     hideWSLogsBody();
 
-    //TODO
+    //DONE
     closeWSPlanEditMode();
-    //TODO
+
+    //DONE
     switchWSPlanToCompletioMode();
     // 理应先做完保存 备注
     /*切换时删掉提示信息*/
@@ -1611,7 +1619,6 @@ function loadWorkSheetDetail_render(data) {
         return ;
     }
 
-
     WS_NAMESPACE.CURRENT_WORKSHEET = cloneObj(data);
 
     /*
@@ -1655,6 +1662,7 @@ function loadWorkSheetDetail_render(data) {
         }
         //DONE
         $(".work_sheet_main_container_cancel_assumen_finished").toggle(data.ws.state.dbCode == WS_NAMESPACE.WS_STATE_OF_ASSUME_FINISHED);
+        //DONE
         $(".work_sheet_main_container_assume_finsihed").toggle(data.ws.state.dbCode == WS_NAMESPACE.WS_STATE_OF_OVERDUE
                                                                 || data.ws.state.dbCode == WS_NAMESPACE.WS_STATE_OF_ACTIVE
                                                                 || data.ws.state.dbCode == WS_NAMESPACE.WS_STATE_OF_OVER_FINISHED);
@@ -1664,6 +1672,7 @@ function loadWorkSheetDetail_render(data) {
     
         //TODO LAST STEP
         drawWSPlanAndDropDown(data.content.planItems);
+        //TODO
         drawWorkItems(data.content.workItems,data.content.planItems);
     
         /*下拉框默认选择 无 默认启动增加模式*/
@@ -1746,7 +1755,7 @@ function drawWSPlanAndDropDown(planItems){
             $dropDownContaienrForWorkItem.append($dropDownForWorkItem);
        }
    })
-    //TODO
+    //DONE
    /*PlanItems的条目*/
    let $itemsCardContainer = $("#work_sheet_today_plan_items_cards_container");
    $itemsCardContainer.empty();
@@ -1774,7 +1783,7 @@ function drawWSPlanAndDropDown(planItems){
        }
 
        $firstLevelContainer.find(".work_sheet_plan_item_container_body").html(calculateRootPlanItemText(planItems[i].item))
-
+        //DONE
        fillCompetionInfo($firstLevelContainer,planItems[i]);
 
        drawSonWSPlanItemCards(planItems[i],$firstLevelContainer);
@@ -1786,11 +1795,13 @@ function drawWSPlanAndDropDown(planItems){
        $firstLevelContainer.addClass("last_one");
    }
 
+    //DONE
    $(".work_sheet_main_container_sync_all_plan_item")
         .toggleClass("hide_ws_btn",$("#work_sheet_today_plan_items_cards_container .work_sheet_plan_sync_completion_to_dept:not(.hide_ws_btn)").length == 0);
 }
 
 
+//DONE
 function fillCompetionInfo($contianer,plan){
     let remaining  = plan.remainingValForCur;
     let sum = parseFloat((parseFloat(remaining)+ parseFloat(plan.sumValForWorkItems)));
@@ -1804,15 +1815,16 @@ function fillCompetionInfo($contianer,plan){
     let absSumVal = Math.abs(plan.sumValForWorkItems);
     if(plan.item.type.dbCode == BASIC_NAMESPACE.WS_ITEM_CAT_TYPE_OF_MINUTES){
         
-        html = "<span title='以该项计算得出的差值'>"+plan.item.name+"  "+"<span title='"+plan.sumValForWorkItems.transferToHoursMesIfPossible() +"'>"+plan.sumValForWorkItems+"</span>"+plan.item.type.name+"<little>"
+        html = "<span title='以该项计算得出的差值'>"+plan.item.name+"  "+"<span title='"+plan.sumValForWorkItems.transferToHoursMesIfPossible() +"'>"+plan.sumValForWorkItems+"</span>"+plan.item.type.name
+            +"<little>"
         +"<span title='"+sum.transferToHoursMesIfPossible() +"'>"+sum.toText()+"</span> "+mathMark+" "
         +"<span title='"+absSumVal.transferToHoursMesIfPossible() +"'>"+absSumVal+"</span> = "
-        +"<span title='"+remaining.transferToHoursMesIfPossible() +"'>"+remaining.toText()+"</span></little></span>";
+        +"<span title='"+remaining.transferToHoursMesIfPossible() +"'>"+remaining.toText()+"</span>" +
+            "</little></span>";
     }else{
         html = "<span title='以该项计算得出的差值'>"+plan.item.name+"  "+plan.sumValForWorkItems+""+plan.item.type.name+"<little>"+sum.toText()+" "+mathMark+" "+ Math.abs(plan.sumValForWorkItems)+" = "
         +remaining.toText()+"</little></span>";
     }
-
     $contianer.find(".work_sheet_plan_item_completion_body").html(html).end()
         .find(".work_sheet_plan_sync_completion_to_dept").toggleClass("hide_ws_btn",remaining == 0);
 }
@@ -1844,7 +1856,7 @@ function drawSonWSPlanItemCards(fatherItem,$container){
         }
 
         $unitLevelContainer.find(".work_sheet_plan_item_container_body").html(calculateUnitPlanItem(items[i].item,fatherItem.item));
-
+        //ABCD
         fillCompetionInfo($unitLevelContainer,items[i]);
                 
         $container.children(".work_sheet_plan_item_container_wrap").append($unitLevelContainer);
