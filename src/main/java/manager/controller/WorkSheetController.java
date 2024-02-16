@@ -55,6 +55,73 @@ public class WorkSheetController {
         return wL.loadWorkSheet(loginId, wsId);
     }
 
+    @PatchMapping(WORK_SHEET_PATH)
+    public void patchWorksheet(@RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody JSONObject param ) {
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        int wsId = param.getInteger(ID);
+        String note = param.getString(NOTE);
+        wL.saveWorkSheet(loginId, wsId, note);
+    }
+
+    @PatchMapping(WORK_SHEET_PATH+"/assumeFinished")
+    public void assumeWorkSheetFinished(@RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody JSONObject param ) {
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        int wsId = param.getInteger(ID);
+        wL.assumeWorkSheetFinished(loginId, wsId);
+    }
+
+    @PatchMapping(WORK_SHEET_PATH+"/cancelAssumeFinished")
+    public void cancelAssumeWorkSheetFinished(@RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody JSONObject param ) {
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        int wsId = param.getInteger(ID);
+        wL.cancelAssumeWorkSheetFinished(loginId, wsId);
+    }
+
+    @PostMapping(WORK_SHEET_PATH+"/planItem")
+    private void postWorksheetPlanItem( @RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody JSONObject param ){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        int wsId = param.getInteger(ID);
+        String catName = param.getString(CAT_NAME);
+        int val =  getParamIntegerOrZeroDefault(param,VAL);
+        String note = param.getString(NOTE);
+        PlanItemType type = PlanItemType.valueOfDBCode(param.getInteger(CAT_TYPE));
+        int fatherId = param.getInteger(FATHER_ID);
+        double mappingVal = getParamDoubleOrZeroDefault(param,MAPPING_VAL);
+        wL.addItemToWSPlan(loginId, wsId, catName, val, note, type, fatherId, mappingVal);
+    }
+
+    @PatchMapping(WORK_SHEET_PATH+"/planItem")
+    private void patchWorksheetPlanItem( @RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody JSONObject param ){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        int wsId = param.getInteger(ID);
+        String catName = param.getString(CAT_NAME);
+        int val = getParamIntegerOrZeroDefault(param,VAL);
+        String note = param.getString(NOTE);
+        double mappingVal = getParamDoubleOrZeroDefault(param,MAPPING_VAL);
+        int itemId = param.getInteger( ITEM_ID);
+        wL.saveWSPlanItem(loginId, wsId, itemId, catName, val, note, mappingVal);
+    }
+    @DeleteMapping(WORK_SHEET_PATH+"/planItem")
+    private void deleteWorksheetPlanItem( @RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody JSONObject param ){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        int wsId = param.getInteger(ID);
+        int itemId = param.getInteger(ITEM_ID);
+        wL.removeItemFromWSPlan(loginId, wsId, itemId);
+    }
+
+    @DeleteMapping(WORK_SHEET_PATH)
+    public void deleteWorksheet(@RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody JSONObject param ) {
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        int wsId = param.getInteger(ID);
+        wL.deleteWorkSheet(loginId, wsId);
+    }
 
     @PostMapping(WORK_SHEET_PATH+"/calculateStatesRoutinely")
     private void calculateWorksheetStatesRoutinely( @RequestHeader("Authorization") String authorizationHeader){

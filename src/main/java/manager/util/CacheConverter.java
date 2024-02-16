@@ -30,18 +30,17 @@ public abstract class CacheConverter {
 	private static String TEMP_PREFIX = "tp";
 	
 	public static String createKey(CacheMode mode, long identifier, String tableName) {
-		switch(mode) {
-			case E_ID:
-			case E_UNIQUE_FIELD_ID:
-				return SM.DB_NAME+SPLIT_CHAR+tableName+SPLIT_CHAR+identifier;
-			case R_ONE_TO_MANY_FORMER:
-				return SM.DB_NAME+SPLIT_CHAR+tableName+SPLIT_CHAR+FORMER_ARG_FOR_KEY+SPLIT_CHAR+identifier;
-			case R_ONE_TO_MANY_LATTER:
-				return SM.DB_NAME+SPLIT_CHAR+tableName+SPLIT_CHAR+LATTER_ARG_FOR_KEY+SPLIT_CHAR+identifier;	
-			default:
-				assert false : mode;
-			throw new RuntimeException("未配置的缓存模型 "+mode);
-		}
+        return switch (mode) {
+            case E_ID, E_UNIQUE_FIELD_ID -> SM.DB_NAME + SPLIT_CHAR + tableName + SPLIT_CHAR + identifier;
+            case R_ONE_TO_MANY_FORMER ->
+                    SM.DB_NAME + SPLIT_CHAR + tableName + SPLIT_CHAR + FORMER_ARG_FOR_KEY + SPLIT_CHAR + identifier;
+            case R_ONE_TO_MANY_LATTER ->
+                    SM.DB_NAME + SPLIT_CHAR + tableName + SPLIT_CHAR + LATTER_ARG_FOR_KEY + SPLIT_CHAR + identifier;
+            default -> {
+                assert false : mode;
+                throw new RuntimeException("未配置的缓存模型 " + mode);
+            }
+        };
 	}
 	public static String createTempKey(CacheMode mode, Object ...identifier) {
 		String identifierStr = Arrays.stream(identifier)

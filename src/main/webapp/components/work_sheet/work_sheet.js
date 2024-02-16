@@ -26,30 +26,43 @@ $(function(){
     window.onbeforeunload = ()=>{
         saveChangedWorkItemUnits();
     };
-
+    //DONE
     drawCommonIcon("including_modify_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_modify_mark"));
+    //DONE
     drawCommonIcon("including_add_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_add_mark"));
+    //DONE
     drawCommonIcon("including_minus_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_delete_mark"));
+    //DONE
     drawCommonIcon("including_circle_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_circle_container"));
+    //DONE
     drawCommonIcon("including_circle_with_left_line_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_root_add_mark"));
+    //DONE
     drawCommonIcon("including_open_folder_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_unfold_btn"));
+    //DONE
     drawCommonIcon("including_close_folder_mark",$("#work_sheet_pattern_container .work_sheet_plan_item_fold_btn"));
+    //DONE
     drawCommonIcon("including_trashcan_mark",$("#work_sheet_pattern_container .work_sheet_work_item_container_delete_button"));
+    //DONE
     drawCommonIcon("including_common_edit_shape",$("#work_sheet_pattern_container .work_sheet_work_item_container_plan_item_type_modify_mark"));
+    //DONE
     drawCommonIcon("including_common_edit_shape",$("#edit_work_sheet_tags_icon"));
 
 
     $("body").on("keydown",monitorHotKeys);
+
     //DONE
     $(".work_sheet_switch_to_show_ws_note").click(switchToShowWSNote);
     //DONE
     $(".work_sheet_switch_to_show_today_plan_main_container").click(switchToShowTodayPlan);
+
+    //DONE
     $("#work_note_textarea").change(saveWorkSheet).on("focus",lockSaveWorkItem).on("blur",unlockSaveWorkItem);
+
+    //DONE
     $(".work_sheet_main_container_delete_button").click(deleteWorkSheet);
+    //DONE
     $(".work_sheet_main_container_assume_finsihed").click(assumeFinished);
-
-
-
+    //DONE
     $(".work_sheet_main_container_cancel_assumen_finished").click(cancelAssumeFinished);
     //DONE
     $(".work_sheet_main_container_open_plan_edit_mode").click(openWSPlanEditMode);
@@ -61,6 +74,9 @@ $(function(){
     $(".work_sheet_main_container_switch_to_plan_mode").click(switchWSPlanToPlanMode);
     //DONE
     $(".work_sheet_logs_switch_container_visibility").click(switchToWSLogsBody);
+    //TODO　2
+    $("#work_sheet_today_plan_add_item_button").click(addPlanItemToWSPlan);
+    $("#work_sheet_today_plan_save_item_button").click(saveWSPlanItem);
 
     $(".work_sheet_main_container_open_work_items_edit_mode").click(openWorkItemsEditModeWithoutConfirm);
     $(".work_sheet_main_container_close_work_items_edit_mode").click(closeWorkItemsEditMode);
@@ -92,8 +108,7 @@ $(function(){
     .find("[name='mapping_val_for_same_type']").on("input",inputOnlyAllowFloat).end()
 
 
-    $("#work_sheet_today_plan_add_item_button").click(addPlanItemToWSPlan);
-    $("#work_sheet_today_plan_save_item_button").click(saveWSPlanItem);
+
 
     $("#work_sheet_today_plan_items_cards_container").on("click",".work_sheet_plan_item_root_add_mark",addRootWSPlanItemByClickMark)
         .on("click",".work_sheet_plan_item_add_mark",addWSPlanItemClickMark)
@@ -1147,7 +1162,7 @@ function openWSPlanEditMode(){
 }
 
 
-
+//DONE
 function cancelAssumeFinished(){
     let text =$(this).text();
     confirmInfo("确定"+text+"吗？（系统会根据完成情况重新计算状态）",()=>{
@@ -1160,7 +1175,7 @@ function cancelAssumeFinished(){
         }) 
     })
 }
-
+//DONE
 function assumeFinished(){
     let text =$(this).text();
     confirmInfo("确定"+text+"吗？（系统不会再监控该工作表的完成情况，但仍可编辑）",()=>{
@@ -1174,7 +1189,7 @@ function assumeFinished(){
     })
 }
 
-
+//DONE
 function deleteWorkSheet(){
     confirmInfo("确定删除吗？（系统会清空相关数据并且不可恢复）",()=>{
         let wsId = $("#work_sheet_main_container").attr("ws_id");
@@ -1191,7 +1206,7 @@ function deleteWorkSheet(){
     })
 }
 
-
+//DONE
 function saveWorkSheet(){
     let note = $(this).val();
     let wsId = $("#work_sheet_main_container").attr("ws_id");
@@ -1323,9 +1338,9 @@ function drawWorkSheetDetail(wsId,successFunc){
     switchWSPlanToCompletioMode();
     // 理应先做完保存 备注
     /*切换时删掉提示信息*/
-    //TODO
+    //DONE
     $("#work_sheet_main_container .common_hint_message").text("");
-
+    //DONE
     $("#work_sheet_work_items_container_main_body_ws_items").empty();
 
     sendAjax("CareerServlet","c_load_work_sheet",{
@@ -1652,6 +1667,7 @@ function loadWorkSheetDetail_render(data) {
             .find(".work_sheet_main_container_header_base_plan>em").text(data.basePlanName).end()
             
             .find(".work_sheet_main_container_header_mood").empty().append(calculateMoodSpan(data.mood.toFixed(1))).end()
+            //DONE
             .find(".work_sheet_main_container_header_state>span").text(data.ws.state.name).css(getFontColorAndBackgroudColor(data.ws.state.color))
 
         //DONE
