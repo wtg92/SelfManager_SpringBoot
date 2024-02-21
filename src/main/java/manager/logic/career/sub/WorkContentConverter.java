@@ -115,10 +115,13 @@ public abstract class WorkContentConverter {
 	private final static String A_CREATOR_ID = "c_id";
 	private final static String A_PLAN_ITEM_ID ="pl_item_id";
 
+	@Deprecated
 	private final static String A_START_TIME ="s_time";
 	private final static String A_START_TIME_UTC ="s_time_utc";
 
+	@Deprecated
 	private final static String A_END_TIME ="e_time";
+
 	private final static String A_END_TIME_UTC ="e_time_utc";
 	
 	private final static String PARAM_SPLITOR = "_";
@@ -201,8 +204,13 @@ public abstract class WorkContentConverter {
 		item.setNote(element.getText());
 		item.setMood(Integer.parseInt(element.attributeValue(A_MODE)));
 		item.setForAdd(Boolean.parseBoolean(element.attributeValue(A_FOR_ADD)));
+
 		item.setStartTime(TimeUtil.parseTime(element.attributeValue(A_START_TIME)));
+		item.setStartUtc(Long.parseLong(element.attributeValue(A_START_TIME_UTC)));
+
 		item.setEndTime(TimeUtil.parseTime(element.attributeValue(A_END_TIME)));
+		item.setEndUtc(Long.parseLong(element.attributeValue(A_END_TIME_UTC)));
+
 		item.setPlanItemId(Integer.parseInt(element.attributeValue(A_PLAN_ITEM_ID)));
 		item.setType(WorkItemType.valueOfDBCode(element.attributeValue(A_TYPE)));
 		item.setValue(Double.parseDouble(element.attributeValue(A_VALUE)));
@@ -442,8 +450,13 @@ public abstract class WorkContentConverter {
 		cur.addAttribute(A_PLAN_ITEM_ID, item.getPlanItemId().toString());
 		cur.addAttribute(A_MODE, item.getMood().toString());
 		cur.addAttribute(A_FOR_ADD, item.isForAdd().toString());
+
 		cur.addAttribute(A_START_TIME, TimeUtil.parseTime(item.getStartTime()));
+		cur.addAttribute(A_START_TIME_UTC, item.getStartUtc().toString());
+
 		cur.addAttribute(A_END_TIME, TimeUtil.parseTime(item.getEndTime()));
+		cur.addAttribute(A_END_TIME_UTC, item.getEndUtc().toString());
+
 		cur.addAttribute(A_TYPE, String.valueOf(item.getType().getDbCode()));
 		cur.addAttribute(A_VALUE, item.getValue().toString());
 		/*note 有换行符  只能用text存储*/
@@ -525,6 +538,7 @@ public abstract class WorkContentConverter {
 	 * @param endTime 可以为空 进行中
 	 * @throws LogicException
 	 */
+	@Deprecated
 	public static int addItemToWorkSheet(WorkSheet one,long adderId, int planItemId, int value, String note, int mood,boolean forAdd, Calendar startTime,Calendar endTime) throws LogicException {
 		Document wsDoc = getDocumentOrInitIfNotExists(one);
 		
@@ -552,7 +566,36 @@ public abstract class WorkContentConverter {
 		assert item.getId() !=0;
 		return item.getId();
 	}
-	
+
+	public static int addItemToWorkSheet(WorkSheet one,long adderId, int planItemId, int value, String note, int mood,boolean forAdd, Long startUtc, Long endUtc) throws LogicException {
+		Document wsDoc = getDocumentOrInitIfNotExists(one);
+
+		Document planDoc = getDefinatePlanDocument(one);
+		checkPlanItemIdExisted(planDoc,planItemId);
+
+		Element itemsRoot= wsDoc.getRootElement().element(T_ITEMS);
+
+		WorkItem item = new WorkItem();
+
+		item.setValue((double)value);
+		item.setForAdd(forAdd);
+		item.setMood(mood);
+		item.setNote(note);
+		item.setStartUtc(startUtc);
+		item.setEndUtc(endUtc);
+		item.setPlanItemId(planItemId);
+
+		item.setType(WorkItemType.GENERAL);
+
+		append(item,itemsRoot);
+
+		one.setContent(wsDoc.asXML());
+
+		assert item.getId() !=0;
+		return item.getId();
+	}
+
+
 
 	/**
 	  *  先检查Category 内 有没有 categoryName 有的话 抛异常（不允许重复，要不然会导致混乱） 没有的话 添加

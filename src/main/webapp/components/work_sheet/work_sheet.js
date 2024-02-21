@@ -74,19 +74,23 @@ $(function(){
     $(".work_sheet_main_container_switch_to_plan_mode").click(switchWSPlanToPlanMode);
     //DONE
     $(".work_sheet_logs_switch_container_visibility").click(switchToWSLogsBody);
-    //TODO　2
+    //DONE
     $("#work_sheet_today_plan_add_item_button").click(addPlanItemToWSPlan);
+    //DONE
     $("#work_sheet_today_plan_save_item_button").click(saveWSPlanItem);
 
+    //DONE
     $(".work_sheet_main_container_open_work_items_edit_mode").click(openWorkItemsEditModeWithoutConfirm);
+
     $(".work_sheet_main_container_close_work_items_edit_mode").click(closeWorkItemsEditMode);
     $(".work_sheet_switch_to_show_work_items_main_body").click(switchToShowWorkItemsBody);
 
+    //DONE
     $("#work_sheet_today_plan_father_and_son_relationship_container").on("click",".dropdown-item",switchToShowWSPlanItemsByFatherRelation);
-
 
     $(".work_sheet_main_container_open_ws_statistics").click(openWSStatistics);
 
+    //DONE
     $("#work_sheet_today_plan_control_group_container").find("[name='cat_name']").autocomplete({
         minLength:0,
         source : []
@@ -107,19 +111,18 @@ $(function(){
     .find("[name='mapping_val_for_differ_type']").on("input",inputOnlyAllowInt).end()
     .find("[name='mapping_val_for_same_type']").on("input",inputOnlyAllowFloat).end()
 
-
-
-
     $("#work_sheet_today_plan_items_cards_container").on("click",".work_sheet_plan_item_root_add_mark",addRootWSPlanItemByClickMark)
         .on("click",".work_sheet_plan_item_add_mark",addWSPlanItemClickMark)
         .on("click",".work_sheet_plan_item_delete_mark",deleteWSPlanItemByClickMark)
         .on("click",".work_sheet_plan_item_modify_mark",modifyWSPlanItemByClickMark)
         .on("click",".work_sheet_plan_item_fold_btn",foldWSPlanItemFoldBtn)
         .on("click",".work_sheet_plan_item_unfold_btn",unfoldWSPlanItemFoldBtn)
+        //DONE
         .on("click",".work_sheet_plan_item_save_fold_info",saveWSPlanItemFoldInfo)
+        //DONE
         .on("click",".work_sheet_plan_item_container_body,.work_sheet_plan_item_completion_body",addItemToWSByClickLabel)
         .on("click",".work_sheet_plan_sync_completion_to_dept",syncToPlanDept);
-
+    //DONE
     $("#work_sheet_work_items_container_main_body_controgroup").on("click",".dropdown-item",addItemToWS);
 
     $("#work_sheet_work_items_container_main_body_ws_items").on("click",".work_sheet_work_item_container_switch_to_show_note",switchToShowWorkItemNote)
@@ -349,7 +352,7 @@ function unfoldWSPlanItemFoldBtn(){
     let $parentContainer =  getSelfWSPlanItemContainerForFoldBtns(this);
     $parentContainer.attr("fold",false);
 }
-
+//DONE
 function saveWSPlanItemFoldInfo(){
     let wsId = $("#work_sheet_main_container").attr("ws_id");
     let fold = getSelfWSPlanItemContainerForFoldBtns(this).attr("fold");
@@ -665,7 +668,7 @@ function hideAllWorkItemsNote(){
         hideWorkItemNote($(v));
     })
 }
-
+//DONE
 function addItemToWSByClickLabel(){
     let planItemId = $(this).parent(".work_sheet_plan_item_container_sub_container").children(".work_sheet_plan_item_container_footer").attr("item_id");
     $("#work_sheet_work_items_container_main_body_controgroup .dropdown-item[item_id='"+planItemId+"']").click();
@@ -675,6 +678,7 @@ function addItemToWSByClickLabel(){
 /**
  * 主要是传一些默认值给后台，比较特殊的是start_time 是这天的date+当时的time
  */
+//DONE
 function addItemToWS(){
     if($(this).hasClass("common_prevent_double_click")){
         return;
@@ -700,7 +704,7 @@ function addItemToWS(){
         $(this).removeClass("common_prevent_double_click");
     });
 }
-
+//DONE
 function getDefaultWorkItemNote(){
     return "目标 \r\n开始 \r\n结束 "
 }
@@ -1480,7 +1484,7 @@ function parseWorkItemSaveParam($ws){
 }
 
 
-
+//TODO
 function drawWorkItems(wsItems,basePlanItems){
 
     let $container = $("#work_sheet_work_items_container_main_body_ws_items");
@@ -1490,17 +1494,17 @@ function drawWorkItems(wsItems,basePlanItems){
     unlockSaveWorkItem();
 
     wsItems.forEach(item=>{
+        //ABCD
         let planItem = getPlanItemOfWorkItem(item,basePlanItems);
 
         let remaining  = item.remainingValAtStart;
         let differ = item.item.forAdd ?(remaining+item.item.value):(remaining-item.item.value);
         
         let isMinutes = planItem.item.type.dbCode == BASIC_NAMESPACE.WS_ITEM_CAT_TYPE_OF_MINUTES;
-
+        //TODO 等到做完同步功能之后 有数据之后 修改这里
         if(item.item.type.dbCode == WS_NAMESPACE.WORK_ITEM_TYPE_OF_DEPT){
             let $ws = $("#work_sheet_pattern_container .work_sheet_work_item_of_dept_container").clone();
             let time = new Date(item.item.startTime);
-
 
             $ws.attr({
                 "plan_item_type":planItem.item.type.dbCode,
@@ -1518,7 +1522,10 @@ function drawWorkItems(wsItems,basePlanItems){
         }
 
 
+        //DONE 做下拉框 和 对应的按钮点击  ==> 删掉这个设计了
         let $ws = $("#work_sheet_pattern_container .work_sheet_work_item_container").clone();
+
+        //TODO
         let liObjs =  $("#work_sheet_work_items_container_main_body").find(".dropdown-menu").find(".dropdown-item").get().map(v=>{
             return {
                 "item_id":$(v).attr("item_id"),
@@ -1531,7 +1538,7 @@ function drawWorkItems(wsItems,basePlanItems){
         let startTime = new Date(item.item.startTime);
         let endTime = new Date(item.item.endTime);
 
-
+        //TODO
         $ws.find(".work_sheet_work_item_container_change_item_type_container").dropdown({
             readOnly: true,
             attrs:["item_id","cat_type"],
@@ -1548,13 +1555,21 @@ function drawWorkItems(wsItems,basePlanItems){
         $ws.attr({
             "plan_item_type":planItem.item.type.dbCode,
             "item_id":item.item.id,
-            "siwtch_type_modify_on":false
-        }).find(".work_sheet_work_item_container_change_item_type_container").find("select").prop("placeholder",planItem.item.name)
+        })
+            //TODO 修改类型
+            .find(".work_sheet_work_item_container_change_item_type_container").find("select").prop("placeholder",planItem.item.name)
         .end().prop("value","")
-        .end().find(".work_sheet_work_item_container_start_time_span").text(startTime.toHoursAndMinutesOnly("<em>无</em>")).end()
+            //DONE
+        .end().find(".work_sheet_work_item_container_start_time_span")
+            .text(startTime.toHoursAndMinutesOnly("<em>无</em>")).end()
             .find("[name='start_time']").val(startTime.toStandardHoursAndMinutesOnly()).end()
-            .find(".work_sheet_work_item_container_calculate_info_start").text(remaining.toText()).prop("title",isMinutes?remaining.transferToHoursMesIfPossible():"").end()
-            .find(".work_sheet_work_item_container_calculate_info_mark").attr("for_add",item.item.forAdd).text(caclulateWorkItemMarkByForAdd(item.item.forAdd)).end()          
+            //DONE
+            .find(".work_sheet_work_item_container_calculate_info_start").text(remaining.toText())
+            //DONE
+            .prop("title",isMinutes?remaining.transferToHoursMesIfPossible():"").end()
+            //DONE
+            .find(".work_sheet_work_item_container_calculate_info_mark").attr("for_add",item.item.forAdd).text(caclulateWorkItemMarkByForAdd(item.item.forAdd)).end()
+
             .find(".work_sheet_work_item_container_calculate_info_val").text(item.item.value.toText()).prop("title",isMinutes?item.item.value.transferToHoursMesIfPossible():"").end()
             .find("[name='val']").val(item.item.value).prop("title",isMinutes?item.item.value.transferToHoursMesIfPossible():"").end()
             .find(".work_sheet_work_item_container_calculate_info_rlt").text(differ.toText()).prop("title",isMinutes?differ.transferToHoursMesIfPossible():"").end()
@@ -1626,7 +1641,7 @@ function caclulateWorkItemMarkByForAdd(forAdd){
     return forAdd ? "+" : "-";
 }
 
-
+//TODO
 function loadWorkSheetDetail_render(data) {
     /**加载时，代表着要刷新容器了,那么检查一下有没有需要save的 假如有的话 就重新save一下 */
     //理论上应该直接删掉
@@ -1664,6 +1679,7 @@ function loadWorkSheetDetail_render(data) {
             "ws_id":data.ws.id,
             "abs_date" : data.ws.date
         }).find(".work_sheet_main_container_header_date_title").text(new Date(data.ws.date).toChineseDate()).end()
+            //DONE
             .find(".work_sheet_main_container_header_base_plan>em").text(data.basePlanName).end()
             
             .find(".work_sheet_main_container_header_mood").empty().append(calculateMoodSpan(data.mood.toFixed(1))).end()
@@ -1686,7 +1702,7 @@ function loadWorkSheetDetail_render(data) {
         $("#work_sheet_work_items_container_main_body_save_hint").find(".save_hint_seconds").text(WS_NAMESPACE.SAVE_WORK_ITEM_OP_TIMEOUT_SECONDS).end()
                 .find(".save_hint_update_time").text(new Date(data.ws.updateTime).toSmartString());
     
-        //TODO LAST STEP
+        //DONE
         drawWSPlanAndDropDown(data.content.planItems);
         //TODO
         drawWorkItems(data.content.workItems,data.content.planItems);

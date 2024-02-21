@@ -57,7 +57,6 @@ $(function(){
     //DONE
     $("#work_ws_sub_left_container_header").click(closeWsActualContainer);
 
-
     //TODO
     $("#work_open_ws_today_button").click(openWorkSheetToday);
     //TODO

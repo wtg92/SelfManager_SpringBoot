@@ -121,7 +121,12 @@ public class WorkLogicImpl_Legacy extends WorkLogic{
 		
 		CacheScheduler.saveEntity(ws,w->wDAO.updateExistedWorkSheet(w));
 	}
-	
+
+	@Override
+	public void addItemToWS(long loginId, long wsId, int planItemId, int value, String note, int mood, boolean forAdd, Long startUtc, Long endUtc) {
+
+	}
+
 	@Override
 	public void removeItemFromPlan(long removerId, long planId, int itemId) throws LogicException, DBException {
 		Plan existed = CacheScheduler.getOne(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));

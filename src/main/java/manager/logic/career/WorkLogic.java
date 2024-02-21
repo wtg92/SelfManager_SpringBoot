@@ -80,8 +80,12 @@ public abstract class WorkLogic{
 	*/
 	public abstract void addItemToPlan(long adderId,long planId,String categoryName,int value,String note,PlanItemType type,int fatherId,double mappingVal) throws LogicException, DBException;
 	public abstract void addItemToWSPlan(long adderId,long wsId,String categoryName,int value,String note,PlanItemType type,int fatherId,double mappingVal) throws LogicException, DBException;
-	public abstract void addItemToWS(long adderId, long wsId, int planItemId, int value, String note, int mood,boolean forAdd,Calendar startTime, Calendar endTime) throws LogicException, DBException;
-	
+	@Deprecated
+	public abstract void addItemToWS(long adderId, long wsId, int planItemId, int value, String note, int mood,boolean forAdd,Calendar startTime, Calendar endTime);
+
+	public abstract void addItemToWS(long loginId, long wsId, int planItemId, int value, String note, int mood,boolean forAdd,Long startUtc, Long endUtc);
+
+
 	/**
 	  * 当remove时，会一起连子的Item一起remove掉
 	 */
