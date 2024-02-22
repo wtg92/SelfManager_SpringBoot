@@ -47,9 +47,6 @@ $(function(){
     //DONE
     drawCommonIcon("including_common_edit_shape",$("#edit_work_sheet_tags_icon"));
 
-
-    $("body").on("keydown",monitorHotKeys);
-
     //DONE
     $(".work_sheet_switch_to_show_ws_note").click(switchToShowWSNote);
     //DONE
@@ -78,17 +75,15 @@ $(function(){
     $("#work_sheet_today_plan_add_item_button").click(addPlanItemToWSPlan);
     //DONE
     $("#work_sheet_today_plan_save_item_button").click(saveWSPlanItem);
-
     //DONE
     $(".work_sheet_main_container_open_work_items_edit_mode").click(openWorkItemsEditModeWithoutConfirm);
-
+    //DONE
     $(".work_sheet_main_container_close_work_items_edit_mode").click(closeWorkItemsEditMode);
+    //DONE
     $(".work_sheet_switch_to_show_work_items_main_body").click(switchToShowWorkItemsBody);
-
     //DONE
     $("#work_sheet_today_plan_father_and_son_relationship_container").on("click",".dropdown-item",switchToShowWSPlanItemsByFatherRelation);
 
-    $(".work_sheet_main_container_open_ws_statistics").click(openWSStatistics);
 
     //DONE
     $("#work_sheet_today_plan_control_group_container").find("[name='cat_name']").autocomplete({
@@ -111,6 +106,9 @@ $(function(){
     .find("[name='mapping_val_for_differ_type']").on("input",inputOnlyAllowInt).end()
     .find("[name='mapping_val_for_same_type']").on("input",inputOnlyAllowFloat).end()
 
+
+    $("body").on("keydown",monitorHotKeys);
+    $(".work_sheet_main_container_open_ws_statistics").click(openWSStatistics);
     $("#work_sheet_today_plan_items_cards_container").on("click",".work_sheet_plan_item_root_add_mark",addRootWSPlanItemByClickMark)
         .on("click",".work_sheet_plan_item_add_mark",addWSPlanItemClickMark)
         .on("click",".work_sheet_plan_item_delete_mark",deleteWSPlanItemByClickMark)
@@ -126,7 +124,9 @@ $(function(){
     $("#work_sheet_work_items_container_main_body_controgroup").on("click",".dropdown-item",addItemToWS);
 
     $("#work_sheet_work_items_container_main_body_ws_items").on("click",".work_sheet_work_item_container_switch_to_show_note",switchToShowWorkItemNote)
+        //DONE
         .on("input","[name='val']",inputOnlyAllowInt)
+
         .on("focus","textarea,input",lockSaveWorkItem)
         .on("blur","textarea,input",unlockSaveWorkItem)
         .on("change","textarea,input",saveWorkItemByUnit)
@@ -1494,7 +1494,7 @@ function drawWorkItems(wsItems,basePlanItems){
     unlockSaveWorkItem();
 
     wsItems.forEach(item=>{
-        //ABCD
+
         let planItem = getPlanItemOfWorkItem(item,basePlanItems);
 
         let remaining  = item.remainingValAtStart;
@@ -1569,14 +1569,19 @@ function drawWorkItems(wsItems,basePlanItems){
             .prop("title",isMinutes?remaining.transferToHoursMesIfPossible():"").end()
             //DONE
             .find(".work_sheet_work_item_container_calculate_info_mark").attr("for_add",item.item.forAdd).text(caclulateWorkItemMarkByForAdd(item.item.forAdd)).end()
-
+            //DONE
             .find(".work_sheet_work_item_container_calculate_info_val").text(item.item.value.toText()).prop("title",isMinutes?item.item.value.transferToHoursMesIfPossible():"").end()
             .find("[name='val']").val(item.item.value).prop("title",isMinutes?item.item.value.transferToHoursMesIfPossible():"").end()
+            //DONE
             .find(".work_sheet_work_item_container_calculate_info_rlt").text(differ.toText()).prop("title",isMinutes?differ.transferToHoursMesIfPossible():"").end()
+            //DONE
             .find(".work_sheet_work_item_container_calculate_info_type_name").text(planItem.item.type.name).end()
+            //DONE
             .find(".work_sheet_work_item_container_end_time_span").html(endTime.toHoursAndMinutesOnly("<em>进行中</em>")).end()
             .find("[name='end_time']").val(endTime.toStandardHoursAndMinutesOnly("")).end()
+            //DONE
             .find(".work_sheet_work_item_container_mood").append(calculateMoodSpan(item.item.mood)).end()
+            //TODO Start
             .find(".work_sheet_work_item_container_plan_item_context").html("<em>"+planItem.item.name+"</em>").end()
             .find(".work_sheet_work_item_container_note_body").html(item.item.note.replaceAll("\n","<br/>"));
 
