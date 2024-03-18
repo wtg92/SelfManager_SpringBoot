@@ -12,8 +12,6 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.alibaba.fastjson2.JSON;
-import manager.dao.DAOFactory;
 import manager.dao.UserDAO;
 import manager.data.UserSummary;
 import manager.data.proxy.UserGroupProxy;
@@ -423,14 +421,14 @@ public class UserLogicImpl extends UserLogic {
 			CacheScheduler.setTempMap(CacheMode.T_USER, uuId, TEL_KEY_FOR_SIGN_UP, tel);
 			/*代表需要重发*/
 			/*TODO 逻辑层未来做点时间校验？别发的太频繁*/
-			SMSUtil.sendSMS(SMSUtil.SIGN_UP_TEMPLETE_ID, tel, verifyCode,CacheUtil.TEMP_ALIVE_SECONDS/60);
+			SMSUtil.sendSMS(SMSUtil.SIGN_UP_TEMPLATE_ID, tel, verifyCode,CacheUtil.TEMP_ALIVE_SECONDS/60);
 			return verifyCode;
 		} catch (NoSuchElement e) {
 			try {
 				String verifyCode = createVerifyCode();
 				CacheScheduler.setTempMap(CacheMode.T_USER, uuId, TEL_VERIFY_CODE_KEY_FOR_SIGN_UP, verifyCode);
 				CacheScheduler.setTempMap(CacheMode.T_USER, uuId, TEL_KEY_FOR_SIGN_UP, tel);
-				SMSUtil.sendSMS(SMSUtil.SIGN_UP_TEMPLETE_ID, tel, verifyCode,CacheUtil.TEMP_ALIVE_SECONDS/60);
+				SMSUtil.sendSMS(SMSUtil.SIGN_UP_TEMPLATE_ID, tel, verifyCode,CacheUtil.TEMP_ALIVE_SECONDS/60);
 				return verifyCode;
 			} catch (NoSuchElement e1) {
 				assert e.type ==  NoSuchElementType.REDIS_KEY_NOT_EXISTS;
@@ -497,7 +495,7 @@ public class UserLogicImpl extends UserLogic {
 			
 			String verifyCode = createVerifyCode();
 			CacheScheduler.setTempByBiIdentifiers(CacheMode.T_TEL_FOR_RESET_PWD, account,val, verifyCode);
-			SMSUtil.sendSMS(SMSUtil.RESET_PWD_TEMPLETE_ID, val, verifyCode);
+			SMSUtil.sendSMS(SMSUtil.RESET_PWD_TEMPLATE_ID, val, verifyCode);
 			return;
 		}
 		default:
@@ -515,7 +513,7 @@ public class UserLogicImpl extends UserLogic {
 		}
 		String verifyCode = createVerifyCode();
 		CacheScheduler.setTemp(CacheMode.T_TEL_FOR_SIGN_IN, tel, verifyCode);
-		SMSUtil.sendSMS(SMSUtil.SIGN_IN_TEMPLETE_ID, tel, verifyCode,CacheUtil.TEMP_ALIVE_SECONDS/60);
+		SMSUtil.sendSMS(SMSUtil.SIGN_IN_TEMPLATE_ID, tel, verifyCode,CacheUtil.TEMP_ALIVE_SECONDS/60);
 		return verifyCode;
 	}
 
@@ -617,7 +615,7 @@ public class UserLogicImpl extends UserLogic {
 		case TEL_VERIFY_CODE:
 			try {
 				User user = uDAO.selectUniqueUserByField(SMDB.F_TEL_NUM, val);
-				SMSUtil.sendSMS(SMSUtil.RETRIEVE_ACOUNT_TEMPLETE_ID, val, user.getAccount());
+				SMSUtil.sendSMS(SMSUtil.RETRIEVE_ACCOUNT_TEMPLATE_ID, val, user.getAccount());
 			} catch (NoSuchElement e) {
 				throw new LogicException(SMError.RETRIEVE_USER_ERROR,"不存在的手机号 "+val);
 			}

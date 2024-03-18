@@ -86,8 +86,8 @@ public interface WorkDAO {
 
 
 	boolean includeWorkSheetByPlanId(long planId) throws DBException;
-	List<String> selectNonNullPlanTagsByUser(long loginerId) throws DBException;
-	List<String> selectNonNullWorkSheetTagsByUser(long loginerId) throws DBException;
+	List<String> selectNonNullPlanTagsByUser(long loginId) throws DBException;
+	List<String> selectNonNullWorkSheetTagsByUser(long loginId) throws DBException;
 
 	
 }

@@ -83,7 +83,7 @@ public abstract class WorkLogic{
 	@Deprecated
 	public abstract void addItemToWS(long adderId, long wsId, int planItemId, int value, String note, int mood,boolean forAdd,Calendar startTime, Calendar endTime);
 
-	public abstract void addItemToWS(long loginId, long wsId, int planItemId, int value, String note, int mood,boolean forAdd,Long startUtc, Long endUtc);
+	public abstract void addItemToWS(long loginId, long wsId, int planItemId, double value, String note, int mood,boolean forAdd,Long startUtc, Long endUtc);
 
 
 	/**
@@ -98,7 +98,7 @@ public abstract class WorkLogic{
 	 * 取出后 如果不在缓存里，就放到缓存里（认为用户很快会使用） 
 	 *  
 	 */
-	public abstract List<Plan> loadActivePlans(long loginerId) throws LogicException, DBException;
+	public abstract List<Plan> loadActivePlans(long loginId) throws LogicException, DBException;
 	public abstract void calculatePlanStatesRoutinely(long loginId);
 
 	public abstract void calculateWorksheetStatesRoutinely(long loginId);
@@ -108,14 +108,14 @@ public abstract class WorkLogic{
 	 * @return key state.dbCode.toString value count
 	 */
 	public abstract Map<String,Long> loadPlanStateStatistics(long ownerId) throws LogicException, DBException;
-	public abstract Map<String,Long> loadWSStateStatistics(long loginerId) throws LogicException, DBException;
+	public abstract Map<String,Long> loadWSStateStatistics(long loginId) throws LogicException, DBException;
 	/*ZT means ZoerTerm 当是0时，代表不设限*/
 	public abstract List<Plan> loadPlansByState(long ownerId,PlanState stateZT) throws LogicException, DBException;
-	public abstract List<WorkSheetProxy> loadWorkSheetByState(long loginerId, WorkSheetState stateZT)  throws LogicException, DBException;
+	public abstract List<WorkSheetProxy> loadWorkSheetByState(long loginId, WorkSheetState stateZT)  throws LogicException, DBException;
 	/**
 	 * 暂且只让人看到自己的
 	 */
-	public abstract PlanProxy loadPlan(long loginerId,long planId) throws LogicException, DBException;
+	public abstract PlanProxy loadPlan(long loginId,long planId) throws LogicException, DBException;
 	
 	/**
 	 * dao 取四个字段 id dateUtc state timezone
@@ -125,24 +125,24 @@ public abstract class WorkLogic{
 	 */
 	public abstract List<WorkSheet> loadWorkSheetInfosRecently(long opreatorId,int page) throws DBException, LogicException;
 	
-	public abstract WorkSheetProxy loadWorkSheet(long loginerId,long wsId) throws DBException, LogicException;
-	
+	public abstract WorkSheetProxy loadWorkSheet(long loginId,long wsId) throws DBException, LogicException;
+	public abstract WorkSheet getWorksheet(long loginId,long wsId);
 	
 	/**
 	 *   闭区间
 	 */
-	public abstract List<WorkSheetProxy> loadWorkSheetsByDateScope(long loginerId,Calendar startDate,Calendar endDate) throws SMException;
+	public abstract List<WorkSheetProxy> loadWorkSheetsByDateScope(long loginId,Calendar startDate,Calendar endDate) throws SMException;
 	
 	@Deprecated
-	public abstract long loadWorkSheetCount(long loginerId,Calendar date) throws SMException;
+	public abstract long loadWorkSheetCount(long loginId,Calendar date) throws SMException;
 
-	public abstract long getWorkSheetCount(long loginerId,Long date,String timezone);
+	public abstract long getWorkSheetCount(long loginId,Long date,String timezone);
 
 
-	public abstract List<String> loadAllPlanTagsByUser(long loginerId) throws SMException;
-	public abstract List<String> loadAllWorkSheetTagsByUser(long loginerId) throws SMException;
-	public abstract PlanDeptProxy loadPlanDept(long loginerId) throws DBException, LogicException;
-	public abstract List<String> loadPlanDeptItemNames(long loginerId);
+	public abstract List<String> loadAllPlanTagsByUser(long loginId) throws SMException;
+	public abstract List<String> loadAllWorkSheetTagsByUser(long loginId) throws SMException;
+	public abstract PlanDeptProxy loadPlanDept(long loginId) throws DBException, LogicException;
+	public abstract List<String> loadPlanDeptItemNames(long loginId);
 	/**
 	  * 假如存在一个WorkItem 依据该Plan 建立(No Cache)，那么会将改plan的EndDate设为今天，并且将状态设置为abandon.
 	  * 否则，直接删除
@@ -156,22 +156,26 @@ public abstract class WorkLogic{
 
 	
 	public abstract void saveWorkItemPlanItemId(long updaterId,long wsId,int workItemId, int planItemId) throws LogicException, DBException;
-	public abstract void saveWorkItems(long loginerId, long wsId, List<WorkItem> workItems) throws SMException;
+
+	@Deprecated
+	public abstract void saveWorkItems(long loginId, long wsId, List<WorkItem> workItems) throws SMException;
+
+	public abstract void saveWorkItem(long loginId, int wsId,int itemId, double val, String note, int mood, boolean forAdd, Long startUtc, Long endUtc);
 
 	/**
 	 * 之所以不允许修改类型及父ID 是因为 mappingval 是基于这两个值而设置的
 	 * 如果修改了类型及父ID 则全部都没有了意义
 	 */
-	public abstract void savePlanItem(long loginerId, long planId,int itemId,String catName,int value,String note,double mappingVal) throws LogicException, DBException;
-	public abstract void savePlanItemFold(long loginerId, long planId, int itemId, boolean fold) throws LogicException, DBException;
-	public abstract void saveWSPlanItem(long loginerId, long wsId,int itemId,String catName,int value,String note,double mappingVal) throws LogicException, DBException;
-	public abstract void saveWSPlanItemFold(long loginerId, long wsId, int itemId, boolean fold) throws DBException, LogicException;
+	public abstract void savePlanItem(long loginId, long planId,int itemId,String catName,int value,String note,double mappingVal) throws LogicException, DBException;
+	public abstract void savePlanItemFold(long loginId, long planId, int itemId, boolean fold) throws LogicException, DBException;
+	public abstract void saveWSPlanItem(long loginId, long wsId,int itemId,String catName,int value,String note,double mappingVal) throws LogicException, DBException;
+	public abstract void saveWSPlanItemFold(long loginId, long wsId, int itemId, boolean fold) throws DBException, LogicException;
 	public abstract void savePlan(long loginId, long planId, String name, Long startDate, Long endDate,String timezone,
 								  String note,List<PlanSetting> settings,int seqWeight, boolean recalculateState);
 	public abstract void recalculatePlanState(long loginId, long planId);
 
 	@Deprecated
-	public abstract void savePlan(long loginerId, long planId, String name, Calendar startDate, Calendar endDate,
+	public abstract void savePlan(long loginId, long planId, String name, Calendar startDate, Calendar endDate,
 			String note, boolean recalculateState, List<PlanSetting> settings,int seqWeight) throws LogicException, DBException;
 	public abstract void saveWorkSheet(long updaterId,long wsId,String note) throws LogicException, DBException;	
 	public abstract void savePlanDeptItem(long updaterId,int itemId,String name,double val) throws LogicException, DBException;	
@@ -190,13 +194,11 @@ public abstract class WorkLogic{
 	public abstract void assumeWorkSheetFinished(long opreatorId,long wsId) throws LogicException, DBException;
 	public abstract void cancelAssumeWorkSheetFinished(long opreatorId,long wsId) throws LogicException, DBException;
 
-	public abstract void syncToPlanDept(long loginerId,long wsId,int planItemId) throws DBException, LogicException;
-	public abstract void syncAllToPlanDept(long loginerId, long wsId) throws DBException, LogicException;
-	public abstract void syncAllToPlanDeptBatch(long logienrId,List<Integer> wsIds) throws SMException;
-	public abstract void syncPlanTagsToWorkSheet(long loginerId,long planId) throws SMException;
-	
-	
-	public abstract void copyPlanItemsFrom(long loginerId,int targetPlanId,int templetePlanId) throws DBException, LogicException;
+	public abstract void syncToPlanDept(long loginId,long wsId,int planItemId) throws DBException, LogicException;
+	public abstract void syncAllToPlanDept(long loginId, long wsId) throws DBException, LogicException;
+	public abstract void syncAllToPlanDeptBatch(long loginId,List<Integer> wsIds) throws SMException;
+	public abstract void syncPlanTagsToWorkSheet(long loginId,long planId) throws SMException;
+	public abstract void copyPlanItemsFrom(long loginId,long targetPlanId,long templatePlanId) throws DBException, LogicException;
 
 	public abstract long getCountWSBasedOfPlan(Integer planId, long loginId);
 
@@ -318,40 +320,6 @@ public abstract class WorkLogic{
 	}
 	
 	/**
-	  * 计算一个workSheet的平均mood
-	  * 依据时间计算
-	 */
-	protected static double calculateMoodByWorkItems(List<WorkItemProxy> workItems) {
-		List<WorkItem> itemsWithMoodAndEndTime = workItems.stream()
-				.filter(wi->wi.item.getMood()>0
-						&&TimeUtil.isNotBlank(wi.item.getEndTime()))
-				.map(proxy->proxy.item)
-				.collect(toList());
-		if(itemsWithMoodAndEndTime.size() == 0) {
-			return 0;
-		}
-		
-		int sumMinutes  = itemsWithMoodAndEndTime.stream().collect(Collectors.summingInt(item->
-			TimeUtil.countMinutesDiff(item.getEndTime(), item.getStartTime())
-		));
-		if(sumMinutes == 0) {
-			return 0;
-		}
-		
-		double rlt = itemsWithMoodAndEndTime.stream().collect(Collectors.summingDouble(item->
-			((double)TimeUtil.countMinutesDiff(item.getEndTime(), item.getStartTime())
-			/(double)sumMinutes) * item.getMood()
-		));
-		
-		if(Double.isNaN(rlt)) {
-			assert false;
-			return 0;
-		}
-		return rlt;
-	}
-	
-	
-	/**
 	 *    要看懂这个函数，先要理解WorkSheetContent需要求什么
 	 *  主要是求三个值 
 	 *  PlanItemProxy.sumValForWorkItems  : 对于某一个planItem节点，合并基于该item的workItems 统计出时间
@@ -366,7 +334,7 @@ public abstract class WorkLogic{
 		 * 
 		 * 这里的计算肯定存在多余（我只要某一root的相关结果，而这里求了所有），但由于相关计算过于复杂 就这么弄了。性能也影响不了多少
 		 * */
-		ws.workItems.sort(Comparator.comparing(item->item.item.getStartTime()));
+		ws.workItems.sort(Comparator.comparing(item->item.item.getStartUtc()));
 		ws.workItems.forEach(workItem->{
 			List<PlanItemProxy> planItemsForTemp = ws.planItems.stream().map(PlanItemProxy::clone)
 					.collect(toList());
@@ -375,7 +343,7 @@ public abstract class WorkLogic{
 			
 			workItem.remainingValAtStart = parseTo(planItemsForTemp).values().stream()
 					.map(node->node.item)
-					.filter(planItem->planItem.item.getId() == workItem.item.getPlanItemId()).findAny().get().remainingValForCur;
+					.filter(planItem->planItem.item.getId().equals(workItem.item.getPlanItemId())).findAny().get().remainingValForCur;
 			
 			accumaltorForWorkItem.add(workItem);
 		});
@@ -511,7 +479,6 @@ public abstract class WorkLogic{
 			}
 		}
 	}
-
 
 
 }

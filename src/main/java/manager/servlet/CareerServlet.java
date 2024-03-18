@@ -261,8 +261,7 @@ public class CareerServlet extends SMServlet{
 		List<String> tags = wL.loadAllWorkSheetTagsByUser(loginerId);
 		return JSON.toJSONString(tags);
 	}
-	
-	
+
 	private String loadWorkSheetsByDateScope(HttpServletRequest request) throws SMException {
 		long loginerId = getLoginId(request);
 		Calendar startDate = getNonNullParamInDate(request, START_DATE);
@@ -449,7 +448,7 @@ public class CareerServlet extends SMServlet{
 		long loginerId = getLoginId(request);
 		int targetPlanId = getNonNullParamInInt(request, TARGET_PLAN_ID);
 		String templePlanId = getNonNullParam(request, "temple_plan_id");
-		int templetePlanId = ServletAdapter.getCommonId(templePlanId);
+		int templetePlanId = (int)ServletAdapter.getCommonId(templePlanId);
 		wL.copyPlanItemsFrom(loginerId, targetPlanId, templetePlanId);
 		return JSON.toJSONString(ServletAdapter.process(wL.loadPlan(loginerId, targetPlanId)));
 	}
@@ -528,7 +527,7 @@ public class CareerServlet extends SMServlet{
 	
 	private String saveWorkSheetPlanId(HttpServletRequest request) throws SMException {
 		long loginerId = getLoginId(request);
-		int planId = ServletAdapter.getCommonId(getNonNullParam(request, PLAN_ID));
+		int planId = (int)ServletAdapter.getCommonId(getNonNullParam(request, PLAN_ID));
 		int wsId = getNonNullParamInInt(request, WS_ID);
 		wL.saveWorkSheetPlanId(loginerId, wsId, planId);
 		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId));

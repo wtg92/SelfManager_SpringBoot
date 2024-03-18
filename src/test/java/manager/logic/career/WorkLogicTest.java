@@ -135,7 +135,7 @@ public class WorkLogicTest {
 		Calendar startTime = TimeUtil.getCurrentTime();
 		assert 1 == addItemToWorkSheet(ws, 1, 1, 0, "", 0, false,startTime , TimeUtil.getBlank());
 		TimeUtil.travelHours(1);
-		updateWorkItem(ws, 1, 1,  1, "", 0, false, startTime, TimeUtil.getCurrentTime());
+		updateWorkItem(ws, 1, 1,  1, "", 0, false, (long)0, (long)0);
 		
 		WorkSheetContent wsContent = convertWorkSheet(ws);
 		

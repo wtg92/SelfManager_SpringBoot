@@ -466,7 +466,6 @@ function calculateStatUnit(e){
 function openWSOfDateRangeDialog(){
     $("#ws_stat_controlgroup_container_real_terms_lefter [type='date']").val("");
     $("#ws_stat_content_container").hide();
-
     $("#ws_stat_of_date_range_dialog").modal("show");
 }
 

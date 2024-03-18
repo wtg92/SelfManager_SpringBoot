@@ -18,8 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import manager.controller.UserController;
-import manager.entity.general.User;
 import org.apache.commons.collections4.map.HashedMap;
 
 import com.alibaba.fastjson2.JSON;
@@ -96,7 +94,7 @@ public abstract class CacheScheduler {
 				} catch (NoSuchElement e1) {
 					e1.printStackTrace();
 					assert false;
-					throw new LogicException(SMError.WRONG_INITOR,identifier);
+					throw new LogicException(SMError.WRONG_INITIATOR,identifier);
 				}
 			}
 		}
@@ -121,7 +119,7 @@ public abstract class CacheScheduler {
 				} catch (NoSuchElement e2) {
 					e2.printStackTrace();
 					assert false;
-					throw new LogicException(SMError.WRONG_INITOR,identifier);
+					throw new LogicException(SMError.WRONG_INITIATOR,identifier);
 				}
 			}
 		}

@@ -63,6 +63,15 @@ public class WorkSheetController {
         String note = param.getString(NOTE);
         wL.saveWorkSheet(loginId, wsId, note);
     }
+    @PatchMapping(WORK_SHEET_PATH+"/planId")
+    public void patchWorksheetPlanId(@RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody JSONObject param ) {
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long wsId = param.getLong(WS_ID);
+        long planId = ServletAdapter.getCommonId(param.getString(PLAN_ID));
+        wL.saveWorkSheetPlanId(loginId, wsId, planId);
+    }
+
 
     @PatchMapping(WORK_SHEET_PATH+"/assumeFinished")
     public void assumeWorkSheetFinished(@RequestHeader("Authorization") String authorizationHeader
@@ -99,7 +108,7 @@ public class WorkSheetController {
         long loginId = UIUtil.getLoginId(authorizationHeader);
         int wsId = param.getInteger(WS_ID);
         int planItemId = param.getInteger(PLAN_ITEM_ID);
-        int val =  getParamIntegerOrZeroDefault(param,VAL);
+        double val =  getParamDoubleOrZeroDefault(param,VAL);
         String note = param.getString(NOTE);
         int mood =  getParamIntegerOrZeroDefault(param,MOOD);
         boolean forAdd = param.getBoolean(FOR_ADD);
@@ -110,23 +119,62 @@ public class WorkSheetController {
         wL.addItemToWS(loginId, wsId, planItemId, val, note, mood, forAdd, startUtc, endUtc);
     }
 
-    @PatchMapping(WORK_SHEET_PATH+"/workItem")
-    private void patchWorkItem( @RequestHeader("Authorization") String authorizationHeader
+    @DeleteMapping(WORK_SHEET_PATH+"/workItem")
+    private void deleteWorkItem( @RequestHeader("Authorization") String authorizationHeader
             , @RequestBody JSONObject param ){
-//        long loginId = UIUtil.getLoginId(authorizationHeader);
-//        int wsId = param.getInteger(WS_ID);
-//        int planItemId = param.getInteger(PLAN_ITEM_ID);
-//        int val =  getParamIntegerOrZeroDefault(param,VAL);
-//        String note = param.getString(NOTE);
-//        int mood =  getParamIntegerOrZeroDefault(param,MOOD);
-//        boolean forAdd = param.getBoolean(FOR_ADD);
-//
-//        Long startUtc = param.getLong(START_TIME);
-//        Long endUtc = param.getLong(END_TIME);
-//
-//        wL.saveWorkItems(loginId, wsId, planItemId, val, note, mood, forAdd, startUtc, endUtc);
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        int wsId = param.getInteger(WS_ID);
+        int itemId = param.getInteger(ITEM_ID);
+        wL.removeItemFromWorkSheet(loginId, wsId, itemId);
     }
 
+    @PostMapping(WORK_SHEET_PATH+"/workItem/syncAllToDept")
+    private void syncAllToDept( @RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody JSONObject param ){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        int wsId = param.getInteger(WS_ID);
+        wL.syncAllToPlanDept(loginId, wsId);
+    }
+
+    @PostMapping(WORK_SHEET_PATH+"/workItem/syncToDept")
+    private void syncToPlanDept( @RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody JSONObject param ){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        int wsId = param.getInteger(WS_ID);
+        int itemId = param.getInteger(ITEM_ID);
+        wL.syncToPlanDept(loginId, wsId, itemId);
+    }
+
+    @PatchMapping(WORK_SHEET_PATH+"/workItem")
+    private WorkSheetProxy patchWorkItem( @RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody JSONObject param ){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        int wsId = param.getInteger(WS_ID);
+        int itemId = param.getInteger(ITEM_ID);
+        double val =  getParamDoubleOrZeroDefault(param,VAL);
+        String note = param.getString(NOTE);
+        int mood =  getParamIntegerOrZeroDefault(param,MOOD);
+        boolean forAdd = param.getBoolean(FOR_ADD);
+
+        Long startUtc = param.getLong(START_TIME);
+        Long endUtc = param.getLong(END_TIME);
+
+        wL.saveWorkItem(loginId,wsId,itemId,val, note, mood, forAdd, startUtc, endUtc);        /**
+         * 前台更新对应的更新时间 平均心情 左侧列名的更新
+         */
+        return wL.loadWorkSheet(loginId,wsId);
+    }
+
+
+    @PatchMapping(WORK_SHEET_PATH+"/workItem/planItemId")
+    private void patchWorkItemPlanItemId( @RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody JSONObject param ){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        int wsId = param.getInteger(WS_ID);
+        int workItemId = param.getInteger(WORK_ITEM_ID);
+        int planItemId = param.getInteger(PLAN_ITEM_ID);
+        wL.saveWorkItemPlanItemId(loginId, wsId, workItemId, planItemId);
+    }
 
 
 
@@ -240,14 +288,21 @@ public class WorkSheetController {
         return wL.loadAllPlanTagsByUser(loginId);
     }
 
+    @GetMapping(WORK_SHEET_PATH+"/tags")
+    public List<String> loadAllWorkSheetTags(
+            @RequestHeader("Authorization") String authorizationHeader) {
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        return wL.loadAllWorkSheetTagsByUser(loginId);
+    }
+
 
     @PostMapping(PLAN_PATH+"/copyPlanItemsById")
     private void copyPlanItemsById( @RequestHeader("Authorization") String authorizationHeader
             , @RequestBody JSONObject param ){
         long loginId = UIUtil.getLoginId(authorizationHeader);
-        int targetPlanId = param.getInteger(TARGET_PLAN_ID);
+        long targetPlanId = param.getLong(TARGET_PLAN_ID);
         String templePlanId = param.getString(TEMPLATE_ID);
-        int templateId = ServletAdapter.getCommonId(templePlanId);
+        long templateId = ServletAdapter.getCommonId(templePlanId);
         wL.copyPlanItemsFrom(loginId, targetPlanId, templateId);
     }
 
@@ -273,7 +328,6 @@ public class WorkSheetController {
         wL.syncPlanTagsToWorkSheet(loginId, planId);
     }
 
-
     @PostMapping(PLAN_PATH+"/tags/reset")
     private void resetPlanTags( @RequestHeader("Authorization") String authorizationHeader
             , @RequestBody JSONObject param ){
@@ -283,8 +337,14 @@ public class WorkSheetController {
         wL.resetPlanTags(loginId, planId,tags);
     }
 
-
-
+    @PostMapping(WORK_SHEET_PATH+"/tags/reset")
+    private void resetWorkSheetTags( @RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody JSONObject param ){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long wsId = param.getInteger(ID);
+        List<String> tags = param.getList(TAGS,String.class);
+        wL.resetWorkSheetTags(loginId, wsId,tags);
+    }
 
     @PostMapping(PLAN_PATH+"/item")
     private void postPlanItem( @RequestHeader("Authorization") String authorizationHeader

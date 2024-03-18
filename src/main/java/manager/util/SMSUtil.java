@@ -18,21 +18,21 @@ public abstract class SMSUtil {
 	/**
 	 * {1}为您的登录验证码，请于{2}分钟内填写，如非本人操作，请忽略本短信。
 	 */
-	public final static String SIGN_IN_TEMPLETE_ID = "765547";
+	public final static String SIGN_IN_TEMPLATE_ID = "765547";
 	/**
 	 * 您正在申请手机注册，验证码为：{1}，{2}分钟内有效！
 	 */
-	public final static String SIGN_UP_TEMPLETE_ID = "765545";
+	public final static String SIGN_UP_TEMPLATE_ID = "765545";
 	
 	/**
 	 *  您在科管申请的账号为{1}，如非本人操作，请忽略本短信。
 	 */
-	public final static String RETRIEVE_ACOUNT_TEMPLETE_ID = "791186";
+	public final static String RETRIEVE_ACCOUNT_TEMPLATE_ID = "791186";
 	
 	/**
 	 * 您的动态验证码为：{1}，您正在进行密码重置操作，如非本人操作，请忽略本短信！
 	 */
-	public final static String RESET_PWD_TEMPLETE_ID = "790960";
+	public final static String RESET_PWD_TEMPLATE_ID = "790960";
 	
 	private final static String TX_SDK_ID = CommonUtil.getValFromPropertiesFileInResource("tx_sdk_id");
 	private final static String TX_SECRET_ID = CommonUtil.getValFromPropertiesFileInResource("tx_secret_id");

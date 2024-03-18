@@ -61,9 +61,9 @@ public class ServletAdapter {
 		}
 	}
 	
-	public static int getCommonId(String code) throws LogicException {
+	public static long getCommonId(String code) throws LogicException {
 		try {
-			return Integer.parseInt(SecurityUtil.decodeInfo(code));
+			return Long.parseLong(SecurityUtil.decodeInfo(code));
 		} catch (Exception e) {
 			throw new LogicException(SMError.ILLEGAL_CODE);
 		}

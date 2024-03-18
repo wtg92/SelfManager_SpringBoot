@@ -123,7 +123,7 @@ public class WorkLogicImpl_Legacy extends WorkLogic{
 	}
 
 	@Override
-	public void addItemToWS(long loginId, long wsId, int planItemId, int value, String note, int mood, boolean forAdd, Long startUtc, Long endUtc) {
+	public void addItemToWS(long loginId, long wsId, int planItemId, double value, String note, int mood, boolean forAdd, Long startUtc, Long endUtc) {
 
 	}
 
@@ -434,7 +434,7 @@ public class WorkLogicImpl_Legacy extends WorkLogic{
 		for(WorkSheetProxy ws: rlt) {
 			WorkSheetContent content = WorkContentConverter.convertWorkSheet(ws.ws);
 			calculateWSContentDetail(content);
-			ws.mood = calculateMoodByWorkItems(content.workItems);
+//			ws.mood = calculateMoodByWorkItems(content.workItems);
 			List<WorkItemProxy> itemsWithoutDeptItems = content.workItems.stream().filter(item->item.item.getType() != WorkItemType.DEBT).collect(toList());
 			calculatePlanItemProxyDetail(content.planItems, itemsWithoutDeptItems);
 			ws.finishPlanWithoutDeptItems = content.planItems.stream().allMatch(pItem->pItem.remainingValForCur <= 0.0);
@@ -455,7 +455,7 @@ public class WorkLogicImpl_Legacy extends WorkLogic{
 		
 		WorkSheetProxy rlt = new WorkSheetProxy(ws);
 		
-		rlt.mood = calculateMoodByWorkItems(content.workItems);
+//		rlt.mood = calculateMoodByWorkItems(content.workItems);
 		rlt.basePlanName = CacheScheduler.getOne(CacheMode.E_ID, rlt.ws.getPlanId(), Plan.class, ()->wDAO.selectExistedPlan(rlt.ws.getPlanId())).getName();
 		rlt.content = content;
 		
@@ -463,7 +463,12 @@ public class WorkLogicImpl_Legacy extends WorkLogic{
 		
 		return clearUnnecessaryInfo(rlt);
 	}
-	
+
+	@Override
+	public WorkSheet getWorksheet(long loginId, long wsId) {
+		return null;
+	}
+
 	@Override
 	public long loadWorkSheetCount(long loginerId,Calendar date) throws SMException {
 		uL.checkPerm(loginerId, SMPerm.SEE_TODAY_WS_COUNT);
@@ -736,14 +741,23 @@ public class WorkLogicImpl_Legacy extends WorkLogic{
 		}
 		
 		for(WorkItem item:workItems) {
-			WorkContentConverter.updateWorkItem(ws, loginerId, item.getId(), item.getValue(), item.getNote(), item.getMood(), item.isForAdd(), item.getStartTime(), item.getEndTime());
+//			WorkContentConverter.updateWorkItem(ws, loginerId, item.getId(), item.getValue(), item.getNote(), item.getMood(), item.isForAdd(), item.getStartTime(), item.getEndTime());
 		}
 		
 		refreshStateAfterItemModified(ws);
 		CacheScheduler.saveEntity(ws,w->wDAO.updateExistedWorkSheet(w));	
 	}
-	
-	
+
+	@Override
+	public void saveWorkItem(long loginId, int wsId,int itemId, double val, String note, int mood, boolean forAdd, Long startUtc, Long endUtc) {
+		WorkSheet ws = CacheScheduler.getOne(CacheMode.E_ID,wsId, WorkSheet.class, ()->wDAO.selectExistedWorkSheet(wsId));
+		if(loginId != ws.getOwnerId()) {
+			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS);
+		}
+//		WorkContentConverter.updateWorkItem(ws, loginId, item.getId(), item.getValue(), item.getNote(), item.getMood(), item.isForAdd(), item.getStartTime(), item.getEndTime());
+	}
+
+
 	@Override
 	public void saveWorkItemPlanItemId(long updaterId, long wsId, int workItemId, int planItemId)
 			throws LogicException, DBException {
@@ -900,7 +914,7 @@ public class WorkLogicImpl_Legacy extends WorkLogic{
 	}
 
 	@Override
-	public void copyPlanItemsFrom(long loginerId, int targetPlanId, int templetePlanId)
+	public void copyPlanItemsFrom(long loginerId, long targetPlanId, long templetePlanId)
 			throws DBException, LogicException {
 		Plan target = CacheScheduler.getOne(CacheMode.E_ID, targetPlanId, Plan.class, ()->wDAO.selectExistedPlan(targetPlanId));
 		if(target.getOwnerId() != loginerId) {

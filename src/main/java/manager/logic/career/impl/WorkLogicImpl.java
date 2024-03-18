@@ -79,11 +79,24 @@ public class WorkLogicImpl extends WorkLogic{
 		return CacheScheduler.getOne(CacheMode.E_ID,wsId, WorkSheet.class, ()->wDAO.selectExistedWorkSheet(wsId));
 	}
 
+	private PlanDept getPlanDept(long loginId){
+		return CacheScheduler.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginId, PlanDept.class,
+				()->wDAO.selectPlanDeptByOwner(loginId), ()->initPlanDept(loginId));
+	}
+
 	private void updateWorksheetSynchronously(WorkSheet ws, long loginId){
 		locker.lockByUserAndClass(loginId,()->{
 			CacheScheduler.saveEntity(ws, one->wDAO.updateExistedWorkSheet(one));
 		});
 	}
+
+	private void updatePlanDeptSynchronously(PlanDept dept, long loginId){
+		locker.lockByUserAndClass(loginId,()->{
+			CacheScheduler.saveEntity(dept,d->wDAO.updateExistedPlanDept(d));
+		});
+	}
+
+
 
 
 	private void updatePlanSynchronously(Plan plan, long loginId){
@@ -155,7 +168,7 @@ public class WorkLogicImpl extends WorkLogic{
 			int fatherId, double mappingVal) throws LogicException, DBException {
 		WorkSheet ws = getWorksheet(wsId);
 		if(loginId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS,loginId+" vs "+ws.getOwnerId());
+			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS);
 		}
 		
 		WorkContentConverter.addItemToWSPlan(ws, loginId, categoryName, value, note, type, fatherId, mappingVal);
@@ -180,7 +193,7 @@ public class WorkLogicImpl extends WorkLogic{
 	}
 
 	@Override
-	public void addItemToWS(long loginId, long wsId, int planItemId, int value, String note, int mood, boolean forAdd, Long startUtc, Long endUtc) {
+	public void addItemToWS(long loginId, long wsId, int planItemId, double value, String note, int mood, boolean forAdd, Long startUtc, Long endUtc) {
 		locker.lockByUserAndClass(loginId,()->{
 			WorkSheet ws = getWorksheet(wsId);
 			if(loginId != ws.getOwnerId()) {
@@ -218,17 +231,17 @@ public class WorkLogicImpl extends WorkLogic{
 	}
 	
 	@Override
-	public void removeItemFromWorkSheet(long removerId, long wsId, int itemId) throws LogicException, DBException {
+	public void removeItemFromWorkSheet(long loginId, long wsId, int itemId) throws LogicException, DBException {
 		WorkSheet ws = getWorksheet(wsId);
-		if(removerId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS,removerId+" vs "+ws.getOwnerId());
+		if(loginId != ws.getOwnerId()) {
+			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS);
 		}
 		
-		WorkContentConverter.removeItemFromWorkSheet(ws, removerId, itemId);
+		WorkContentConverter.removeItemFromWorkSheet(ws, loginId, itemId);
 		
 		refreshStateAfterItemModified(ws);
 		
-		CacheScheduler.saveEntity(ws,w->wDAO.updateExistedWorkSheet(w));
+		updateWorksheetSynchronously(ws,loginId);
 	}
 	
 	
@@ -253,10 +266,10 @@ public class WorkLogicImpl extends WorkLogic{
 	 * 则判断标准是 已有的CreatedBySystem 依旧，其它全是CreatedByUser
 	 */
 	@Override
-	public void resetWorkSheetTags(long opreatorId,long wsId,List<String> tags) throws SMException {
+	public void resetWorkSheetTags(long loginId,long wsId,List<String> tags) throws SMException {
 		WorkSheet ws = getWorksheet(wsId);
-		if(opreatorId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS,opreatorId+" vs "+ws.getOwnerId());
+		if(loginId != ws.getOwnerId()) {
+			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS);
 		}
 		
 		List<EntityTag> old = ws.getTags();
@@ -272,7 +285,7 @@ public class WorkLogicImpl extends WorkLogic{
 		
 		ws.setTags(entityTags);
 
-		updateWorksheetSynchronously(ws,opreatorId);
+		updateWorksheetSynchronously(ws,loginId);
 	}
 
 
@@ -338,9 +351,9 @@ public class WorkLogicImpl extends WorkLogic{
 	public void saveWorkSheetPlanId(long updaterId, long wsId, long planId) throws SMException {
 		WorkSheet ws = getWorksheet(wsId);
 		if(updaterId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS,updaterId+" vs "+ws.getOwnerId());
+			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS);
 		}
-		Plan plan = CacheScheduler.getOne(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
+		Plan plan = getPlan(planId);
 		if(plan.getOwnerId() != updaterId) {
 			throw new LogicException(SMError.CAREER_ACTION_ERROR,"不能把工作表的基准计划修改为他人的计划");
 		}
@@ -490,17 +503,18 @@ public class WorkLogicImpl extends WorkLogic{
 	 *  需要计划名 平均心情 假设不包括同步项  计划的完成情况
 	 */
 	@Override
-	public List<WorkSheetProxy> loadWorkSheetsByDateScope(long loginerId, Calendar startDate, Calendar endDate)
+	public List<WorkSheetProxy> loadWorkSheetsByDateScope(long loginId, Calendar startDate, Calendar endDate)
 			throws SMException {
 		
-		List<WorkSheet> wss = wDAO.selectWorkSheetsByOwnerAndDateScope(loginerId, startDate, endDate);
+		List<WorkSheet> wss = wDAO.selectWorkSheetsByOwnerAndDateScope(loginId, startDate, endDate);
 		
 		List<WorkSheetProxy> rlt = fillPlanInfos(wss);
 		
 		for(WorkSheetProxy ws: rlt) {
 			WorkSheetContent content = WorkContentConverter.convertWorkSheet(ws.ws);
 			calculateWSContentDetail(content);
-			ws.mood = calculateMoodByWorkItems(content.workItems);
+			//TODO 重新计算噢
+//			ws.mood = calculateMoodByWorkItems(content.workItems);
 			List<WorkItemProxy> itemsWithoutDeptItems = content.workItems.stream().filter(item->item.item.getType() != WorkItemType.DEBT).collect(toList());
 			calculatePlanItemProxyDetail(content.planItems, itemsWithoutDeptItems);
 			ws.finishPlanWithoutDeptItems = content.planItems.stream().allMatch(pItem->pItem.remainingValForCur <= 0.0);
@@ -511,19 +525,16 @@ public class WorkLogicImpl extends WorkLogic{
 	}
 
 	@Override
-	public WorkSheetProxy loadWorkSheet(long loginerId, long wsId) throws DBException, LogicException {
+	public WorkSheetProxy loadWorkSheet(long loginId, long wsId) throws DBException, LogicException {
 		WorkSheet ws = getWorksheet(wsId);
-		if(loginerId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOTE_SEE_OTHERS_WS,loginerId+" vs "+ws.getOwnerId());
+		if(loginId != ws.getOwnerId()) {
+			throw new LogicException(SMError.CANNOTE_SEE_OTHERS_WS);
 		}
 		WorkSheetContent content = WorkContentConverter.convertWorkSheet(ws);
 		calculateWSContentDetail(content);
 		
 		WorkSheetProxy rlt = new WorkSheetProxy(ws);
-		
-		rlt.mood = calculateMoodByWorkItems(content.workItems);
 		Plan plan = getPlan(rlt.ws.getPlanId());
-
 		rlt.basePlanName = plan.getName();
 		rlt.timezone = plan.getTimezone();
 		rlt.content = content;
@@ -532,9 +543,18 @@ public class WorkLogicImpl extends WorkLogic{
 		
 		return clearUnnecessaryInfo(rlt);
 	}
-	
+
 	@Override
-	public long loadWorkSheetCount(long loginerId,Calendar date) throws SMException {
+	public WorkSheet getWorksheet(long loginId, long wsId) {
+		WorkSheet ws = getWorksheet(wsId);
+		if(loginId != ws.getOwnerId()) {
+			throw new LogicException(SMError.CANNOTE_SEE_OTHERS_WS);
+		}
+		return ws;
+	}
+
+	@Override
+	public long loadWorkSheetCount(long loginId,Calendar date) throws SMException {
 		throw new RuntimeException("block");
 	}
 
@@ -550,7 +570,7 @@ public class WorkLogicImpl extends WorkLogic{
 	@Override
 	public List<Plan> loadActivePlans(long loginId) throws LogicException, DBException {
 		uL.checkPerm(loginId, SMPerm.SEE_SELF_PLANS);
-		return wDAO.selectPlansByOwnerAndStates(loginId,Arrays.asList(PlanState.ACTIVE));
+		return wDAO.selectPlansByOwnerAndStates(loginId, List.of(PlanState.ACTIVE));
 	}
 
 	/**
@@ -656,14 +676,14 @@ public class WorkLogicImpl extends WorkLogic{
 	}
 	
 	@Override
-	public Map<String, Long> loadWSStateStatistics(long loginerId) throws LogicException, DBException {
+	public Map<String, Long> loadWSStateStatistics(long loginId) throws LogicException, DBException {
 		Map<String,Long> rlt = new HashMap<>();
 		
 		for(WorkSheetState state:WorkSheetState.values()) {
 			if(state == WorkSheetState.UNDECIDED)
 				continue;
 			
-			rlt.put(String.valueOf(state.getDbCode()), wDAO.countWorkSheetByOwnerAndState(loginerId, state));
+			rlt.put(String.valueOf(state.getDbCode()), wDAO.countWorkSheetByOwnerAndState(loginId, state));
 		}
 		
 		return rlt;
@@ -678,9 +698,9 @@ public class WorkLogicImpl extends WorkLogic{
 	}
 	
 	@Override
-	public PlanDeptProxy loadPlanDept(long loginerId) throws DBException, LogicException {
-		PlanDept dept = CacheScheduler.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginerId, PlanDept.class, 
-				 ()->wDAO.selectPlanDeptByOwner(loginerId), ()->initPlanDept(loginerId));
+	public PlanDeptProxy loadPlanDept(long loginId) throws DBException, LogicException {
+		PlanDept dept = CacheScheduler.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginId, PlanDept.class, 
+				 ()->wDAO.selectPlanDeptByOwner(loginId), ()->initPlanDept(loginId));
 		
 		PlanDeptProxy proxy = new PlanDeptProxy(dept);
 		
@@ -692,35 +712,35 @@ public class WorkLogicImpl extends WorkLogic{
 	}
 
 	@Override
-	public List<WorkSheetProxy> loadWorkSheetByState(long loginerId, WorkSheetState stateZT)
+	public List<WorkSheetProxy> loadWorkSheetByState(long loginId, WorkSheetState stateZT)
 			throws LogicException, DBException {
 		if(stateZT == WorkSheetState.UNDECIDED) {
-			return fillPlanInfos(wDAO.selectWorkSheetByField(SMDB.F_OWNER_ID, loginerId));
+			return fillPlanInfos(wDAO.selectWorkSheetByField(SMDB.F_OWNER_ID, loginId));
 		}
-		return clearUnnecessaryInfo(fillPlanInfos(wDAO.selectWorkSheetByOwnerAndStates(loginerId, Arrays.asList(stateZT))));
+		return clearUnnecessaryInfo(fillPlanInfos(wDAO.selectWorkSheetByOwnerAndStates(loginId, Arrays.asList(stateZT))));
 	}
 	
 	@Override
-	public List<String> loadPlanDeptItemNames(long loginerId) throws DBException, LogicException {
-		PlanDept dept = CacheScheduler.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginerId, PlanDept.class, 
-				 ()->wDAO.selectPlanDeptByOwner(loginerId), ()->initPlanDept(loginerId));
+	public List<String> loadPlanDeptItemNames(long loginId) throws DBException, LogicException {
+		PlanDept dept = CacheScheduler.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginId, PlanDept.class, 
+				 ()->wDAO.selectPlanDeptByOwner(loginId), ()->initPlanDept(loginId));
 		PlanDeptContent content = WorkContentConverter.convertPlanDept(dept);
 		return content.items.stream().map(PlanDeptItem::getName).collect(toList());
 	}
 	
 	@Override
-	public List<String> loadAllPlanTagsByUser(long loginerId) throws SMException {
+	public List<String> loadAllPlanTagsByUser(long loginId) throws SMException {
 		
-		List<String> tagStrs = wDAO.selectNonNullPlanTagsByUser(loginerId);
+		List<String> tagStrs = wDAO.selectNonNullPlanTagsByUser(loginId);
 		
 		return tagStrs.stream().flatMap(tagStr->TagCalculator.parseToTags(tagStr).stream().map(tag->tag.name))
 				.distinct().collect(toList());
 	}
 	
 	@Override
-	public List<String> loadAllWorkSheetTagsByUser(long loginerId) throws SMException {
+	public List<String> loadAllWorkSheetTagsByUser(long loginId) throws SMException {
 		
-		List<String> tagStrs = wDAO.selectNonNullWorkSheetTagsByUser(loginerId);
+		List<String> tagStrs = wDAO.selectNonNullWorkSheetTagsByUser(loginId);
 		
 		return tagStrs.stream().flatMap(tagStr->TagCalculator.parseToTags(tagStr).stream().map(tag->tag.name))
 				.distinct().collect(toList());
@@ -751,6 +771,7 @@ public class WorkLogicImpl extends WorkLogic{
 			ws.setDateUtc(today);
 			ws.setTimezone(timezone);
 			ws.setPlanId(planId);
+			ws.setNote("");
 			/*新创建的工作表的Tag和计划保持一致*/
 			ws.setTags(plan.getTags());
 			WorkContentConverter.pushToWorkSheet(plan, ws);
@@ -775,6 +796,7 @@ public class WorkLogicImpl extends WorkLogic{
 		ws.setNote(note);
 		updateWorksheetSynchronously(ws,updaterId);
 	}
+
 
 	@Override
 	public void deleteWorkSheet(long loginId, long wsId){
@@ -812,34 +834,41 @@ public class WorkLogicImpl extends WorkLogic{
 	}
 	
 	@Override
-	public void saveWorkItems(long loginerId, long wsId, List<WorkItem> workItems) throws SMException {
-		WorkSheet ws = getWorksheet(wsId);
-		if(loginerId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS,loginerId+" vs "+ws.getOwnerId());
-		}
-		
-		for(WorkItem item:workItems) {
-			WorkContentConverter.updateWorkItem(ws, loginerId, item.getId(), item.getValue(), item.getNote(), item.getMood(), item.isForAdd(), item.getStartTime(), item.getEndTime());
-		}
-		
-		refreshStateAfterItemModified(ws);
-		CacheScheduler.saveEntity(ws,w->wDAO.updateExistedWorkSheet(w));	
+	public void saveWorkItems(long loginId, long wsId, List<WorkItem> workItems) throws SMException {
+		//BLOCK
 	}
-	
-	
+
+	/**
+	 * 和前台配合 为了并发的安全 选择 从取的一刻就锁住
+	 * 大概的背景是这样的：
+	 * 1.前台的每一个item的更新会锁 但是不会回显
+	 * 2.这样保证了item单个的更新不会出现并发问题，但是多个item之间会出现并发问题。
+	 * 3.后台把取这一步也给加锁 相当于多个Item之间即便前台出现了并发问题 后台也不会出现并发问题
+	 */
 	@Override
-	public void saveWorkItemPlanItemId(long updaterId, long wsId, int workItemId, int planItemId)
-			throws LogicException, DBException {
+	public void saveWorkItem(long loginId, int wsId,int itemId, double val, String note, int mood, boolean forAdd, Long startUtc, Long endUtc) {
+		locker.lockByUserAndClass(loginId,()->{
+			WorkSheet ws = getWorksheet(wsId);
+			if(loginId != ws.getOwnerId()) {
+				throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS);
+			}
+			WorkContentConverter.updateWorkItem(ws, loginId, itemId, val, note, mood, forAdd, startUtc, endUtc);
+			refreshStateAfterItemModified(ws);
+			updateWorksheetSynchronously(ws,loginId);
+		});
+	}
+
+
+
+	@Override
+	public void saveWorkItemPlanItemId(long loginId, long wsId, int workItemId, int planItemId){
 		WorkSheet ws = getWorksheet(wsId);
-		if(updaterId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS,updaterId+" vs "+ws.getOwnerId());
+		if(loginId != ws.getOwnerId()) {
+			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS);
 		}
-		
-		WorkContentConverter.updateWorkItemPlanItemId(ws, updaterId, workItemId, planItemId);;
-		
+		WorkContentConverter.updateWorkItemPlanItemId(ws, loginId, workItemId, planItemId);;
 		refreshStateAfterItemModified(ws);
-		
-		CacheScheduler.saveEntity(ws,w->wDAO.updateExistedWorkSheet(w));
+		updateWorksheetSynchronously(ws,loginId);
 	}
 	
 	private long initPlanDept(long ownerId) throws DBException {
@@ -858,66 +887,66 @@ public class WorkLogicImpl extends WorkLogic{
 	 * 要重新计算一下状态
 	 */
 	@Override
-	public void syncToPlanDept(long loginerId, long wsId, int planItemId) throws DBException, LogicException {
-		WorkSheet ws = getWorksheet(wsId);
-		if(loginerId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS,loginerId+" vs "+ws.getOwnerId());
-		}
+	public void syncToPlanDept(long loginId, long wsId, int planItemId) throws DBException, LogicException {
+		locker.lockByUserAndClass(loginId,()->{
+			WorkSheet ws = getWorksheet(wsId);
+			if(loginId != ws.getOwnerId()) {
+				throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS);
+			}
 
-		WorkSheetContent content = WorkContentConverter.convertWorkSheet(ws);
-		calculateWSContentDetail(content);
-		
-		Map<Integer,PlanItemNode> planItemsById = parseTo(content.planItems);
-		if(!planItemsById.containsKey(planItemId)) {
-			throw new LogicException(SMError.INCONSISTANT_WS_DATA,"缺失的wsPlanId"+planItemId);
-		}
-		PlanItemProxy planItem = planItemsById.get(planItemId).item;
-		
-		if(planItem.remainingValForCur == 0) {
-			throw new LogicException(SMError.NO_SYNC_ZERO_WS_PLAN_ITEM,planItem.item.getName());
-		}
-		
-		PlanDept dept = CacheScheduler.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginerId, PlanDept.class, 
-				 ()->wDAO.selectPlanDeptByOwner(loginerId), ()->initPlanDept(loginerId));
-		
-		WorkContentConverter.syncToPlanDept(ws,dept,planItem,loginerId);
+			WorkSheetContent content = WorkContentConverter.convertWorkSheet(ws);
+			calculateWSContentDetail(content);
 
-		refreshStateAfterItemModified(ws);
-		
-		CacheScheduler.saveEntity(ws,w->wDAO.updateExistedWorkSheet(w));
-		CacheScheduler.saveEntity(dept,d->wDAO.updateExistedPlanDept(d));
+			Map<Integer,PlanItemNode> planItemsById = parseTo(content.planItems);
+			if(!planItemsById.containsKey(planItemId)) {
+				throw new LogicException(SMError.INCONSISTANT_WS_DATA,"缺失的wsPlanId"+planItemId);
+			}
+			PlanItemProxy planItem = planItemsById.get(planItemId).item;
+
+			if(planItem.remainingValForCur == 0) {
+				throw new LogicException(SMError.NO_SYNC_ZERO_WS_PLAN_ITEM,planItem.item.getName());
+			}
+
+			PlanDept dept = getPlanDept(loginId);
+			WorkContentConverter.syncToPlanDept(ws,dept,planItem,loginId);
+			refreshStateAfterItemModified(ws);
+
+			updateWorksheetSynchronously(ws,loginId);
+			updatePlanDeptSynchronously(dept,loginId);
+		});
 	}
 	
 	@Override
-	public void syncAllToPlanDept(long loginerId, long wsId) throws DBException, LogicException {
-		WorkSheet ws = getWorksheet(wsId);
-		if(loginerId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS,loginerId+" vs "+ws.getOwnerId());
-		}
+	public void syncAllToPlanDept(long loginId, long wsId) throws DBException, LogicException {
+		locker.lockByUserAndClass(loginId,()->{
+			WorkSheet ws = getWorksheet(wsId);
+			if(loginId != ws.getOwnerId()) {
+				throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS,loginId+" vs "+ws.getOwnerId());
+			}
 
-		WorkSheetContent content = WorkContentConverter.convertWorkSheet(ws);
-		calculateWSContentDetail(content);
-		
-		
-		/*同步所有时，是以根节点为准 同步的*/
-		List<PlanItemProxy> needingToSync = content.planItems.stream()
-				.filter(item->item.remainingValForCur!=0).collect(toList());
-		
-		if(needingToSync.size() == 0) {
-			logger.log(Level.WARNING,"同步所有却没有需要同步的，前台出现问题了？"+wsId);
-		}
-		
-		PlanDept dept = CacheScheduler.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginerId, PlanDept.class, 
-				 ()->wDAO.selectPlanDeptByOwner(loginerId), ()->initPlanDept(loginerId));
-		
-		for(PlanItemProxy planItem :needingToSync) {
-			WorkContentConverter.syncToPlanDept(ws,dept,planItem,loginerId);
-		}
+			WorkSheetContent content = WorkContentConverter.convertWorkSheet(ws);
+			calculateWSContentDetail(content);
 
-		refreshStateAfterItemModified(ws);
-		
-		CacheScheduler.saveEntity(ws,w->wDAO.updateExistedWorkSheet(w));
-		CacheScheduler.saveEntity(dept,d->wDAO.updateExistedPlanDept(d));
+
+			/*同步所有时，是以根节点为准 同步的*/
+			List<PlanItemProxy> needingToSync = content.planItems.stream()
+					.filter(item->item.remainingValForCur!=0).collect(toList());
+
+			if(needingToSync.isEmpty()) {
+				logger.log(Level.WARNING,"同步所有却没有需要同步的，前台出现问题了？"+wsId);
+			}
+
+			PlanDept dept = getPlanDept(loginId);
+
+			for(PlanItemProxy planItem :needingToSync) {
+				WorkContentConverter.syncToPlanDept(ws,dept,planItem,loginId);
+			}
+
+			refreshStateAfterItemModified(ws);
+
+			updateWorksheetSynchronously(ws,loginId);
+			updatePlanDeptSynchronously(dept,loginId);
+		});
 	}
 	
 	@Override
@@ -933,9 +962,9 @@ public class WorkLogicImpl extends WorkLogic{
 	 * 如果手动修改的标签 在计划的标签里，将标签由手动改为系统创建
 	 */
 	@Override
-	public void syncPlanTagsToWorkSheet(long loginerId, long planId) throws SMException {
+	public void syncPlanTagsToWorkSheet(long loginId, long planId) throws SMException {
 		Plan target = CacheScheduler.getOne(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
-		if(target.getOwnerId() != loginerId) {
+		if(target.getOwnerId() != loginId) {
 			throw new LogicException(SMError.CANNOT_SYNC_OTHERS_PLAN_TAGS);
 		}
 		
@@ -983,21 +1012,20 @@ public class WorkLogicImpl extends WorkLogic{
 	}
 
 	@Override
-	public void copyPlanItemsFrom(long loginerId, int targetPlanId, int templetePlanId)
+	public void copyPlanItemsFrom(long loginId, long targetPlanId, long templatePlanId)
 			throws DBException, LogicException {
-		Plan target = CacheScheduler.getOne(CacheMode.E_ID, targetPlanId, Plan.class, ()->wDAO.selectExistedPlan(targetPlanId));
-		if(target.getOwnerId() != loginerId) {
+		Plan target = getPlan(targetPlanId);
+		if(target.getOwnerId() != loginId) {
 			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
 		}
-		Plan templete = CacheScheduler.getOne(CacheMode.E_ID, templetePlanId, Plan.class, ()->wDAO.selectExistedPlan(templetePlanId));
-		if(templete.getOwnerId() !=loginerId 
-				&& !templete.hasSetting(PlanSetting.ALLOW_OTHERS_COPY_PLAN_ITEMS)) {
+		Plan template = getPlan(templatePlanId);
+		if(template.getOwnerId() !=loginId
+				&& !template.hasSetting(PlanSetting.ALLOW_OTHERS_COPY_PLAN_ITEMS)) {
 			throw new LogicException(SMError.CONNOT_COPY_OTHERS_PLANITEMS);
 		}
 		
-		WorkContentConverter.copyPlanItemsFrom(target, templete, loginerId);
-		
-		CacheScheduler.saveEntity(target,p->wDAO.updateExistedPlan(p));
+		WorkContentConverter.copyPlanItemsFrom(target, template, loginId);
+		updatePlanSynchronously(target,loginId);
 	}
 
 	@Override

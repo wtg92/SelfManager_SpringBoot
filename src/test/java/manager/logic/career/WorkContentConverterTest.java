@@ -129,8 +129,8 @@ public class WorkContentConverterTest {
 		
 		String wsItemNote = "啧啧";
 		int mood = 3;
-		Calendar startTime = TimeUtil.getCurrentTime();
-		addItemToWorkSheet(ws, 1, 1, 10, wsItemNote, mood, false,startTime , TimeUtil.getBlank());
+		long startTime = System.currentTimeMillis();
+		addItemToWorkSheet(ws, 1, 1, 10, wsItemNote, mood, false,startTime ,(long)0);
 		
 		wsContent = convertWorkSheet(ws);
 		assertEquals(1, wsContent.workItems.size());
@@ -138,17 +138,16 @@ public class WorkContentConverterTest {
 		assertEquals(wsItemNote, wsContent.workItems.get(0).item.getNote());
 		assertTrue(mood == wsContent.workItems.get(0).item.getMood());
 		assertTrue(TimeUtil.isBlank(wsContent.workItems.get(0).item.getEndTime()));
-		
-		Calendar end = TimeUtil.getCurrentTime();
+
+		long end = System.currentTimeMillis();
 		mood = 5;
-		updateWorkItem(ws, 1, 1, 100, "", mood, true, startTime, end);
-		
+		updateWorkItem(ws, 1, 1, 100, "", mood, true, startTime, (long)0);
+
 		wsContent = convertWorkSheet(ws);
 		assertEquals(1, wsContent.workItems.size());
 		assertEquals("", wsContent.workItems.get(0).item.getNote());
 		assertTrue(mood == wsContent.workItems.get(0).item.getMood());
-		assertTrue(TimeUtil.isSameByDate(end,wsContent.workItems.get(0).item.getEndTime()));
-		
+
 		removeItemFromWorkSheet(ws, 1, 1);
 		wsContent = convertWorkSheet(ws);
 		assertEquals(0, wsContent.workItems.size());

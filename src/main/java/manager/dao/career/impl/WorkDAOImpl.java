@@ -207,28 +207,25 @@ public class WorkDAOImpl implements WorkDAO {
 	@Override
 	public List<String> selectNonNullWorkSheetTagsByUser(long loginerId) throws DBException {
 		List<String> rlt = new ArrayList<>();
-		Session session = null;
-		Transaction trans = null;
-		try {
-			session = sessionFactory.getCurrentSession();
-			trans = session.beginTransaction();
+		sessionFactory.inStatelessSession(session->{
 			session.doWork(conn -> {
-				String sql = String.format("select %s From %s where %s=? and %s is not null and trim(%s) != ''",
-						SMDB.F_TAGS,SMDB.T_WORK_SHEET,
-						SMDB.F_OWNER_ID,SMDB.F_TAGS,SMDB.F_TAGS);
-				try (PreparedStatement ps = conn.prepareStatement(sql)) {
-					ps.setLong(1, loginerId);
-					ResultSet rs = ps.executeQuery();
-					while(rs.next()) {
-						rlt.add(rs.getString(1));
+				try {
+					String sql = String.format("select %s From %s where %s=? and %s is not null and trim(%s) != ''",
+							SMDB.F_TAGS,SMDB.T_WORK_SHEET,
+							SMDB.F_OWNER_ID,SMDB.F_TAGS,SMDB.F_TAGS);
+					try (PreparedStatement ps = conn.prepareStatement(sql)) {
+						ps.setLong(1, loginerId);
+						ResultSet rs = ps.executeQuery();
+						while(rs.next()) {
+							rlt.add(rs.getString(1));
+						}
 					}
+				} catch (Exception e) {
+					throw processDBException(e);
 				}
 			});
-			trans.commit();
-			return rlt;
-		} catch (Exception e) {
-			throw processDBException(trans, session, e);
-		}
+		});
+		return rlt;
 	}
 	
 

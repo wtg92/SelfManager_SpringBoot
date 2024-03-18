@@ -9,9 +9,6 @@ import java.security.spec.KeySpec;
 import java.util.Base64;
 
 import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
@@ -38,7 +35,7 @@ public abstract class SecurityUtil {
 		} catch (NoSuchAlgorithmException e) {
 			assert false;
 			e.printStackTrace();
-			throw new LogicException(SMError.UNEXPCTED_ERROR,e.getMessage());
+			throw new LogicException(SMError.UNEXPECTED_ERROR,e.getMessage());
 		}
 		
 		try {
@@ -46,7 +43,7 @@ public abstract class SecurityUtil {
 		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
 			assert false;
 			e.printStackTrace();
-			throw new LogicException(SMError.UNEXPCTED_ERROR,e.getMessage());
+			throw new LogicException(SMError.UNEXPECTED_ERROR,e.getMessage());
 		}
 	}
 	
@@ -58,7 +55,7 @@ public abstract class SecurityUtil {
 		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
 			assert false;
 			e.printStackTrace();
-			throw new LogicException(SMError.UNEXPCTED_ERROR,e.getMessage());
+			throw new LogicException(SMError.UNEXPECTED_ERROR,e.getMessage());
 		}
 	}
 	
@@ -68,7 +65,7 @@ public abstract class SecurityUtil {
 		try {
 			return Base64.getEncoder().encodeToString(AES.encrypt(info.getBytes()));
 		}catch (Exception e) {
-			throw new LogicException(SMError.UNEXPCTED_ERROR,e.getMessage());
+			throw new LogicException(SMError.UNEXPECTED_ERROR,e.getMessage());
 		}
 	}
 	
@@ -77,7 +74,7 @@ public abstract class SecurityUtil {
 			 return new String(AES.decrypt(Base64.getDecoder().decode(info)));
 		}catch (Exception e) {
 			e.printStackTrace();
-			throw new LogicException(SMError.UNEXPCTED_ERROR,e.getMessage());
+			throw new LogicException(SMError.UNEXPECTED_ERROR,e.getMessage());
 		}
 	}
 

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import manager.util.ZonedTimeUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
@@ -567,7 +568,7 @@ public abstract class WorkContentConverter {
 		return item.getId();
 	}
 
-	public static int addItemToWorkSheet(WorkSheet one,long adderId, int planItemId, int value, String note, int mood,boolean forAdd, Long startUtc, Long endUtc) throws LogicException {
+	public static int addItemToWorkSheet(WorkSheet one,long adderId, int planItemId, double value, String note, int mood,boolean forAdd, Long startUtc, Long endUtc) throws LogicException {
 		Document wsDoc = getDocumentOrInitIfNotExists(one);
 
 		Document planDoc = getDefinatePlanDocument(one);
@@ -577,7 +578,7 @@ public abstract class WorkContentConverter {
 
 		WorkItem item = new WorkItem();
 
-		item.setValue((double)value);
+		item.setValue(value);
 		item.setForAdd(forAdd);
 		item.setMood(mood);
 		item.setNote(note);
@@ -586,6 +587,8 @@ public abstract class WorkContentConverter {
 		item.setPlanItemId(planItemId);
 
 		item.setType(WorkItemType.GENERAL);
+
+		checkStartUtcAndEndUtcLegal(item,one);
 
 		append(item,itemsRoot);
 
@@ -818,7 +821,7 @@ public abstract class WorkContentConverter {
 	}
 	
 	
-	public static void updateWorkItem(WorkSheet one,long updaterId,int workItemId, double value, String note, int mood,boolean forAdd,Calendar startTime,Calendar endTime) throws LogicException{
+	public static void updateWorkItem(WorkSheet one,long updaterId,int workItemId, double value, String note, int mood,boolean forAdd,Long startTime,Long endTime) throws LogicException{
 		Document ws = getDefinateDocument(one);
 		Element targetWorkItem = getWorkItemById(ws, workItemId);
 		WorkItem origin = parseWorkItem(targetWorkItem);
@@ -826,15 +829,35 @@ public abstract class WorkContentConverter {
 		origin.setNote(note);
 		origin.setMood(mood);
 		origin.setForAdd(forAdd);
-		origin.setStartTime(startTime);
-		origin.setEndTime(endTime);;
+		origin.setStartUtc(startTime);
+		origin.setEndUtc(endTime);
+		
+		checkStartUtcAndEndUtcLegal(origin,one);
 		
 		fillAttrsExceptId(origin, targetWorkItem);
-		
 		one.setContent(ws.asXML());
 	}
-	
-	
+
+	/**
+	 *  workItems 年月日是由对应的ws决定的
+	 *  所以item的startUtc和endUtc 只体现 时分
+	 *  但其中又包含了日期的信息
+	 *  因此我需要校验 他们必须在同一天
+	 *  这是不必要的检验 但是前端太容易出错了
+	 */
+	private static void checkStartUtcAndEndUtcLegal(WorkItem origin, WorkSheet one) {
+		if(origin.getStartUtc() != 0
+			&& ZonedTimeUtils.isNotSameByDate(one.getTimezone(),one.getDateUtc(),origin.getStartUtc())){
+			throw new LogicException(SMError.UNEXPECTED_ERROR);
+		}
+		if(origin.getEndUtc() != 0
+				&& ZonedTimeUtils.isNotSameByDate(one.getTimezone(),one.getDateUtc(),origin.getEndUtc())
+		){
+			throw new LogicException(SMError.UNEXPECTED_ERROR);
+		}
+	}
+
+
 	/**
 	 * 	假如存在同名项 则合并 假如最后为0 则删除。
 	 * 
@@ -1077,7 +1100,7 @@ public abstract class WorkContentConverter {
 			double after = CommonUtil.fixDouble(planItem.remainingValForCur+deptItem.getValue());
 			
 			addPlanDpetLog(deptDoc, CareerLogAction.SYNC_ITEM_FOR_DEPT, opreatorId,
-					TimeUtil.parseDate(ws.getDate()),
+					ws.getDateUtc(),
 					deptItemName,
 					deptItem.getValue(),
 					after,
@@ -1094,7 +1117,7 @@ public abstract class WorkContentConverter {
 			append(deptItem, itemsElement);
 			
 			addPlanDpetLog(deptDoc, CareerLogAction.ADD_DEPT_ITEM, opreatorId,
-					TimeUtil.parseDate(ws.getDate()),
+					ws.getDateUtc(),
 					deptItemName,
 					deptItem.getValue(),
 					type.getDbCode());
@@ -1103,14 +1126,14 @@ public abstract class WorkContentConverter {
 		Document wsDoc = getDefinateDocument(ws);
 		
 		WorkItem item = new WorkItem();
-		Calendar syncTime = TimeUtil.getCurrentTime();
+		long syncTime = System.currentTimeMillis();
 		item.setType(WorkItemType.DEBT);
 		item.setValue(planItem.remainingValForCur);
 		item.setPlanItemId(planItem.item.getId());
 		item.setNote("");
 		item.setMood(0);
-		item.setStartTime(syncTime);
-		item.setEndTime(syncTime);
+		item.setStartUtc(syncTime);
+		item.setEndUtc(syncTime);
 		
 		refineForAddAndVal(item);
 		
