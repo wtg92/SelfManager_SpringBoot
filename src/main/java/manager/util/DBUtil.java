@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,6 +16,9 @@ import java.util.stream.Collectors;
 import com.alibaba.fastjson2.JSON;
 import jakarta.persistence.OptimisticLockException;
 import jakarta.persistence.TypedQuery;
+import manager.data.general.FinalHandler;
+import manager.data.general.FinalIntegerCounter;
+import manager.data.general.FinalIntegerTempStorageCalculator;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -25,6 +29,7 @@ import manager.exception.DBException;
 import manager.exception.NoSuchElement;
 import manager.system.SMDB;
 import manager.system.SMError;
+import org.hibernate.query.Query;
 
 /**
  * 数据库默认时间 : "1970-01-01 08:00:00"（和Java保持一致）
@@ -120,6 +125,43 @@ public abstract class DBUtil {
 		Calendar minTimeOfstartDate = TimeUtil.getMinTimeOfDay(startDate);
 	    Calendar maxTimeOfendDate = TimeUtil.getMaxTimeOfDay(endDate);
 		return selectEntitiesByTimeScopeAndField(cla, dateFieldName, minTimeOfstartDate, maxTimeOfendDate, field2Name, field2val, hbFactory);
+	}
+
+
+	public static<T> List<T> selectEntitiesByRange(Class<T> cla, String rangeFieldName,Long minBorder,Long maxBorder,
+															   Map<String,Object> additionalFilter,
+															   SessionFactory hbFactory){
+		String tableName = CommonUtil.getEntityTableName(cla);
+
+		StringBuffer additionalParams = new StringBuffer();
+
+		FinalIntegerTempStorageCalculator storageCalculator = new FinalIntegerTempStorageCalculator(3,"val");
+		if(additionalFilter != null){
+			additionalFilter.forEach((key,val)->{
+				additionalParams.append(String.format(" AND %s=:%s",transFieldToAttr(key),storageCalculator.getAndIncrementHandlerAndStorage(val)));
+			});
+		}
+
+		String hql = String.format("FROM %s WHERE %s>=:val1 and %s<=:val2 "+additionalParams.toString(), transTableToEntity(tableName)
+				,transFieldToAttr(rangeFieldName)
+				,transFieldToAttr(rangeFieldName));
+
+		return hbFactory.fromStatelessSession(session -> {
+			try {
+				FinalHandler<Query<T>> handler = new FinalHandler<>();
+				handler.val = session.createQuery(hql, cla)
+						.setParameter("val1", minBorder)
+						.setParameter("val2", maxBorder);
+
+				storageCalculator.consumerValues((key,val)->{
+					handler.val =handler.val.setParameter(key,val);
+				});
+
+				return handler.val.getResultList();
+			}catch (Exception e) {
+				throw processDBException(e);
+			}
+		});
 	}
 
 	/*闭区间*/

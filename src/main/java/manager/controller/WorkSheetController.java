@@ -288,6 +288,28 @@ public class WorkSheetController {
         return wL.loadAllPlanTagsByUser(loginId);
     }
 
+    @GetMapping(WORK_SHEET_PATH+"/timezones")
+    public List<String> loadAllWorkSheetTimezones(
+            @RequestHeader("Authorization") String authorizationHeader) {
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        return wL.loadAllWorkSheetTimezones(loginId);
+    }
+
+    @GetMapping(WORK_SHEET_PATH+"/byDateScopeAndTimezone")
+    public List<WorkSheetProxy> loadWorkSheetsByDateScopeAndTimezone(
+            @RequestParam(START_DATE)Long startDateUtc
+            ,@RequestParam(END_DATE)Long endDateUtc
+            ,@RequestParam(TIMEZONE)String timezone
+            ,@RequestParam("regarding_timezone")Boolean regarding
+            ,@RequestHeader("Authorization") String authorizationHeader) {
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long startDate = getInDate(startDateUtc,timezone);
+        long endDate = getInDate(endDateUtc,timezone);
+        return wL.loadWorkSheetsByDateScopeAndTimezone(loginId, startDate, endDate,timezone,regarding);
+    }
+
+
+
     @GetMapping(WORK_SHEET_PATH+"/tags")
     public List<String> loadAllWorkSheetTags(
             @RequestHeader("Authorization") String authorizationHeader) {

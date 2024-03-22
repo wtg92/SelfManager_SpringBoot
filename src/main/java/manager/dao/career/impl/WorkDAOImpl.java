@@ -1,24 +1,8 @@
 package manager.dao.career.impl;
 
-import static manager.util.DBUtil.countEntitiesByBiFields;
-import static manager.util.DBUtil.countEntitiesByRange;
-import static manager.util.DBUtil.deleteEntity;
-import static manager.util.DBUtil.includeEntitiesByField;
-import static manager.util.DBUtil.includeUniqueEntityByTriFields;
-import static manager.util.DBUtil.insertEntity;
-import static manager.util.DBUtil.processDBException;
-import static manager.util.DBUtil.selectEntitiesByDateScopeAndField;
-import static manager.util.DBUtil.selectEntitiesByField;
-import static manager.util.DBUtil.selectEntitiesByFieldAndManyField;
-import static manager.util.DBUtil.selectEntity;
-import static manager.util.DBUtil.selectUniqueEntityByField;
-import static manager.util.DBUtil.updateExistedEntity;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.hibernate.Session;
@@ -38,6 +22,8 @@ import manager.util.TimeUtil;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+
+import static manager.util.DBUtil.*;
 
 @Repository
 public class WorkDAOImpl implements WorkDAO {
@@ -227,40 +213,62 @@ public class WorkDAOImpl implements WorkDAO {
 		});
 		return rlt;
 	}
-	
+
+	@Override
+	public List<String> getDistinctWorksheetTimezones(long loginId) {
+		List<String> rlt = new ArrayList<>();
+		sessionFactory.inStatelessSession(session->{
+			session.doWork(conn -> {
+				try {
+					String sql = String.format("select distinct %s From %s where %s=?",
+							SMDB.F_TIMEZONE,SMDB.T_WORK_SHEET,
+							SMDB.F_OWNER_ID);
+					try (PreparedStatement ps = conn.prepareStatement(sql)) {
+						ps.setLong(1, loginId);
+						ResultSet rs = ps.executeQuery();
+						while(rs.next()) {
+							rlt.add(rs.getString(1));
+						}
+					}
+				} catch (Exception e) {
+					throw processDBException(e);
+				}
+			});
+		});
+		return rlt;
+	}
+
+
+
 
 	@Override
 	public List<Plan> selectPlanInfosByIds(List<Long> planIds) throws DBException {
-		if(planIds.size() == 0) {
+		if(planIds.isEmpty()) {
 			return new ArrayList<Plan>();
 		}
-		
 		List<Plan> rlt = new ArrayList<>();
-		Session session = null;
-		Transaction trans = null;
-		try {
-			session = sessionFactory.getCurrentSession();
-			trans = session.beginTransaction();
+		sessionFactory.inStatelessSession(session->{
 			session.doWork(conn -> {
-				String theManySql = planIds.stream().map(val -> val.toString()).collect(Collectors.joining(","));
-				String sql = String.format("SELECT %s,%s FROM %s WHERE (%s in (%s))",
-						SMDB.F_ID,SMDB.F_NAME,
-						SMDB.T_PLAN,SMDB.F_ID,theManySql);
-				try (PreparedStatement ps = conn.prepareStatement(sql)) {
-					ResultSet rs = ps.executeQuery();
-					while(rs.next()) {
-						Plan one =new Plan();
-						one.setId(rs.getLong(1));
-						one.setName(rs.getString(2));
-						rlt.add(one);
+				try {
+					String theManySql = planIds.stream().map(val -> val.toString()).collect(Collectors.joining(","));
+					String sql = String.format("SELECT %s,%s FROM %s WHERE (%s in (%s))",
+							SMDB.F_ID,SMDB.F_NAME,
+							SMDB.T_PLAN,SMDB.F_ID,theManySql);
+					try (PreparedStatement ps = conn.prepareStatement(sql)) {
+						ResultSet rs = ps.executeQuery();
+						while(rs.next()) {
+							Plan one =new Plan();
+							one.setId(rs.getLong(1));
+							one.setName(rs.getString(2));
+							rlt.add(one);
+						}
 					}
+				} catch (Exception e) {
+					throw processDBException(e);
 				}
 			});
-			trans.commit();
-			return rlt;
-		} catch (Exception e) {
-			throw processDBException(trans, session, e);
-		}
+		});
+		return rlt;
 	}
 
 	@Override
@@ -273,7 +281,20 @@ public class WorkDAOImpl implements WorkDAO {
 		return selectEntitiesByDateScopeAndField(WorkSheet.class, SMDB.F_DATE, startDate, endDate, SMDB.F_OWNER_ID, ownerId, sessionFactory);
 	}
 
+	@Override
+	public List<WorkSheet> selectWorkSheetsByOwnerAndDateScopeAndTimezone(long loginId, long startDate, long endDate, String timezone) {
+		Map<String,Object> params = new HashMap<>();
+		params.put(SMDB.F_OWNER_ID,loginId);
+		params.put(SMDB.F_TIMEZONE,timezone);
+		return selectEntitiesByRange(WorkSheet.class,SMDB.F_DATE_UTC,startDate,endDate,params,sessionFactory);
+	}
 
+	@Override
+	public List<WorkSheet> selectWorkSheetsByOwnerAndDateScope(long loginId, long startDate, long endDate) {
+		Map<String,Object> params = new HashMap<>();
+		params.put(SMDB.F_OWNER_ID,loginId);
+		return selectEntitiesByRange(WorkSheet.class,SMDB.F_DATE_UTC,startDate,endDate,params,sessionFactory);
+	}
 
 	
 }

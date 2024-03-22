@@ -3,41 +3,51 @@ const WS_STAT_NAMESAPCE={
 };
 
 $(function(){
+    /**
+     * DONE
+     */
     $("#ws_stat_controlgroup_container_quick_terms_this_week").click(()=>{
         let range = new Date().getThisWeekRange();
         $("[name='ws_stat_start_date']").val(range.start.getDateStr());
         $("[name='ws_stat_end_date']").val(range.end.getDateStr());
     });
-
+    /**
+     * DONE
+     */
     $("#ws_stat_controlgroup_container_quick_terms_this_month").click(()=>{
         let range = new Date().getThisMonthRange();
         $("[name='ws_stat_start_date']").val(range.start.getDateStr());
         $("[name='ws_stat_end_date']").val(range.end.getDateStr());
     });
-
+    /**
+     * DONE
+     */
     $("#ws_stat_controlgroup_container_quick_terms_this_quarter").click(()=>{
         let range = new Date().getThisQuarterRange();
         $("[name='ws_stat_start_date']").val(range.start.getDateStr());
         $("[name='ws_stat_end_date']").val(range.end.getDateStr());
     });
-
+    /**
+     * DONE
+     */
     $("#ws_stat_controlgroup_container_quick_terms_this_year").click(()=>{
         let range = new Date().getThisYearRange();
         $("[name='ws_stat_start_date']").val(range.start.getDateStr());
         $("[name='ws_stat_end_date']").val(range.end.getDateStr());
     });
 
+    //DONE
+    $("#ws_stat_content_container_of_text .ws_stat_switch_to_show_more_info").click(switchToShowMoreInfo);
+
+    //TODO
+    $("#ws_stat_analyze_ws_btn").click(analyzeWSsOfDateRange);
+
+    //TODO
     $("[name='ws_stat_mode']").click(switchWSStatMode)
     //默认按计划分组
     .eq(0).click();
 
-    $("#ws_stat_analyze_ws_btn").click(analyzeWSsOfDateRange);
-
-
-    $("#ws_stat_content_container_of_text .ws_stat_switch_to_show_more_info").click(switchToShowMoreInfo);
-
     $("#ws_stat_content_container_of_more_info_container").on("click",".ws_stat_unit_for_one_plan_header_switch_to_show_btn",switchToShowOnePlanStatDetail);
-
 })
 
 function switchWSStatMode(){
@@ -289,16 +299,20 @@ function analyzeWSsOfDateRange(){
     },(data)=>{
 
         WS_STAT_NAMESAPCE.DATA = data;
-
+        //DONE
         closeMoreInfoContainer();
-
+        //DONE
         $("#ws_stat_content_container").show();
+        //DONE
         let text = "<em>"+new Date(startDate).toChineseDate()+"</em>"+"到<em>"+new Date(endDate).toChineseDate()+"</em>";
         $(".stat_date_range").html(text);
         $(".count_for_search_date_range").text(new Date(endDate).countDaysDiffer(new Date(startDate))+1);
         $(".count_for_stat_days").text(data.length);
 
+        //DONE
         drawCommonBarChart("ws_stat_content_container_of_charts_for_ws_state_distribution",data.sumBySpecificField(item=>item.ws.state.name).sortAndMergeSumRlt(),"工作表状态/天",4);
+        drawCommonBarChart("ws_stat_content_container_of_charts_for_finish_situation",data.sumBySpecificField(item=>item.finishPlanWithoutDeptItems ? "完成（除同步项）" : "未完成（除同步项）").sortAndMergeSumRlt(),"实际完成/天",2);
+        //DONE
         drawCommonPieChart("ws_stat_content_container_of_charts_for_type_count",data.flatMap((e)=>{
             return mergeWorkItemsExceptUndone(e.content).map((ee)=>{
                 return {"name": ee.pItem.item.name,
@@ -306,18 +320,16 @@ function analyzeWSsOfDateRange(){
                 };
             })
          }).sumBySpecificField(item=>item.name,item=>item.value).sortAndMergeSumRlt(),70,(value)=>value.transferToHoursMesIfPossible());
+        //DONE
+        drawGroupByChartBaseRadio();
 
-        drawCommonBarChart("ws_stat_content_container_of_charts_for_finish_situation",data.sumBySpecificField(item=>item.finishPlanWithoutDeptItems ? "完成（除同步项）" : "未完成（除同步项）").sortAndMergeSumRlt(),"实际完成/天",2);
-
+        //TODO
         drawMoodStat(data);
 
         let dataByPlan = data.groupBy(item=>item.basePlanName);
         drawStatByGroup(dataByPlan,".ws_stat_group_by_plan");
         let dataByTag = data.groupByArrayAttr(item=>item.ws.tags.map(e=>e.name));
         drawStatByGroup(dataByTag,".ws_stat_group_by_tag");
-
-        
-        drawGroupByChartBaseRadio(); 
     },()=>{
         $(this).removeClass("common_prevent_double_click");
     })
@@ -462,10 +474,14 @@ function calculateStatUnit(e){
 
 
 
+//DONE
 /*For External Module*/
 function openWSOfDateRangeDialog(){
+    //DONE
     $("#ws_stat_controlgroup_container_real_terms_lefter [type='date']").val("");
+    //DONE
     $("#ws_stat_content_container").hide();
+    //DONE
     $("#ws_stat_of_date_range_dialog").modal("show");
 }
 

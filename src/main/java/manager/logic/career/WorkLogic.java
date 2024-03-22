@@ -130,7 +130,9 @@ public abstract class WorkLogic{
 	
 	/**
 	 *   闭区间
+	 *
 	 */
+	@Deprecated
 	public abstract List<WorkSheetProxy> loadWorkSheetsByDateScope(long loginId,Calendar startDate,Calendar endDate) throws SMException;
 	
 	@Deprecated
@@ -202,9 +204,15 @@ public abstract class WorkLogic{
 
 	public abstract long getCountWSBasedOfPlan(Integer planId, long loginId);
 
+	public abstract List<String> loadAllWorkSheetTimezones(long loginId);
+
+	/**
+	 *   闭区间
+	 */
+	public abstract List<WorkSheetProxy> loadWorkSheetsByDateScopeAndTimezone(long loginId, long startDate, long endDate, String timezone, Boolean regardingTimezone);
 
 
-/*=================================================NOT ABSTRACT ==============================================================*/	
+	/*=================================================NOT ABSTRACT ==============================================================*/
 	
 
 
@@ -479,6 +487,5 @@ public abstract class WorkLogic{
 			}
 		}
 	}
-
 
 }

@@ -936,5 +936,15 @@ public class WorkLogicImpl_Legacy extends WorkLogic{
 		return 0;
 	}
 
+	@Override
+	public List<String> loadAllWorkSheetTimezones(long loginId) {
+		return null;
+	}
+
+	@Override
+	public List<WorkSheetProxy> loadWorkSheetsByDateScopeAndTimezone(long loginId, long startDate, long endDate, String timezone, Boolean regarding) {
+		return null;
+	}
+
 
 }

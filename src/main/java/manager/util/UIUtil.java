@@ -70,8 +70,13 @@ public abstract class UIUtil {
 		return val;
 	}
 
+
+	public static long getInDate(Long startDateUtc, String timezone) {
+		return ZonedTimeUtils.copyDateOnly(startDateUtc,timezone);
+	}
+
 	/**
-	 *
+	 * ==========NEW VERSION=========
 	 */
 
 
@@ -91,7 +96,9 @@ public abstract class UIUtil {
 		
 		return Arrays.stream(value).map(val->val.strip()).collect(toList());
 	}
-	
+
+
+
 	
 	
 	public static int getNonNullParamInInt(HttpServletRequest request, String key) throws LogicException {

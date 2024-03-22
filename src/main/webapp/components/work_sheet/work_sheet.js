@@ -224,7 +224,7 @@ $(function(){
         localStorage[CONFIG.DEFAULT_WS_REMINDER_OPEN_KEY]=prop;
     })
 
-    //TODO
+    //DONE
     $(".work_sheet_main_container_open_ws_statistics").click(openWSStatistics);
 });
 //DONE

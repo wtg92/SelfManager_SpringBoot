@@ -73,6 +73,7 @@ public interface WorkDAO {
 	List<WorkSheet> selectWorkSheetInfoRecentlyByOwner(long ownerId,long page,long limit) throws DBException;
 	
 	/*闭区间*/
+	@Deprecated
 	List<WorkSheet> selectWorkSheetsByOwnerAndDateScope(long ownerId,Calendar startDate,Calendar endDate) throws DBException;
 	
 	
@@ -89,5 +90,10 @@ public interface WorkDAO {
 	List<String> selectNonNullPlanTagsByUser(long loginId) throws DBException;
 	List<String> selectNonNullWorkSheetTagsByUser(long loginId) throws DBException;
 
-	
+
+    List<String> getDistinctWorksheetTimezones(long loginId);
+
+	List<WorkSheet> selectWorkSheetsByOwnerAndDateScopeAndTimezone(long loginId, long startDate, long endDate, String timezone);
+
+	List<WorkSheet> selectWorkSheetsByOwnerAndDateScope(long loginId, long startDate, long endDate);
 }

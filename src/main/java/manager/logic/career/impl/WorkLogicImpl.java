@@ -525,6 +525,27 @@ public class WorkLogicImpl extends WorkLogic{
 	}
 
 	@Override
+	public List<WorkSheetProxy> loadWorkSheetsByDateScopeAndTimezone(long loginId, long startDate, long endDate, String timezone, Boolean regardingTimezone) {
+		List<WorkSheet> wss =
+				regardingTimezone ?
+						wDAO.selectWorkSheetsByOwnerAndDateScopeAndTimezone(loginId, startDate, endDate,timezone)
+						:
+						wDAO.selectWorkSheetsByOwnerAndDateScope(loginId, startDate, endDate);
+
+		List<WorkSheetProxy> rlt = fillPlanInfos(wss);
+
+		for(WorkSheetProxy ws: rlt) {
+			WorkSheetContent content = WorkContentConverter.convertWorkSheet(ws.ws);
+			calculateWSContentDetail(content);
+			List<WorkItemProxy> itemsWithoutDeptItems = content.workItems.stream().filter(item->item.item.getType() != WorkItemType.DEBT).collect(toList());
+			calculatePlanItemProxyDetail(content.planItems, itemsWithoutDeptItems);
+			ws.finishPlanWithoutDeptItems = content.planItems.stream().allMatch(pItem->pItem.remainingValForCur <= 0.0);
+			ws.content = content;
+		}
+
+		return clearUnnecessaryInfo(rlt);
+	}
+	@Override
 	public WorkSheetProxy loadWorkSheet(long loginId, long wsId) throws DBException, LogicException {
 		WorkSheet ws = getWorksheet(wsId);
 		if(loginId != ws.getOwnerId()) {
@@ -536,7 +557,6 @@ public class WorkLogicImpl extends WorkLogic{
 		WorkSheetProxy rlt = new WorkSheetProxy(ws);
 		Plan plan = getPlan(rlt.ws.getPlanId());
 		rlt.basePlanName = plan.getName();
-		rlt.timezone = plan.getTimezone();
 		rlt.content = content;
 		
 		fill(rlt.content.logs); 
@@ -1031,6 +1051,11 @@ public class WorkLogicImpl extends WorkLogic{
 	@Override
 	public long getCountWSBasedOfPlan(Integer planId, long loginId) {
 		return wDAO.countWorkSheetByOwnerAndPlanId(loginId, planId);
+	}
+
+	@Override
+	public List<String> loadAllWorkSheetTimezones(long loginId) {
+		return wDAO.getDistinctWorksheetTimezones(loginId);
 	}
 
 

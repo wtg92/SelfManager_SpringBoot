@@ -58,6 +58,11 @@ $(function(){
     $("#work_ws_sub_left_container_header").click(closeWsActualContainer);
 
     //TODO
+    $("#work_open_ws_stat_of_date_range_dialog_btn").click(openWSOfDateRangeDialog);
+
+
+
+    //TODO
     $("#work_open_ws_today_button").click(openWorkSheetToday);
     //TODO
     loadWorkSheetInfosRecentlyForFirstLoading();
@@ -66,10 +71,7 @@ $(function(){
     //TODO
     $("#work_open_plan_dept_dialog_btn").click(openPlanDeptDialog);
     //TODO
-    $("#work_open_ws_stat_of_date_range_dialog_btn").click(openWSOfDateRangeDialog);
-    //TODO
     $("#batch_sync_wss_in_ws_infos_recently").click(batchSyncAllToPlanDept);
-
 });
 
 function loadWorkSheetInfosRecently(){
