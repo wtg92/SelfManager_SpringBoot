@@ -710,7 +710,7 @@ public class WorkLogicImpl extends WorkLogic{
 	}
 	
 	@Override
-	public List<Plan> loadPlansByState(long ownerId,PlanState stateZT) throws LogicException, DBException {
+	public List<Plan> loadPlansByState(long ownerId,PlanState stateZT,int pageNum,int pageSize) throws LogicException, DBException {
 		if(stateZT == PlanState.UNDECIDED) {
 			return wDAO.selectPlansByField(SMDB.F_OWNER_ID, ownerId);
 		}
@@ -950,7 +950,7 @@ public class WorkLogicImpl extends WorkLogic{
 
 			/*同步所有时，是以根节点为准 同步的*/
 			List<PlanItemProxy> needingToSync = content.planItems.stream()
-					.filter(item->item.remainingValForCur!=0).collect(toList());
+					.filter(item->item.remainingValForCur!=0).toList();
 
 			if(needingToSync.isEmpty()) {
 				logger.log(Level.WARNING,"同步所有却没有需要同步的，前台出现问题了？"+wsId);
@@ -970,9 +970,9 @@ public class WorkLogicImpl extends WorkLogic{
 	}
 	
 	@Override
-	public void syncAllToPlanDeptBatch(long logienrId, List<Integer> wsIds) throws SMException {
+	public void syncAllToPlanDeptBatch(long loginId, List<Integer> wsIds) throws SMException {
 		for(long wsId:wsIds) {
-			syncAllToPlanDept(logienrId, wsId);
+			syncAllToPlanDept(loginId, wsId);
 		}
 	}
 	
@@ -1000,7 +1000,7 @@ public class WorkLogicImpl extends WorkLogic{
 	 		List<EntityTag> tagsByUser = workSheet.getTags().stream()
 	 				.filter(tag->!tag.createdBySystem)
 	 				.filter(tag->tagsByPlan.stream().noneMatch(tagByPlan->tag.name.equals(tagByPlan.name)))
-	 				.collect(toList());
+	 				.toList();
 	 		
 	 		List<EntityTag> tagsForNew = new ArrayList<EntityTag>();
 	 		tagsForNew.addAll(tagsByUser);

@@ -1,6 +1,7 @@
 package manager.util;
 
-import java.security.Key;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
@@ -73,30 +74,45 @@ public abstract class SecurityUtil {
 		try {
 			 return new String(AES.decrypt(Base64.getDecoder().decode(info)));
 		}catch (Exception e) {
-			e.printStackTrace();
-			throw new LogicException(SMError.UNEXPECTED_ERROR,e.getMessage());
+			//最大可能是 重启服务器  前端认为登录超时
+			throw new LogicException(SMError.LOGIN_FAILED,e.getMessage());
 		}
 	}
 
 	
 	static abstract class AES{
 		private static final String CIPHER_ALGORITHM_CBC = "AES/CBC/PKCS5Padding";
-		/*TOOD 有时间不把这个写死 让它每次重启动实例都重新生成一遍 然后放到缓存里*/
-		private static final String PRIMARY_KEY_FOR_ENCODE_INFO = "d3645889311a0569a53ffc6a5504d686";
-		private static final Key key = new SecretKeySpec(CommonUtil.toByteArray(PRIMARY_KEY_FOR_ENCODE_INFO), "AES");
-        private static final byte[] iv = {0x01, 0x23, 0x45, 0x67, 0x89 - 0xFF, 0xAB - 0xFF, 0xCD - 0xFF, 0xEF - 0xFF,
-                0x01, 0x23, 0x45, 0x67, 0x89 - 0xFF, 0xAB - 0xFF, 0xCD - 0xFF, 0xEF - 0xFF};
-        private static final AlgorithmParameterSpec paramSpec = new IvParameterSpec(iv);
-	    private static byte[] encrypt(byte[] data) throws Exception {
-	        Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM_CBC);
-	        cipher.init(Cipher.ENCRYPT_MODE, key,paramSpec);
-	        return cipher.doFinal(data);
-	    }
-	    private static byte[] decrypt(byte[] bytes) throws Exception {
-	        Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM_CBC);
-	        cipher.init(Cipher.DECRYPT_MODE, key,paramSpec);
-	        return cipher.doFinal(bytes);
-	    }
+		private static SecretKey key;
+		private static final byte[] iv = {0x01, 0x23, 0x45, 0x67, 0x89 - 0xFF, 0xAB - 0xFF, 0xCD - 0xFF, 0xEF - 0xFF,
+				0x01, 0x23, 0x45, 0x67, 0x89 - 0xFF, 0xAB - 0xFF, 0xCD - 0xFF, 0xEF - 0xFF};
+		private static final AlgorithmParameterSpec paramSpec = new IvParameterSpec(iv);
+
+		static {
+			try {
+				key = generateKey();
+			} catch (NoSuchAlgorithmException e) {
+				e.printStackTrace();
+				throw new RuntimeException("CANNOT LET THIS HAPPEN");
+			}
+		}
+
+		private static SecretKey generateKey() throws NoSuchAlgorithmException {
+			KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+			keyGenerator.init(256); // You can adjust the key size as needed
+			return keyGenerator.generateKey();
+		}
+
+		private static byte[] encrypt(byte[] data) throws Exception {
+			Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM_CBC);
+			cipher.init(Cipher.ENCRYPT_MODE, key, paramSpec);
+			return cipher.doFinal(data);
+		}
+
+		private static byte[] decrypt(byte[] bytes) throws Exception {
+			Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM_CBC);
+			cipher.init(Cipher.DECRYPT_MODE, key, paramSpec);
+			return cipher.doFinal(bytes);
+		}
 	}
 	
 	

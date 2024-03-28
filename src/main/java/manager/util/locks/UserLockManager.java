@@ -15,7 +15,7 @@ public class UserLockManager {
 
     private static final Logger log = LoggerFactory.getLogger(UserLockManager.class);
 
-    private ConcurrentHashMap<String, LockProxy> userLocks = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, LockProxy> userLocks = new ConcurrentHashMap<>();
 
     @Value("${lock.expirationSeconds}")
     public Integer expirationSeconds;

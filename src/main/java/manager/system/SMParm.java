@@ -61,6 +61,10 @@ public abstract class SMParm {
 	public final static String WS_IDS = "ws_ids";
 	public final static String HIDDEN = "hidden";
 	public final static String PAGE = "page";
+
+	public final static String PAGE_NUM = "page_num";
+	public final static String PAGE_SIZE = "page_size";
+
 	public final static String DATE = "date";
 	public final static String PLAN_ITEM_ID = "plan_item_id";
 	public final static String WORK_ITEM_ID = "work_item_id";

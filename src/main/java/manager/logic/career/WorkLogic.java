@@ -110,7 +110,7 @@ public abstract class WorkLogic{
 	public abstract Map<String,Long> loadPlanStateStatistics(long ownerId) throws LogicException, DBException;
 	public abstract Map<String,Long> loadWSStateStatistics(long loginId) throws LogicException, DBException;
 	/*ZT means ZoerTerm 当是0时，代表不设限*/
-	public abstract List<Plan> loadPlansByState(long ownerId,PlanState stateZT) throws LogicException, DBException;
+	public abstract List<Plan> loadPlansByState(long ownerId,PlanState stateZT,int pageNum,int pageSize);
 	public abstract List<WorkSheetProxy> loadWorkSheetByState(long loginId, WorkSheetState stateZT)  throws LogicException, DBException;
 	/**
 	 * 暂且只让人看到自己的

@@ -590,7 +590,7 @@ public class WorkLogicImpl_Legacy extends WorkLogic{
 	}
 	
 	@Override
-	public List<Plan> loadPlansByState(long ownerId,PlanState stateZT) throws LogicException, DBException {
+	public List<Plan> loadPlansByState(long ownerId,PlanState stateZT,int pageNum,int pageSize) throws LogicException, DBException {
 		if(stateZT == PlanState.UNDECIDED) {
 			return wDAO.selectPlansByField(SMDB.F_OWNER_ID, ownerId);
 		}

@@ -656,7 +656,7 @@ public class CareerServlet extends SMServlet{
 	private String loadPlansByState(HttpServletRequest request) throws LogicException, DBException {
 		long loginerId = getLoginId(request);
 		PlanState stateZT = PlanState.valueOfDBCode(getParamIntegerOrZeroDefault(request, STATE));
-		return JSON.toJSONString(wL.loadPlansByState(loginerId,stateZT));
+		return JSON.toJSONString(wL.loadPlansByState(loginerId,stateZT,0,0));
 	}
 
 	private String loadPlanStatesStatistics(HttpServletRequest request) throws LogicException, DBException {

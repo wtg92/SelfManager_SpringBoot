@@ -56,22 +56,20 @@ $(function(){
     $("#work_ws_sub_left_container_footer .work_see_more_ws").click(seeMoreWsInfos);
     //DONE
     $("#work_ws_sub_left_container_header").click(closeWsActualContainer);
-
-    //TODO
+    //DONE
     $("#work_open_ws_stat_of_date_range_dialog_btn").click(openWSOfDateRangeDialog);
 
-
-
-    //TODO
+    //DONE
     $("#work_open_ws_today_button").click(openWorkSheetToday);
-    //TODO
+    //DONE
     loadWorkSheetInfosRecentlyForFirstLoading();
-    //TODO
+    //DONE
     $("#work_ws_sub_left_container_body").on("click",".work_ws_date_cotnainer",showWsDetail);
+    //DONE
+    $("#batch_sync_wss_in_ws_infos_recently").click(batchSyncAllToPlanDept);
+
     //TODO
     $("#work_open_plan_dept_dialog_btn").click(openPlanDeptDialog);
-    //TODO
-    $("#batch_sync_wss_in_ws_infos_recently").click(batchSyncAllToPlanDept);
 });
 
 function loadWorkSheetInfosRecently(){
@@ -100,7 +98,7 @@ function batchSyncAllToPlanDept(){
     });
 }
 
-//TODO MAIN!!! The Hardest Part
+//DONE MAIN!!! The Hardest Part
 function showWsDetail(){
     //DONE
     openWsActualContainer();
@@ -119,7 +117,7 @@ function showWsDetail(){
     let wsId = $(this).attr("ws_id");
 
     WORK_NAMESPACE.OPENED_WS_ID = wsId;
-    //TODO
+    //DONE
     drawWorkSheetDetail(wsId,()=>$(this).removeClass("common_prevent_double_click"));    
 }
 
@@ -138,7 +136,7 @@ function seeMoreWsInfos(){
 }
 
 
-//TODO
+//DONE
 function openWorkSheetToday(){
     let $slectedPlan = $("#work_plan_cards_container .work_plan_card_container[select='true']");
     if($slectedPlan.length == 0){
@@ -166,7 +164,7 @@ function openWorkSheetToday(){
             //DONE
             $("#work_ws_main_container").get(0).scrollIntoView();
 
-            //TODO 工作表内左侧列表 打开今天的工作表
+            //DONE 工作表内左侧列表 打开今天的工作表
             $("#work_ws_sub_left_container_body").find(".work_ws_date_cotnainer").filter((i, v) => new Date(parseInt($(v).attr("ws_date"))).isSameByDate(new Date())).click();
         })
     });
@@ -177,7 +175,7 @@ function openWorkSheetToday(){
  * 当今天已经开了ws后 closePlans openWsContainer 
  * 否则 openPlan
  **/
-//TODO
+//DONE
 function loadWorkSheetInfosRecentlyForFirstLoading(){
     closePlansContainer();
     closeWsActualContainer();

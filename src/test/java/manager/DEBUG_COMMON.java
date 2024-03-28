@@ -71,4 +71,15 @@ public class DEBUG_COMMON {
         System.out.println(ZoneId.systemDefault());
     }
 
+    @Test
+    public void testHex(){
+        String s = "1A";
+        String s2 = "FF";
+        System.out.println(Integer.parseInt(s,16));
+        System.out.println(Integer.parseInt(s2,16));
+        System.out.println((byte)Integer.parseInt(s2,16));
+        byte s3 = (byte)Integer.parseInt(s2,16);
+
+    }
+
 }

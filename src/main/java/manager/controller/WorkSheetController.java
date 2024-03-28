@@ -10,6 +10,7 @@ import manager.logic.career.WorkLogic;
 import manager.servlet.ServletAdapter;
 import manager.system.career.PlanItemType;
 import manager.system.career.PlanSetting;
+import manager.system.career.PlanState;
 import manager.util.UIUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 import static manager.system.SMParm.*;
@@ -126,6 +128,14 @@ public class WorkSheetController {
         int wsId = param.getInteger(WS_ID);
         int itemId = param.getInteger(ITEM_ID);
         wL.removeItemFromWorkSheet(loginId, wsId, itemId);
+    }
+
+    @PostMapping(WORK_SHEET_PATH+"/batchSyncAllToDept")
+    private void batchSyncAllToDept( @RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody JSONObject param ){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        List<Integer> wsIds =  param.getList(WS_IDS,Integer.class);
+        wL.syncAllToPlanDeptBatch(loginId, wsIds);
     }
 
     @PostMapping(WORK_SHEET_PATH+"/workItem/syncAllToDept")
@@ -263,6 +273,36 @@ public class WorkSheetController {
         long loginId = UIUtil.getLoginId(authorizationHeader);
         return ServletAdapter.process(wL.loadPlan(loginId, planId));
     }
+
+    @GetMapping(PLAN_PATH+"/statistics/states")
+    public Map<String,Long> getPlanStateStatistic(
+            @RequestHeader("Authorization") String authorizationHeader) {
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        return wL.loadPlanStateStatistics(loginId);
+    }
+
+    @GetMapping(PLAN_PATH+"/statistics")
+    public List<Plan> loadPlansByState(
+            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestParam(STATE)Integer state,
+            @RequestParam(PAGE_NUM)Integer pageNum,
+            @RequestParam(PAGE_SIZE)Integer pageSize
+            ) {
+
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        PlanState stateZT = PlanState.valueOfDBCode(state);
+        return wL.loadPlansByState(loginId,stateZT,pageNum,pageSize);
+    }
+
+//    @GetMapping(WORK_SHEET_PATH+"/statistics")
+//    public Map<String,Long> loadWSByState(
+//            @RequestHeader("Authorization") String authorizationHeader) {
+//        long loginId = UIUtil.getLoginId(authorizationHeader);
+////        /**
+////         * Limit 500
+////         */
+////        return wL.loadPlanStateStatistics(loginId);
+//    }
 
     @GetMapping(PLAN_PATH+"/countWSBased")
     public long getCountWSBasedOfPlan(
