@@ -68,7 +68,7 @@ $(function(){
     //DONE
     $("#batch_sync_wss_in_ws_infos_recently").click(batchSyncAllToPlanDept);
 
-    //TODO
+    //DONE
     $("#work_open_plan_dept_dialog_btn").click(openPlanDeptDialog);
 });
 

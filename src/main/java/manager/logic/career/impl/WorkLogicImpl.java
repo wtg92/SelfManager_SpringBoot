@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import manager.dao.career.WorkDAO;
 import manager.data.EntityTag;
 import manager.data.career.PlanDeptContent;
+import manager.data.career.StatisticsList;
 import manager.data.career.WorkSheetContent;
 import manager.data.career.WorkSheetContent.PlanItemNode;
 import manager.data.proxy.career.PlanDeptProxy;
@@ -414,11 +415,10 @@ public class WorkLogicImpl extends WorkLogic{
 
 
 	@Override
-	public void savePlanDeptItem(long updaterId, int itemId, String name, double val)
-			throws LogicException, DBException {
-		PlanDept dept = CacheScheduler.getOne(CacheMode.E_UNIQUE_FIELD_ID, updaterId, PlanDept.class, ()->wDAO.selectExistedPlanDeptByOwner(updaterId));
-		WorkContentConverter.updatePlanDeptItem(dept, updaterId, itemId, name, val);
-		CacheScheduler.saveEntity(dept,w->wDAO.updateExistedPlanDept(w));
+	public void savePlanDeptItem(long loginId, int itemId, String name, double val){
+		PlanDept dept = getPlanDept(loginId);
+		WorkContentConverter.updatePlanDeptItem(dept, loginId, itemId, name, val);
+		updatePlanDeptSynchronously(dept,loginId);
 	}
 	
 	
@@ -716,11 +716,93 @@ public class WorkLogicImpl extends WorkLogic{
 		}
 		return wDAO.selectPlansByOwnerAndStates(ownerId, Arrays.asList(stateZT));
 	}
-	
+
 	@Override
-	public PlanDeptProxy loadPlanDept(long loginId) throws DBException, LogicException {
-		PlanDept dept = CacheScheduler.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginId, PlanDept.class, 
-				 ()->wDAO.selectPlanDeptByOwner(loginId), ()->initPlanDept(loginId));
+	public StatisticsList<Plan> loadPlansByTerms(long loginId, Integer state, String name, Long startUtcForCreate, Long endUtcForCreate, Long startUtcForUpdate, Long endUtcForUpdate, String timezone) {
+		Map<String,Object> likes = new HashMap<>();
+		if(!name.isEmpty()){
+			likes.put(SMDB.F_NAME,name);
+		}
+
+		Map<String,Object> equals = new HashMap<>();
+		if(state != 0){
+			equals.put(SMDB.F_STATE,PlanState.valueOfDBCode(state));
+		}
+
+		if(!timezone.isEmpty()){
+			equals.put(SMDB.F_TIMEZONE,timezone);
+		}
+
+		Map<String,Object> greaterThan = new HashMap<>();
+
+		if(startUtcForCreate != 0){
+			greaterThan.put(SMDB.F_CREATE_UTC,startUtcForCreate);
+		}
+		if(startUtcForUpdate != 0){
+			greaterThan.put(SMDB.F_UPDATE_UTC,startUtcForUpdate);
+		}
+
+		Map<String,Object> lessThan = new HashMap<>();
+		if(endUtcForCreate != 0){
+			lessThan.put(SMDB.F_CREATE_UTC,endUtcForCreate);
+		}
+		if(endUtcForUpdate != 0){
+			lessThan.put(SMDB.F_UPDATE_UTC,endUtcForUpdate);
+		}
+
+		List<Plan> items = wDAO.selectPlansByTerms(likes,equals,greaterThan,lessThan);
+		long count = wDAO.countPlansByTerms(likes,equals,greaterThan,lessThan);
+		StatisticsList<Plan> rlt = new StatisticsList<>();
+		rlt.items = items;
+		rlt.count = count;
+		return rlt;
+	}
+
+	@Override
+	public StatisticsList<WorkSheetProxy> loadWorksheetsByTerms(long loginId, Integer state, Long startUtcForDate, Long endUtcForDate, Long startUtcForUpdate, Long endUtcForUpdate, String timezone, long planId) {
+		Map<String,Object> likes = new HashMap<>();
+
+		Map<String,Object> equals = new HashMap<>();
+		if(state != 0){
+			equals.put(SMDB.F_STATE,WorkSheetState.valueOfDBCode(state));
+		}
+
+		if(planId != 0){
+			equals.put(SMDB.F_PLAN_ID,planId);
+		}
+
+		if(!timezone.isEmpty()){
+			equals.put(SMDB.F_TIMEZONE,timezone);
+		}
+
+		Map<String,Object> greaterThan = new HashMap<>();
+
+		if(startUtcForDate != 0){
+			greaterThan.put(SMDB.F_DATE_UTC,startUtcForDate);
+		}
+		if(startUtcForUpdate != 0){
+			greaterThan.put(SMDB.F_UPDATE_UTC,startUtcForUpdate);
+		}
+
+		Map<String,Object> lessThan = new HashMap<>();
+		if(endUtcForDate != 0){
+			lessThan.put(SMDB.F_DATE_UTC,endUtcForDate);
+		}
+		if(endUtcForUpdate != 0){
+			lessThan.put(SMDB.F_UPDATE_UTC,endUtcForUpdate);
+		}
+
+		List<WorkSheetProxy> items = clearUnnecessaryInfo(fillPlanInfos(wDAO.selectWorksheetsByTerms(likes,equals,greaterThan,lessThan)));
+		long count = wDAO.countWorksheetsByTerms(likes,equals,greaterThan,lessThan);
+		StatisticsList<WorkSheetProxy> rlt = new StatisticsList<>();
+		rlt.items = items;
+		rlt.count = count;
+		return rlt;
+	}
+
+	@Override
+	public PlanDeptProxy loadPlanDept(long loginId){
+		PlanDept dept = getPlanDept(loginId);
 		
 		PlanDeptProxy proxy = new PlanDeptProxy(dept);
 		
@@ -732,8 +814,7 @@ public class WorkLogicImpl extends WorkLogic{
 	}
 
 	@Override
-	public List<WorkSheetProxy> loadWorkSheetByState(long loginId, WorkSheetState stateZT)
-			throws LogicException, DBException {
+	public List<WorkSheetProxy> loadWorkSheetByState(long loginId, WorkSheetState stateZT){
 		if(stateZT == WorkSheetState.UNDECIDED) {
 			return fillPlanInfos(wDAO.selectWorkSheetByField(SMDB.F_OWNER_ID, loginId));
 		}
@@ -741,7 +822,7 @@ public class WorkLogicImpl extends WorkLogic{
 	}
 	
 	@Override
-	public List<String> loadPlanDeptItemNames(long loginId) throws DBException, LogicException {
+	public List<String> loadPlanDeptItemNames(long loginId){
 		PlanDept dept = CacheScheduler.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginId, PlanDept.class, 
 				 ()->wDAO.selectPlanDeptByOwner(loginId), ()->initPlanDept(loginId));
 		PlanDeptContent content = WorkContentConverter.convertPlanDept(dept);
@@ -749,7 +830,7 @@ public class WorkLogicImpl extends WorkLogic{
 	}
 	
 	@Override
-	public List<String> loadAllPlanTagsByUser(long loginId) throws SMException {
+	public List<String> loadAllPlanTagsByUser(long loginId){
 		
 		List<String> tagStrs = wDAO.selectNonNullPlanTagsByUser(loginId);
 		

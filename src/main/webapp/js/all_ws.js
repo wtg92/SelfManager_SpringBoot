@@ -4,7 +4,9 @@ $(function(){
     $(".all_ws_state_unit_container").click(switchToShowPlansByState);
 
     initAllWSDataTable();
+
     $("#all_ws_statics").on("click","tbody tr",openWorkSheetDialogFromDataTable);
+    //DONE
     $("#all_ws_open_plan_dept_dialog_btn").click(openPlanDeptDialog);
 })
 

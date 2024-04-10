@@ -2,6 +2,8 @@ package manager.controller;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import manager.data.career.StatisticsList;
+import manager.data.proxy.career.PlanDeptProxy;
 import manager.data.proxy.career.PlanProxy;
 import manager.data.proxy.career.WorkSheetProxy;
 import manager.entity.general.career.Plan;
@@ -235,7 +237,6 @@ public class WorkSheetController {
         wL.calculateWorksheetStatesRoutinely(loginId);
     }
 
-
     @PostMapping("/loadActivePlans")
     public List<Plan> loadActivePlans(
             @RequestHeader("Authorization") String authorizationHeader) {
@@ -265,6 +266,7 @@ public class WorkSheetController {
 
     private static final String WORK_SHEET_PATH = "/ws";
 
+    private static final String DEPT_PATH = "/dept";
 
     @GetMapping(PLAN_PATH)
     public PlanProxy getPlan(
@@ -274,6 +276,24 @@ public class WorkSheetController {
         return ServletAdapter.process(wL.loadPlan(loginId, planId));
     }
 
+    @GetMapping(DEPT_PATH)
+    public PlanDeptProxy getDept(
+            @RequestHeader("Authorization") String authorizationHeader) {
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        return wL.loadPlanDept(loginId);
+    }
+
+    @PatchMapping(DEPT_PATH)
+    public void patchDeptItem(
+            @RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody JSONObject param ) {
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        int itemId = param.getInteger(ITEM_ID);
+        String name = param.getString(NAME);
+        double val = param.getDouble(VAL);
+        wL.savePlanDeptItem(loginId, itemId, name, val);
+    }
+
     @GetMapping(PLAN_PATH+"/statistics/states")
     public Map<String,Long> getPlanStateStatistic(
             @RequestHeader("Authorization") String authorizationHeader) {
@@ -281,28 +301,47 @@ public class WorkSheetController {
         return wL.loadPlanStateStatistics(loginId);
     }
 
+    @GetMapping(WORK_SHEET_PATH+"/statistics/states")
+    public Map<String,Long> getWorksheetStateStatistic(
+            @RequestHeader("Authorization") String authorizationHeader) {
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        return wL.loadWSStateStatistics(loginId);
+    }
+
     @GetMapping(PLAN_PATH+"/statistics")
-    public List<Plan> loadPlansByState(
+    public StatisticsList<Plan> loadPlansByTerms(
             @RequestHeader("Authorization") String authorizationHeader,
             @RequestParam(STATE)Integer state,
-            @RequestParam(PAGE_NUM)Integer pageNum,
-            @RequestParam(PAGE_SIZE)Integer pageSize
+            @RequestParam(NAME)String name,
+            @RequestParam(START_UTC_FOR_CREATE)Long startUtcForCreate,
+            @RequestParam(END_UTC_FOR_CREATE)Long endUtcForCreate,
+            @RequestParam(START_UTC_FOR_UPDATE)Long startUtcForUpdate,
+            @RequestParam(END_UTC_FOR_UPDATE)Long endUtcForUpdate,
+            @RequestParam(TIMEZONE)String timezone
             ) {
 
         long loginId = UIUtil.getLoginId(authorizationHeader);
-        PlanState stateZT = PlanState.valueOfDBCode(state);
-        return wL.loadPlansByState(loginId,stateZT,pageNum,pageSize);
+
+        return wL.loadPlansByTerms(loginId,state,name,startUtcForCreate,endUtcForCreate,startUtcForUpdate,endUtcForUpdate,timezone);
     }
 
-//    @GetMapping(WORK_SHEET_PATH+"/statistics")
-//    public Map<String,Long> loadWSByState(
-//            @RequestHeader("Authorization") String authorizationHeader) {
-//        long loginId = UIUtil.getLoginId(authorizationHeader);
-////        /**
-////         * Limit 500
-////         */
-////        return wL.loadPlanStateStatistics(loginId);
-//    }
+    @GetMapping(WORK_SHEET_PATH+"/statistics")
+    public StatisticsList<WorkSheetProxy> loadWorksheetsByTerms(
+            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestParam(STATE)Integer state,
+            @RequestParam(START_UTC_FOR_DATE)Long startUtcForDate,
+            @RequestParam(END_UTC_FOR_DATE)Long endUtcForDate,
+            @RequestParam(START_UTC_FOR_UPDATE)Long startUtcForUpdate,
+            @RequestParam(END_UTC_FOR_UPDATE)Long endUtcForUpdate,
+            @RequestParam(PLAN_ID)String planDecodedId,
+            @RequestParam(TIMEZONE)String timezone
+    ) {
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long planId = planDecodedId.trim().isEmpty() ? 0 : ServletAdapter.getCommonId(planDecodedId);
+            return wL.loadWorksheetsByTerms(loginId,state,startUtcForDate,endUtcForDate
+                ,startUtcForUpdate,endUtcForUpdate,timezone,planId);
+    }
+
 
     @GetMapping(PLAN_PATH+"/countWSBased")
     public long getCountWSBasedOfPlan(
@@ -312,9 +351,7 @@ public class WorkSheetController {
         return wL.getCountWSBasedOfPlan(planId,loginId);
     }
 
-
-
-    @GetMapping(PLAN_PATH+"/deptItemNames")
+    @GetMapping(DEPT_PATH+"/itemNames")
     public List<String> getPlanDeptItemNames(
             @RequestHeader("Authorization") String authorizationHeader) {
         long loginId = UIUtil.getLoginId(authorizationHeader);

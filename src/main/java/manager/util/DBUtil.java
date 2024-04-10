@@ -19,6 +19,7 @@ import jakarta.persistence.TypedQuery;
 import manager.data.general.FinalHandler;
 import manager.data.general.FinalIntegerCounter;
 import manager.data.general.FinalIntegerTempStorageCalculator;
+import manager.system.SM;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -127,6 +128,86 @@ public abstract class DBUtil {
 		return selectEntitiesByTimeScopeAndField(cla, dateFieldName, minTimeOfstartDate, maxTimeOfendDate, field2Name, field2val, hbFactory);
 	}
 
+	private static void fillTermsSQL(StringBuffer additionalParams , Map<String, Object> likes, Map<String, Object> equals, Map<String, Object> greaterThan, Map<String, Object> lessThan,FinalIntegerTempStorageCalculator storageCalculator){
+		if(equals != null){
+			equals.forEach((key,val)->{
+				additionalParams.append(String.format(" AND %s=:%s",transFieldToAttr(key),storageCalculator.getAndIncrementHandlerAndStorage(val)));
+			});
+		}
+
+		if(likes != null){
+			likes.forEach((key,val)->{
+				additionalParams.append(String.format(" AND %s LIKE :%s",transFieldToAttr(key),storageCalculator.getAndIncrementHandlerAndStorage("%"+val+"%")));
+			});
+		}
+
+		if(greaterThan != null){
+			greaterThan.forEach((key,val)->{
+				additionalParams.append(String.format(" AND %s >= :%s",transFieldToAttr(key),storageCalculator.getAndIncrementHandlerAndStorage(val)));
+			});
+		}
+
+		if(lessThan != null){
+			lessThan.forEach((key,val)->{
+				additionalParams.append(String.format(" AND %s <= :%s",transFieldToAttr(key),storageCalculator.getAndIncrementHandlerAndStorage(val)));
+			});
+		}
+	}
+	public static<T> List<T> selectEntitiesByTerms(Class<T> cla, Map<String, Object> likes, Map<String, Object> equals, Map<String, Object> greaterThan, Map<String, Object> lessThan,
+												   SessionFactory hbFactory){
+		String tableName = CommonUtil.getEntityTableName(cla);
+
+		StringBuffer additionalParams = new StringBuffer();
+
+		FinalIntegerTempStorageCalculator storageCalculator = new FinalIntegerTempStorageCalculator(1,"val");
+
+		fillTermsSQL(additionalParams,likes,equals,greaterThan,lessThan,storageCalculator);
+
+		String hql = String.format("FROM %s WHERE 1=1 "+additionalParams.toString(), transTableToEntity(tableName));
+
+		return hbFactory.fromStatelessSession(session -> {
+			try {
+				FinalHandler<Query<T>> handler = new FinalHandler<>();
+				handler.val = session.createQuery(hql, cla);
+
+				storageCalculator.consumerValues((key,val)->{
+					handler.val =handler.val.setParameter(key,val);
+				});
+
+				return handler.val.setMaxResults(SM.MAX_LINES).getResultList();
+			}catch (Exception e) {
+				throw processDBException(e);
+			}
+		});
+	}
+
+	public static<T> long countEntitiesByTerms(Class<T> cla, Map<String, Object> likes, Map<String, Object> equals, Map<String, Object> greaterThan, Map<String, Object> lessThan,
+												   SessionFactory hbFactory){
+		String tableName = CommonUtil.getEntityTableName(cla);
+
+		StringBuffer additionalParams = new StringBuffer();
+
+		FinalIntegerTempStorageCalculator storageCalculator = new FinalIntegerTempStorageCalculator(1,"val");
+
+		fillTermsSQL(additionalParams,likes,equals,greaterThan,lessThan,storageCalculator);
+
+		String hql = String.format("SELECT COUNT(*) FROM %s WHERE 1=1 "+additionalParams.toString(), transTableToEntity(tableName));
+
+		return hbFactory.fromStatelessSession(session -> {
+			try {
+				FinalHandler<Query<Long>> handler = new FinalHandler<>();
+				handler.val = session.createQuery(hql, Long.class);
+
+				storageCalculator.consumerValues((key,val)->{
+					handler.val =handler.val.setParameter(key,val);
+				});
+
+				return handler.val.uniqueResult();
+			}catch (Exception e) {
+				throw processDBException(e);
+			}
+		});
+	}
 
 	public static<T> List<T> selectEntitiesByRange(Class<T> cla, String rangeFieldName,Long minBorder,Long maxBorder,
 															   Map<String,Object> additionalFilter,

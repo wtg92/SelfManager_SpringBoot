@@ -45,6 +45,9 @@ public abstract class SMDB {
 	public static final String F_TEL_NUM = "tel_num";
 	public static final String F_NICK_NAME = "nick_name";
 	public static final String F_USER_ID = "user_id";
+
+	public static final String F_CREATE_UTC = "create_utc";
+
 	public static final String F_USER_GROUP_ID ="user_group_id";
 	public static final String F_PERM_ID = "perm_id";
 	public static final String F_ID_NUM = "id_num";

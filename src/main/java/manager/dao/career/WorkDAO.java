@@ -2,7 +2,9 @@ package manager.dao.career;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
+import manager.data.career.StatisticsList;
 import manager.entity.general.career.Plan;
 import manager.entity.general.career.PlanDept;
 import manager.entity.general.career.WorkSheet;
@@ -96,4 +98,13 @@ public interface WorkDAO {
 	List<WorkSheet> selectWorkSheetsByOwnerAndDateScopeAndTimezone(long loginId, long startDate, long endDate, String timezone);
 
 	List<WorkSheet> selectWorkSheetsByOwnerAndDateScope(long loginId, long startDate, long endDate);
+
+	List<Plan> selectPlansByTerms(Map<String, Object> likes, Map<String, Object> equals, Map<String, Object> greaterThan, Map<String, Object> lessThan);
+
+	long countPlansByTerms(Map<String, Object> likes, Map<String, Object> equals, Map<String, Object> greaterThan, Map<String, Object> lessThan);
+
+	List<WorkSheet> selectWorksheetsByTerms(Map<String, Object> likes, Map<String, Object> equals, Map<String, Object> greaterThan, Map<String, Object> lessThan);
+	long countWorksheetsByTerms(Map<String, Object> likes, Map<String, Object> equals, Map<String, Object> greaterThan, Map<String, Object> lessThan);
+
+
 }

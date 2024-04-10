@@ -296,5 +296,25 @@ public class WorkDAOImpl implements WorkDAO {
 		return selectEntitiesByRange(WorkSheet.class,SMDB.F_DATE_UTC,startDate,endDate,params,sessionFactory);
 	}
 
-	
+	@Override
+	public List<Plan> selectPlansByTerms(Map<String, Object> likes, Map<String, Object> equals, Map<String, Object> greaterThan, Map<String, Object> lessThan) {
+		return selectEntitiesByTerms(Plan.class,likes,equals,greaterThan,lessThan,sessionFactory);
+	}
+
+	@Override
+	public long countPlansByTerms(Map<String, Object> likes, Map<String, Object> equals, Map<String, Object> greaterThan, Map<String, Object> lessThan) {
+		return countEntitiesByTerms(Plan.class,likes,equals,greaterThan,lessThan,sessionFactory);
+	}
+
+	@Override
+	public List<WorkSheet> selectWorksheetsByTerms(Map<String, Object> likes, Map<String, Object> equals, Map<String, Object> greaterThan, Map<String, Object> lessThan) {
+		return selectEntitiesByTerms(WorkSheet.class,likes,equals,greaterThan,lessThan,sessionFactory);
+	}
+
+	@Override
+	public long countWorksheetsByTerms(Map<String, Object> likes, Map<String, Object> equals, Map<String, Object> greaterThan, Map<String, Object> lessThan) {
+		return countEntitiesByTerms(WorkSheet.class,likes,equals,greaterThan,lessThan,sessionFactory);
+	}
+
+
 }

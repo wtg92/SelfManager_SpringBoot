@@ -1,26 +1,35 @@
 $(function(){
+    //DONE
     showPlanDeptDialogSurplusContainer();
+    //DONE
     showPlanDeptDialogCreditContainer();
+    //DONE
     hidePlanDeptDialogLogsContainer();
 
-    $("#close_plan_dept_edit_mode_btn").click(closePlanDeptDialogEditMode);
-    $("#open_plan_dept_edit_mode_btn").click(openPlanDeptDialogEditMode);
-
+    //DONE
     $("#plan_dept_dialog_surplus_main_container").find(".plan_dept_dialog_switch_container_visibility").click(function(){
         switchToShowPlanDeptDialogContainer(this,showPlanDeptDialogSurplusContainer,hidePlanDeptDialogSurplusContainer)
     })
-
+    //DONE
     $("#plan_dept_dialog_credit_main_container").find(".plan_dept_dialog_switch_container_visibility").click(function(){
         switchToShowPlanDeptDialogContainer(this,showPlanDeptDialogCreditContainer,hidePlanDeptDialogCreditContainer)
     })
-
+    //DONE
     $("#plan_dept_dialog_logs_main_container").find(".plan_dept_dialog_switch_container_visibility").click(function(){
         switchToShowPlanDeptDialogContainer(this,showPlanDeptDialogLogsContainer,hidePlanDeptDialogLogsContainer)
-    })    
+    })
+    //DONE
+    $("#close_plan_dept_edit_mode_btn").click(closePlanDeptDialogEditMode);
+    //DONE
+    $("#open_plan_dept_edit_mode_btn").click(openPlanDeptDialogEditMode);
 
-    $("#plan_dept_dialog").on("input","[name='plan_dept_item_val']",inputOnlyAllowFloat)
+    $("#plan_dept_dialog")
+        //DONE
+        .on("input","[name='plan_dept_item_val']",inputOnlyAllowFloat)
+        //DONE
         .on("focus","[name='plan_dept_item_name']",getPlanDeptItemNamesForPlanDeptDialog)
-        .on("click",".plan_dept_save_modify_item_btn",saveModifyDeptItem);    
+        //DONE
+        .on("click",".plan_dept_save_modify_item_btn",saveModifyDeptItem);
     
 })
 
@@ -75,6 +84,7 @@ function mergeDeptItemValueAndType(val,type){
     return val.transferToHoursMesIfPossible();
 }
 
+//DONE
 function fillPlanDeptDialog(data){
     let $surplusContainer = $("#plan_dept_dialog_surplus_main_container .plan_dept_dialog_content");
     let $creditContainer = $("#plan_dept_dialog_credit_main_container .plan_dept_dialog_content");
@@ -84,21 +94,21 @@ function fillPlanDeptDialog(data){
 
     data.content.items.forEach(element => {
         let $unit = $("#plan_dept_dialog_pattern_container").find(".plan_dept_item_container").clone();
-
+        //DONE
         $unit.attr(
             "dept_item_id",element.id
         ).find(".plan_dept_item_name").text(element.name).end()
         .find(".plan_dept_modify_item_type").text(element.type.name).end()
+            //DONE
         .find("[name='plan_dept_item_name']").autocomplete({
             minLength:0,
             source : []
         }).val(element.name)
-        if(element.value > 0){
-            
 
+        //DONE
+        if(element.value > 0){
             $unit.find(".plan_dept_item_val_and_type").text(mergeDeptItemValueAndType(element.value,element.type)).end()
                 .find("[name='plan_dept_item_val']").val(element.value.toText()).attr("is_positive",false).end()
-
             $creditContainer.append($unit);
         }else{
             $unit.find(".plan_dept_item_val_and_type").text(mergeDeptItemValueAndType((element.value * -1),element.type)).end()
@@ -108,7 +118,9 @@ function fillPlanDeptDialog(data){
         }
     });
 
+    //DONE
     drawCommonLogs(data.content.logs,$("#plan_dept_dialog_plan_logs_container"))
+    //DONE
     $("#plan_dept_dialog_plan_latest_update_time>span").text(new Date(data.dept.updateTime).toSmartString());
 }
 

@@ -1,6 +1,10 @@
+/**
+ * DONE
+ */
 $(function(){
     loadPlanStatistics();
     loadPlansByStateCircle();
+    //点圆圈
     $(".all_plans_state_unit_container").click(switchToShowPlansByState);
 
     initAllPlansDataTable();

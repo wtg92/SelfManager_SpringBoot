@@ -4,6 +4,7 @@ import manager.dao.DAOFactory;
 import manager.dao.career.WorkDAO;
 import manager.data.EntityTag;
 import manager.data.career.PlanDeptContent;
+import manager.data.career.StatisticsList;
 import manager.data.career.WorkSheetContent;
 import manager.data.career.WorkSheetContent.PlanItemNode;
 import manager.data.proxy.career.*;
@@ -596,7 +597,17 @@ public class WorkLogicImpl_Legacy extends WorkLogic{
 		}
 		return wDAO.selectPlansByOwnerAndStates(ownerId, Arrays.asList(stateZT));
 	}
-	
+
+	@Override
+	public StatisticsList<Plan> loadPlansByTerms(long loginId, Integer state, String name, Long startUtcForCreate, Long endUtcForCreate, Long startUtcForUpdate, Long endUtcForUpdate, String timezone) {
+		return null;
+	}
+
+	@Override
+	public StatisticsList<WorkSheetProxy> loadWorksheetsByTerms(long loginId, Integer state, Long startUtcForDate, Long endUtcForDate, Long startUtcForUpdate, Long endUtcForUpdate, String timezone, long planId) {
+		return null;
+	}
+
 	@Override
 	public PlanDeptProxy loadPlanDept(long loginerId) throws DBException, LogicException {
 		PlanDept dept = CacheScheduler.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginerId, PlanDept.class, 

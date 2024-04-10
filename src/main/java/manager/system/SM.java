@@ -3,7 +3,6 @@ package manager.system;
 import static manager.util.CommonUtil.getValFromPropertiesFileInResource;
 
 import java.io.File;
-import java.util.Calendar;
 
 public abstract class SM {
 
@@ -34,5 +33,6 @@ public abstract class SM {
 	public final static String SYSTEM_NAME ="系统";
 	
 	public final static String ARRAY_SPLIT_MARK=";;;";
-	
+
+	public final static int MAX_LINES = 200;
 }

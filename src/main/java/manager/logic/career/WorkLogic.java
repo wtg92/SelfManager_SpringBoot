@@ -17,6 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import manager.data.career.StatisticsList;
 import manager.data.career.WorkSheetContent;
 import manager.data.career.WorkSheetContent.PlanItemNode;
 import manager.data.proxy.career.CareerLogProxy;
@@ -110,7 +111,13 @@ public abstract class WorkLogic{
 	public abstract Map<String,Long> loadPlanStateStatistics(long ownerId) throws LogicException, DBException;
 	public abstract Map<String,Long> loadWSStateStatistics(long loginId) throws LogicException, DBException;
 	/*ZT means ZoerTerm 当是0时，代表不设限*/
+	@Deprecated
 	public abstract List<Plan> loadPlansByState(long ownerId,PlanState stateZT,int pageNum,int pageSize);
+
+	public abstract StatisticsList<Plan> loadPlansByTerms(long loginId, Integer state, String name, Long startUtcForCreate, Long endUtcForCreate, Long startUtcForUpdate, Long endUtcForUpdate, String timezone);
+	public abstract StatisticsList<WorkSheetProxy> loadWorksheetsByTerms(long loginId, Integer state, Long startUtcForDate, Long endUtcForDate, Long startUtcForUpdate, Long endUtcForUpdate, String timezone, long planId);
+
+
 	public abstract List<WorkSheetProxy> loadWorkSheetByState(long loginId, WorkSheetState stateZT)  throws LogicException, DBException;
 	/**
 	 * 暂且只让人看到自己的
@@ -487,5 +494,6 @@ public abstract class WorkLogic{
 			}
 		}
 	}
+
 
 }

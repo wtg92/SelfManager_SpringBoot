@@ -53,6 +53,16 @@ public abstract class SMParm {
 	public final static String MAPPING_VAL = "mapping_val";
 	public final static String ITEM_ID = "item_id";
 	public final static String START_DATE = "start_date";
+
+	public final static String START_UTC_FOR_CREATE = "start_utc_for_create";
+	public final static String END_UTC_FOR_CREATE = "end_utc_for_create";
+
+	public final static String START_UTC_FOR_DATE = "start_utc_for_date";
+	public final static String END_UTC_FOR_DATE = "end_utc_for_date";
+
+	public final static String START_UTC_FOR_UPDATE = "start_utc_for_update";
+	public final static String END_UTC_FOR_UPDATE = "end_utc_for_update";
+
 	public final static String END_DATE = "end_date";
 	public final static String RECALCULATE_STATE = "recalculate_state";
 	public final static String STATE = "state";
