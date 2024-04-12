@@ -29,7 +29,7 @@ import manager.exception.NoSuchElement;
 import manager.exception.SMException;
 import manager.system.CacheMode;
 import manager.system.SMError;
-import manager.util.BiThrowablesSupplier;
+import manager.util.BiThrowableSupplier;
 import manager.util.CacheConverter;
 import manager.util.CacheUtil;
 import manager.util.ThrowableConsumer;
@@ -82,7 +82,7 @@ public abstract class CacheScheduler {
 	
 	/*initor 使用ThrowableSupplier 的原因是 由于该函数 通常应当是dao.insert 要返回一个id  */
 	public static <T extends SMEntity> T getOneOrInitIfNotExists(CacheMode mode, long identifier, Class<T> cla,
-			BiThrowablesSupplier<T, DBException,NoSuchElement> generator,ThrowableSupplier<Long,DBException> initor) throws LogicException, DBException {
+                                                                 BiThrowableSupplier<T, DBException,NoSuchElement> generator, ThrowableSupplier<Long,DBException> initor) throws LogicException, DBException {
 		
 		if(!USING_REDIS_CACHE) {
 			try {
@@ -206,7 +206,7 @@ public abstract class CacheScheduler {
 	 * 
 	 */
 	public static <T extends SMEntity> T findOne(CacheMode mode, Object identifier,Function<T, Object> identifierTranslator,
-			Function<T, Integer> keyIdentifierGenerator,Class<T> cla, BiThrowablesSupplier<T, DBException, NoSuchElement> generator) throws DBException, LogicException, NoSuchElement {
+			Function<T, Integer> keyIdentifierGenerator,Class<T> cla, BiThrowableSupplier<T, DBException, NoSuchElement> generator) throws DBException, LogicException, NoSuchElement {
 		if(!USING_REDIS_CACHE) {
 			return generator.get();
 		}

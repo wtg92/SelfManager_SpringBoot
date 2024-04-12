@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import manager.logic.career.WorkLogic;
 import manager.system.Gender;
+import manager.system.Language;
 import manager.system.VerifyUserMethod;
 import manager.system.career.PlanItemType;
 import manager.system.career.PlanSetting;
@@ -62,6 +63,12 @@ public class CommonController {
     public Set<String> getTimezones() {
         return ZoneId.getAvailableZoneIds();
     }
+
+    @GetMapping("/languages")
+    public List<String> getLanguages() {
+        return Arrays.stream(Language.values()).map(one->one.name).toList();
+    }
+
 
     @GetMapping("/getWorksheetNumOfOnePage")
     public int getWorksheetNumOfOnePage() {

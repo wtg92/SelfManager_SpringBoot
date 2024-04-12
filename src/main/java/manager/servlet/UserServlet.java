@@ -104,7 +104,7 @@ public class UserServlet extends SMServlet{
 			return resetPWD(request);
 		default:
 			assert false : op.getName();
-			throw new LogicException(SMError.UNKOWN_OP,getNonNullParam(request,OP));
+			throw new LogicException(SMError.UNKNOWN_OP,getNonNullParam(request,OP));
 		}
 	}
 	

@@ -18,7 +18,6 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import manager.data.SingleFileUnit;
 import manager.exception.LogicException;
 import manager.exception.SMException;
 import manager.logic.tool.ToolLogic;
@@ -63,7 +62,7 @@ public class DownloadServlet extends HttpServlet{
 				break;
 			default:
 				assert false : op.getName();
-				throw new LogicException(SMError.UNKOWN_OP,getNonNullParam(request,OP));
+				throw new LogicException(SMError.UNKNOWN_OP,getNonNullParam(request,OP));
 			}
 			
 			try(OutputStream out = new BufferedOutputStream(response.getOutputStream(),10000);

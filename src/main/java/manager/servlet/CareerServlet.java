@@ -87,7 +87,6 @@ import manager.system.career.NoteLabel;
 import manager.system.career.PlanItemType;
 import manager.system.career.PlanSetting;
 import manager.system.career.PlanState;
-import manager.system.career.WorkItemType;
 import manager.system.career.WorkSheetState;
 
 @WebServlet(name="CareerServlet",urlPatterns = "/CareerServlet")
@@ -239,7 +238,7 @@ public class CareerServlet extends SMServlet{
 			return saveWorkSheetPlanId(request);
 		default:
 			assert false : op.getName();
-			throw new LogicException(SMError.UNKOWN_OP,getNonNullParam(request,OP));
+			throw new LogicException(SMError.UNKNOWN_OP,getNonNullParam(request,OP));
 		}
 	}
 

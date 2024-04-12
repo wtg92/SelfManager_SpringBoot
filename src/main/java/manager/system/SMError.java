@@ -37,7 +37,7 @@ public enum SMError {
 	PWD_WRONG(26,"密码错误"),
 	REQUEST_ARG_NULL(27,"请求参数为空"),
 	REQUEST_ARG_ILLEGAL(28,"请求参数不合法"),
-	UNKOWN_OP(29,"未知的请求"),
+	UNKNOWN_OP(29,"未知的请求"),
 	ILLEGAL_USER_TOKEN(30,"登录凭证损坏，请重新登录"),
 	YZM_ENCODE_ERROR(31,"验证码图片转码异常"),
 	CANNOT_EDIT_OTHERS_PLAN(32,"不能编辑他人的工作表计划"),

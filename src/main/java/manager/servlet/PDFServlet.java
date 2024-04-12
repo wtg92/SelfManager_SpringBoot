@@ -55,7 +55,7 @@ public class PDFServlet extends HttpServlet{
 				break;
 			default:
 				assert false : op.getName();
-				throw new LogicException(SMError.UNKOWN_OP,getNonNullParam(request,OP));
+				throw new LogicException(SMError.UNKNOWN_OP,getNonNullParam(request,OP));
 			}
 			
 	        ByteBuffer byteBuffer = ByteBuffer.allocate(buffer);
