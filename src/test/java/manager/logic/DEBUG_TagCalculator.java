@@ -4,11 +4,16 @@ import org.junit.Test;
 
 import manager.logic.sub.TagCalculator;
 
+import java.io.FileInputStream;
+
 public class DEBUG_TagCalculator {
 	
 	@Test
 	public void testTagParse() {
-		System.out.println(TagCalculator.parseTo("^^^我靠"));
+
+		System.out.println("".split("sss").length);
+
+
 	}
 	
 }
