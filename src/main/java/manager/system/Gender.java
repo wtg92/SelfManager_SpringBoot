@@ -15,8 +15,8 @@ public enum Gender {
 	MALE(1,"男",1),
 	FEMALE(2,"女",2),
 	OTHERS(3,"其它",4),
+	TRANS(5,"跨性别者",3),
 	UNKNOWN(4,"保密",5),
-	TRANS(5,"跨性别者",3)
 	;
 	private int dbCode;
 	private String name;
