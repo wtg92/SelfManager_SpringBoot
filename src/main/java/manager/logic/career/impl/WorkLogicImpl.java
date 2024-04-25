@@ -682,17 +682,24 @@ public class WorkLogicImpl extends WorkLogic{
 
 
 	@Override
-	public Map<String, Long> loadPlanStateStatistics(long ownerId) throws LogicException, DBException {
+	public Map<String, Long> 	loadPlanStateStatistics(long ownerId) throws LogicException, DBException {
 		Map<String,Long> rlt = new HashMap<>();
 		
 		for(PlanState state:PlanState.values()) {
 			if(state == PlanState.UNDECIDED)
 				continue;
-			
-			rlt.put(String.valueOf(state.getDbCode()), wDAO.countPlansByOwnerAndState(ownerId, state));
+
+			rlt.put(String.valueOf(state.getDbCode()), countPlansByOwnerAndState(ownerId, state));
 		}
 		
 		return rlt;
+	}
+
+	private long countPlansByOwnerAndState(long ownerId,PlanState state){
+		Map<String,Object> equals = new HashMap<>();
+		equals.put(SMDB.F_STATE,state);
+		equals.put(SMDB.F_OWNER_ID,ownerId);
+		return wDAO.countPlansByTerms(null,equals,null,null);
 	}
 	
 	@Override
@@ -703,10 +710,17 @@ public class WorkLogicImpl extends WorkLogic{
 			if(state == WorkSheetState.UNDECIDED)
 				continue;
 			
-			rlt.put(String.valueOf(state.getDbCode()), wDAO.countWorkSheetByOwnerAndState(loginId, state));
+			rlt.put(String.valueOf(state.getDbCode()), countWorkSheetByOwnerAndState(loginId, state));
 		}
 		
 		return rlt;
+	}
+
+	private long countWorkSheetByOwnerAndState(long loginId,WorkSheetState state){
+		Map<String,Object> equals = new HashMap<>();
+		equals.put(SMDB.F_STATE,state);
+		equals.put(SMDB.F_OWNER_ID,loginId);
+		return wDAO.countWorksheetsByTerms(null,equals,null,null);
 	}
 	
 	@Override
@@ -725,6 +739,7 @@ public class WorkLogicImpl extends WorkLogic{
 		}
 
 		Map<String,Object> equals = new HashMap<>();
+		equals.put(SMDB.F_OWNER_ID,loginId);
 		if(state != 0){
 			equals.put(SMDB.F_STATE,PlanState.valueOfDBCode(state));
 		}
@@ -763,6 +778,7 @@ public class WorkLogicImpl extends WorkLogic{
 		Map<String,Object> likes = new HashMap<>();
 
 		Map<String,Object> equals = new HashMap<>();
+		equals.put(SMDB.F_OWNER_ID,loginId);
 		if(state != 0){
 			equals.put(SMDB.F_STATE,WorkSheetState.valueOfDBCode(state));
 		}
@@ -792,6 +808,7 @@ public class WorkLogicImpl extends WorkLogic{
 			lessThan.put(SMDB.F_UPDATE_UTC,endUtcForUpdate);
 		}
 
+		System.out.println(equals.size()+":"+greaterThan.size()+":"+lessThan.size());
 		List<WorkSheetProxy> items = clearUnnecessaryInfo(fillPlanInfos(wDAO.selectWorksheetsByTerms(likes,equals,greaterThan,lessThan)));
 		long count = wDAO.countWorksheetsByTerms(likes,equals,greaterThan,lessThan);
 		StatisticsList<WorkSheetProxy> rlt = new StatisticsList<>();

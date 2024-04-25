@@ -74,6 +74,7 @@ public class WorkDAOImpl implements WorkDAO {
 		return countEntitiesByBiFields(Plan.class,SMDB.F_OWNER_ID,ownerId, SMDB.F_STATE,state.getDbCode(), sessionFactory);
 	}
 
+	@Deprecated
 	@Override
 	public long countWorkSheetByOwnerAndState(long ownerId, WorkSheetState state) throws DBException {
 		return countEntitiesByBiFields(WorkSheet.class,SMDB.F_OWNER_ID,ownerId, SMDB.F_STATE,state.getDbCode(), sessionFactory);
