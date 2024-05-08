@@ -20,7 +20,7 @@ import manager.data.career.PlanDeptContent;
 import manager.data.career.StatisticsList;
 import manager.data.career.WorkSheetContent;
 import manager.data.career.WorkSheetContent.PlanItemNode;
-import manager.data.proxy.career.PlanDeptProxy;
+import manager.data.proxy.career.PlanBalanceProxy;
 import manager.data.proxy.career.PlanItemProxy;
 import manager.data.proxy.career.PlanProxy;
 import manager.data.proxy.career.WorkItemProxy;
@@ -52,11 +52,9 @@ import manager.util.CommonUtil;
 import static manager.util.RefiningUtil.shouldFixUtcBasedOnDate;
 
 import manager.util.RefiningUtil;
-import manager.util.TimeUtil;
 import manager.util.ZonedTimeUtils;
 import manager.util.locks.LockHandler;
 import manager.util.locks.UserLockManager;
-import org.hibernate.jdbc.Work;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -415,7 +413,7 @@ public class WorkLogicImpl extends WorkLogic{
 
 
 	@Override
-	public void savePlanDeptItem(long loginId, int itemId, String name, double val){
+	public void patchBalanceItem(long loginId, int itemId, String name, double val){
 		PlanDept dept = getPlanDept(loginId);
 		WorkContentConverter.updatePlanDeptItem(dept, loginId, itemId, name, val);
 		updatePlanDeptSynchronously(dept,loginId);
@@ -808,7 +806,6 @@ public class WorkLogicImpl extends WorkLogic{
 			lessThan.put(SMDB.F_UPDATE_UTC,endUtcForUpdate);
 		}
 
-		System.out.println(equals.size()+":"+greaterThan.size()+":"+lessThan.size());
 		List<WorkSheetProxy> items = clearUnnecessaryInfo(fillPlanInfos(wDAO.selectWorksheetsByTerms(likes,equals,greaterThan,lessThan)));
 		long count = wDAO.countWorksheetsByTerms(likes,equals,greaterThan,lessThan);
 		StatisticsList<WorkSheetProxy> rlt = new StatisticsList<>();
@@ -818,10 +815,10 @@ public class WorkLogicImpl extends WorkLogic{
 	}
 
 	@Override
-	public PlanDeptProxy loadPlanDept(long loginId){
+	public PlanBalanceProxy getBalance(long loginId){
 		PlanDept dept = getPlanDept(loginId);
 		
-		PlanDeptProxy proxy = new PlanDeptProxy(dept);
+		PlanBalanceProxy proxy = new PlanBalanceProxy(dept);
 		
 		proxy.content = WorkContentConverter.convertPlanDept(dept);
 		
@@ -839,7 +836,7 @@ public class WorkLogicImpl extends WorkLogic{
 	}
 	
 	@Override
-	public List<String> loadPlanDeptItemNames(long loginId){
+	public List<String> getPlanBalanceItemNames(long loginId){
 		PlanDept dept = CacheScheduler.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginId, PlanDept.class, 
 				 ()->wDAO.selectPlanDeptByOwner(loginId), ()->initPlanDept(loginId));
 		PlanDeptContent content = WorkContentConverter.convertPlanDept(dept);
@@ -1005,7 +1002,7 @@ public class WorkLogicImpl extends WorkLogic{
 	 * 要重新计算一下状态
 	 */
 	@Override
-	public void syncToPlanDept(long loginId, long wsId, int planItemId) throws DBException, LogicException {
+	public void syncToBalance(long loginId, long wsId, int planItemId) throws DBException, LogicException {
 		locker.lockByUserAndClass(loginId,()->{
 			WorkSheet ws = getWorksheet(wsId);
 			if(loginId != ws.getOwnerId()) {
@@ -1035,7 +1032,7 @@ public class WorkLogicImpl extends WorkLogic{
 	}
 	
 	@Override
-	public void syncAllToPlanDept(long loginId, long wsId) throws DBException, LogicException {
+	public void syncAllToBalance(long loginId, long wsId) throws DBException, LogicException {
 		locker.lockByUserAndClass(loginId,()->{
 			WorkSheet ws = getWorksheet(wsId);
 			if(loginId != ws.getOwnerId()) {
@@ -1068,9 +1065,9 @@ public class WorkLogicImpl extends WorkLogic{
 	}
 	
 	@Override
-	public void syncAllToPlanDeptBatch(long loginId, List<Integer> wsIds) throws SMException {
+	public void syncAllToBalanceInBatch(long loginId, List<Integer> wsIds) throws SMException {
 		for(long wsId:wsIds) {
-			syncAllToPlanDept(loginId, wsId);
+			syncAllToBalance(loginId, wsId);
 		}
 	}
 	

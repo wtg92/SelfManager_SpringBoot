@@ -5,7 +5,6 @@ import static manager.logic.career.sub.WorkContentConverter.addItemToWorkSheet;
 import static manager.logic.career.sub.WorkContentConverter.convertPlanContent;
 import static manager.logic.career.sub.WorkContentConverter.convertWorkSheet;
 import static manager.logic.career.sub.WorkContentConverter.pushToWorkSheet;
-import static manager.logic.career.sub.WorkContentConverter.removeItemFromWorkSheet;
 import static manager.logic.career.sub.WorkContentConverter.updateWorkItem;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -19,11 +18,10 @@ import org.junit.Test;
 import manager.TestUtil;
 import manager.data.career.PlanContent;
 import manager.data.career.WorkSheetContent;
-import manager.data.proxy.career.PlanDeptProxy;
+import manager.data.proxy.career.PlanBalanceProxy;
 import manager.data.proxy.career.WorkSheetProxy;
 import manager.entity.general.career.Plan;
 import manager.entity.general.career.WorkSheet;
-import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.logic.UserLogic;
 import manager.system.SMError;
@@ -203,7 +201,7 @@ public class WorkLogicTest {
 		WorkSheetProxy ws = wL.loadWorkSheet(1, 1);
 		assertEquals(WorkSheetState.ACTIVE, ws.ws.getState());
 		
-		PlanDeptProxy dept =  wL.loadPlanDept(1);
+		PlanBalanceProxy dept =  wL.getBalance(1);
 		assertEquals(0, dept.content.items.size());
 		
 		assertTrue(0 == ws.content.planItems.get(0).sumValForWorkItems);
@@ -211,12 +209,12 @@ public class WorkLogicTest {
 		assertTrue(0 == ws.content.planItems.get(1).sumValForWorkItems);
 		assertTrue(valForTimes == ws.content.planItems.get(1).remainingValForCur);
 		
-		wL.syncToPlanDept(1, 1, 1);
+		wL.syncToBalance(1, 1, 1);
 		
 		ws = wL.loadWorkSheet(1, 1);
 		assertEquals(WorkSheetState.ACTIVE, ws.ws.getState());
 		
-		dept =  wL.loadPlanDept(1);
+		dept =  wL.getBalance(1);
 		assertEquals(1, dept.content.items.size());
 		assertEquals(minutesItem, dept.content.items.get(0).getName());
 		assertTrue(valForMinutes == dept.content.items.get(0).getValue());
@@ -226,12 +224,12 @@ public class WorkLogicTest {
 		assertTrue(ws.content.planItems.get(0).sumValForWorkItems+"",0 == ws.content.planItems.get(0).sumValForWorkItems);
 		assertTrue(valForTimes == ws.content.planItems.get(1).remainingValForCur);
 		
-		wL.syncToPlanDept(1, 1, 2);
+		wL.syncToBalance(1, 1, 2);
 		
 		ws = wL.loadWorkSheet(1, 1);
 		assertEquals(WorkSheetState.FINISHED, ws.ws.getState());
 		
-		dept =  wL.loadPlanDept(1);
+		dept =  wL.getBalance(1);
 		assertEquals(2, dept.content.items.size());
 		assertEquals(timesItem, dept.content.items.get(1).getName());
 		assertTrue(valForTimes == dept.content.items.get(1).getValue());
