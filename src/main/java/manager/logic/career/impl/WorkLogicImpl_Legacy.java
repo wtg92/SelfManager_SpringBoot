@@ -3,7 +3,7 @@ package manager.logic.career.impl;
 import manager.dao.DAOFactory;
 import manager.dao.career.WorkDAO;
 import manager.data.EntityTag;
-import manager.data.career.PlanDeptContent;
+import manager.data.career.BalanceContent;
 import manager.data.career.StatisticsList;
 import manager.data.career.WorkSheetContent;
 import manager.data.career.WorkSheetContent.PlanItemNode;
@@ -11,7 +11,7 @@ import manager.data.proxy.career.*;
 import manager.entity.general.career.Plan;
 import manager.entity.general.career.PlanDept;
 import manager.entity.general.career.WorkSheet;
-import manager.entity.virtual.career.PlanDeptItem;
+import manager.entity.virtual.career.BalanceItem;
 import manager.entity.virtual.career.WorkItem;
 import manager.exception.DBException;
 import manager.exception.LogicException;
@@ -332,9 +332,9 @@ public class WorkLogicImpl_Legacy extends WorkLogic{
 	@Override
 	public void patchBalanceItem(long updaterId, int itemId, String name, double val)
 			throws LogicException, DBException {
-		PlanDept dept = CacheScheduler.getOne(CacheMode.E_UNIQUE_FIELD_ID, updaterId, PlanDept.class, ()->wDAO.selectExistedPlanDeptByOwner(updaterId));
+		PlanDept dept = CacheScheduler.getOne(CacheMode.E_UNIQUE_FIELD_ID, updaterId, PlanDept.class, ()->wDAO.selectExistedBalanceByOwner(updaterId));
 		WorkContentConverter.updatePlanDeptItem(dept, updaterId, itemId, name, val);
-		CacheScheduler.saveEntity(dept,w->wDAO.updateExistedPlanDept(w));
+		CacheScheduler.saveEntity(dept,w->wDAO.updateExistedBalance(w));
 	}
 	
 	
@@ -610,8 +610,8 @@ public class WorkLogicImpl_Legacy extends WorkLogic{
 
 	@Override
 	public PlanBalanceProxy getBalance(long loginerId) throws DBException, LogicException {
-		PlanDept dept = CacheScheduler.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginerId, PlanDept.class, 
-				 ()->wDAO.selectPlanDeptByOwner(loginerId), ()->initPlanDept(loginerId));
+		PlanDept dept = CacheScheduler.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginerId, PlanDept.class,
+				 ()->wDAO.selectBalanceByOwner(loginerId), ()->initPlanDept(loginerId));
 		
 		PlanBalanceProxy proxy = new PlanBalanceProxy(dept);
 		
@@ -633,10 +633,10 @@ public class WorkLogicImpl_Legacy extends WorkLogic{
 	
 	@Override
 	public List<String> getPlanBalanceItemNames(long loginerId) throws DBException, LogicException {
-		PlanDept dept = CacheScheduler.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginerId, PlanDept.class, 
-				 ()->wDAO.selectPlanDeptByOwner(loginerId), ()->initPlanDept(loginerId));
-		PlanDeptContent content = WorkContentConverter.convertPlanDept(dept);
-		return content.items.stream().map(PlanDeptItem::getName).collect(toList());
+		PlanDept dept = CacheScheduler.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginerId, PlanDept.class,
+				 ()->wDAO.selectBalanceByOwner(loginerId), ()->initPlanDept(loginerId));
+		BalanceContent content = WorkContentConverter.convertPlanDept(dept);
+		return content.items.stream().map(BalanceItem::getName).collect(toList());
 	}
 	
 	@Override
@@ -793,7 +793,7 @@ public class WorkLogicImpl_Legacy extends WorkLogic{
 			/*这个函数不想让它抛逻辑异常 在这里处理*/
 			throw new RuntimeException("initPlanDept error "+e.getMessage());
 		}
-		return wDAO.insertPlanDept(dept);
+		return wDAO.insertBalance(dept);
 	}
 	
 	/**
@@ -819,15 +819,15 @@ public class WorkLogicImpl_Legacy extends WorkLogic{
 			throw new LogicException(SMError.NO_SYNC_ZERO_WS_PLAN_ITEM,planItem.item.getName());
 		}
 		
-		PlanDept dept = CacheScheduler.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginerId, PlanDept.class, 
-				 ()->wDAO.selectPlanDeptByOwner(loginerId), ()->initPlanDept(loginerId));
+		PlanDept dept = CacheScheduler.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginerId, PlanDept.class,
+				 ()->wDAO.selectBalanceByOwner(loginerId), ()->initPlanDept(loginerId));
 		
 		WorkContentConverter.syncToPlanDept(ws,dept,planItem,loginerId);
 
 		refreshStateAfterItemModified(ws);
 		
 		CacheScheduler.saveEntity(ws,w->wDAO.updateExistedWorkSheet(w));
-		CacheScheduler.saveEntity(dept,d->wDAO.updateExistedPlanDept(d));
+		CacheScheduler.saveEntity(dept,d->wDAO.updateExistedBalance(d));
 	}
 	
 	@Override
@@ -849,8 +849,8 @@ public class WorkLogicImpl_Legacy extends WorkLogic{
 			logger.log(Level.WARNING,"同步所有却没有需要同步的，前台出现问题了？"+wsId);
 		}
 		
-		PlanDept dept = CacheScheduler.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginerId, PlanDept.class, 
-				 ()->wDAO.selectPlanDeptByOwner(loginerId), ()->initPlanDept(loginerId));
+		PlanDept dept = CacheScheduler.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginerId, PlanDept.class,
+				 ()->wDAO.selectBalanceByOwner(loginerId), ()->initPlanDept(loginerId));
 		
 		for(PlanItemProxy planItem :needingToSync) {
 			WorkContentConverter.syncToPlanDept(ws,dept,planItem,loginerId);
@@ -859,7 +859,7 @@ public class WorkLogicImpl_Legacy extends WorkLogic{
 		refreshStateAfterItemModified(ws);
 		
 		CacheScheduler.saveEntity(ws,w->wDAO.updateExistedWorkSheet(w));
-		CacheScheduler.saveEntity(dept,d->wDAO.updateExistedPlanDept(d));
+		CacheScheduler.saveEntity(dept,d->wDAO.updateExistedBalance(d));
 	}
 	
 	@Override

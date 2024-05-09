@@ -19,7 +19,7 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
 import manager.data.career.PlanContent;
-import manager.data.career.PlanDeptContent;
+import manager.data.career.BalanceContent;
 import manager.data.career.WorkSheetContent;
 import manager.data.proxy.career.CareerLogProxy;
 import manager.data.proxy.career.PlanItemProxy;
@@ -28,7 +28,7 @@ import manager.entity.general.career.Plan;
 import manager.entity.general.career.PlanDept;
 import manager.entity.general.career.WorkSheet;
 import manager.entity.virtual.career.CareerLog;
-import manager.entity.virtual.career.PlanDeptItem;
+import manager.entity.virtual.career.BalanceItem;
 import manager.entity.virtual.career.PlanItem;
 import manager.entity.virtual.career.WorkItem;
 import manager.exception.LogicException;
@@ -218,8 +218,8 @@ public abstract class WorkContentConverter {
 		return item;
 	}
 	
-	private static PlanDeptItem parsePlanDeptItem(Element element){
-		PlanDeptItem dept = new PlanDeptItem();
+	private static BalanceItem parsePlanDeptItem(Element element){
+		BalanceItem dept = new BalanceItem();
 		dept.setId(Integer.parseInt(element.attributeValue(A_ID)));
 		dept.setName(element.attributeValue(A_NAME));
 		dept.setValue(Double.parseDouble(element.attributeValue(A_VALUE)));
@@ -232,15 +232,15 @@ public abstract class WorkContentConverter {
 		father.addAttribute(A_P_AUTO_INCREMENT_KEY, String.valueOf(pId+1));
 		return pId;
 	}
-	private static List<PlanDeptItem> getPlanDeptItems(Document deptDoc){
+	private static List<BalanceItem> getPlanDeptItems(Document deptDoc){
 		Element items= deptDoc.getRootElement().element(T_ITEMS);
-		List<PlanDeptItem> rlt = new ArrayList<>();
+		List<BalanceItem> rlt = new ArrayList<>();
 		for(Element ele : items.elements()) {
 			if(!ele.getName().equals(T_ITEM)) {
 				logger.log(Level.SEVERE,"PlanDeptItem 出现了非 Item的tag"+ele.getName());
 				continue;
 			}
-			PlanDeptItem item = parsePlanDeptItem(ele);
+			BalanceItem item = parsePlanDeptItem(ele);
 			rlt.add(item);
 		}
 		return rlt;
@@ -329,7 +329,7 @@ public abstract class WorkContentConverter {
 	
 	private static Element getPlanDeptItemByNameAndType(Element itemsElement,String name,PlanItemType type) throws NoSuchElement {
 		for(Element item:itemsElement.elements()) {
-			PlanDeptItem deptItem = parsePlanDeptItem(item);
+			BalanceItem deptItem = parsePlanDeptItem(item);
 			if(deptItem.getName().equals(name)
 					&& deptItem.getType() == type) {
 				return item;
@@ -432,7 +432,7 @@ public abstract class WorkContentConverter {
 		}
 	}
 	
-	private static void fillAttrsExceptId(PlanDeptItem item,Element cur) {
+	private static void fillAttrsExceptId(BalanceItem item, Element cur) {
 		cur.addAttribute(A_VALUE, item.getValue().toString());
 		cur.addAttribute(A_NAME, item.getName());
 		cur.addAttribute(A_TYPE, String.valueOf(item.getType().getDbCode()));
@@ -502,7 +502,7 @@ public abstract class WorkContentConverter {
 		return item;
 	}
 	
-	static PlanDeptItem append(PlanDeptItem item,Element itemsDoc) {
+	static BalanceItem append(BalanceItem item, Element itemsDoc) {
 		assert itemsDoc.getName().equals(T_ITEMS);
 		int pId = getPIdAndAutoIncrease(itemsDoc);
 		
@@ -662,7 +662,7 @@ public abstract class WorkContentConverter {
 		root.setContent(doc.asXML());
 	}
 	
-	public static void addLog(PlanDept root,CareerLogAction action,long creatorId,Object ...parms) throws LogicException {
+	public static void addLog(PlanDept root, CareerLogAction action, long creatorId, Object ...parms) throws LogicException {
 		Document doc = getDocumentOrInitIfNotExists(root);
 		addPlanDpetLog(doc, action, creatorId, parms);
 		root.setContent(doc.asXML());
@@ -684,7 +684,7 @@ public abstract class WorkContentConverter {
 			logsElement.remove(allLogs.get(i));
 		}
 		
-		List<PlanDeptItem> items = getPlanDeptItems(deptDoc);
+		List<BalanceItem> items = getPlanDeptItems(deptDoc);
 		String snapShot = items.stream().map(item->LogParser.getSnapshot(item)).collect(joining(","));
 		addLog(deptDoc, CareerLogAction.CLEAR_DEPT_LOGS_WHEN_TOO_MUCH, SM.SYSTEM_ID,
 				MAX_NUM_OF_PLAN_DEPT_LOG,
@@ -862,10 +862,10 @@ public abstract class WorkContentConverter {
 	 * 	假如存在同名项 则合并 假如最后为0 则删除。
 	 * 
 	 */
-	public static void updatePlanDeptItem(PlanDept one,long updaterId,int itemId, String name,double val) throws LogicException{
+	public static void updatePlanDeptItem(PlanDept one, long updaterId, int itemId, String name, double val) throws LogicException{
 		Document deptDoc = getDefinateDocument(one);
 		Element deptItemEle = getPlanDeptItemById(deptDoc, itemId);
-		PlanDeptItem item = parsePlanDeptItem(deptItemEle);
+		BalanceItem item = parsePlanDeptItem(deptItemEle);
 		if(item.getName().equals(name)) {
 			/*说明没改名 那么不存在合并的问题 只用考虑是否为0既可*/
 			addPlanDpetLog(deptDoc, CareerLogAction.MODIFY_DEPT_ITEM_VAL, updaterId,
@@ -892,7 +892,7 @@ public abstract class WorkContentConverter {
 				throw new LogicException(SMError.SYNC_ITEM_WITH_DEPT_ERROR,"删除欠账项失败 "+item.getName());
 			}
 
-			PlanDeptItem theItemToMerge = parsePlanDeptItem(theEleToMerge);
+			BalanceItem theItemToMerge = parsePlanDeptItem(theEleToMerge);
 			
 			double after = CommonUtil.fixDouble(theItemToMerge.getValue()+val);
 			
@@ -1006,9 +1006,9 @@ public abstract class WorkContentConverter {
 		return rlt;
 	}
 	
-	public static PlanDeptContent convertPlanDept(PlanDept dept) throws LogicException {
+	public static BalanceContent convertPlanDept(PlanDept dept) throws LogicException {
 		Document doc = getDocumentOrInitIfNotExists(dept);
-		PlanDeptContent rlt = new PlanDeptContent();
+		BalanceContent rlt = new BalanceContent();
 		rlt.items = getPlanDeptItems(doc);
 		rlt.logs = getLogs(doc).stream().map(CareerLogProxy::new).collect(toList());
 		return rlt;
@@ -1084,7 +1084,7 @@ public abstract class WorkContentConverter {
 	 *  对dept 加Log 来自某一天的工作表的某一项
 	 *  假设sync为0，则销毁掉这条DeptItem 同时加Log
 	*/
-	public static void syncToPlanDept(WorkSheet ws, PlanDept dept, PlanItemProxy planItem,long opreatorId) throws LogicException {
+	public static void syncToPlanDept(WorkSheet ws, PlanDept dept, PlanItemProxy planItem, long opreatorId) throws LogicException {
 		assert planItem.remainingValForCur != 0;
 
 		Document deptDoc = getDefinateDocument(dept);
@@ -1094,7 +1094,7 @@ public abstract class WorkContentConverter {
 		Element itemsElement= deptDoc.getRootElement().element(T_ITEMS);
 		try {
 			Element targetDeptItemElement =  getPlanDeptItemByNameAndType(itemsElement, deptItemName, type);
-			PlanDeptItem deptItem = parsePlanDeptItem(targetDeptItemElement);
+			BalanceItem deptItem = parsePlanDeptItem(targetDeptItemElement);
 			assert deptItem.getName().equals(deptItemName);
 			
 			double after = CommonUtil.fixDouble(planItem.remainingValForCur+deptItem.getValue());
@@ -1110,7 +1110,7 @@ public abstract class WorkContentConverter {
 
 			overridePlanDeptItemOrDeleteWhenValZero(deptDoc, deptItem, targetDeptItemElement);
 		} catch (NoSuchElement e) {
-			PlanDeptItem deptItem = new PlanDeptItem();
+			BalanceItem deptItem = new BalanceItem();
 			deptItem.setType(type);
 			deptItem.setValue(CommonUtil.fixDouble(planItem.remainingValForCur));
 			deptItem.setName(deptItemName);
@@ -1143,7 +1143,7 @@ public abstract class WorkContentConverter {
 		ws.setContent(wsDoc.asXML());
 	}
 	
-	private static void overridePlanDeptItemOrDeleteWhenValZero(Document deptDoc,PlanDeptItem deptItemForOverride,Element targetDeptItemElement) throws LogicException {
+	private static void overridePlanDeptItemOrDeleteWhenValZero(Document deptDoc, BalanceItem deptItemForOverride, Element targetDeptItemElement) throws LogicException {
 		if(deptItemForOverride.getValue() != 0) {
 			fillAttrsExceptId(deptItemForOverride, targetDeptItemElement);
 		}else {

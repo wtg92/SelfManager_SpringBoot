@@ -3,7 +3,7 @@ package manager.entity.virtual.career;
 import manager.entity.virtual.SMVirtualEntity;
 import manager.system.career.PlanItemType;
 
-public class PlanDeptItem extends SMVirtualEntity {
+public class BalanceItem extends SMVirtualEntity {
 	
 	private String name;
 	

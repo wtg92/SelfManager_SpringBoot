@@ -499,11 +499,11 @@ public class CareerServlet extends SMServlet{
 	}
 
 	private String syncToPlanDept(HttpServletRequest request) throws LogicException, DBException {
-		long loginerId = getLoginId(request);
+		long loginId = getLoginId(request);
 		int wsId = getNonNullParamInInt(request, WS_ID);
 		int planItemId = getNonNullParamInInt(request, PLAN_ITEM_ID);
-		wL.syncToBalance(loginerId, wsId, planItemId);
-		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId));
+		wL.syncToBalance(loginId, wsId, planItemId);
+		return JSON.toJSONString(wL.loadWorkSheet(loginId, wsId));
 	}
 
 	private String removeItemFromWorkSheet(HttpServletRequest request) throws LogicException, DBException {
