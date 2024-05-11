@@ -808,7 +808,6 @@ public class WorkLogicImpl extends WorkLogic{
 			lessThan.put(SMDB.F_UPDATE_UTC,endUtcForUpdate);
 		}
 
-		System.out.println(equals.size()+":"+greaterThan.size()+":"+lessThan.size());
 		List<WorkSheetProxy> items = clearUnnecessaryInfo(fillPlanInfos(wDAO.selectWorksheetsByTerms(likes,equals,greaterThan,lessThan)));
 		long count = wDAO.countWorksheetsByTerms(likes,equals,greaterThan,lessThan);
 		StatisticsList<WorkSheetProxy> rlt = new StatisticsList<>();
