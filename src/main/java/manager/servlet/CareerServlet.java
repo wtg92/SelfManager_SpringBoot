@@ -457,14 +457,14 @@ public class CareerServlet extends SMServlet{
 		int itemId = getNonNullParamInInt(request, ITEM_ID);
 		String name = getNonNullParam(request, NAME);
 		double val = getNonNullParamInDouble(request, VAL);
-		wL.savePlanDeptItem(loginerId, itemId, name, val);
-		return JSON.toJSONString(wL.loadPlanDept(loginerId));
+		wL.patchBalanceItem(loginerId, itemId, name, val);
+		return JSON.toJSONString(wL.getBalance(loginerId));
 	}
 
 	private String syncAllToPlanDept(HttpServletRequest request) throws DBException, LogicException {
 		long loginerId = getLoginId(request);
 		int wsId = getNonNullParamInInt(request, WS_ID);
-		wL.syncAllToPlanDept(loginerId, wsId);
+		wL.syncAllToBalance(loginerId, wsId);
 		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId));
 	}
 	
@@ -472,14 +472,14 @@ public class CareerServlet extends SMServlet{
 		long loginerId = getLoginId(request);
 		List<Integer> wsIds = getNonNullParamsInInt(request, WS_IDS);
 		int wsIdForRefresh = getNonNullParamInInt(request, WS_ID);
-		wL.syncAllToPlanDeptBatch(loginerId, wsIds);
+		wL.syncAllToBalanceInBatch(loginerId, wsIds);
 		/*0 means no refresh*/
 		return wsIdForRefresh == 0 ? getNullObjJSON() : JSON.toJSONString(wL.loadWorkSheet(loginerId, wsIdForRefresh));
 	}
 	
 	private String loadPlanDeptItemNames(HttpServletRequest request) throws LogicException, DBException {
 		long loginerId = getLoginId(request);
-		return JSON.toJSONString(wL.loadPlanDeptItemNames(loginerId));
+		return JSON.toJSONString(wL.getPlanBalanceItemNames(loginerId));
 	}
 
 	private String loadWSByState(HttpServletRequest request) throws LogicException, DBException {
@@ -495,15 +495,15 @@ public class CareerServlet extends SMServlet{
 
 	private String loadPlanDept(HttpServletRequest request) throws LogicException, DBException {
 		long loginerId = getLoginId(request);
-		return JSON.toJSONString(wL.loadPlanDept(loginerId));
+		return JSON.toJSONString(wL.getBalance(loginerId));
 	}
 
 	private String syncToPlanDept(HttpServletRequest request) throws LogicException, DBException {
-		long loginerId = getLoginId(request);
+		long loginId = getLoginId(request);
 		int wsId = getNonNullParamInInt(request, WS_ID);
 		int planItemId = getNonNullParamInInt(request, PLAN_ITEM_ID);
-		wL.syncToPlanDept(loginerId, wsId, planItemId);
-		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId));
+		wL.syncToBalance(loginId, wsId, planItemId);
+		return JSON.toJSONString(wL.loadWorkSheet(loginId, wsId));
 	}
 
 	private String removeItemFromWorkSheet(HttpServletRequest request) throws LogicException, DBException {

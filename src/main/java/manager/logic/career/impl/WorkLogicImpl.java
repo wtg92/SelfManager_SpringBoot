@@ -16,11 +16,11 @@ import java.util.stream.Collectors;
 
 import manager.dao.career.WorkDAO;
 import manager.data.EntityTag;
-import manager.data.career.PlanDeptContent;
+import manager.data.career.BalanceContent;
 import manager.data.career.StatisticsList;
 import manager.data.career.WorkSheetContent;
 import manager.data.career.WorkSheetContent.PlanItemNode;
-import manager.data.proxy.career.PlanDeptProxy;
+import manager.data.proxy.career.PlanBalanceProxy;
 import manager.data.proxy.career.PlanItemProxy;
 import manager.data.proxy.career.PlanProxy;
 import manager.data.proxy.career.WorkItemProxy;
@@ -28,7 +28,7 @@ import manager.data.proxy.career.WorkSheetProxy;
 import manager.entity.general.career.Plan;
 import manager.entity.general.career.PlanDept;
 import manager.entity.general.career.WorkSheet;
-import manager.entity.virtual.career.PlanDeptItem;
+import manager.entity.virtual.career.BalanceItem;
 import manager.entity.virtual.career.WorkItem;
 import manager.exception.DBException;
 import manager.exception.LogicException;
@@ -52,11 +52,9 @@ import manager.util.CommonUtil;
 import static manager.util.RefiningUtil.shouldFixUtcBasedOnDate;
 
 import manager.util.RefiningUtil;
-import manager.util.TimeUtil;
 import manager.util.ZonedTimeUtils;
 import manager.util.locks.LockHandler;
 import manager.util.locks.UserLockManager;
-import org.hibernate.jdbc.Work;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -82,7 +80,7 @@ public class WorkLogicImpl extends WorkLogic{
 
 	private PlanDept getPlanDept(long loginId){
 		return CacheScheduler.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginId, PlanDept.class,
-				()->wDAO.selectPlanDeptByOwner(loginId), ()->initPlanDept(loginId));
+				()->wDAO.selectBalanceByOwner(loginId), ()->initPlanDept(loginId));
 	}
 
 	private void updateWorksheetSynchronously(WorkSheet ws, long loginId){
@@ -93,7 +91,7 @@ public class WorkLogicImpl extends WorkLogic{
 
 	private void updatePlanDeptSynchronously(PlanDept dept, long loginId){
 		locker.lockByUserAndClass(loginId,()->{
-			CacheScheduler.saveEntity(dept,d->wDAO.updateExistedPlanDept(d));
+			CacheScheduler.saveEntity(dept,d->wDAO.updateExistedBalance(d));
 		});
 	}
 
@@ -415,7 +413,7 @@ public class WorkLogicImpl extends WorkLogic{
 
 
 	@Override
-	public void savePlanDeptItem(long loginId, int itemId, String name, double val){
+	public void patchBalanceItem(long loginId, int itemId, String name, double val){
 		PlanDept dept = getPlanDept(loginId);
 		WorkContentConverter.updatePlanDeptItem(dept, loginId, itemId, name, val);
 		updatePlanDeptSynchronously(dept,loginId);
@@ -817,10 +815,10 @@ public class WorkLogicImpl extends WorkLogic{
 	}
 
 	@Override
-	public PlanDeptProxy loadPlanDept(long loginId){
+	public PlanBalanceProxy getBalance(long loginId){
 		PlanDept dept = getPlanDept(loginId);
 		
-		PlanDeptProxy proxy = new PlanDeptProxy(dept);
+		PlanBalanceProxy proxy = new PlanBalanceProxy(dept);
 		
 		proxy.content = WorkContentConverter.convertPlanDept(dept);
 		
@@ -838,11 +836,11 @@ public class WorkLogicImpl extends WorkLogic{
 	}
 	
 	@Override
-	public List<String> loadPlanDeptItemNames(long loginId){
-		PlanDept dept = CacheScheduler.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginId, PlanDept.class, 
-				 ()->wDAO.selectPlanDeptByOwner(loginId), ()->initPlanDept(loginId));
-		PlanDeptContent content = WorkContentConverter.convertPlanDept(dept);
-		return content.items.stream().map(PlanDeptItem::getName).collect(toList());
+	public List<String> getPlanBalanceItemNames(long loginId){
+		PlanDept dept = CacheScheduler.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginId, PlanDept.class,
+				 ()->wDAO.selectBalanceByOwner(loginId), ()->initPlanDept(loginId));
+		BalanceContent content = WorkContentConverter.convertPlanDept(dept);
+		return content.items.stream().map(BalanceItem::getName).collect(toList());
 	}
 	
 	@Override
@@ -997,14 +995,14 @@ public class WorkLogicImpl extends WorkLogic{
 			/*这个函数不想让它抛逻辑异常 在这里处理*/
 			throw new RuntimeException("initPlanDept error "+e.getMessage());
 		}
-		return wDAO.insertPlanDept(dept);
+		return wDAO.insertBalance(dept);
 	}
 	
 	/**
 	 * 要重新计算一下状态
 	 */
 	@Override
-	public void syncToPlanDept(long loginId, long wsId, int planItemId) throws DBException, LogicException {
+	public void syncToBalance(long loginId, long wsId, int planItemId) throws DBException, LogicException {
 		locker.lockByUserAndClass(loginId,()->{
 			WorkSheet ws = getWorksheet(wsId);
 			if(loginId != ws.getOwnerId()) {
@@ -1034,7 +1032,7 @@ public class WorkLogicImpl extends WorkLogic{
 	}
 	
 	@Override
-	public void syncAllToPlanDept(long loginId, long wsId) throws DBException, LogicException {
+	public void syncAllToBalance(long loginId, long wsId) throws DBException, LogicException {
 		locker.lockByUserAndClass(loginId,()->{
 			WorkSheet ws = getWorksheet(wsId);
 			if(loginId != ws.getOwnerId()) {
@@ -1067,9 +1065,9 @@ public class WorkLogicImpl extends WorkLogic{
 	}
 	
 	@Override
-	public void syncAllToPlanDeptBatch(long loginId, List<Integer> wsIds) throws SMException {
+	public void syncAllToBalanceInBatch(long loginId, List<Integer> wsIds) throws SMException {
 		for(long wsId:wsIds) {
-			syncAllToPlanDept(loginId, wsId);
+			syncAllToBalance(loginId, wsId);
 		}
 	}
 	

@@ -1,9 +1,8 @@
 package manager.controller;
 
-import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import manager.data.career.StatisticsList;
-import manager.data.proxy.career.PlanDeptProxy;
+import manager.data.proxy.career.PlanBalanceProxy;
 import manager.data.proxy.career.PlanProxy;
 import manager.data.proxy.career.WorkSheetProxy;
 import manager.entity.general.career.Plan;
@@ -12,14 +11,10 @@ import manager.logic.career.WorkLogic;
 import manager.servlet.ServletAdapter;
 import manager.system.career.PlanItemType;
 import manager.system.career.PlanSetting;
-import manager.system.career.PlanState;
 import manager.util.UIUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
@@ -132,29 +127,29 @@ public class WorkSheetController {
         wL.removeItemFromWorkSheet(loginId, wsId, itemId);
     }
 
-    @PostMapping(WORK_SHEET_PATH+"/batchSyncAllToDept")
-    private void batchSyncAllToDept( @RequestHeader("Authorization") String authorizationHeader
+    @PostMapping(WORK_SHEET_PATH+"/syncAllToBalanceInBatch")
+    private void syncAllToBalanceInBatch(@RequestHeader("Authorization") String authorizationHeader
             , @RequestBody JSONObject param ){
         long loginId = UIUtil.getLoginId(authorizationHeader);
         List<Integer> wsIds =  param.getList(WS_IDS,Integer.class);
-        wL.syncAllToPlanDeptBatch(loginId, wsIds);
+        wL.syncAllToBalanceInBatch(loginId, wsIds);
     }
 
-    @PostMapping(WORK_SHEET_PATH+"/workItem/syncAllToDept")
-    private void syncAllToDept( @RequestHeader("Authorization") String authorizationHeader
+    @PostMapping(WORK_SHEET_PATH+"/workItem/syncAllToBalance")
+    private void syncAllToBalance( @RequestHeader("Authorization") String authorizationHeader
             , @RequestBody JSONObject param ){
         long loginId = UIUtil.getLoginId(authorizationHeader);
         int wsId = param.getInteger(WS_ID);
-        wL.syncAllToPlanDept(loginId, wsId);
+        wL.syncAllToBalance(loginId, wsId);
     }
 
-    @PostMapping(WORK_SHEET_PATH+"/workItem/syncToDept")
-    private void syncToPlanDept( @RequestHeader("Authorization") String authorizationHeader
+    @PostMapping(WORK_SHEET_PATH+"/workItem/syncToBalance")
+    private void syncToBalance( @RequestHeader("Authorization") String authorizationHeader
             , @RequestBody JSONObject param ){
         long loginId = UIUtil.getLoginId(authorizationHeader);
         int wsId = param.getInteger(WS_ID);
         int itemId = param.getInteger(ITEM_ID);
-        wL.syncToPlanDept(loginId, wsId, itemId);
+        wL.syncToBalance(loginId, wsId, itemId);
     }
 
     @PatchMapping(WORK_SHEET_PATH+"/workItem")
@@ -266,7 +261,7 @@ public class WorkSheetController {
 
     private static final String WORK_SHEET_PATH = "/ws";
 
-    private static final String DEPT_PATH = "/dept";
+    private static final String BALANCE_PATH = "/balance";
 
     @GetMapping(PLAN_PATH)
     public PlanProxy getPlan(
@@ -276,22 +271,22 @@ public class WorkSheetController {
         return ServletAdapter.process(wL.loadPlan(loginId, planId));
     }
 
-    @GetMapping(DEPT_PATH)
-    public PlanDeptProxy getDept(
+    @GetMapping(BALANCE_PATH)
+    public PlanBalanceProxy getBalance(
             @RequestHeader("Authorization") String authorizationHeader) {
         long loginId = UIUtil.getLoginId(authorizationHeader);
-        return wL.loadPlanDept(loginId);
+        return wL.getBalance(loginId);
     }
 
-    @PatchMapping(DEPT_PATH)
-    public void patchDeptItem(
+    @PatchMapping(BALANCE_PATH)
+    public void patchBalanceItem(
             @RequestHeader("Authorization") String authorizationHeader
             , @RequestBody JSONObject param ) {
         long loginId = UIUtil.getLoginId(authorizationHeader);
         int itemId = param.getInteger(ITEM_ID);
         String name = param.getString(NAME);
         double val = param.getDouble(VAL);
-        wL.savePlanDeptItem(loginId, itemId, name, val);
+        wL.patchBalanceItem(loginId, itemId, name, val);
     }
 
     @GetMapping(PLAN_PATH+"/statistics/states")
@@ -351,11 +346,11 @@ public class WorkSheetController {
         return wL.getCountWSBasedOfPlan(planId,loginId);
     }
 
-    @GetMapping(DEPT_PATH+"/itemNames")
-    public List<String> getPlanDeptItemNames(
+    @GetMapping(BALANCE_PATH +"/itemNames")
+    public List<String> getPlanBalanceItemNames(
             @RequestHeader("Authorization") String authorizationHeader) {
         long loginId = UIUtil.getLoginId(authorizationHeader);
-        return wL.loadPlanDeptItemNames(loginId);
+        return wL.getPlanBalanceItemNames(loginId);
     }
 
     @GetMapping(PLAN_PATH+"/tags")

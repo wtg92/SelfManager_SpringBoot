@@ -5,9 +5,7 @@ import java.sql.ResultSet;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 
 import manager.dao.career.WorkDAO;
 import manager.entity.general.career.Plan;
@@ -40,8 +38,8 @@ public class WorkDAOImpl implements WorkDAO {
 	}
 	
 	@Override
-	public long insertPlanDept(PlanDept dept) throws DBException {
-		return insertEntity(dept, sessionFactory);
+	public long insertBalance(PlanDept balance) throws DBException {
+		return insertEntity(balance, sessionFactory);
 	}
 
 	@Override
@@ -68,7 +66,7 @@ public class WorkDAOImpl implements WorkDAO {
 	public void deleteExistedPlan(long planId) throws DBException {
 		deleteEntity(Plan.class, planId, sessionFactory);
 	}
-	
+
 	@Override
 	public long countPlansByOwnerAndState(long ownerId, PlanState state) throws DBException {
 		return countEntitiesByBiFields(Plan.class,SMDB.F_OWNER_ID,ownerId, SMDB.F_STATE,state.getDbCode(), sessionFactory);
@@ -79,7 +77,7 @@ public class WorkDAOImpl implements WorkDAO {
 	public long countWorkSheetByOwnerAndState(long ownerId, WorkSheetState state) throws DBException {
 		return countEntitiesByBiFields(WorkSheet.class,SMDB.F_OWNER_ID,ownerId, SMDB.F_STATE,state.getDbCode(), sessionFactory);
 	}
-	
+
 	@Override
 	public List<Plan> selectPlansByField(String field, Object val) throws DBException {
 		return selectEntitiesByField(Plan.class, field, val, sessionFactory);
@@ -147,13 +145,13 @@ public class WorkDAOImpl implements WorkDAO {
 	}
 
 	@Override
-	public PlanDept selectPlanDeptByOwner(long ownerId) throws NoSuchElement, DBException {
+	public PlanDept selectBalanceByOwner(long ownerId) throws NoSuchElement, DBException {
 		return selectUniqueEntityByField(PlanDept.class, SMDB.F_OWNER_ID, ownerId, sessionFactory);
 	}
 
 	@Override
-	public void updateExistedPlanDept(PlanDept dept) throws DBException {
-		updateExistedEntity(dept, sessionFactory);
+	public void updateExistedBalance(PlanDept balance) throws DBException {
+		updateExistedEntity(balance, sessionFactory);
 	}
 
 	@Override

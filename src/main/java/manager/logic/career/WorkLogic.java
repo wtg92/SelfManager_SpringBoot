@@ -15,13 +15,12 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import manager.data.career.StatisticsList;
 import manager.data.career.WorkSheetContent;
 import manager.data.career.WorkSheetContent.PlanItemNode;
 import manager.data.proxy.career.CareerLogProxy;
-import manager.data.proxy.career.PlanDeptProxy;
+import manager.data.proxy.career.PlanBalanceProxy;
 import manager.data.proxy.career.PlanItemProxy;
 import manager.data.proxy.career.PlanProxy;
 import manager.data.proxy.career.WorkItemProxy;
@@ -45,7 +44,6 @@ import manager.system.career.PlanSetting;
 import manager.system.career.PlanState;
 import manager.system.career.WorkItemType;
 import manager.system.career.WorkSheetState;
-import manager.util.TimeUtil;
 import manager.util.ZonedTimeUtils;
 
 import javax.annotation.Resource;
@@ -150,8 +148,8 @@ public abstract class WorkLogic{
 
 	public abstract List<String> loadAllPlanTagsByUser(long loginId) throws SMException;
 	public abstract List<String> loadAllWorkSheetTagsByUser(long loginId) throws SMException;
-	public abstract PlanDeptProxy loadPlanDept(long loginId) throws DBException, LogicException;
-	public abstract List<String> loadPlanDeptItemNames(long loginId);
+	public abstract PlanBalanceProxy getBalance(long loginId) throws DBException, LogicException;
+	public abstract List<String> getPlanBalanceItemNames(long loginId);
 	/**
 	  * 假如存在一个WorkItem 依据该Plan 建立(No Cache)，那么会将改plan的EndDate设为今天，并且将状态设置为abandon.
 	  * 否则，直接删除
@@ -187,7 +185,7 @@ public abstract class WorkLogic{
 	public abstract void savePlan(long loginId, long planId, String name, Calendar startDate, Calendar endDate,
 			String note, boolean recalculateState, List<PlanSetting> settings,int seqWeight) throws LogicException, DBException;
 	public abstract void saveWorkSheet(long updaterId,long wsId,String note) throws LogicException, DBException;	
-	public abstract void savePlanDeptItem(long updaterId,int itemId,String name,double val) throws LogicException, DBException;	
+	public abstract void patchBalanceItem(long updaterId, int itemId, String name, double val) throws LogicException, DBException;
 	public abstract void saveWorkSheetPlanId(long updaterId,long wsId,long planId) throws SMException;	
 
 	/**
@@ -203,9 +201,9 @@ public abstract class WorkLogic{
 	public abstract void assumeWorkSheetFinished(long opreatorId,long wsId) throws LogicException, DBException;
 	public abstract void cancelAssumeWorkSheetFinished(long opreatorId,long wsId) throws LogicException, DBException;
 
-	public abstract void syncToPlanDept(long loginId,long wsId,int planItemId) throws DBException, LogicException;
-	public abstract void syncAllToPlanDept(long loginId, long wsId) throws DBException, LogicException;
-	public abstract void syncAllToPlanDeptBatch(long loginId,List<Integer> wsIds) throws SMException;
+	public abstract void syncToBalance(long loginId, long wsId, int planItemId) throws DBException, LogicException;
+	public abstract void syncAllToBalance(long loginId, long wsId) throws DBException, LogicException;
+	public abstract void syncAllToBalanceInBatch(long loginId, List<Integer> wsIds) throws SMException;
 	public abstract void syncPlanTagsToWorkSheet(long loginId,long planId) throws SMException;
 	public abstract void copyPlanItemsFrom(long loginId,long targetPlanId,long templatePlanId) throws DBException, LogicException;
 

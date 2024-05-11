@@ -94,8 +94,7 @@ public class UserLogicImpl extends UserLogic {
 	
 
 	@Override
-	public UserProxy signIn(String uuId,VerifyUserMethod method, String account,String accountPwd, String email, String emailVerifyCode, String tel, String telVerifyCode)
-			throws LogicException, DBException {
+	public UserProxy signIn(String uuId,VerifyUserMethod method, String account,String accountPwd, String email, String emailVerifyCode, String tel, String telVerifyCode){
 		switch (method) {
 		case ACCOUNT_PWD: {
 			try {

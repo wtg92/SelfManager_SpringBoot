@@ -4,7 +4,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
-import manager.data.career.StatisticsList;
 import manager.entity.general.career.Plan;
 import manager.entity.general.career.PlanDept;
 import manager.entity.general.career.WorkSheet;
@@ -19,7 +18,7 @@ public interface WorkDAO {
 	
 	long insertPlan(Plan plan) throws DBException;
 	long insertWorkSheet(WorkSheet sheet) throws DBException;
-	long insertPlanDept(PlanDept dept) throws DBException;
+	long insertBalance(PlanDept balance) throws DBException;
 	
 	Plan selectPlan(long id) throws NoSuchElement, DBException;
 	List<Plan> selectPlansByOwnerAndStates(long ownerId,List<PlanState> states);
@@ -41,10 +40,10 @@ public interface WorkDAO {
 	}
 	
 	WorkSheet selectWorkSheet(long id) throws NoSuchElement, DBException;
-	PlanDept selectPlanDeptByOwner(long ownerId) throws NoSuchElement, DBException;
-	default PlanDept selectExistedPlanDeptByOwner(long ownerId) throws DBException{
+	PlanDept selectBalanceByOwner(long ownerId) throws NoSuchElement, DBException;
+	default PlanDept selectExistedBalanceByOwner(long ownerId) throws DBException{
 		try {
-			return selectPlanDeptByOwner(ownerId);
+			return selectBalanceByOwner(ownerId);
 		}catch (NoSuchElement e) {
 			throw new DBException(SMError.INCONSISTANT_DB_ERROR,ownerId);
 		}
@@ -61,7 +60,7 @@ public interface WorkDAO {
 
 	void updateExistedPlan(Plan existed) throws DBException;
 	void updateExistedWorkSheet(WorkSheet ws) throws DBException;
-	void updateExistedPlanDept(PlanDept dept) throws DBException;
+	void updateExistedBalance(PlanDept dept) throws DBException;
 	
 	List<Plan> selectPlansByField(String field, Object val) throws DBException;
 	List<WorkSheet> selectWorkSheetByField(String field, Object val) throws DBException;

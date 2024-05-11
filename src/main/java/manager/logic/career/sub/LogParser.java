@@ -2,7 +2,7 @@ package manager.logic.career.sub;
 
 import java.util.List;
 
-import manager.entity.virtual.career.PlanDeptItem;
+import manager.entity.virtual.career.BalanceItem;
 import manager.system.career.CareerLogAction;
 import manager.system.career.PlanItemType;
 import manager.system.career.PlanState;
@@ -162,7 +162,7 @@ public abstract class LogParser {
 		return String.format("<em>%s</em>", text);
 	}
 	
-	public static String getSnapshot(PlanDeptItem item) {
+	public static String getSnapshot(BalanceItem item) {
 		return calcaulatePlanDeptItemMes(item.getName(), String.valueOf(CommonUtil.fixDouble(item.getValue())), String.valueOf(item.getType().getDbCode()));
 	}
 	
