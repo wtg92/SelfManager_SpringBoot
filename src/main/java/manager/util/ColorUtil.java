@@ -22,7 +22,7 @@ public abstract class ColorUtil {
 		/*黄色*/
 		mapper.put("不监控", "#ffc107");
 		/*橙色*/
-		mapper.put("超额完成", "rgb(245, 235, 0)");
+		mapper.put("超额完成", "rgb(245, 200, 0)");
 		return mapper;
 	}
 	
