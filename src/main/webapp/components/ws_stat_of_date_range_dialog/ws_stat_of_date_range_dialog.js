@@ -323,9 +323,9 @@ function analyzeWSsOfDateRange(){
         //DONE
         drawGroupByChartBaseRadio();
 
-        //TODO
+        //DONE
         drawMoodStat(data);
-
+        //TODO
         let dataByPlan = data.groupBy(item=>item.basePlanName);
         drawStatByGroup(dataByPlan,".ws_stat_group_by_plan");
         let dataByTag = data.groupByArrayAttr(item=>item.ws.tags.map(e=>e.name));
