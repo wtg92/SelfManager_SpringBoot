@@ -42,7 +42,7 @@ $(function(){
     //TODO
     $("#ws_stat_analyze_ws_btn").click(analyzeWSsOfDateRange);
 
-    //TODO
+    //DONE
     $("[name='ws_stat_mode']").click(switchWSStatMode)
     //默认按计划分组
     .eq(0).click();
@@ -351,9 +351,9 @@ function addZeroIfNotEnough(arr,shouldSize){
 
 
 function drawStatByGroup(dataGroupBy,subContainer){
-
+    //DONE
     dataGroupBy.keys.sort((a,b)=>dataGroupBy[b].length - dataGroupBy[a].length);
-
+    //DONE
     let $container = $("#ws_stat_content_container_of_more_info_container").find(subContainer);
     $container.empty();
     
@@ -364,10 +364,13 @@ function drawStatByGroup(dataGroupBy,subContainer){
     dataGroupBy.keys.forEach(key=>{
         let $unit = $("#ws_stat_pattern_container").find(".ws_stat_unit_for_one_plan").clone();
         let sumDays = dataGroupBy[key].length;
-
+        //DONE
         $unit.find(".ws_stat_unit_for_one_plan_header_plan_name").text(key).end()
+            //DONE
             .find(".ws_stat_unit_for_one_plan_header_count_days em").text(sumDays).end()
+            //DONE
             .find(".count_days_for_saturday").text(dataGroupBy[key].filter(e=>new Date(e.ws.date).isSaturday()).length).end()
+            //DONE
             .find(".count_days_for_sunday").text(dataGroupBy[key].filter(e=>new Date(e.ws.date).isSunday()).length).end()
 
         
