@@ -39,14 +39,14 @@ $(function(){
     //DONE
     $("#ws_stat_content_container_of_text .ws_stat_switch_to_show_more_info").click(switchToShowMoreInfo);
 
-    //TODO
+    //DONE
     $("#ws_stat_analyze_ws_btn").click(analyzeWSsOfDateRange);
 
     //DONE
     $("[name='ws_stat_mode']").click(switchWSStatMode)
     //默认按计划分组
     .eq(0).click();
-
+    //DONE
     $("#ws_stat_content_container_of_more_info_container").on("click",".ws_stat_unit_for_one_plan_header_switch_to_show_btn",switchToShowOnePlanStatDetail);
 })
 
@@ -56,7 +56,7 @@ function switchWSStatMode(){
     drawGroupByChartBaseRadio();
 }
 
-
+//DONE
 function switchToShowOnePlanStatDetail(){
     let open = parseToBool($(this).attr("open"));
 
@@ -80,14 +80,12 @@ function switchToShowMoreInfo(){
     }
 }
 
-
+//DONE
 function closeDetailStatByPlanContainer($unit){
-
-
     $unit.find(".ws_stat_unit_for_one_plan_body").hide().end()
         .find(".ws_stat_unit_for_one_plan_header_switch_to_show_btn").text("详情").attr("open",false);
 }
-
+//DONE
 function openDetailStatByPlanContainer($unit){
     $unit.find(".ws_stat_unit_for_one_plan_body").show().end()
         .find(".ws_stat_unit_for_one_plan_header_switch_to_show_btn").text("收起").attr("open",true);
@@ -325,7 +323,7 @@ function analyzeWSsOfDateRange(){
 
         //DONE
         drawMoodStat(data);
-        //TODO
+        //DONE
         let dataByPlan = data.groupBy(item=>item.basePlanName);
         drawStatByGroup(dataByPlan,".ws_stat_group_by_plan");
         let dataByTag = data.groupByArrayAttr(item=>item.ws.tags.map(e=>e.name));
@@ -456,7 +454,7 @@ function drawStatByGroup(dataGroupBy,subContainer){
         $unit.find(".ws_stat_container_for_one_plan_items").append($sumUnit);        
             
         $container.append($unit);
-
+        //DONE
         closeDetailStatByPlanContainer($unit);   
     })
 }
