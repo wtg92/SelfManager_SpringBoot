@@ -48,7 +48,7 @@ public interface NoteDAO {
 		try {
 			return selectMemoByOwner(ownerId);
 		}catch (NoSuchElement e) {
-			throw new DBException(SMError.INCONSISTANT_DB_ERROR,ownerId);
+			throw new DBException(SMError.INCONSISTENT_DB_ERROR,ownerId);
 		}
 	}
 	
@@ -56,7 +56,7 @@ public interface NoteDAO {
 		try {
 			return selectNoteBook(id);
 		}catch (NoSuchElement e) {
-			throw new DBException(SMError.INCONSISTANT_DB_ERROR,id);
+			throw new DBException(SMError.INCONSISTENT_DB_ERROR,id);
 		}
 	}
 	
@@ -64,7 +64,7 @@ public interface NoteDAO {
 		try {
 			return selectNote(id);
 		}catch (NoSuchElement e) {
-			throw new DBException(SMError.INCONSISTANT_DB_ERROR,id);
+			throw new DBException(SMError.INCONSISTENT_DB_ERROR,id);
 		}
 	}
 

@@ -45,7 +45,7 @@ public interface  UserDAO {
 		try {
 			return selectUser(id);
 		}catch (NoSuchElement e) {
-			throw new DBException(SMError.INCONSISTANT_DB_ERROR,id);
+			throw new DBException(SMError.INCONSISTENT_DB_ERROR,id);
 		}
 	}
 	
@@ -53,7 +53,7 @@ public interface  UserDAO {
 		try {
 			return selectUniqueUserByField(field, val);
 		}catch (NoSuchElement e) {
-			throw new DBException(SMError.INCONSISTANT_DB_ERROR,field+" "+val);
+			throw new DBException(SMError.INCONSISTENT_DB_ERROR,field+" "+val);
 		}
 	}
 	

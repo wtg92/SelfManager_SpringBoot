@@ -11,17 +11,17 @@ public enum SMError {
 	LOGIN_FAILED(1,""),
 
 	FAIL_PARSE_JSON_FORMAT(2,"JSON字符串解析失败"),
-	INCONSISTANT_DB_ERROR(3,"出现了数据库不一致错误，请刷新页面重试"),
+	INCONSISTENT_DB_ERROR(3,"出现了数据库不一致错误，请刷新页面重试"),
 	UNKNOWN_DB_ERROR(4,"数据库未知错误"),
 	DATA_TOO_LONG(5,"数据长度超过数据库支持大小，请精简信息，重新存储；或上传BUG，调整数据库支持大小（假如你认为是合理的话）"),
 	ILLEGAL_PWD(6,"密码不符合格式要求"),
 	UNEXPECTED_ERROR(7,"出乎意料的系统错误"),
-	ILLEGAL_INSTRUCTURE_ERROR(8,"实体结构错误"),
-	INCONSISTANT_CACHE_ERROR(9,"缓存不一致"),
-	INCONSTSTANT_ARGS_BETWEEN_DATA(10,"参数与数据不一致"),
-	LACK_PERM(11,"缺少权限"),
+	ILLEGAL_DATA_STRUCTURE(8,"数据结构错误"),
+	INCONSISTENT_CACHE_ERROR(9,"缓存不一致"),
+	INCONSISTENT_ARGS_BETWEEN_DATA(10,"参数与数据不一致"),
+	MISSING_PERM(11,"缺少权限"),
 	DUP_USER_GROUP_NAME(12,"用户组名已存在"),
-	ERROR_CREATE_YZM(13,"验证码生成过程发生意外的错误"),
+	ERROR_CREATE_YZM(13,"验证码生成错误"),
 	NOT_SUPPORTED_YET(14,"抱歉，该功能暂不支持"),
 	TEMP_USER_TIMEOUT(15,"停留页面过长，相关数据已失效，请保存好页面信息，刷新页面以重新获取数据"),
 	CHECK_YZM_ERROR(16,"图片验证码校验失败"),
@@ -95,11 +95,15 @@ public enum SMError {
 	
 	MODIFY_DPI_ERROR(76,"修改图片DPI失败"),
 	ILLEGAL_TAG(77,"标签中包含非法字符"),
-	DUP_TAG(78,"标签重复")
+	DUP_TAG(78,"标签重复"),
+	COMMON(79);
 	;
 	public final String description;
 	public final int code;
-    
+	private SMError(int code) {
+		this.code = code;
+		this.description = "";
+	}
 	private SMError(int code,String description) {
 		this.code = code;
 		this.description = description;

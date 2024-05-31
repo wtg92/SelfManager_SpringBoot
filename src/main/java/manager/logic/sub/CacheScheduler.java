@@ -217,7 +217,7 @@ public abstract class CacheScheduler {
 		
 		List<T> matchedObjs = allInCache.stream().filter(one->identifierTranslator.apply(one).equals(identifier)).collect(toList());
 		if(matchedObjs.size() > 1) {
-			throw new LogicException(SMError.INCONSISTANT_CACHE_ERROR,"Unique字段在缓存中有多份 "+ matchedObjs.size()+ " "+identifier.toString());
+			throw new LogicException(SMError.INCONSISTENT_CACHE_ERROR,"Unique字段在缓存中有多份 "+ matchedObjs.size()+ " "+identifier.toString());
 		}
 		if(matchedObjs.size() == 1) {
 			return matchedObjs.get(0);

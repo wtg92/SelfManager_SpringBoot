@@ -265,11 +265,11 @@ public class UserLogicImpl extends UserLogic {
 		List<User> users = getUsers(usersId);
 		
 		if(users.size() != usersId.size())
-			throw new LogicException(SMError.INCONSTSTANT_ARGS_BETWEEN_DATA,"数量不一致 "+usersId.size() + " vs " + users.size());
+			throw new LogicException(SMError.INCONSISTENT_ARGS_BETWEEN_DATA,"数量不一致 "+usersId.size() + " vs " + users.size());
 		
 		ThrowableSupplier<Boolean, DBException> judger = ()->uDAO.includeUserGroup(groupId);
 		if(!CacheScheduler.existsByIdentifier(CacheMode.E_ID,SMDB.T_USER_GROUP,groupId,judger)) {
-			throw new LogicException(SMError.INCONSTSTANT_ARGS_BETWEEN_DATA,"用户组不存在 "+groupId);
+			throw new LogicException(SMError.INCONSISTENT_ARGS_BETWEEN_DATA,"用户组不存在 "+groupId);
 		}
 		
 		ThrowableSupplier<List<Long>, DBException> generator = ()-> uDAO.selectUsersIdByGroup(groupId);
@@ -293,7 +293,7 @@ public class UserLogicImpl extends UserLogic {
 		
 		ThrowableSupplier<Boolean, DBException> judger = ()->uDAO.includeUserGroup(groupId);
 		if(!CacheScheduler.existsByIdentifier(CacheMode.E_ID,SMDB.T_USER_GROUP,groupId,judger)) {
-			throw new LogicException(SMError.INCONSTSTANT_ARGS_BETWEEN_DATA,"用户组不存在 "+groupId);
+			throw new LogicException(SMError.INCONSISTENT_ARGS_BETWEEN_DATA,"用户组不存在 "+groupId);
 		}
 		
 		ThrowableSupplier<List<Integer>, DBException> generator = ()-> uDAO.selectPermsByGroup(groupId);

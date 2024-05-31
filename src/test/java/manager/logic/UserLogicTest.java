@@ -126,7 +126,7 @@ public class UserLogicTest {
 			uL.createUserGroup("secon perm", id);
 			fail();
 		}catch(LogicException e) {
-			assertEquals(SMError.LACK_PERM, e.type);
+			assertEquals(SMError.MISSING_PERM, e.type);
 		}
 		
 		

@@ -78,7 +78,7 @@ public abstract class UserLogic {
 	
 	public void checkPerm(long userId,SMPerm perm) throws LogicException, DBException {
 		if(!hasPerm(userId, perm)) 
-			throw new LogicException(SMError.LACK_PERM,perm.getName());
+			throw new LogicException(SMError.MISSING_PERM,perm.getDbCode());
 	}
 	
 	public abstract User getUser(long userId) throws LogicException, DBException;

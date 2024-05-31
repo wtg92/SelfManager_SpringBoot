@@ -13,11 +13,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import com.alibaba.fastjson2.JSON;
 import jakarta.persistence.OptimisticLockException;
 import jakarta.persistence.TypedQuery;
 import manager.data.general.FinalHandler;
-import manager.data.general.FinalIntegerCounter;
 import manager.data.general.FinalIntegerTempStorageCalculator;
 import manager.system.SM;
 import org.hibernate.Session;
@@ -50,7 +48,7 @@ public abstract class DBUtil {
 		} catch (NoSuchElement e) {
 			e.printStackTrace();
 			assert false;
-			throw new DBException(SMError.INCONSISTANT_DB_ERROR, fieldName + ":" + val);
+			throw new DBException(SMError.INCONSISTENT_DB_ERROR, fieldName + ":" + val);
 		}
 	}
 	
@@ -65,7 +63,7 @@ public abstract class DBUtil {
 		if (rlt.size() == 1)
 			return rlt.get(0);
 
-		throw new DBException(SMError.INCONSISTANT_DB_ERROR, fieldName + ":" + val + ":" + rlt.size());
+		throw new DBException(SMError.INCONSISTENT_DB_ERROR, fieldName + ":" + val + ":" + rlt.size());
 	}
 	
 	public static <T> T selectUniqueEntityByBiFields(Class<T> cla, String field1Name, Object val1,String field2Name,Object val2,
@@ -78,7 +76,7 @@ public abstract class DBUtil {
 		if (rlt.size() == 1)
 			return rlt.get(0);
 
-		throw new DBException(SMError.INCONSISTANT_DB_ERROR, field1Name + ":" + val1 + ":" + rlt.size());
+		throw new DBException(SMError.INCONSISTENT_DB_ERROR, field1Name + ":" + val1 + ":" + rlt.size());
 	}
 	
 	
@@ -522,7 +520,7 @@ public abstract class DBUtil {
 				return false;
 			if (count == 1)
 				return true;
-			throw new DBException(SMError.INCONSISTANT_DB_ERROR, count);
+			throw new DBException(SMError.INCONSISTENT_DB_ERROR, count);
 		} catch (DBException e) {
 			throw e;
 		} catch (Exception e) {
@@ -539,7 +537,7 @@ public abstract class DBUtil {
 				return false;
 			if (count == 1)
 				return true;
-			throw new DBException(SMError.INCONSISTANT_DB_ERROR, count);
+			throw new DBException(SMError.INCONSISTENT_DB_ERROR, count);
 		} catch (DBException e) {
 			throw e;
 		} catch (Exception e) {
@@ -562,7 +560,7 @@ public abstract class DBUtil {
 				return false;
 			if (count == 1)
 				return true;
-			throw new DBException(SMError.INCONSISTANT_DB_ERROR, count);
+			throw new DBException(SMError.INCONSISTENT_DB_ERROR, count);
 		} catch (DBException e) {
 			throw e;
 		} catch (Exception e) {
