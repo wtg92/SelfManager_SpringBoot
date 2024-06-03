@@ -119,7 +119,7 @@ public class UserLogicImpl extends UserLogic {
 				String ans = CacheScheduler.getTempVal(mode, email);
 				if(!ans.equals(emailVerifyCode)) {
 					CacheScheduler.deleteTempKey(mode, email);
-					throw new LogicException(SMError.EMAIL_VERIFY_WRONG,emailVerifyCode);
+					throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL,emailVerifyCode);
 				}
 				
 				User user = uDAO.selectUniqueUserByField(SMDB.F_EMAIL, email);
@@ -138,7 +138,7 @@ public class UserLogicImpl extends UserLogic {
 				String ans = CacheScheduler.getTempVal(mode, tel);
 				if(!ans.equals(telVerifyCode)) {
 					CacheScheduler.deleteTempKey(mode, tel);
-					throw new LogicException(SMError.TEL_VERIFY_WRONG,telVerifyCode);
+					throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL,telVerifyCode);
 				}
 				
 				User user = uDAO.selectUniqueUserByField(SMDB.F_TEL_NUM, tel);
