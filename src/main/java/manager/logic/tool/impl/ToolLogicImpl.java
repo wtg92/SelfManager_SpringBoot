@@ -148,12 +148,12 @@ public class ToolLogicImpl extends ToolLogic{
 				}
 				return rltStream.toByteArray();
 			} catch (IOException e) {
-				throw new LogicException(SMError.EXTRACTE_PPT_FROM_IMGS_ERROR,"IOError");
+				throw new LogicException(SMError.EXTRACT_PPT_FROM_IMAGE_ERROR,"IOError");
 			}
 		}
 		
 		if(!file.fileName.endsWith(PPTX_SUFFIX)) {
-			throw new LogicException(SMError.EXTRACTE_PPT_FROM_IMGS_ERROR,"文件类型错误 "+FileUtil.getSuffix(file.fileName));
+			throw new LogicException(SMError.EXTRACT_PPT_FROM_IMAGE_ERROR,"文件类型错误 "+FileUtil.getSuffix(file.fileName));
 		}
 		
 		try(InputStream in =new BufferedInputStream(new ByteArrayInputStream(file.data),5000) ;){
@@ -168,7 +168,7 @@ public class ToolLogicImpl extends ToolLogic{
 				return rltStream.toByteArray();
 			}
 		} catch (IOException e) {
-			throw new LogicException(SMError.EXTRACTE_PPT_FROM_IMGS_ERROR,"IOError");
+			throw new LogicException(SMError.EXTRACT_PPT_FROM_IMAGE_ERROR,"IOError");
 		}
 	}
 

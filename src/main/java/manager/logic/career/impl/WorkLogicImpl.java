@@ -167,7 +167,7 @@ public class WorkLogicImpl extends WorkLogic{
 			int fatherId, double mappingVal) throws LogicException, DBException {
 		WorkSheet ws = getWorksheet(wsId);
 		if(loginId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS);
+			throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS);
 		}
 		
 		WorkContentConverter.addItemToWSPlan(ws, loginId, categoryName, value, note, type, fatherId, mappingVal);
@@ -181,7 +181,7 @@ public class WorkLogicImpl extends WorkLogic{
 			boolean forAdd,Calendar startTime, Calendar endTime) throws LogicException, DBException {
 		WorkSheet ws = getWorksheet(wsId);
 		if(adderId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS,adderId+" vs "+ws.getOwnerId());
+			throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS,adderId+" vs "+ws.getOwnerId());
 		}
 		
 		WorkContentConverter.addItemToWorkSheet(ws, adderId, planItemId, value, note, mood, forAdd, startTime, endTime);
@@ -196,7 +196,7 @@ public class WorkLogicImpl extends WorkLogic{
 		locker.lockByUserAndClass(loginId,()->{
 			WorkSheet ws = getWorksheet(wsId);
 			if(loginId != ws.getOwnerId()) {
-				throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS);
+				throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS);
 			}
 
 			WorkContentConverter.addItemToWorkSheet(ws, loginId, planItemId, value, note, mood, forAdd, startUtc, endUtc);
@@ -220,7 +220,7 @@ public class WorkLogicImpl extends WorkLogic{
 	public void removeItemFromWSPlan(long removerId, long wsId, int itemId) throws LogicException, DBException {
 		WorkSheet ws = getWorksheet(wsId);
 		if(removerId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS,removerId+" vs "+ws.getOwnerId());
+			throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS,removerId+" vs "+ws.getOwnerId());
 		}
 		
 		WorkContentConverter.removeItemFromWSPlan(ws, removerId, itemId);
@@ -233,7 +233,7 @@ public class WorkLogicImpl extends WorkLogic{
 	public void removeItemFromWorkSheet(long loginId, long wsId, int itemId) throws LogicException, DBException {
 		WorkSheet ws = getWorksheet(wsId);
 		if(loginId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS);
+			throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS);
 		}
 		
 		WorkContentConverter.removeItemFromWorkSheet(ws, loginId, itemId);
@@ -268,7 +268,7 @@ public class WorkLogicImpl extends WorkLogic{
 	public void resetWorkSheetTags(long loginId,long wsId,List<String> tags) throws SMException {
 		WorkSheet ws = getWorksheet(wsId);
 		if(loginId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS);
+			throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS);
 		}
 		
 		List<EntityTag> old = ws.getTags();
@@ -350,7 +350,7 @@ public class WorkLogicImpl extends WorkLogic{
 	public void saveWorkSheetPlanId(long updaterId, long wsId, long planId) throws SMException {
 		WorkSheet ws = getWorksheet(wsId);
 		if(updaterId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS);
+			throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS);
 		}
 		Plan plan = getPlan(planId);
 		if(plan.getOwnerId() != updaterId) {
@@ -391,7 +391,7 @@ public class WorkLogicImpl extends WorkLogic{
 			double mappingVal) throws LogicException, DBException {
 		WorkSheet ws = getWorksheet(wsId);
 		if(loginId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS);
+			throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS);
 		}
 		
 		WorkContentConverter.updateWSPlanItem(ws, loginId, itemId, catName, value, note, mappingVal);
@@ -403,7 +403,7 @@ public class WorkLogicImpl extends WorkLogic{
 	public void saveWSPlanItemFold(long loginId, long wsId, int itemId, boolean fold) throws DBException, LogicException {
 		WorkSheet ws = getWorksheet(wsId);
 		if(loginId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS,loginId+" vs "+ws.getOwnerId());
+			throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS,loginId+" vs "+ws.getOwnerId());
 		}
 		
 		WorkContentConverter.updateWSPlanItemFold(ws, loginId, itemId, fold);
@@ -547,7 +547,7 @@ public class WorkLogicImpl extends WorkLogic{
 	public WorkSheetProxy loadWorkSheet(long loginId, long wsId) throws DBException, LogicException {
 		WorkSheet ws = getWorksheet(wsId);
 		if(loginId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOTE_SEE_OTHERS_WS);
+			throw new LogicException(SMError.CANNOT_SEE_OTHERS_WS);
 		}
 		WorkSheetContent content = WorkContentConverter.convertWorkSheet(ws);
 		calculateWSContentDetail(content);
@@ -566,7 +566,7 @@ public class WorkLogicImpl extends WorkLogic{
 	public WorkSheet getWorksheet(long loginId, long wsId) {
 		WorkSheet ws = getWorksheet(wsId);
 		if(loginId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOTE_SEE_OTHERS_WS);
+			throw new LogicException(SMError.CANNOT_SEE_OTHERS_WS);
 		}
 		return ws;
 	}
@@ -869,7 +869,7 @@ public class WorkLogicImpl extends WorkLogic{
 			throw new LogicException(SMError.OPEN_WORK_BASE_WRONG_STATE_PLAN,plan.getState().getName());
 		}
 		if(plan.getOwnerId() != loginId) {
-			throw new LogicException(SMError.CANNOTE_OPEN_OTHERS_PLAN,plan.getOwnerId()+":"+loginId);
+			throw new LogicException(SMError.CANNOT_OPEN_OTHERS_PLAN,plan.getOwnerId()+":"+loginId);
 		}
 
 		LockHandler<Long> handler = new LockHandler<>();
@@ -906,7 +906,7 @@ public class WorkLogicImpl extends WorkLogic{
 	public void saveWorkSheet(long updaterId, long wsId, String note) throws LogicException, DBException {
 		WorkSheet ws = getWorksheet(wsId);
 		if(updaterId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS,updaterId+" vs "+ws.getOwnerId());
+			throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS,updaterId+" vs "+ws.getOwnerId());
 		}
 		ws.setNote(note);
 		updateWorksheetSynchronously(ws,updaterId);
@@ -917,7 +917,7 @@ public class WorkLogicImpl extends WorkLogic{
 	public void deleteWorkSheet(long loginId, long wsId){
 		WorkSheet ws = getWorksheet(wsId);
 		if(loginId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS,loginId+" vs "+ws.getOwnerId());
+			throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS,loginId+" vs "+ws.getOwnerId());
 		}
 		locker.lockByUserAndClass(loginId,()->{
 			CacheScheduler.deleteEntityById(ws, id->wDAO.deleteExistedWorkSheet(id));
@@ -929,7 +929,7 @@ public class WorkLogicImpl extends WorkLogic{
 	public void assumeWorkSheetFinished(long opreatorId, long wsId) throws LogicException, DBException {
 		WorkSheet ws = getWorksheet(wsId);
 		if(opreatorId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS,opreatorId+" vs "+ws.getOwnerId());
+			throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS,opreatorId+" vs "+ws.getOwnerId());
 		}
 		ws.setState(WorkSheetState.NO_MONITOR);
 		updateWorksheetSynchronously(ws,opreatorId);
@@ -939,7 +939,7 @@ public class WorkLogicImpl extends WorkLogic{
 	public void cancelAssumeWorkSheetFinished(long opreatorId, long wsId) throws LogicException, DBException {
 		WorkSheet ws = getWorksheet(wsId);
 		if(opreatorId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS,opreatorId+" vs "+ws.getOwnerId());
+			throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS,opreatorId+" vs "+ws.getOwnerId());
 		}
 		if(ws.getState() != WorkSheetState.NO_MONITOR) {
 			throw new LogicException(SMError.CANNOT_CANCEL_WS_WHICH_NOT_ASSUMED,ws.getState().getName());
@@ -965,7 +965,7 @@ public class WorkLogicImpl extends WorkLogic{
 		locker.lockByUserAndClass(loginId,()->{
 			WorkSheet ws = getWorksheet(wsId);
 			if(loginId != ws.getOwnerId()) {
-				throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS);
+				throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS);
 			}
 			WorkContentConverter.updateWorkItem(ws, loginId, itemId, val, note, mood, forAdd, startUtc, endUtc);
 			refreshStateAfterItemModified(ws);
@@ -979,7 +979,7 @@ public class WorkLogicImpl extends WorkLogic{
 	public void saveWorkItemPlanItemId(long loginId, long wsId, int workItemId, int planItemId){
 		WorkSheet ws = getWorksheet(wsId);
 		if(loginId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS);
+			throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS);
 		}
 		WorkContentConverter.updateWorkItemPlanItemId(ws, loginId, workItemId, planItemId);;
 		refreshStateAfterItemModified(ws);
@@ -1006,7 +1006,7 @@ public class WorkLogicImpl extends WorkLogic{
 		locker.lockByUserAndClass(loginId,()->{
 			WorkSheet ws = getWorksheet(wsId);
 			if(loginId != ws.getOwnerId()) {
-				throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS);
+				throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS);
 			}
 
 			WorkSheetContent content = WorkContentConverter.convertWorkSheet(ws);
@@ -1014,7 +1014,7 @@ public class WorkLogicImpl extends WorkLogic{
 
 			Map<Integer,PlanItemNode> planItemsById = parseTo(content.planItems);
 			if(!planItemsById.containsKey(planItemId)) {
-				throw new LogicException(SMError.INCONSISTANT_WS_DATA,"缺失的wsPlanId"+planItemId);
+				throw new LogicException(SMError.INCONSISTENT_WS_DATA,"缺失的wsPlanId"+planItemId);
 			}
 			PlanItemProxy planItem = planItemsById.get(planItemId).item;
 
@@ -1036,7 +1036,7 @@ public class WorkLogicImpl extends WorkLogic{
 		locker.lockByUserAndClass(loginId,()->{
 			WorkSheet ws = getWorksheet(wsId);
 			if(loginId != ws.getOwnerId()) {
-				throw new LogicException(SMError.CANNOTE_OPREATE_OTHERS_WS,loginId+" vs "+ws.getOwnerId());
+				throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS,loginId+" vs "+ws.getOwnerId());
 			}
 
 			WorkSheetContent content = WorkContentConverter.convertWorkSheet(ws);
@@ -1136,7 +1136,7 @@ public class WorkLogicImpl extends WorkLogic{
 		Plan template = getPlan(templatePlanId);
 		if(template.getOwnerId() !=loginId
 				&& !template.hasSetting(PlanSetting.ALLOW_OTHERS_COPY_PLAN_ITEMS)) {
-			throw new LogicException(SMError.CONNOT_COPY_OTHERS_PLANITEMS);
+			throw new LogicException(SMError.CANNOT_COPY_OTHERS_PLAN_ITEMS);
 		}
 		
 		WorkContentConverter.copyPlanItemsFrom(target, template, loginId);

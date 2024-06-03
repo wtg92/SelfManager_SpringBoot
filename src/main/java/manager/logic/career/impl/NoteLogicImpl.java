@@ -193,7 +193,7 @@ public class NoteLogicImpl extends NoteLogic {
 		NoteBook book = CacheScheduler.getOne(CacheMode.E_ID, bookId, NoteBook.class,
 				() -> nDAO.selectExistedNoteBook(bookId));
 		if (loginerId != book.getOwnerId()) {
-			throw new LogicException(SMError.CANNOTE_SEE_OTHER_NOTE_BOOK);
+			throw new LogicException(SMError.CANNOT_SEE_OTHER_NOTE_BOOK);
 		}
 		return new NoteBookProxy(book);
 	}
@@ -362,7 +362,7 @@ public class NoteLogicImpl extends NoteLogic {
 					() -> nDAO.selectExistedNoteBook(srcNote.getNoteBookId()));
 			
 			if (adderId != book.getOwnerId()) {
-				throw new LogicException(SMError.EDIT_MEMO_ERRO, "无权把别人笔记内容放入备忘录");
+				throw new LogicException(SMError.EDIT_MEMO_ERROR, "无权把别人笔记内容放入备忘录");
 			}
 
 			checkBookOpened(book);

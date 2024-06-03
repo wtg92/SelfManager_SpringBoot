@@ -257,7 +257,7 @@ public abstract class NoteContentConverter {
 		
 		boolean success = itemsElement.remove(ele);
 		if(!success)
-			throw new LogicException(SMError.UNEXPCETED_OP_ERROR_FOR_MEMO,"删除失败");
+			throw new LogicException(SMError.UNEXPECTED_OP_ERROR_FOR_MEMO,"删除失败");
 		
 		one.setContent(doc.asXML());
 	}

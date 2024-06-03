@@ -526,7 +526,7 @@ public abstract class WorkContentConverter {
 	private static void checkPlanItemIdExisted(Document planDoc, int planItemIdForCat) throws LogicException {
 		List<PlanItem> itmes = findAllByTag(planDoc.getRootElement().element(T_ITEMS), T_ITEM).stream().map(WorkContentConverter::parsePlanItem).collect(toList());
 		if(itmes.stream().allMatch(item->item.getId() != planItemIdForCat)) {
-			throw new LogicException(SMError.INCONSISTANT_WS_DATA,"无法找到对应 planItem 的id "+planItemIdForCat);
+			throw new LogicException(SMError.INCONSISTENT_WS_DATA,"无法找到对应 planItem 的id "+planItemIdForCat);
 		}
 	}
 	
@@ -987,7 +987,7 @@ public abstract class WorkContentConverter {
 		
 		boolean success = itemsElement.remove(workElement);
 		if(!success)
-			throw new LogicException(SMError.UNEXPCETED_OP_ERROR_FOR_WS,"删除失败");
+			throw new LogicException(SMError.UNEXPECTED_OP_ERROR_FOR_WS,"删除失败");
 		
 		one.setContent(content.asXML());
 	}

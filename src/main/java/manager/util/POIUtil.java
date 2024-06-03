@@ -1,21 +1,15 @@
 package manager.util;
 
-import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.imageio.ImageIO;
-
 import org.apache.commons.collections4.map.HashedMap;
-import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.sl.usermodel.SlideShow;
 import org.apache.poi.sl.usermodel.SlideShowFactory;
 import org.apache.poi.xslf.usermodel.XSLFPictureData;
@@ -36,10 +30,10 @@ public class POIUtil {
 		try(InputStream in = new BufferedInputStream(new FileInputStream(src))){
 			return extractAllImgesFromPPT(in);
 		} catch (FileNotFoundException e) {
-			throw new LogicException(SMError.PPT_EEROR,"找不到文件");
+			throw new LogicException(SMError.PPT_ERROR,"找不到文件");
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new LogicException(SMError.PPT_EEROR);
+			throw new LogicException(SMError.PPT_ERROR);
 		}
 	}
 	
@@ -52,7 +46,7 @@ public class POIUtil {
 			ppt = SlideShowFactory.create(in);
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new LogicException(SMError.PPT_EEROR,"IO Error");
+			throw new LogicException(SMError.PPT_ERROR,"IO Error");
 		}
 		 @SuppressWarnings("unchecked")
 		List<XSLFPictureData> pictures = ppt.getPictureData();

@@ -76,7 +76,7 @@ public class DownloadServlet extends HttpServlet{
 			
 		} catch (SMException e) {
 			/*假如是文件上传的问题，就不记录错误了*/
-			if(target!=null && e.type != SMError.FIEL_UPLOADING_ERROR) {
+			if(target!=null && e.type != SMError.FILE_UPLOADING_ERROR) {
 				try {
 					tL.addToolRecordFailOnce(target);
 				} catch (SMException e1) {
