@@ -473,13 +473,13 @@ public class UserLogicImpl extends UserLogic {
 		try {
 			user = uDAO.selectUniqueUserByField(SMDB.F_ACCOUNT, account);
 		} catch (NoSuchElement e) {
-			throw new LogicException(SMError.RESET_PWD_ERROR,"不存在的账号"+account);
+			throw new LogicException(SMError.NON_EXISTED_ACCOUNT,"不存在的账号"+account);
 		}
 		
 		switch(method) {
 		case EMAIL_VERIFY_CODE:{
 			if(user.getEmail() == null || !user.getEmail().equals(val)) {
-				throw new LogicException(SMError.RESET_PWD_ERROR,"账号和邮箱不匹配"+val);
+				throw new LogicException(SMError.NON_EXISTED_EMAIL);
 			}
 			
 			String verifyCode = createVerifyCode();
@@ -489,7 +489,7 @@ public class UserLogicImpl extends UserLogic {
 		}
 		case TEL_VERIFY_CODE:{
 			if(user.getTelNum() == null ||!user.getTelNum().equals(val)) {
-				throw new LogicException(SMError.RESET_PWD_ERROR,"账号和手机号不匹配"+val);
+				throw new LogicException(SMError.NON_EXISTED_TEL);
 			}
 			
 			String verifyCode = createVerifyCode();
@@ -608,7 +608,7 @@ public class UserLogicImpl extends UserLogic {
 				User user = uDAO.selectUniqueUserByField(SMDB.F_EMAIL, val);
 				EmailUtil.sendSimpleEmail(val,SM.BRAND_NAME+"找回账号", createRetrieveAccountMes(user.getAccount()));
 			} catch (NoSuchElement e) {
-				throw new LogicException(SMError.RETRIEVE_USER_ERROR,"不存在的email "+val);
+				throw new LogicException(SMError.NON_EXISTED_EMAIL);
 			}
 			break;
 		case TEL_VERIFY_CODE:
@@ -616,7 +616,7 @@ public class UserLogicImpl extends UserLogic {
 				User user = uDAO.selectUniqueUserByField(SMDB.F_TEL_NUM, val);
 				SMSUtil.sendSMS(SMSUtil.RETRIEVE_ACCOUNT_TEMPLATE_ID, val, user.getAccount());
 			} catch (NoSuchElement e) {
-				throw new LogicException(SMError.RETRIEVE_USER_ERROR,"不存在的手机号 "+val);
+				throw new LogicException(SMError.NON_EXISTED_TEL);
 			}
 			break;
 		default:
@@ -631,27 +631,27 @@ public class UserLogicImpl extends UserLogic {
 		try {
 			user = uDAO.selectUniqueUserByField(SMDB.F_ACCOUNT, account);
 		} catch (NoSuchElement e) {
-			throw new LogicException(SMError.RESET_PWD_ERROR,"不存在的账号 "+account);
+			throw new LogicException(SMError.NON_EXISTED_ACCOUNT);
 		}
 		
 		switch(method) {
 		case EMAIL_VERIFY_CODE:{
 			if(user.getEmail() == null || !user.getEmail().equals(val)) {
-				throw new LogicException(SMError.RESET_PWD_ERROR,"账号和邮箱不匹配 "+val);
+				throw new LogicException(SMError.NON_EXISTED_EMAIL);
 			}
 			
 			String forCheck = null;
 			try {
 				forCheck = CacheScheduler.getTempValByBiIdentifiers(CacheMode.T_EMAIL_FOR_RESET_PWD,account,val);
 			} catch (NoSuchElement e) {
-				throw new LogicException(SMError.RESET_PWD_ERROR,"验证码已失效，请重新获取");
+				throw new LogicException(SMError.TEL_VERIFY_TIMEOUT,"验证码已失效，请重新获取");
 			}
 			if(!forCheck.equals(verifyCode)) {
 				boolean debugFlag = CacheScheduler.deleteTempValByBiIdentifiers(CacheMode.T_EMAIL_FOR_RESET_PWD,account,val);
 				if(!debugFlag){
 					logger.log(Level.SEVERE,"THIS Must Be Wrong::Should Be Deleted "+ account+":"+val);
 				}
-				throw new LogicException(SMError.RESET_PWD_ERROR,"验证码错误 "+verifyCode);
+				throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL);
 			}
 			
 			user.setPassword(resetPWD);
@@ -661,21 +661,21 @@ public class UserLogicImpl extends UserLogic {
 		}
 		case TEL_VERIFY_CODE:{
 			if(user.getTelNum() == null ||!user.getTelNum().equals(val)) {
-				throw new LogicException(SMError.RESET_PWD_ERROR,"账号和手机号不匹配"+val);
+				throw new LogicException(SMError.NON_EXISTED_TEL,"账号和手机号不匹配"+val);
 			}
 			
 			String forCheck = null;
 			try {
 				forCheck = CacheScheduler.getTempValByBiIdentifiers(CacheMode.T_TEL_FOR_RESET_PWD, account,val);
 			} catch (NoSuchElement e) {
-				throw new LogicException(SMError.RESET_PWD_ERROR,"验证码已失效，请重新获取");
+				throw new LogicException(SMError.TEL_VERIFY_TIMEOUT,"验证码已失效，请重新获取");
 			}
 			if(!forCheck.equals(verifyCode)) {
 				boolean debugFlag = CacheScheduler.deleteTempValByBiIdentifiers(CacheMode.T_TEL_FOR_RESET_PWD,account,val);
 				if(!debugFlag){
 					logger.log(Level.SEVERE,"THIS Must Be Wrong::Should Be Deleted ZZ");
 				}
-				throw new LogicException(SMError.RESET_PWD_ERROR,"验证码错误 "+verifyCode);
+				throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL);
 			}		
 			user.setPassword(resetPWD);
 			SecurityUtil.encodeUserPwd(user);
