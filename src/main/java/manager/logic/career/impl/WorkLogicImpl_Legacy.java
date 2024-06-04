@@ -85,7 +85,7 @@ public class WorkLogicImpl_Legacy extends WorkLogic{
 			PlanItemType type, int fatherId, double mappingVal) throws LogicException, DBException {
 		Plan existed = CacheScheduler.getOne(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
 		if(existed.getOwnerId() != adderId) {
-			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
+//			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
 		}
 		
 		WorkContentConverter.addItemToPlan(existed,adderId,categoryName,value,note,type,fatherId,mappingVal);
@@ -108,20 +108,7 @@ public class WorkLogicImpl_Legacy extends WorkLogic{
 	}
 	
 	
-	@Override
-	public void addItemToWS(long adderId, long wsId, int planItemId, int value, String note, int mood,
-			boolean forAdd,Calendar startTime, Calendar endTime) throws LogicException, DBException {
-		WorkSheet ws = CacheScheduler.getOne(CacheMode.E_ID,wsId, WorkSheet.class, ()->wDAO.selectExistedWorkSheet(wsId));
-		if(adderId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS,adderId+" vs "+ws.getOwnerId());
-		}
 
-		WorkContentConverter.addItemToWorkSheet(ws, adderId, planItemId, value, note, mood, forAdd, startTime, endTime);
-		
-		refreshStateAfterItemModified(ws);
-		
-		CacheScheduler.saveEntity(ws,w->wDAO.updateExistedWorkSheet(w));
-	}
 
 	@Override
 	public void addItemToWS(long loginId, long wsId, int planItemId, double value, String note, int mood, boolean forAdd, Long startUtc, Long endUtc) {
@@ -132,7 +119,7 @@ public class WorkLogicImpl_Legacy extends WorkLogic{
 	public void removeItemFromPlan(long removerId, long planId, int itemId) throws LogicException, DBException {
 		Plan existed = CacheScheduler.getOne(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
 		if(existed.getOwnerId() != removerId) {
-			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
+//			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
 		}
 		
 		WorkContentConverter.removeItemFromPlan(existed,removerId,itemId);
@@ -172,7 +159,7 @@ public class WorkLogicImpl_Legacy extends WorkLogic{
 	public void resetPlanTags(long opreatorId, long planId, List<String> tags) throws SMException {
 		Plan plan = CacheScheduler.getOne(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
 		if(plan.getOwnerId() != opreatorId) {
-			throw new LogicException(SMError.CANNOT_SAVE_PLAN);
+			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
 		}
 		
 		List<EntityTag> entityTags = tags.stream().map(tag->new EntityTag(tag, false)).collect(toList());
@@ -219,7 +206,7 @@ public class WorkLogicImpl_Legacy extends WorkLogic{
 			boolean recalculateState,List<PlanSetting> settings,int seqWeight) throws LogicException, DBException {
 		Plan plan = CacheScheduler.getOne(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
 		if(plan.getOwnerId() != saverId) {
-			throw new LogicException(SMError.CANNOT_SAVE_PLAN);
+			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
 		}
 		
 		if(!name.equals(plan.getName())
@@ -273,7 +260,7 @@ public class WorkLogicImpl_Legacy extends WorkLogic{
 	public synchronized void savePlanItem(long loginerId, long planId,int itemId , String catName, int value,String note, double mappingVal) throws LogicException, DBException {
 		Plan plan = CacheScheduler.getOne(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
 		if(plan.getOwnerId() != loginerId) {
-			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
+//			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
 		}
 		
 		WorkContentConverter.updatePlanItem(plan, loginerId, itemId, catName, value, note, mappingVal);
@@ -284,7 +271,7 @@ public class WorkLogicImpl_Legacy extends WorkLogic{
 	public void savePlanItemFold(long loginerId, long planId, int itemId, boolean fold) throws LogicException, DBException {
 		Plan plan = CacheScheduler.getOne(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
 		if(plan.getOwnerId() != loginerId) {
-			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
+//			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
 		}
 		
 		WorkContentConverter.updatePlanItemFold(plan, loginerId, itemId, fold);
@@ -342,7 +329,7 @@ public class WorkLogicImpl_Legacy extends WorkLogic{
 	public void abandonPlan(long opreatorId, long planId) throws LogicException, DBException {
 		Plan plan = CacheScheduler.getOne(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
 		if(plan.getOwnerId() != opreatorId) {
-			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
+//			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
 		}
 		assert plan.getState() != PlanState.ABANDONED;
 		
@@ -371,7 +358,7 @@ public class WorkLogicImpl_Legacy extends WorkLogic{
 	public void finishPlan(long opreatorId, long planId) throws LogicException, DBException {
 		Plan plan = CacheScheduler.getOne(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
 		if(plan.getOwnerId() != opreatorId) {
-			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
+//			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
 		}
 		PlanState after= PlanState.FINISHED;
 		assert plan.getState() != after;
@@ -929,7 +916,7 @@ public class WorkLogicImpl_Legacy extends WorkLogic{
 			throws DBException, LogicException {
 		Plan target = CacheScheduler.getOne(CacheMode.E_ID, targetPlanId, Plan.class, ()->wDAO.selectExistedPlan(targetPlanId));
 		if(target.getOwnerId() != loginerId) {
-			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
+//			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
 		}
 		Plan templete = CacheScheduler.getOne(CacheMode.E_ID, templetePlanId, Plan.class, ()->wDAO.selectExistedPlan(templetePlanId));
 		if(templete.getOwnerId() !=loginerId 

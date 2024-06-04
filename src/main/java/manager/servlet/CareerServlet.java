@@ -164,8 +164,8 @@ public class CareerServlet extends SMServlet{
 			return removeItemFromWSPlan(request);
 		case C_REMOVE_ITEM_FROM_WORK_SHEET:
 			return removeItemFromWorkSheet(request);
-		case C_ADD_ITEM_TO_WS:
-			return addItemToWS(request);
+//		case C_ADD_ITEM_TO_WS:
+//			return addItemToWS(request);
 		case C_SAVE_WORK_ITEMS:
 			return saveWorkItems(request);
 		case C_SAVE_WORK_ITEM_PLAN_ITEM_ID:
@@ -541,19 +541,19 @@ public class CareerServlet extends SMServlet{
 		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId));
 	}
 
-	private String addItemToWS(HttpServletRequest request) throws LogicException, DBException {
-		long loginerId = getLoginId(request);
-		int wsId = getNonNullParamInInt(request, WS_ID);
-		int planItemId = getNonNullParamInInt(request, PLAN_ITEM_ID);
-		int val = getNonNullParamInInt(request, VAL);
-		String note = getParamOrBlankDefault(request, NOTE);
-		int mood = getNonNullParamInInt(request, MOOD);
-		boolean forAdd = getNonNullParamInBool(request, FOR_ADD);
-		Calendar startTime = getNonNullParamInTime(request, START_TIME);
-		Calendar endTime = getParamOrBlankDefaultInTime(request, END_TIME);
-		wL.addItemToWS(loginerId, wsId, planItemId, val, note, mood, forAdd, startTime, endTime);
-		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId));
-	}
+//	private String addItemToWS(HttpServletRequest request) throws LogicException, DBException {
+//		long loginerId = getLoginId(request);
+//		int wsId = getNonNullParamInInt(request, WS_ID);
+//		int planItemId = getNonNullParamInInt(request, PLAN_ITEM_ID);
+//		int val = getNonNullParamInInt(request, VAL);
+//		String note = getParamOrBlankDefault(request, NOTE);
+//		int mood = getNonNullParamInInt(request, MOOD);
+//		boolean forAdd = getNonNullParamInBool(request, FOR_ADD);
+//		Calendar startTime = getNonNullParamInTime(request, START_TIME);
+//		Calendar endTime = getParamOrBlankDefaultInTime(request, END_TIME);
+//		wL.addItemToWS(loginerId, wsId, planItemId, val, note, mood, forAdd, startTime, endTime);
+//		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId));
+//	}
 
 	private String removeItemFromWSPlan(HttpServletRequest request) throws LogicException, DBException {
 		long loginerId = getLoginId(request);

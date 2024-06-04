@@ -987,7 +987,7 @@ public abstract class WorkContentConverter {
 		
 		boolean success = itemsElement.remove(workElement);
 		if(!success)
-			throw new LogicException(SMError.UNEXPECTED_OP_ERROR_FOR_WS,"删除失败");
+			throw new LogicException(SMError.UNEXPECTED_ERROR,"删除失败");
 		
 		one.setContent(content.asXML());
 	}

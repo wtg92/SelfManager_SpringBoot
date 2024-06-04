@@ -67,7 +67,7 @@ public class NoteLogicTest {
 			nL.deleteNoteBook(1, 1);
 			fail();
 		}catch(LogicException e) {
-			assertEquals(SMError.EDIT_NOTEBOOK_ERROR, e.type);
+			assertEquals(SMError.CANNOT_EDIT_NOTE_BOOK_OF_OTHERS, e.type);
 		}
 
 		nL.closeNoteBook(1, 1);
@@ -85,7 +85,7 @@ public class NoteLogicTest {
 			nL.deleteNoteBook(1, 2);
 			fail();
 		}catch(LogicException e) {
-			assertEquals(SMError.EDIT_NOTEBOOK_ERROR, e.type);
+			assertEquals(SMError.CANNOT_EDIT_NOTE_BOOK_OF_OTHERS, e.type);
 		}
 		
 		Note noteEntity = nL.loadNote(1, 1).note;

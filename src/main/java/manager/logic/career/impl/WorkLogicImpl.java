@@ -175,21 +175,6 @@ public class WorkLogicImpl extends WorkLogic{
 		updateWorksheetSynchronously(ws,loginId);
 	}
 	
-	
-	@Override
-	public void addItemToWS(long adderId, long wsId, int planItemId, int value, String note, int mood,
-			boolean forAdd,Calendar startTime, Calendar endTime) throws LogicException, DBException {
-		WorkSheet ws = getWorksheet(wsId);
-		if(adderId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS,adderId+" vs "+ws.getOwnerId());
-		}
-		
-		WorkContentConverter.addItemToWorkSheet(ws, adderId, planItemId, value, note, mood, forAdd, startTime, endTime);
-		
-		refreshStateAfterItemModified(ws);
-		
-		CacheScheduler.saveEntity(ws,w->wDAO.updateExistedWorkSheet(w));
-	}
 
 	@Override
 	public void addItemToWS(long loginId, long wsId, int planItemId, double value, String note, int mood, boolean forAdd, Long startUtc, Long endUtc) {
@@ -246,9 +231,9 @@ public class WorkLogicImpl extends WorkLogic{
 	
 	@Override
 	public void resetPlanTags(long loginId, long planId, List<String> tags) throws SMException {
-		Plan plan = CacheScheduler.getOne(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
+		Plan plan = getPlan(loginId);
 		if(plan.getOwnerId() != loginId) {
-			throw new LogicException(SMError.CANNOT_SAVE_PLAN);
+			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
 		}
 		
 		List<EntityTag> entityTags = tags.stream().map(tag->new EntityTag(tag, false)).collect(toList());
@@ -295,7 +280,7 @@ public class WorkLogicImpl extends WorkLogic{
 	) {
 		Plan plan = getPlan(planId);
 		if(plan.getOwnerId() != loginId) {
-			throw new LogicException(SMError.CANNOT_SAVE_PLAN);
+			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
 		}
 
 		if(!name.equals(plan.getName())
@@ -328,7 +313,7 @@ public class WorkLogicImpl extends WorkLogic{
 	public void recalculatePlanState(long loginId, long planId) {
 		Plan plan = getPlan(planId);
 		if(plan.getOwnerId() != loginId) {
-			throw new LogicException(SMError.CANNOT_SAVE_PLAN);
+			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
 		}
 		PlanState stateByNow = calculateStateByNow(plan);
 		if(stateByNow != plan.getState()) {
