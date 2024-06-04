@@ -362,7 +362,7 @@ public class NoteLogicImpl extends NoteLogic {
 					() -> nDAO.selectExistedNoteBook(srcNote.getNoteBookId()));
 			
 			if (adderId != book.getOwnerId()) {
-				throw new LogicException(SMError.EDIT_MEMO_ERROR, "无权把别人笔记内容放入备忘录");
+				throw new LogicException(SMError.EDIT_MEMO_OF_OTHERS_ERROR, "无权把别人笔记内容放入备忘录");
 			}
 
 			checkBookOpened(book);

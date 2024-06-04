@@ -74,7 +74,7 @@ public enum SMError {
 	MEMO_DOC_ERROR(65,"备忘录doc异常"),
 	MEMO_ITEMS_DUP_ERROR(66,"对于来自同一份笔记页或手动添加的备忘录项，不允许有重复内容的标签（TODO和DONE视作同一标签）"),
 	UNEXPECTED_OP_ERROR_FOR_MEMO(67,"备忘录操作出现意外错误"),
-	EDIT_MEMO_ERROR(68,"修改备忘录错误"),
+	EDIT_MEMO_OF_OTHERS_ERROR(68,"修改备忘录错误"),
 	
 	RETRIEVE_USER_ERROR(69,"找回信息错误"),
 	RESET_PWD_ERROR(70,"重置密码错误"),
