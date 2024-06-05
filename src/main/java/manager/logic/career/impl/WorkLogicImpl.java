@@ -611,7 +611,7 @@ public class WorkLogicImpl extends WorkLogic{
 		Plan plan = getPlan(planId);
 
 		if(plan.getOwnerId() != loginId) {
-			throw new LogicException(SMError.CANNOT_SEE_PLAN);
+			throw new LogicException(SMError.CANNOT_SEE_PLAN_OF_OTHERS);
 		}
 
 		PlanProxy proxy = new PlanProxy(plan);

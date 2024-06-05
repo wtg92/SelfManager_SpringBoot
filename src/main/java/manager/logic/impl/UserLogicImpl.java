@@ -562,7 +562,7 @@ public class UserLogicImpl extends UserLogic {
 	
 	@Override
 	public List<UserGroupProxy> loadAllUserGroups(long loginerId) throws DBException, LogicException {
-		checkPerm(loginerId, SMPerm.SEE_USRS_AND_USER_GROUPS_DATA);
+		checkPerm(loginerId, SMPerm.SEE_USERS_AND_USER_GROUPS_DATA);
 		
 		List<UserGroupProxy> rlt = new ArrayList<>(); 
 		for(UserGroup group : uDAO.selectAllUserGroup()) {
@@ -576,14 +576,14 @@ public class UserLogicImpl extends UserLogic {
 
 	@Override
 	public List<SMPerm> loadPermsOfGroup(long groupId, long loginerId) throws DBException, LogicException {
-		checkPerm(loginerId, SMPerm.SEE_USRS_AND_USER_GROUPS_DATA);
+		checkPerm(loginerId, SMPerm.SEE_USERS_AND_USER_GROUPS_DATA);
 		
 		return uDAO.selectPermsByGroup(groupId).stream().map(SMPerm::valueOfDBCode).collect(toList());
 	}
 
 	@Override
 	public UserSummary loadUserSummary(long loginerId) throws LogicException, DBException {
-		checkPerm(loginerId, SMPerm.SEE_USRS_AND_USER_GROUPS_DATA);
+		checkPerm(loginerId, SMPerm.SEE_USERS_AND_USER_GROUPS_DATA);
 		UserSummary summary = new UserSummary();
 		summary.countUsers = uDAO.countAllUsers();
 		summary.countActiveUsers = CacheScheduler.countAll(CacheMode.E_ID, User.class);
@@ -592,7 +592,7 @@ public class UserLogicImpl extends UserLogic {
 
 	@Override
 	public List<UserProxy> loadUsersOfGroup(long groupId, long loginerId) throws LogicException, DBException {
-		checkPerm(loginerId, SMPerm.SEE_USRS_AND_USER_GROUPS_DATA);
+		checkPerm(loginerId, SMPerm.SEE_USERS_AND_USER_GROUPS_DATA);
 		return uDAO.selectUsersByGroup(groupId,SMDB.MAX_NUM_IN_ONE_SELECT).stream().map(user->{
 			UserProxy proxy = new UserProxy();
 			proxy.user=user;

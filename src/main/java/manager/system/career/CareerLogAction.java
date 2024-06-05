@@ -33,7 +33,8 @@ public enum CareerLogAction {
 	
 	CLEAR_DEPT_LOGS_WHEN_TOO_MUCH(23),
 	
-	COPY_PLAN_ITEMS(24)
+	COPY_PLAN_ITEMS(24),
+	UNKNOWN_ERROR(25),
 	
 	;
 	

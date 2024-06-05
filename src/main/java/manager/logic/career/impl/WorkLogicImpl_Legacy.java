@@ -537,7 +537,7 @@ public class WorkLogicImpl_Legacy extends WorkLogic{
 	public PlanProxy loadPlan(long loginerId,long planId) throws LogicException, DBException {
 		Plan plan = CacheScheduler.getOne(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
 		if(plan.getOwnerId() != loginerId) {
-			throw new LogicException(SMError.CANNOT_SEE_PLAN);
+			throw new LogicException(SMError.CANNOT_SEE_PLAN_OF_OTHERS);
 		}
 		
 		PlanProxy proxy = new PlanProxy(plan);

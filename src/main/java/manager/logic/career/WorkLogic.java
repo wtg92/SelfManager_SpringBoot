@@ -480,14 +480,11 @@ public abstract class WorkLogic{
 		assert users.size() == relevantUsers.size();
 		
 		for(CareerLogProxy log:logs) {
-			try {
-				log.creatorName = log.log.getCreatorId() == SM.SYSTEM_ID ? SM.SYSTEM_NAME : users.get(log.log.getCreatorId()).getNickName();
-				log.info = LogParser.parse(log.log.getAction(), log.log.getParams());
-			}catch(Exception e) {
-				e.printStackTrace();
-				assert false;
-				log.info = "由于未知BUG，我们遗失了这条日志";
-			}
+			log.isBySystem = log.log.getCreatorId() == SM.SYSTEM_ID;
+			log.creatorName = log.log.getCreatorId() == SM.SYSTEM_ID ? SM.SYSTEM_NAME : users.get(log.log.getCreatorId()).getNickName();
+			log.code = log.log.getAction().getDbCode();
+			log.params = log.log.getParams();
+
 		}
 	}
 
