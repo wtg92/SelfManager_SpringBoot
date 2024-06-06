@@ -43,7 +43,7 @@ public class CareerLog extends SMVirtualEntity{
 			params.add(val.toString());
 		}
 	}
-	
+
 	public String pollParam() {
 		return params.poll();
 	}

@@ -736,9 +736,9 @@ public class CareerServlet extends SMServlet{
 	}
 
 	private String loadPlan(HttpServletRequest request) throws LogicException, DBException {
-		long loginerId = getLoginId(request);
+		long loginId = getLoginId(request);
 		int planId = getNonNullParamInInt(request, PLAN_ID);
-		return JSON.toJSONString(ServletAdapter.process(wL.loadPlan(loginerId, planId)));
+		return JSON.toJSONString(ServletAdapter.process(wL.loadPlan(loginId, planId)));
 	}
 
 	private String removeItemFromPlan(HttpServletRequest request) throws LogicException, DBException {

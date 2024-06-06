@@ -17,11 +17,11 @@ public abstract class LogParser {
 		switch(action) {
 		case ADD_ROOT_ITEM_TO_PLAN:
 			return String.format("添加计划项%s",
-					fillEmLabel(calcaulateRootPlanItemMes(params.get(0), params.get(1),params.get(2))));
-		
+					fillEmLabel(calculateRootPlanItemMes(params.get(0), params.get(1),params.get(2))));
+
 		case ADD_SON_ITEM_TO_PLAN:{
 			String fatherCatName = params.get(3);
-			return String.format("在 %s下添加从属计划项 \n%s",fillEmLabel(fatherCatName),fillEmLabel(calcaulateSonPlanItemMes(params.get(0),params.get(1)
+			return String.format("在 %s下添加从属计划项 \n%s",fillEmLabel(fatherCatName),fillEmLabel(calculateSonPlanItemMes(params.get(0),params.get(1)
 					,params.get(2),fatherCatName,params.get(4))));
 		}
 		case REMOVE_ITEM_FROM_PLAN_AS_FATHER:
@@ -30,16 +30,16 @@ public abstract class LogParser {
 			return String.format("由于所属项%s 被删除，删除%s", fillEmLabel(params.get(0)),fillEmLabel(params.get(1)));
 		case UPDATE_ROOT_PLAN_ITEM:
 			return String.format("将计划项%s修改为 %s", 
-					fillEmLabel(calcaulateRootPlanItemMes(params.get(1),params.get(2), params.get(0))),
-					fillEmLabel(calcaulateRootPlanItemMes(params.get(3),params.get(4), params.get(0))));
+					fillEmLabel(calculateRootPlanItemMes(params.get(1),params.get(2), params.get(0))),
+					fillEmLabel(calculateRootPlanItemMes(params.get(3),params.get(4), params.get(0))));
 		case UPDATE_SON_PLAN_ITEM:{
 			String fatherCatName = params.get(0);
 			String fatherType = params.get(1);
 			String sonType = params.get(2);
 			
 			return String.format("将计划项 %s修改为%s", 
-					fillEmLabel(calcaulateSonPlanItemMes(params.get(3), params.get(4), sonType, fatherCatName, fatherType)),
-					fillEmLabel(calcaulateSonPlanItemMes(params.get(5), params.get(6), sonType, fatherCatName, fatherType)));
+					fillEmLabel(calculateSonPlanItemMes(params.get(3), params.get(4), sonType, fatherCatName, fatherType)),
+					fillEmLabel(calculateSonPlanItemMes(params.get(5), params.get(6), sonType, fatherCatName, fatherType)));
 		}
 		case PLAN_STATE_CHANGED_BY_DATE:
 			return String.format("根据开始日期 %s和结束日期 %s，由于时间到了，将状态由 %s修改为%s",
@@ -180,15 +180,15 @@ public abstract class LogParser {
 		return String.format("%s 开始日期 %s  结束日期 %s",name,startDate,calculatePlanEndDate(endDate));
 	}
 	
-	private static String calcaulateRootPlanItemMes(String catName,int value,PlanItemType type) {
+	private static String calculateRootPlanItemMes(String catName, int value, PlanItemType type) {
 		return String.format("%s 投入  %s %s",catName,value,type.getName());
 	}
 	
-	private static String calcaulateRootPlanItemMes(String catName,String value,String type) {
-		return calcaulateRootPlanItemMes(catName,Integer.parseInt(value),PlanItemType.valueOfDBCode(type));
+	private static String calculateRootPlanItemMes(String catName, String value, String type) {
+		return calculateRootPlanItemMes(catName,Integer.parseInt(value),PlanItemType.valueOfDBCode(type));
 	}
 	
-	private static String calcaulateSonPlanItemMes(String sonCatName,double mappingVal,PlanItemType sonType,String fatherCatName,PlanItemType fatherType) {
+	private static String calculateSonPlanItemMes(String sonCatName, double mappingVal, PlanItemType sonType, String fatherCatName, PlanItemType fatherType) {
 		if(sonType == fatherType) {
 			return String.format("%s 换抵比率 %s", sonCatName, mappingVal*100 +"%");
 		}
@@ -199,7 +199,7 @@ public abstract class LogParser {
 		return String.format("%s (1次) 抵 %s 的 %s 分钟",sonCatName,fatherCatName,(int)mappingVal);
 	}
 	
-	private static String calcaulateSonPlanItemMes(String sonCatName,String mappingVal,String sonType,String fatherCatName,String fatherType) {
-		return calcaulateSonPlanItemMes(sonCatName, Double.parseDouble(mappingVal), PlanItemType.valueOfDBCode(sonType), fatherCatName, PlanItemType.valueOfDBCode(fatherType));
+	private static String calculateSonPlanItemMes(String sonCatName, String mappingVal, String sonType, String fatherCatName, String fatherType) {
+		return calculateSonPlanItemMes(sonCatName, Double.parseDouble(mappingVal), PlanItemType.valueOfDBCode(sonType), fatherCatName, PlanItemType.valueOfDBCode(fatherType));
 	}
 }

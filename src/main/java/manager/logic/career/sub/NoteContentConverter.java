@@ -112,7 +112,7 @@ public abstract class NoteContentConverter {
 		throw new LogicException(SMError.MEMO_DOC_ERROR,"memo 无法匹配id "+itemId+"\n"+doc.asXML());
 	}
 	
-	private static Document getDocumentOrInitIfNotExists(Memo one) throws LogicException {
+	private static Document getDocumentOrInitIfNotExists(Memo one) {
 		if(one.getContent() == null || one.getContent().length() == 0) {
 			return initMemo();
 		}

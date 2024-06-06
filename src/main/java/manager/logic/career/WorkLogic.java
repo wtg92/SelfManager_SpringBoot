@@ -114,11 +114,11 @@ public abstract class WorkLogic{
 	public abstract StatisticsList<WorkSheetProxy> loadWorksheetsByTerms(long loginId, Integer state, Long startUtcForDate, Long endUtcForDate, Long startUtcForUpdate, Long endUtcForUpdate, String timezone, long planId);
 
 
-	public abstract List<WorkSheetProxy> loadWorkSheetByState(long loginId, WorkSheetState stateZT)  throws LogicException, DBException;
+	public abstract List<WorkSheetProxy> loadWorkSheetByState(long loginId, WorkSheetState stateZT) ;
 	/**
 	 * 暂且只让人看到自己的
 	 */
-	public abstract PlanProxy loadPlan(long loginId,long planId) throws LogicException, DBException;
+	public abstract PlanProxy loadPlan(long loginId,long planId);
 	
 	/**
 	 * dao 取四个字段 id dateUtc state timezone

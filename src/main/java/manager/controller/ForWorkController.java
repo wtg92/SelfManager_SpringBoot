@@ -1,28 +1,17 @@
 package manager.controller;
 
 import co.elastic.clients.elasticsearch.core.SearchResponse;
-import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.alibaba.fastjson2.JSONObject;
-import manager.data.AjaxResult;
 import manager.logic.elasticsearch.ElasticSearchInvoker;
-import manager.system.Gender;
-import manager.system.SM;
-import manager.system.VerifyUserMethod;
-import manager.system.career.PlanItemType;
-import manager.system.career.PlanSetting;
-import manager.system.career.PlanState;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/forWork")
-public class ForWortController {
+public class ForWorkController {
 
     @Resource
     ElasticSearchInvoker invoker;

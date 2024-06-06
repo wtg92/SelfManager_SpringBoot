@@ -174,14 +174,18 @@ public abstract class WorkContentConverter {
 	
 	private static CareerLog parseLog(Element element) {
 		assert element.getName().equals(T_LOG);
-		CareerLogAction action = CareerLogAction.valueOfDBCode(Integer.parseInt(element.attributeValue(A_ACTION)));
-		
-		CareerLog log = new CareerLog(action,Integer.parseInt(element.attributeValue(A_CREATOR_ID)));
-		log.setId(Integer.parseInt(element.attributeValue(A_ID)));
-		log.setCreateTime(TimeUtil.parseTime(element.attributeValue(A_CREATE_TIME)));
-		String[] params = element.attributeValue(A_PARAMS).split(PARAM_SPLITOR);
-		log.setParams(new LinkedList<String>(Arrays.asList(params)));
-		return log;	
+		long creatorId =  Long.parseLong(element.attributeValue(A_CREATOR_ID));
+		try{
+			CareerLogAction action = CareerLogAction.valueOfDBCode(Integer.parseInt(element.attributeValue(A_ACTION)));
+			CareerLog log = new CareerLog(action,creatorId);
+			log.setId(Integer.parseInt(element.attributeValue(A_ID)));
+			log.setCreateUTC(Long.parseLong(element.attributeValue(A_CREATE_TIME_UTC)));
+			String[] params = element.attributeValue(A_PARAMS).split(PARAM_SPLITOR);
+			log.setParams(new LinkedList<>(Arrays.asList(params)));
+			return log;
+		}catch (Exception e){
+			return new CareerLog(CareerLogAction.UNKNOWN_ERROR,creatorId);
+		}
 	}
 	
 	private static PlanItem parsePlanItem(Element element) {
@@ -470,11 +474,11 @@ public abstract class WorkContentConverter {
 		int pId = getPIdAndAutoIncrease(father);
 		Element cur = father.addElement(T_LOG);
 		cur.addAttribute(A_ID, String.valueOf(pId));
-		cur.addAttribute(A_CREATE_TIME, TimeUtil.parseTime(log.getCreateTime()));
+		cur.addAttribute(A_CREATE_TIME_UTC, String.valueOf(System.currentTimeMillis()));
 		cur.addAttribute(A_ACTION, String.valueOf(log.getAction().getDbCode()));
 		cur.addAttribute(A_CREATOR_ID, log.getCreatorId().toString());
-		assert log.getParams().stream().allMatch(param->!param.contains(PARAM_SPLITOR)) : "Log参数不允许包含param splitor 否则会引发错误";
-		cur.addAttribute(A_PARAMS, log.getParams().stream().collect(joining(PARAM_SPLITOR)));
+		assert log.getParams().stream().noneMatch(param-> param.contains(PARAM_SPLITOR)) : "Log参数不允许包含param splitor 否则会引发错误";
+		cur.addAttribute(A_PARAMS, String.join(PARAM_SPLITOR, log.getParams()));
 		log.setId(pId);
 		return log;	
 	}
@@ -695,11 +699,11 @@ public abstract class WorkContentConverter {
 	}
 	
 	
-	private static void addLog(Document root,CareerLogAction action,long creatorId,Object ...parms) {
+	private static void addLog(Document root,CareerLogAction action,long creatorId,Object ...params) {
 		Element logsElement= root.getRootElement().element(T_LOGS);
 		CareerLog log = new CareerLog(action,creatorId);
-		log.addParams(parms);
-		log.setCreateTime(TimeUtil.getCurrentTime());
+		log.addParams(params);
+		log.setCreateUTC(System.currentTimeMillis());
 		append(log, logsElement);
 	}
 	

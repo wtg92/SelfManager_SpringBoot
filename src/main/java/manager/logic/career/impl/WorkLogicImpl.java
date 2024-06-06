@@ -138,14 +138,13 @@ public class WorkLogicImpl extends WorkLogic{
 		 */
 		plan.setTimezone(timezone);
 		plan.setState(calculateStateByNow(plan));
-		/**
-		 * TODO 重新处理这个Log
-		 */
+
 		WorkContentConverter.addLog(plan, CareerLogAction.CREATE_PLAN,
 				loginId,
 				name,
 				startDate,
 				endDate,
+				timezone,
 				plan.getState().getDbCode());
 
 		return addPlanSynchronously(plan,loginId);
