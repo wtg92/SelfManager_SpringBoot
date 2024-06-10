@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>Scientific_Manager</groupId>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<artifactId>selfm</artifactId>
 	<version>1.0</version>
 	<name>Scientific_Manager_springboot</name>

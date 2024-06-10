@@ -13,9 +13,9 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-@SpringBootApplication
-@ServletComponentScan
-@EnableScheduling
+//@SpringBootApplication
+//@ServletComponentScan
+//@EnableScheduling
 public class SelfManagerSpringbootApplication_Tomcat  extends SpringBootServletInitializer {
 	
     @Override
