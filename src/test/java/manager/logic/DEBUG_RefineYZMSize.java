@@ -26,17 +26,6 @@ public class DEBUG_RefineYZMSize {
 	public void test() throws IOException {
 		
 		final int DEFAULT_WIDTH = 478;
-		
-		for(File file:YZMUtil.YZM_SRC_DIRECTORY.listFiles((file)->file.getName().endsWith(".jpg"))) {
-			BufferedImage src = ImageIO.read(file);
-			if(src.getWidth() == DEFAULT_WIDTH)
-				continue;
-			
-			BufferedImage theStandard = ImageUtil.changeImgSizeToByWidth(src, DEFAULT_WIDTH);
-			file.delete();
-			
-			ImageIO.write(theStandard, "jpg", new File(YZMUtil.YZM_SRC_DIRECTORY,file.getName()));
-		}
 	}
-	
+
 }
