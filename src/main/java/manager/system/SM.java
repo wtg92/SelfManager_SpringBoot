@@ -1,10 +1,18 @@
 package manager.system;
 
+import org.springframework.beans.factory.annotation.Value;
+
+import javax.annotation.Resource;
+
 import static manager.util.CommonUtil.getValFromPropertiesFileInResource;
 
 import java.io.File;
+@Resource
+public class SM {
 
-public abstract class SM {
+	@Value("${file.external.root}")
+	private String externalDir;
+
 
 	public final static String VERSION = "3.0";
 	
@@ -19,7 +27,8 @@ public abstract class SM {
 	public final static String FRONT_END_STATIC_FILES_PATH = "/sm_files/";
 	public final static String BASIC_FILES_FOLDER = FRONT_END_STATIC_FILES_PATH+"basic/";
 
-	public final static File SM_EXTERNAL_FILES_DIRECTORY = new File(getValFromPropertiesFileInResource("sm_external_files_directory"));
+	public static File SM_EXTERNAL_FILES_DIRECTORY = new File(getValFromPropertiesFileInResource("sm_external_files_directory"));
+
 	public final static File PDF_FILES_FOLDER = new File(SM_EXTERNAL_FILES_DIRECTORY,"pdf");
 	
 	public final static String BRAND_NAME = getValFromPropertiesFileInResource("brand_name");

@@ -5,6 +5,10 @@ spring:
     username: root
     password: new_password
 
+file:
+  external:
+    root: D:\Life\selfm
+
 logging:
   level:
     org:

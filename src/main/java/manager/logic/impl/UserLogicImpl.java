@@ -54,7 +54,9 @@ public class UserLogicImpl extends UserLogic {
 
 	@Resource
 	private UserDAO uDAO;
-	
+	@Resource
+	private YZMUtil yzmUtil;
+
 	@Override
 	public boolean hasPerm(long userId, SMPerm perm) throws LogicException, DBException {
 		/*admin owning all perms*/
@@ -347,7 +349,7 @@ public class UserLogicImpl extends UserLogic {
 
 	@Override
 	public YZMInfo createTelYZM(String uuId, String old) throws LogicException {
-		YZMInfo rlt = YZMUtil.createYZM(old);
+		YZMInfo rlt = yzmUtil.createYZM(old);
 		try {
 			CacheScheduler.setTempMap(CacheMode.T_USER, uuId, TEL_YZM_KEY, String.valueOf(rlt.xForCheck));
 		} catch (NoSuchElement e) {
@@ -359,7 +361,7 @@ public class UserLogicImpl extends UserLogic {
 
 	@Override
 	public YZMInfo createEmailYZM(String uuId, String old) throws LogicException {
-		YZMInfo rlt = YZMUtil.createYZM(old);
+		YZMInfo rlt = yzmUtil.createYZM(old);
 		try {
 			CacheScheduler.setTempMap(CacheMode.T_USER, uuId, EMAIL_YZM_KEY, String.valueOf(rlt.xForCheck));
 		} catch (NoSuchElement e) {

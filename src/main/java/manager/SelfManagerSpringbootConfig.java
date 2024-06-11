@@ -1,5 +1,6 @@
 package manager;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -8,10 +9,13 @@ import manager.system.SM;
 
 @Configuration
 public class SelfManagerSpringbootConfig implements WebMvcConfigurer{
-	
+
+	@Value("${file.external.root}")
+	private String externalDir;
+
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-		registry.addResourceHandler("/sm_files/**").addResourceLocations("file:"+SM.SM_EXTERNAL_FILES_DIRECTORY.getAbsolutePath()+"/");
+		registry.addResourceHandler("/sm_files/**").addResourceLocations("file:"+externalDir+"/");
 	}
 	
 	

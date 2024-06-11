@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.imageio.ImageIO;
 
 import com.alibaba.fastjson2.annotation.JSONField;
@@ -28,6 +29,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import manager.exception.LogicException;
 import manager.system.SM;
 import manager.system.SMError;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 /**
  *   验证码图片要求必须是jpg
@@ -36,9 +39,10 @@ import manager.system.SMError;
  * @author 王天戈
  *
  */
-public abstract class YZMUtil implements Serializable {
-
-	public final static File YZM_SRC_DIRECTORY = new File(SM.SM_EXTERNAL_FILES_DIRECTORY, "yzm");
+@Component
+public  class YZMUtil implements Serializable {
+	@Value("${file.external.root}")
+	private String externalDir;
 
 	private final static double YZM_MAX_RATIO = 0.45;
 	private final static double YZM_MIN_RATIO = 0.25;
@@ -68,10 +72,10 @@ public abstract class YZMUtil implements Serializable {
 		public boolean checkSuccess = false;
 	}
 
-	public static YZMInfo createYZM(String alreadyUsedImg) throws LogicException {
+	public YZMInfo createYZM(String alreadyUsedImg) throws LogicException {
 		try {
 			YZMInfo rlt = new YZMInfo();
-			final List<File> noDupImgs = Arrays.stream(YZM_SRC_DIRECTORY.listFiles())
+			final List<File> noDupImgs = Arrays.stream(new File(externalDir, "yzm").listFiles())
 					.filter(file -> file.getName().endsWith(".jpg") && !file.getName().equals(alreadyUsedImg))
 					.collect(toList());
 
