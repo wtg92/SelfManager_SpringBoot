@@ -614,14 +614,12 @@ public abstract class DBUtil {
 	public static void insertGeneralRTableData(String tableName, List<Long> argIds1, long argId2, SessionFactory hbFactory) throws DBException {
 		if (argIds1.isEmpty())
 			return;
-
 		hbFactory.inTransaction((one)->{
 			try {
 				String rSql = argIds1.stream().map(argId1 ->
 					"(null," + argId1 + "," + argId2 + ")"
 				).collect(Collectors.joining(","));
-				one.createNativeQuery("INSERT INTO "+tableName+" values ?",Object.class)
-						.setParameter(1,rSql)
+				one.createNativeQuery("INSERT INTO "+tableName+" values "+rSql,Object.class)
 						.executeUpdate();
 			} catch (Exception e) {
 				throw processDBException(e);

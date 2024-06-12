@@ -12,6 +12,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import jakarta.transaction.Transactional;
 import manager.dao.UserDAO;
 import manager.data.UserSummary;
 import manager.data.proxy.UserGroupProxy;
@@ -175,6 +176,7 @@ public class UserLogicImpl extends UserLogic {
 	}
 	
 	@Override
+	@Transactional
 	public synchronized long signUp(String uuId,String account,String email,String emailVerifyCode,
 			String tel,String telVerifyCode,String pwd,String nickName,Gender gender) throws LogicException, DBException {
 
@@ -240,7 +242,7 @@ public class UserLogicImpl extends UserLogic {
 		long uId = uDAO.insertUser(user);
 		UserGroup defaultGroup = uDAO.selectUniqueExistedUserGroupByField(SMDB.F_NAME, SM.DEFAULT_BASIC_USER_GROUP);
 		/*这里比较特殊 是系统自动添加的 并且相对来说太过频繁 不应该重置缓存 这里选择直接添加进缓存 影响到的是 一个组里有多少用户*/
-		uDAO.insertUsersToGroup(Arrays.asList(uId), defaultGroup.getId());
+		uDAO.insertUsersToGroup(List.of(uId), defaultGroup.getId());
 		
 		CacheScheduler.appendROnlyIfExists(CacheMode.R_ONE_TO_MANY_LATTER,SMDB.T_R_USER_GROUP,defaultGroup.getId(),uId);
 		CacheScheduler.deleteTempKey(CacheMode.T_USER, uuId);

@@ -14,6 +14,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import manager.SelfManagerSpringbootApplication;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.List;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes =  SelfManagerSpringbootApplication.class)
@@ -35,8 +37,10 @@ class ApplicationTests {
 
 	@Test
 	public void testDB(){
-		userDAO.selectUser(1);
+		userDAO.insertUsersToGroup(List.of((long)1,(long)2),100);
 	}
+
+
 
 	@Test
 	public  void testul(){
