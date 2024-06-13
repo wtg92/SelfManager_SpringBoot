@@ -1,7 +1,7 @@
 # 应用程序配置
 spring:
   profiles:
-    active: dev
+    active: prod
   application:
     name: self_manager
 server:
