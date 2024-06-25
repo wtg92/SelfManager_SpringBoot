@@ -44,6 +44,12 @@ public abstract class CacheConverter {
 	}
 	public static String createTempKey(CacheMode mode, Object ...identifier) {
 		String identifierStr = Arrays.stream(identifier)
+				.filter(one->{
+					if(one  == null){
+						System.out.println("createTempKey == null \t"+ReflectUtil.getInvokerClassName()+":"+ReflectUtil.getInvokerMethodName());
+					}
+					return one != null;
+				})
 				.map(Object::toString)
 				.collect(Collectors.joining(SPLIT_CHAR));
 		switch(mode) {
