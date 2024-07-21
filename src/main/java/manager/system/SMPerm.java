@@ -23,7 +23,9 @@ public enum SMPerm {
 	SEE_NOTES_MODULE(9,"看到笔记模块"),
 	CREATE_NOTE_BOOK_AND_NOTE(10,"创建笔记本和笔记"),
 	SEE_WORKSHEET_MODULE(11,"看到工作表模块"),
-	SEE_TOOLS_MODULE(12,"看到工具模块")
+	SEE_TOOLS_MODULE(12,"看到工具模块"),
+
+	DO_MIGRATION_OF_VER1(13,"可以触发数据迁移")
 
 	;
     private final int dbCode;

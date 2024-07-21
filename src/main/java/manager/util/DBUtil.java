@@ -4,10 +4,7 @@ package manager.util;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -129,7 +126,11 @@ public abstract class DBUtil {
 	private static void fillTermsSQL(StringBuffer additionalParams , Map<String, Object> likes, Map<String, Object> equals, Map<String, Object> greaterThan, Map<String, Object> lessThan,FinalIntegerTempStorageCalculator storageCalculator){
 		if(equals != null){
 			equals.forEach((key,val)->{
-				additionalParams.append(String.format(" AND %s=:%s",transFieldToAttr(key),storageCalculator.getAndIncrementHandlerAndStorage(val)));
+				if(val == null){
+					additionalParams.append(String.format(" AND %s is NULL",transFieldToAttr(key)));
+				}else{
+					additionalParams.append(String.format(" AND %s=:%s",transFieldToAttr(key),storageCalculator.getAndIncrementHandlerAndStorage(val)));
+				}
 			});
 		}
 
@@ -178,6 +179,7 @@ public abstract class DBUtil {
 			}
 		});
 	}
+
 
 	public static<T> long countEntitiesByTerms(Class<T> cla, Map<String, Object> likes, Map<String, Object> equals, Map<String, Object> greaterThan, Map<String, Object> lessThan,
 												   SessionFactory hbFactory){

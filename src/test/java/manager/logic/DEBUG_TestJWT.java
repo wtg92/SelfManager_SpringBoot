@@ -3,6 +3,7 @@ package manager.logic;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,6 +23,7 @@ public class DEBUG_TestJWT {
 		Date d = new Date();
 		d.setTime(t1);
 		System.out.println(d);
+		Predicate<String> s = null;
 
 	}
 

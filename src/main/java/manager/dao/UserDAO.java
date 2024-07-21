@@ -1,13 +1,17 @@
 package manager.dao;
 
 import java.util.List;
+import java.util.Map;
 
 import manager.entity.general.User;
 import manager.entity.general.UserGroup;
+import manager.entity.general.career.Plan;
 import manager.exception.DBException;
 import manager.exception.NoSuchElement;
 import manager.system.SMError;
 import manager.system.SMPerm;
+
+import static manager.util.DBUtil.selectEntitiesByTerms;
 
 public interface  UserDAO {
 	
@@ -39,8 +43,7 @@ public interface  UserDAO {
 	void insertPermsToGroup(List<SMPerm> perms,long groupId) throws DBException;
 	
 	void deletePermsFromGroup(List<SMPerm> perms,long groupId) throws DBException;
-	
-	
+
 	default User selectExistedUser(long id) throws DBException {
 		try {
 			return selectUser(id);

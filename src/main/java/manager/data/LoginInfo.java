@@ -14,6 +14,7 @@ public class LoginInfo {
 	public boolean seeToolsModule;
 	public boolean seeWorkSheetModule;
 
+	public boolean canDoMigrationOfV1;
 	
 	public LoginInfo(UserProxy user) {
 		this.user = user;
@@ -25,6 +26,7 @@ public class LoginInfo {
 		seeNotesModule = hasPerm(SMPerm.SEE_NOTES_MODULE);
 		seeToolsModule = hasPerm(SMPerm.SEE_TOOLS_MODULE);
 		seeWorkSheetModule = hasPerm(SMPerm.SEE_WORKSHEET_MODULE);
+		canDoMigrationOfV1 = hasPerm(SMPerm.DO_MIGRATION_OF_VER1);
 	}
 	
 	
