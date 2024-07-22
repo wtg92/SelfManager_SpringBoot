@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -572,6 +573,7 @@ public abstract class WorkContentConverter {
 		return item.getId();
 	}
 
+
 	public static int addItemToWorkSheet(WorkSheet one,long adderId, int planItemId, double value, String note, int mood,boolean forAdd, Long startUtc, Long endUtc) throws LogicException {
 		Document wsDoc = getDocumentOrInitIfNotExists(one);
 
@@ -801,7 +803,31 @@ public abstract class WorkContentConverter {
 		updatePlanItemFold(plan, itemId, fold);
 		one.setPlan(plan.asXML());
 	}
-	
+
+	public static String fixForVersionUTC(String content) {
+		try{
+			Document wsDoc = DocumentHelper.parseText(content);
+			Element itemsElement= wsDoc.getRootElement().element(T_ITEMS);
+			for(Element item:itemsElement.elements()) {
+				String attrName = A_START_TIME_UTC;
+				String maybeUpdate = item.attributeValue(attrName);
+				if(maybeUpdate == null){
+					item.addAttribute(attrName,TimeUtil.parseTime(item.attributeValue(A_START_TIME)).getTimeInMillis()+"");
+				}
+				attrName = A_END_TIME_UTC;
+				maybeUpdate = item.attributeValue(attrName);
+				if(maybeUpdate == null){
+					Calendar end = TimeUtil.parseTime(item.attributeValue(A_END_TIME));
+					item.addAttribute(attrName,end.getTimeInMillis()+"");
+				}
+			}
+			return wsDoc.asXML();
+		}catch (Exception e){
+			e.printStackTrace();
+			return content;
+		}
+	}
+
 	/**
 	 * 切换计划项与已有计划项计数类型不同时，计数值会置为0
 	 */
@@ -1172,7 +1198,6 @@ public abstract class WorkContentConverter {
 		assert item.getValue() > 0;
 	}
 
-	
 
 
 }

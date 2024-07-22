@@ -46,6 +46,13 @@ public abstract class SMDB {
 	public static final String F_NICK_NAME = "nick_name";
 	public static final String F_USER_ID = "user_id";
 
+	public static final String F_START_DATE = "start_date";
+	public static final String F_END_DATE = "end_date";
+
+
+	public static final String F_START_UTC = "start_utc";
+	public static final String F_END_UTC = "end_utc";
+
 	public static final String F_CREATE_UTC = "create_utc";
 
 	public static final String F_USER_GROUP_ID ="user_group_id";
@@ -56,6 +63,8 @@ public abstract class SMDB {
 	public static final String F_OWNER_ID = "owner_id";
 	public static final String F_DATE = "date";
 	public static final String F_DATE_UTC = "date_utc";
+
+	public static final String F_DATA_VERSION = "data_version";
 
 	public static final String F_TIMEZONE = "timezone";
 

@@ -23,7 +23,9 @@ import manager.system.converter.TagsConverter;
 @DynamicInsert
 @DynamicUpdate
 public class WorkSheet extends SMGeneralEntity {
-	
+
+	public static String WS_VERSION = "1";
+
 	private static final long serialVersionUID = 7632220752878325383L;
 	@Column
 	@Deprecated
@@ -34,6 +36,11 @@ public class WorkSheet extends SMGeneralEntity {
 	@Column
 	@Deprecated
 	private Calendar date;
+
+
+	@Column
+	private String dataVersion = WS_VERSION;
+
 
 	@Column
 	private String timezone;
@@ -56,7 +63,15 @@ public class WorkSheet extends SMGeneralEntity {
 	/*plan的一个快照  是基于该计划*/
 	@Column
 	private String plan;
-	
+
+	public String getDataVersion() {
+		return dataVersion;
+	}
+
+	public void setDataVersion(String dataVersion) {
+		this.dataVersion = dataVersion;
+	}
+
 	@Column
 	@Convert(converter = WorkSheetStateConverter.class)
 	private WorkSheetState state;
@@ -66,6 +81,8 @@ public class WorkSheet extends SMGeneralEntity {
 	private List<EntityTag> tags;
 	
 	public WorkSheet() {}
+
+
 
 	public String getTimezone() {
 		return timezone;

@@ -8,12 +8,10 @@ import manager.entity.general.User;
 import manager.entity.general.UserGroup;
 import manager.entity.general.career.*;
 import manager.logic.UserLogic;
+import manager.logic.career.sub.WorkContentConverter;
 import manager.system.SMDB;
 import manager.system.SMPerm;
-import manager.util.CommonUtil;
-import manager.util.DBUtil;
-import manager.util.RefiningUtil;
-import manager.util.ZonedTimeUtils;
+import manager.util.*;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +35,7 @@ public class DataMigrationService {
 
     /**
      * 我的数据库里 一定给了一个default值吧
+     * TODO 这里临时有一个BUG 我认为是hibernate （引擎似乎导致我 先修改 会导致后修改的东西。） 导致 我需要连续点击多次 才可以真正更新掉所有东西
      * @param loginId
      */
     public synchronized void doFullMigrateOfV1(long loginId){
@@ -65,6 +64,58 @@ public class DataMigrationService {
             migration.put(identity+" size:",data.size());
             data.forEach(one->{
                 one.setTimezone(RefiningUtil.getDefaultTimeZone());
+                if(one.getStartUtc() == null){
+                    one.setStartUtc(one.getStartDate().getTimeInMillis());
+                }
+                if(TimeUtil.isNotBlank(one.getEndDate())){
+                    one.setEndUtc(one.getEndDate().getTimeInMillis());
+                }else{
+                    one.setEndUtc((long)0);
+                }
+                DBUtil.updateExistedEntity(one,sessionFactory);
+            });
+            Long end = System.currentTimeMillis();
+            migration.put(identity+" lasting:",(end-start)/1000+" s");
+        }
+
+        /**
+         * Plan的StartUtc 以及 endUtc 这就是个补充吧
+         */
+        {
+            Map<String,Object> equals = new HashMap<>();
+            String filed = SMDB.F_START_UTC;
+            equals.put(filed,null);
+            Class<Plan> cla = Plan.class;
+            String identity = CommonUtil.getEntityTableName(cla)+"_"+filed;
+            Long start = System.currentTimeMillis();
+            List<Plan> data = DBUtil.selectEntitiesByTerms(cla,null,equals,null,null,sessionFactory);
+            migration.put(identity+" size:",data.size());
+            data.forEach(one->{
+                one.setStartUtc(one.getStartDate().getTimeInMillis());
+                DBUtil.updateExistedEntity(one,sessionFactory);
+            });
+            Long end = System.currentTimeMillis();
+            migration.put(identity+" lasting:",(end-start)/1000+" s");
+        }
+
+        /**
+         * Plan的END_UTC 以及 endUtc 这就是个补充吧
+         */
+        {
+            Map<String,Object> equals = new HashMap<>();
+            String filed = SMDB.F_END_UTC;
+            equals.put(filed,null);
+            Class<Plan> cla = Plan.class;
+            String identity = CommonUtil.getEntityTableName(cla)+"_"+filed;
+            Long start = System.currentTimeMillis();
+            List<Plan> data = DBUtil.selectEntitiesByTerms(cla,null,equals,null,null,sessionFactory);
+            migration.put(identity+" size:",data.size());
+            data.forEach(one->{
+                if(TimeUtil.isNotBlank(one.getEndDate())){
+                    one.setEndUtc(one.getEndDate().getTimeInMillis());
+                }else{
+                    one.setEndUtc((long)0);
+                }
                 DBUtil.updateExistedEntity(one,sessionFactory);
             });
             Long end = System.currentTimeMillis();
@@ -111,6 +162,30 @@ public class DataMigrationService {
             migration.put(identity+" lasting:",(end-start)/1000+" s");
         }
 
+
+        /**
+         * Worksheet F_DATA_VERSION
+         */
+        {
+            Map<String,Object> equals = new HashMap<>();
+            String filed = SMDB.F_DATA_VERSION;
+            equals.put(filed,null);
+            Class<WorkSheet> cla = WorkSheet.class;
+            String identity = CommonUtil.getEntityTableName(cla)+"_"+filed;
+            Long start = System.currentTimeMillis();
+            List<WorkSheet> data = DBUtil.selectEntitiesByTerms(cla,null,equals,null,null,sessionFactory);
+            migration.put(identity+" size:",data.size());
+            data.forEach(one->{
+                one.setContent(WorkContentConverter.fixForVersionUTC(one.getContent()));
+                one.setDataVersion(WorkSheet.WS_VERSION);
+                DBUtil.updateExistedEntity(one,sessionFactory);
+            });
+            Long end = System.currentTimeMillis();
+            migration.put(identity+" lasting:",(end-start)/1000+" s");
+        }
+
+
+
         migration.put("endTime",System.currentTimeMillis());
     }
 
@@ -124,6 +199,9 @@ public class DataMigrationService {
         final String identity = CommonUtil.getEntityTableName(cla)+"_"+field;
         Long start = System.currentTimeMillis();
         List<T> data = DBUtil.selectEntitiesByTerms(cla,null,equals,null,null,sessionFactory);
+        if(data.isEmpty()){
+            return;
+        }
         migration.put(identity+" size:",data.size());
         /**
          * 我现在fix的数据 有一个问题： 如何处理成默认时区
