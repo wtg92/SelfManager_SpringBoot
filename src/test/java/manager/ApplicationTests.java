@@ -1,10 +1,12 @@
 package manager;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
 import manager.dao.UserDAO;
 import manager.dao.career.WorkDAO;
 import manager.logic.UserLogic;
 import manager.logic.career.WorkLogic;
 import manager.system.SMPerm;
+import org.hibernate.graph.Graph;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import manager.SelfManagerSpringbootApplication;
 
 import javax.annotation.Resource;
+import java.security.Key;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 
@@ -54,4 +58,18 @@ class ApplicationTests {
 	public void test2(){
 		workDAO.includeWorkSheetByPlanId(1);
 	}
+
+	@Test
+	public void testCaffeine(){
+		/**
+		 *
+		 */
+		Caffeine.newBuilder()
+				.maximumSize(10_000)
+				.expireAfterWrite(Duration.ofMinutes(5))
+				.refreshAfterWrite(Duration.ofMinutes(1))
+				.build();
+	}
+
+
 }

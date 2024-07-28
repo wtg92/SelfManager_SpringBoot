@@ -1,13 +1,13 @@
-package manager.logic.sub;
+package manager.cache;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
-import static manager.util.CacheConverter.createKey;
-import static manager.util.CacheConverter.createPatternKey;
-import static manager.util.CacheConverter.createTempKey;
-import static manager.util.CacheConverter.createTempKeyByBiIdentifiers;
-import static manager.util.CacheConverter.parseRVal;
-import static manager.util.CacheConverter.parseRValInInt;
+import static manager.cache.CacheConverter.createKey;
+import static manager.cache.CacheConverter.createPatternKey;
+import static manager.cache.CacheConverter.createTempKey;
+import static manager.cache.CacheConverter.createTempKeyByBiIdentifiers;
+import static manager.cache.CacheConverter.parseRVal;
+import static manager.cache.CacheConverter.parseRValInInt;
 import static manager.util.CommonUtil.getBoolValFromPropertiesFileInResource;
 import static manager.util.CommonUtil.getEntityTableName;
 import static manager.util.CommonUtil.pretreatForString;
@@ -27,11 +27,8 @@ import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.NoSuchElement;
 import manager.exception.SMException;
-import manager.system.CacheMode;
 import manager.system.SMError;
 import manager.util.BiThrowableSupplier;
-import manager.util.CacheConverter;
-import manager.util.CacheUtil;
 import manager.util.ThrowableConsumer;
 import manager.util.ThrowableFunction;
 import manager.util.ThrowableSupplier;
@@ -55,10 +52,10 @@ import org.slf4j.LoggerFactory;
  * @author 王天戈
  *
  */
-public abstract class CacheScheduler {
+public abstract class CacheScheduler_Old {
 	private final static boolean USING_REDIS_CACHE = getBoolValFromPropertiesFileInResource("using_redis_cache");
 
-	private static final Logger logger = LoggerFactory.getLogger(CacheScheduler.class);
+	private static final Logger logger = LoggerFactory.getLogger(CacheScheduler_Old.class);
 
 	public static <T extends SMEntity> T getOne(CacheMode mode, long identifier, Class<T> cla,
 			ThrowableSupplier<T, DBException> generator) throws LogicException, DBException {
@@ -69,12 +66,12 @@ public abstract class CacheScheduler {
 		
 		String key = createKey(mode,identifier,getEntityTableName(cla));
 		try {
-			String val = CacheUtil.getOne(key);
+			String val = CacheUtil_OLD.getOne(key);
 			return JSON.parseObject(val, cla);
 		} catch (NoSuchElement e) {
 			T t = generator.get();
 			String jsonStr = JSON.toJSONString(t);
-			CacheUtil.set(key,jsonStr );
+			CacheUtil_OLD.set(key,jsonStr );
 			
 			return JSON.parseObject(jsonStr, cla);
 		}
@@ -101,20 +98,20 @@ public abstract class CacheScheduler {
 		
 		String key = createKey(mode,identifier,getEntityTableName(cla));
 		try {
-			String val = CacheUtil.getOne(key);
+			String val = CacheUtil_OLD.getOne(key);
 			return JSON.parseObject(val, cla);
 		} catch (NoSuchElement e) {
 			try {
 				T t = generator.get();
 				String jsonStr = JSON.toJSONString(t);
-				CacheUtil.set(key,jsonStr );
+				CacheUtil_OLD.set(key,jsonStr );
 				return JSON.parseObject(jsonStr, cla);
 			} catch (NoSuchElement e1) {
 				initor.get();
 				try {
 					T t = generator.get();
 					String jsonStr = JSON.toJSONString(t);
-					CacheUtil.set(key,jsonStr );
+					CacheUtil_OLD.set(key,jsonStr );
 					return JSON.parseObject(jsonStr, cla);
 				} catch (NoSuchElement e2) {
 					e2.printStackTrace();
@@ -132,7 +129,7 @@ public abstract class CacheScheduler {
 		}
 		String tableName = getEntityTableName(cla);
 		String patternKey = createPatternKey(mode,tableName);
-		return CacheUtil.findKeys(patternKey).size();
+		return CacheUtil_OLD.findKeys(patternKey).size();
 	}
 	
 	
@@ -158,7 +155,7 @@ public abstract class CacheScheduler {
 		
 		String patternKey = createPatternKey(mode,tableName);
 		/*get all keys in cache*/
-		List<String> existedKeysInCache = CacheUtil.findKeys(patternKey);
+		List<String> existedKeysInCache = CacheUtil_OLD.findKeys(patternKey);
 		List<String> keysForMatch = identifiersNoDup.stream().map(identifier->CacheConverter.createKey(mode, identifier, tableName))
 				.collect(toList());
 		List<String> matchedExistedKeys = existedKeysInCache.stream().filter(key->keysForMatch.contains(key)).collect(toList());
@@ -169,7 +166,7 @@ public abstract class CacheScheduler {
 		
 		if(matchedExistedKeys.size() > 0) {
 			/*防止find key失效问题*/
-			List<T> ones = CacheUtil.getOnesWithoutNull(matchedExistedKeys).stream()
+			List<T> ones = CacheUtil_OLD.getOnesWithoutNull(matchedExistedKeys).stream()
 						.map(js->JSON.parseObject(js, cla))
 						.collect(toList());
 			
@@ -184,7 +181,7 @@ public abstract class CacheScheduler {
 			T t = oneGenerator.apply(idenfierForAddToCache);
 			String keyForOne = createKey(mode,idenfierForAddToCache,tableName);
 			String jsonStr = JSON.toJSONString(t);
-			CacheUtil.set(keyForOne,jsonStr);
+			CacheUtil_OLD.set(keyForOne,jsonStr);
 			rlt.add(JSON.parseObject(jsonStr, cla));
 		}
 		
@@ -213,7 +210,7 @@ public abstract class CacheScheduler {
 		
 		String tableName = getEntityTableName(cla);
 		String patternKey = createPatternKey(mode,tableName);
-		List<T> allInCache = CacheUtil.findValues(patternKey).stream().map(js->JSON.parseObject(js, cla)).collect(toList());
+		List<T> allInCache = CacheUtil_OLD.findValues(patternKey).stream().map(js->JSON.parseObject(js, cla)).collect(toList());
 		
 		List<T> matchedObjs = allInCache.stream().filter(one->identifierTranslator.apply(one).equals(identifier)).collect(toList());
 		if(matchedObjs.size() > 1) {
@@ -227,7 +224,7 @@ public abstract class CacheScheduler {
 		String jsonStr = JSON.toJSONString(t);
 		
 		String key = createKey(mode, keyIdentifierGenerator.apply(t), tableName);  
-		CacheUtil.set(key,jsonStr);
+		CacheUtil_OLD.set(key,jsonStr);
 		
 		return JSON.parseObject(jsonStr, cla);
 	}
@@ -241,7 +238,7 @@ public abstract class CacheScheduler {
 		updator.accept(one);
 
 		String key = createKey(CacheMode.E_ID,one.getId(),getEntityTableName(one.getClass()));
-		CacheUtil.deleteOne(key);
+		CacheUtil_OLD.deleteOne(key);
 	}
 	
 	/**
@@ -264,12 +261,12 @@ public abstract class CacheScheduler {
 			updator.accept(one);
 		}catch(DBException e) {
 			if(e.type == SMError.DB_SYNC_ERROR) {
-				CacheUtil.deleteOne(key);
+				CacheUtil_OLD.deleteOne(key);
 			}
 			throw e;
 		}
 		String jsonStr = JSON.toJSONString(one);
-		CacheUtil.set(key,jsonStr);
+		CacheUtil_OLD.set(key,jsonStr);
 	}
 
 	/**
@@ -296,7 +293,7 @@ public abstract class CacheScheduler {
 			}
 		}finally {
 			if(ones.size() > 0) {
-				CacheUtil.deleteOnes(ones.stream().map(one->createKey(CacheMode.E_ID,one.getId(),getEntityTableName(one.getClass()))).collect(toList()));
+				CacheUtil_OLD.deleteOnes(ones.stream().map(one->createKey(CacheMode.E_ID,one.getId(),getEntityTableName(one.getClass()))).collect(toList()));
 			}
 		}
 	}
@@ -314,7 +311,7 @@ public abstract class CacheScheduler {
 				.map(identifier->CacheConverter.createKey(mode, identifier, tableName))
 				.collect(toList());
 		
-		return CacheUtil.deleteOnes(keysForDelete);
+		return CacheUtil_OLD.deleteOnes(keysForDelete);
 	}
 	
 	public static Long deleteRCachesIfExistByInt(CacheMode mode, String tableName, List<Integer> identifiers) {
@@ -329,7 +326,7 @@ public abstract class CacheScheduler {
 		
 		String key = CacheConverter.createKey(mode, identifier, tableName);
 		
-		return CacheUtil.deleteOne(key);
+		return CacheUtil_OLD.deleteOne(key);
 	}
 	
 	public static<T extends SMEntity> void deleteEntityByIdOnlyForCache(T entity) throws DBException {
@@ -341,7 +338,7 @@ public abstract class CacheScheduler {
 			return ;
 		}
 		String key = CacheConverter.createKey(CacheMode.E_ID, id, tableName);
-		CacheUtil.deleteOne(key);
+		CacheUtil_OLD.deleteOne(key);
 	}
 	
 	public static<T extends SMEntity> void deleteEntityById(T entity,ThrowableConsumer<Long, DBException> deletor) throws DBException {
@@ -357,7 +354,7 @@ public abstract class CacheScheduler {
 			redisSubstitute.remove(key);
 			return true;
 		}
-		return CacheUtil.deleteOne(key);
+		return CacheUtil_OLD.deleteOne(key);
 	}
 	/**
 	 * example r_user_group  建立former 缓存    传入userId 得到groupsId
@@ -374,11 +371,11 @@ public abstract class CacheScheduler {
 		}
 		String key = createKey(mode, identifier, tableName);
 		try {
-			return parseRVal(CacheUtil.getOne(key));
+			return parseRVal(CacheUtil_OLD.getOne(key));
 		} catch (NoSuchElement e) {
 			List<Long> val = generator.get();
 			String rVal = CacheConverter.createRsVal(val);
-			CacheUtil.set(key,rVal);
+			CacheUtil_OLD.set(key,rVal);
 			return val;
 		}
 	}
@@ -390,11 +387,11 @@ public abstract class CacheScheduler {
 		}
 		String key = createKey(mode, identifier, tableName);
 		try {
-			return parseRValInInt(CacheUtil.getOne(key));
+			return parseRValInInt(CacheUtil_OLD.getOne(key));
 		} catch (NoSuchElement e) {
 			List<Integer> val = generator.get();
 			String rVal = CacheConverter.createRsVal(val);
-			CacheUtil.set(key,rVal);
+			CacheUtil_OLD.set(key,rVal);
 			return val;
 		}
 	}
@@ -406,7 +403,7 @@ public abstract class CacheScheduler {
 			return judge.get();
 		}
 		String key = createKey(mode, identifier, tableName);
-		boolean exists = CacheUtil.exists(key);
+		boolean exists = CacheUtil_OLD.exists(key);
 		if(exists)
 			return true;
 		
@@ -463,10 +460,10 @@ public abstract class CacheScheduler {
 		String tableName = getEntityTableName(cla);
 		String patternKey = createPatternKey(mode,tableName);
 		/*get all keys in cache*/
-		List<String> existedKeysInCache = CacheUtil.findKeys(patternKey);
+		List<String> existedKeysInCache = CacheUtil_OLD.findKeys(patternKey);
 		if(existedKeysInCache.size() > 0) {
 			/*防止find key失效问题*/
-			List<T> onesInCache = CacheUtil.getOnesWithoutNull(existedKeysInCache).stream()
+			List<T> onesInCache = CacheUtil_OLD.getOnesWithoutNull(existedKeysInCache).stream()
 						.map(js->JSON.parseObject(js, cla))
 						.collect(toList());
 			
@@ -499,7 +496,7 @@ public abstract class CacheScheduler {
 			return true;
 		}
 		
-		return CacheUtil.setMapOnlyIfKeyNotExists(key,mapKey,mapVal);
+		return CacheUtil_OLD.setMapOnlyIfKeyNotExists(key,mapKey,mapVal);
 	}
 	/**
 	 * 为了保障redis的原子性设计的方法
@@ -517,7 +514,7 @@ public abstract class CacheScheduler {
 			return true;
 		}
 
-		return CacheUtil.setMapOnlyIfKeyExists(key,mapKey,mapVal);
+		return CacheUtil_OLD.setMapOnlyIfKeyExists(key,mapKey,mapVal);
 	}
 	
 	/**
@@ -534,7 +531,7 @@ public abstract class CacheScheduler {
 			return;
 		}
 
-		CacheUtil.setMap(key, mapKey, mapVal);
+		CacheUtil_OLD.setMap(key, mapKey, mapVal);
 	}
 	
 	public static void setTemp(CacheMode mode, String identifier,String value){
@@ -545,7 +542,7 @@ public abstract class CacheScheduler {
 			return;
 		}
 		
-		CacheUtil.setTemp(key, value);
+		CacheUtil_OLD.setTemp(key, value);
 	}
 	
 	public static void setTempByBiIdentifiers(CacheMode mode, Object identifier1,Object identifier2,String value){
@@ -556,7 +553,7 @@ public abstract class CacheScheduler {
 			return;
 		}
 
-		CacheUtil.setTemp(key, value);
+		CacheUtil_OLD.setTemp(key, value);
 	}
 	
 	
@@ -568,7 +565,7 @@ public abstract class CacheScheduler {
 			return;
 		}
 		String key = createKey(CacheMode.E_ID,t.getId(),getEntityTableName(t.getClass()));
-		CacheUtil.set(key, JSON.toJSONString(t));
+		CacheUtil_OLD.set(key, JSON.toJSONString(t));
 	}
 	
 	public static<T extends SMEntity> void putEntitiesToCacheById(List<T> target) {
@@ -578,7 +575,7 @@ public abstract class CacheScheduler {
 		
 		Map<String,String> ones = target.stream().collect(toMap(t->createKey(CacheMode.E_ID,t.getId()
 				,getEntityTableName(t.getClass())),t->JSON.toJSONString(t)));
-		CacheUtil.set(ones);
+		CacheUtil_OLD.set(ones);
 	}
 	
 	
@@ -589,7 +586,7 @@ public abstract class CacheScheduler {
 			boolean existed = redisSubstitute.containsKey(key) || redisMapSubstitute.containsKey(key);
 			return existed;
 		}
-		return CacheUtil.exists(key);
+		return CacheUtil_OLD.exists(key);
 	}
 
 	public static String getTempMapValWithoutReset(CacheMode mode, String identifier, String mapKey) throws NoSuchElement{
@@ -603,7 +600,7 @@ public abstract class CacheScheduler {
 			return redisMapSubstitute.get(key).get(mapKey);
 		}
 	
-		return CacheUtil.getMapVal(key,mapKey);
+		return CacheUtil_OLD.getMapVal(key,mapKey);
 	}
 
 	public static String getTempValOrInit(CacheMode mode,ThrowableSupplier<String, SMException> generator, Object ...identifiers) throws SMException {
@@ -616,7 +613,7 @@ public abstract class CacheScheduler {
 				redisSubstitute.put(key, val);
 				return val;
 			}
-			CacheUtil.set(key, val);
+			CacheUtil_OLD.set(key, val);
 			return val;
 		}
 	}
@@ -632,7 +629,7 @@ public abstract class CacheScheduler {
 				redisSubstitute.put(key, val);
 				return val;
 			}
-			CacheUtil.set(key, val);
+			CacheUtil_OLD.set(key, val);
 			return val;
 		}
 	}
@@ -644,7 +641,7 @@ public abstract class CacheScheduler {
 				throw new NoSuchElement();
 			return redisSubstitute.get(key);
 		}
-		return CacheUtil.getOne(key);
+		return CacheUtil_OLD.getOne(key);
 	}
 	
 	
@@ -656,7 +653,7 @@ public abstract class CacheScheduler {
 			return redisSubstitute.get(key);
 		}
 
-		return CacheUtil.getOne(key);
+		return CacheUtil_OLD.getOne(key);
 	}
 
 	public static boolean deleteTempValByBiIdentifiers(CacheMode mode, Object identifier1,Object identifier2) throws DBException, NoSuchElement {
@@ -667,7 +664,7 @@ public abstract class CacheScheduler {
 			return redisSubstitute.remove(key) != null;
 		}
 
-		return CacheUtil.deleteOne(key);
+		return CacheUtil_OLD.deleteOne(key);
 	}
 	
 	
@@ -683,7 +680,7 @@ public abstract class CacheScheduler {
 		}
 		String key = createKey(mode, theOneId, tableName);
 		String valForAppend = CacheConverter.createRsValForAppend(theManyIds);
-		CacheUtil.appendOnlyIfExists(key, valForAppend);
+		CacheUtil_OLD.appendOnlyIfExists(key, valForAppend);
 	}
 
 	public static void clearAllCache_ONLYFORTEST() {
@@ -693,7 +690,7 @@ public abstract class CacheScheduler {
 			return;
 		}
 		
-		CacheUtil.clearAllCache_ONLYFORTEST();
+		CacheUtil_OLD.clearAllCache_ONLYFORTEST();
 	}
 
 

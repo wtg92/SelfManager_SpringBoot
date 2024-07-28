@@ -12,7 +12,7 @@ import manager.entity.general.User;
 import manager.entity.general.UserGroup;
 import manager.exception.DBException;
 import manager.exception.LogicException;
-import manager.logic.sub.CacheScheduler;
+import manager.cache.CacheScheduler_Old;
 import manager.system.Gender;
 import manager.system.SM;
 import manager.system.SMDB;
@@ -22,7 +22,7 @@ public abstract class TestUtil {
 	
 	public static void initEnvironment() {
 		DAOFactory.deleteAllTables();
-		CacheScheduler.clearAllCache_ONLYFORTEST();
+		CacheScheduler_Old.clearAllCache_ONLYFORTEST();
 	}
 	
 	public static long addAdmin() throws LogicException, DBException {

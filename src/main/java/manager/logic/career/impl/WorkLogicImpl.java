@@ -35,9 +35,9 @@ import manager.exception.LogicException;
 import manager.exception.SMException;
 import manager.logic.career.WorkLogic;
 import manager.logic.career.sub.WorkContentConverter;
-import manager.logic.sub.CacheScheduler;
+import manager.cache.CacheScheduler_Old;
 import manager.logic.sub.TagCalculator;
-import manager.system.CacheMode;
+import manager.cache.CacheMode;
 import manager.system.SM;
 import manager.system.SMDB;
 import manager.system.SMError;
@@ -71,27 +71,27 @@ public class WorkLogicImpl extends WorkLogic{
 	private UserLockManager locker;
 
 	private Plan getPlan(long planId){
-		return CacheScheduler.getOne(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
+		return CacheScheduler_Old.getOne(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
 	}
 
 	private WorkSheet getWorksheet(long wsId){
-		return CacheScheduler.getOne(CacheMode.E_ID,wsId, WorkSheet.class, ()->wDAO.selectExistedWorkSheet(wsId));
+		return CacheScheduler_Old.getOne(CacheMode.E_ID,wsId, WorkSheet.class, ()->wDAO.selectExistedWorkSheet(wsId));
 	}
 
 	private PlanDept getPlanDept(long loginId){
-		return CacheScheduler.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginId, PlanDept.class,
+		return CacheScheduler_Old.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginId, PlanDept.class,
 				()->wDAO.selectBalanceByOwner(loginId), ()->initPlanDept(loginId));
 	}
 
 	private void updateWorksheetSynchronously(WorkSheet ws, long loginId){
 		locker.lockByUserAndClass(loginId,()->{
-			CacheScheduler.saveEntity(ws, one->wDAO.updateExistedWorkSheet(one));
+			CacheScheduler_Old.saveEntity(ws, one->wDAO.updateExistedWorkSheet(one));
 		});
 	}
 
 	private void updatePlanDeptSynchronously(PlanDept dept, long loginId){
 		locker.lockByUserAndClass(loginId,()->{
-			CacheScheduler.saveEntity(dept,d->wDAO.updateExistedBalance(d));
+			CacheScheduler_Old.saveEntity(dept, d->wDAO.updateExistedBalance(d));
 		});
 	}
 
@@ -100,7 +100,7 @@ public class WorkLogicImpl extends WorkLogic{
 
 	private void updatePlanSynchronously(Plan plan, long loginId){
 		locker.lockByUserAndClass(loginId,()->{
-			CacheScheduler.saveEntity(plan,p->wDAO.updateExistedPlan(p));
+			CacheScheduler_Old.saveEntity(plan, p->wDAO.updateExistedPlan(p));
 		});
 	}
 
@@ -113,7 +113,7 @@ public class WorkLogicImpl extends WorkLogic{
 	}
 
 	private void deleteCountRecord(Long dateUtc, String timezone) {
-		CacheScheduler.deleteTempKey(CacheMode.T_WS_COUNT_FOR_DATE, dateUtc,timezone);
+		CacheScheduler_Old.deleteTempKey(CacheMode.T_WS_COUNT_FOR_DATE, dateUtc,timezone);
 	}
 
 	@Override
@@ -359,7 +359,7 @@ public class WorkLogicImpl extends WorkLogic{
 	
 	@Override
 	public void savePlanItemFold(long loginId, long planId, int itemId, boolean fold) throws LogicException, DBException {
-		Plan plan = CacheScheduler.getOne(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
+		Plan plan = CacheScheduler_Old.getOne(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
 		if(plan.getOwnerId() != loginId) {
 			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
 		}
@@ -413,7 +413,7 @@ public class WorkLogicImpl extends WorkLogic{
 		assert plan.getState() != PlanState.ABANDONED;
 		boolean existsWSBaseThisPlan = wDAO.includeWorkSheetByPlanId(plan.getId());
 		if(!existsWSBaseThisPlan) {
-			CacheScheduler.deleteEntityById(plan, (id)->wDAO.deleteExistedPlan(id));
+			CacheScheduler_Old.deleteEntityById(plan, (id)->wDAO.deleteExistedPlan(id));
 			return;
 		}
 
@@ -471,7 +471,7 @@ public class WorkLogicImpl extends WorkLogic{
 				one.setState(stateByNow);
 			});
 
-			CacheScheduler.saveInDBAndDeleteAllInCache(toUpdate, (p)->wDAO.updateExistedWorkSheet(p));
+			CacheScheduler_Old.saveInDBAndDeleteAllInCache(toUpdate, (p)->wDAO.updateExistedWorkSheet(p));
 		});
 	}
 
@@ -563,7 +563,7 @@ public class WorkLogicImpl extends WorkLogic{
 	@Override
 	public long getWorkSheetCount(long loginId, Long date, String timezone) {
 		uL.checkPerm(loginId, SMPerm.SEE_TODAY_WS_COUNT);
-		return Long.parseLong(CacheScheduler.getTempValOrInit(CacheMode.T_WS_COUNT_FOR_DATE
+		return Long.parseLong(CacheScheduler_Old.getTempValOrInit(CacheMode.T_WS_COUNT_FOR_DATE
 				,()->String.valueOf(wDAO.countWorkSheetByDateAndTimezone(date,timezone))
 				,date,timezone));
 	}
@@ -598,7 +598,7 @@ public class WorkLogicImpl extends WorkLogic{
 				one.setState(stateByNow);
 			});
 
-			CacheScheduler.saveInDBAndDeleteAllInCache(toUpdate, (p)->wDAO.updateExistedPlan(p));
+			CacheScheduler_Old.saveInDBAndDeleteAllInCache(toUpdate, (p)->wDAO.updateExistedPlan(p));
 		});
 	}
 
@@ -821,7 +821,7 @@ public class WorkLogicImpl extends WorkLogic{
 	
 	@Override
 	public List<String> getPlanBalanceItemNames(long loginId){
-		PlanDept dept = CacheScheduler.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginId, PlanDept.class,
+		PlanDept dept = CacheScheduler_Old.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginId, PlanDept.class,
 				 ()->wDAO.selectBalanceByOwner(loginId), ()->initPlanDept(loginId));
 		BalanceContent content = WorkContentConverter.convertPlanDept(dept);
 		return content.items.stream().map(BalanceItem::getName).collect(toList());
@@ -904,7 +904,7 @@ public class WorkLogicImpl extends WorkLogic{
 			throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS,loginId+" vs "+ws.getOwnerId());
 		}
 		locker.lockByUserAndClass(loginId,()->{
-			CacheScheduler.deleteEntityById(ws, id->wDAO.deleteExistedWorkSheet(id));
+			CacheScheduler_Old.deleteEntityById(ws, id->wDAO.deleteExistedWorkSheet(id));
 			deleteCountRecord(ws.getDateUtc(),ws.getTimezone());
 		});
 	}
@@ -1062,7 +1062,7 @@ public class WorkLogicImpl extends WorkLogic{
 	 */
 	@Override
 	public void syncPlanTagsToWorkSheet(long loginId, long planId) throws SMException {
-		Plan target = CacheScheduler.getOne(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
+		Plan target = CacheScheduler_Old.getOne(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
 		if(target.getOwnerId() != loginId) {
 			throw new LogicException(SMError.CANNOT_SYNC_OTHERS_PLAN_TAGS);
 		}
@@ -1089,7 +1089,7 @@ public class WorkLogicImpl extends WorkLogic{
 	 		workSheet.setTags(tagsForNew);
 	 	}
 	 	
-	 	CacheScheduler.saveInDBAndDeleteAllInCache(toSave, p->wDAO.updateExistedWorkSheet(p));
+	 	CacheScheduler_Old.saveInDBAndDeleteAllInCache(toSave, p->wDAO.updateExistedWorkSheet(p));
 	}
 	
 	private List<WorkSheetProxy> fillPlanInfos(List<WorkSheet> src) throws DBException{

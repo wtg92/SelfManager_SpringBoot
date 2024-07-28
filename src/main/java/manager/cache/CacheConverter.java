@@ -1,4 +1,4 @@
-package manager.util;
+package manager.cache;
 
 import static java.util.stream.Collectors.joining;
 
@@ -7,8 +7,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import manager.system.CacheMode;
+import manager.cache.CacheMode;
 import manager.system.SM;
+import manager.util.CommonUtil;
+import manager.util.ReflectUtil;
 
 /**
  *    这个类专门处理解析相关
@@ -46,7 +48,7 @@ public abstract class CacheConverter {
 		String identifierStr = Arrays.stream(identifier)
 				.filter(one->{
 					if(one  == null){
-						System.out.println("createTempKey == null \t"+ReflectUtil.getInvokerClassName()+":"+ReflectUtil.getInvokerMethodName());
+						System.out.println("createTempKey == null \t"+ ReflectUtil.getInvokerClassName()+":"+ReflectUtil.getInvokerMethodName());
 					}
 					return one != null;
 				})

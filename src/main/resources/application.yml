@@ -16,10 +16,12 @@ logging:
     root: INFO
     manager: INFO
 
-# 其他自定义配置
-custom:
-  property1: value1
-  property2: value2
+cache:
+  common:
+    max-size-in-m: 1024
+    expiration-of-min: 5
+
+
 
 lock:
   expirationCheckCron: 0/30 * * * * ?

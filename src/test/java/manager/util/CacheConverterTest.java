@@ -1,7 +1,7 @@
 package manager.util;
 
-import static manager.util.CacheConverter.createRsVal;
-import static manager.util.CacheConverter.parseRVal;
+import static manager.cache.CacheConverter.createRsVal;
+import static manager.cache.CacheConverter.parseRVal;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;

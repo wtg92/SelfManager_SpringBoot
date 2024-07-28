@@ -1,6 +1,6 @@
 package manager.util;
 
-import static manager.util.CacheUtil.*;
+import static manager.cache.CacheUtil_OLD.*;
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
@@ -9,7 +9,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import manager.TestUtil;
-import manager.exception.NoSuchElement;
 import redis.clients.jedis.Jedis;
 
 public class CacheUtilTest {

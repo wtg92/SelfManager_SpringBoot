@@ -1,4 +1,4 @@
-package manager.util;
+package manager.cache;
 
 import static java.util.stream.Collectors.toList;
 
@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 
 import manager.exception.NoSuchElement;
 import manager.system.NoSuchElementType;
+import manager.util.CommonUtil;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -31,11 +32,11 @@ import redis.clients.jedis.resps.ScanResult;
  * @author 王天戈
  *
  */
-public abstract class CacheUtil {
+public abstract class CacheUtil_OLD {
 
 	public static JedisPool POOL = initPool();
 	
-	private static Logger logger = Logger.getLogger(CacheUtil.class.getName());
+	private static Logger logger = Logger.getLogger(CacheUtil_OLD.class.getName());
 	
 	public final static long ALIVE_SECONDS = CommonUtil.getIntValFromPropertiesFileInResource("redis_cache_alive_seconds");
 	public final static long TEMP_ALIVE_SECONDS = CommonUtil.getIntValFromPropertiesFileInResource("redis_temp_cache_alive_seconds");

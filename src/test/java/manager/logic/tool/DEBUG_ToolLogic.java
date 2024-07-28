@@ -1,6 +1,5 @@
 package manager.logic.tool;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,13 +9,11 @@ import org.junit.Test;
 
 import com.alibaba.fastjson2.JSON;
 
-import jep.JepException;
-import manager.TestUtil;
 import manager.data.SingleFileUnit;
 import manager.data.tool.ToolRecordSummary;
 import manager.exception.SMException;
 import manager.system.tool.Tool;
-import manager.util.CacheUtil;
+import manager.cache.CacheUtil_OLD;
 import manager.util.FileUtil;
 
 public class DEBUG_ToolLogic {
@@ -25,7 +22,7 @@ public class DEBUG_ToolLogic {
 	
 	@Test
 	public void debug() throws SMException {
-		CacheUtil.clearAllCache_ONLYFORTEST();
+		CacheUtil_OLD.clearAllCache_ONLYFORTEST();
 		ToolLogic tL = ToolLogic.getInstance();
 		ToolRecordSummary summary = tL.loadToolRecordSummary(1);
 		assert summary.records.get(0).content != null;

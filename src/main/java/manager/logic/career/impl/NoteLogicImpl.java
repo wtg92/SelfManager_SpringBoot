@@ -23,8 +23,8 @@ import manager.exception.LogicException;
 import manager.exception.SMException;
 import manager.logic.career.NoteLogic;
 import manager.logic.career.sub.NoteContentConverter;
-import manager.logic.sub.CacheScheduler;
-import manager.system.CacheMode;
+import manager.cache.CacheScheduler_Old;
+import manager.cache.CacheMode;
 import manager.system.SM;
 import manager.system.SMError;
 import manager.system.SMPerm;
@@ -59,7 +59,7 @@ public class NoteLogicImpl extends NoteLogic {
 	public long createNote(long creatorId, long noteBookId, String name) throws DBException, LogicException {
 		uL.checkPerm(creatorId, SMPerm.CREATE_NOTE_BOOK_AND_NOTE);
 
-		NoteBook book = CacheScheduler.getOne(CacheMode.E_ID, noteBookId, NoteBook.class,
+		NoteBook book = CacheScheduler_Old.getOne(CacheMode.E_ID, noteBookId, NoteBook.class,
 				() -> nDAO.selectExistedNoteBook(noteBookId));
 		if (book.getOwnerId() != creatorId) {
 			throw new LogicException(SMError.CANNOT_ADD_NOTE_IN_THE_NOTEBOOK_OF_OTHERS, "不能为别人的笔记本添加笔记");
@@ -78,7 +78,7 @@ public class NoteLogicImpl extends NoteLogic {
 	@Override
 	public void saveNoteBook(long saverId, long noteBookId, String name, String note, BookStyle style, int seqWeight)
 			throws DBException, LogicException {
-		NoteBook book = CacheScheduler.getOne(CacheMode.E_ID, noteBookId, NoteBook.class,
+		NoteBook book = CacheScheduler_Old.getOne(CacheMode.E_ID, noteBookId, NoteBook.class,
 				() -> nDAO.selectExistedNoteBook(noteBookId));
 		if (saverId != book.getOwnerId()) {
 			throw new LogicException(SMError.CANNOT_EDIT_NOTE_BOOK_OF_OTHERS, "无权修改别人的笔记本");
@@ -90,7 +90,7 @@ public class NoteLogicImpl extends NoteLogic {
 		book.setName(name);
 		book.setStyle(style);
 		book.setSeqWeight(seqWeight);
-		CacheScheduler.saveEntity(book, one -> nDAO.updateExistedNoteBook(one));
+		CacheScheduler_Old.saveEntity(book, one -> nDAO.updateExistedNoteBook(one));
 	}
 
 	private void checkBookOpened(NoteBook book) throws LogicException {
@@ -101,10 +101,10 @@ public class NoteLogicImpl extends NoteLogic {
 
 	@Override
 	public long saveNoteImportant(long saverId, long noteId, boolean important) throws DBException, LogicException {
-		Note note = CacheScheduler.getOne(CacheMode.E_ID, noteId, Note.class, () -> nDAO.selectExistedNote(noteId));
+		Note note = CacheScheduler_Old.getOne(CacheMode.E_ID, noteId, Note.class, () -> nDAO.selectExistedNote(noteId));
 
 		long noteBookId = note.getNoteBookId();
-		NoteBook book = CacheScheduler.getOne(CacheMode.E_ID, noteBookId, NoteBook.class,
+		NoteBook book = CacheScheduler_Old.getOne(CacheMode.E_ID, noteBookId, NoteBook.class,
 				() -> nDAO.selectExistedNoteBook(noteBookId));
 		if (saverId != book.getOwnerId()) {
 			throw new LogicException(SMError.CANNOT_EDIT_NOTE_OF_OTHERS, "无权修改别人的笔记");
@@ -114,7 +114,7 @@ public class NoteLogicImpl extends NoteLogic {
 
 		note.setImportant(important);
 		
-		CacheScheduler.saveEntity(note, one -> nDAO.updateExistedNote(one));
+		CacheScheduler_Old.saveEntity(note, one -> nDAO.updateExistedNote(one));
 
 		return noteBookId;
 	}
@@ -122,10 +122,10 @@ public class NoteLogicImpl extends NoteLogic {
 	
 	@Override
 	public long saveNoteHidden(long saverId, long noteId, boolean hidden) throws DBException, LogicException {
-		Note note = CacheScheduler.getOne(CacheMode.E_ID, noteId, Note.class, () -> nDAO.selectExistedNote(noteId));
+		Note note = CacheScheduler_Old.getOne(CacheMode.E_ID, noteId, Note.class, () -> nDAO.selectExistedNote(noteId));
 
 		long noteBookId = note.getNoteBookId();
-		NoteBook book = CacheScheduler.getOne(CacheMode.E_ID, noteBookId, NoteBook.class,
+		NoteBook book = CacheScheduler_Old.getOne(CacheMode.E_ID, noteBookId, NoteBook.class,
 				() -> nDAO.selectExistedNoteBook(noteBookId));
 		if (saverId != book.getOwnerId()) {
 			throw new LogicException(SMError.CANNOT_EDIT_NOTE_OF_OTHERS, "无权修改别人的笔记");
@@ -135,7 +135,7 @@ public class NoteLogicImpl extends NoteLogic {
 
 		note.setHidden(hidden);
 		
-		CacheScheduler.saveEntity(note, one -> nDAO.updateExistedNote(one));
+		CacheScheduler_Old.saveEntity(note, one -> nDAO.updateExistedNote(one));
 
 		return noteBookId;
 	}
@@ -144,10 +144,10 @@ public class NoteLogicImpl extends NoteLogic {
 	@Override
 	public void saveNote(long saverId, long noteId, String name, String content, boolean withTodos)
 			throws DBException, LogicException {
-		Note note = CacheScheduler.getOne(CacheMode.E_ID, noteId, Note.class, () -> nDAO.selectExistedNote(noteId));
+		Note note = CacheScheduler_Old.getOne(CacheMode.E_ID, noteId, Note.class, () -> nDAO.selectExistedNote(noteId));
 
 		long noteBookId = note.getNoteBookId();
-		NoteBook book = CacheScheduler.getOne(CacheMode.E_ID, noteBookId, NoteBook.class,
+		NoteBook book = CacheScheduler_Old.getOne(CacheMode.E_ID, noteBookId, NoteBook.class,
 				() -> nDAO.selectExistedNoteBook(noteBookId));
 		if (saverId != book.getOwnerId()) {
 			throw new LogicException(SMError.CANNOT_EDIT_NOTE_OF_OTHERS, "无权修改别人的笔记");
@@ -159,19 +159,19 @@ public class NoteLogicImpl extends NoteLogic {
 		note.setContent(content);
 		note.setWithTodos(withTodos);
 		nDAO.updateNoteNameAndContentAndWithTodos(note);
-		CacheScheduler.deleteEntityByIdOnlyForCache(note);
+		CacheScheduler_Old.deleteEntityByIdOnlyForCache(note);
 	}
 
 	@Override
 	public void saveMemo(long saverId, String note) throws DBException, LogicException {
-		Memo memo = CacheScheduler.getOne(CacheMode.E_UNIQUE_FIELD_ID, saverId, Memo.class, ()->nDAO.selectExistedMemoByOwner(saverId));
+		Memo memo = CacheScheduler_Old.getOne(CacheMode.E_UNIQUE_FIELD_ID, saverId, Memo.class, ()->nDAO.selectExistedMemoByOwner(saverId));
 		memo.setNote(note);
-		CacheScheduler.saveEntity(memo,p->nDAO.updateExistedMemo(p));
+		CacheScheduler_Old.saveEntity(memo, p->nDAO.updateExistedMemo(p));
 	}
 	
 	@Override
 	public void saveNotesSeq (long saverId,long bookId,List<Integer> notesSeq) throws SMException {
-		NoteBook book = CacheScheduler.getOne(CacheMode.E_ID, bookId, NoteBook.class,
+		NoteBook book = CacheScheduler_Old.getOne(CacheMode.E_ID, bookId, NoteBook.class,
 				() -> nDAO.selectExistedNoteBook(bookId));
 		if (saverId != book.getOwnerId()) {
 			throw new LogicException(SMError.CANNOT_EDIT_NOTE_BOOK_OF_OTHERS, "不能调整非本人的笔记顺序");
@@ -179,7 +179,7 @@ public class NoteLogicImpl extends NoteLogic {
 
 		checkBookOpened(book);
 		book.setNotesSeq(notesSeq.stream().map(String::valueOf).collect(Collectors.joining(SM.ARRAY_SPLIT_MARK)));
-		CacheScheduler.saveEntity(book, one -> nDAO.updateExistedNoteBook(one));
+		CacheScheduler_Old.saveEntity(book, one -> nDAO.updateExistedNoteBook(one));
 	}
 
 	@Override
@@ -190,7 +190,7 @@ public class NoteLogicImpl extends NoteLogic {
 
 	@Override
 	public NoteBookProxy loadBook(long loginerId, long bookId) throws DBException, LogicException {
-		NoteBook book = CacheScheduler.getOne(CacheMode.E_ID, bookId, NoteBook.class,
+		NoteBook book = CacheScheduler_Old.getOne(CacheMode.E_ID, bookId, NoteBook.class,
 				() -> nDAO.selectExistedNoteBook(bookId));
 		if (loginerId != book.getOwnerId()) {
 			throw new LogicException(SMError.CANNOT_SEE_OTHER_NOTE_BOOK);
@@ -200,7 +200,7 @@ public class NoteLogicImpl extends NoteLogic {
 
 	@Override
 	public BookContent loadBookContent(long loginerId, long noteBookId) throws DBException, LogicException {
-		NoteBook book = CacheScheduler.getOne(CacheMode.E_ID, noteBookId, NoteBook.class,
+		NoteBook book = CacheScheduler_Old.getOne(CacheMode.E_ID, noteBookId, NoteBook.class,
 				() -> nDAO.selectExistedNoteBook(noteBookId));
 		if (loginerId != book.getOwnerId()) {
 			throw new LogicException(SMError.CANNOT_SEE_OTHERS_NOTE);
@@ -217,9 +217,9 @@ public class NoteLogicImpl extends NoteLogic {
 
 	@Override
 	public NoteProxy loadNote(long loginerId, long noteId) throws DBException, LogicException {
-		Note note = CacheScheduler.getOne(CacheMode.E_ID, noteId, Note.class, () -> nDAO.selectExistedNote(noteId));
+		Note note = CacheScheduler_Old.getOne(CacheMode.E_ID, noteId, Note.class, () -> nDAO.selectExistedNote(noteId));
 		long noteBookId = note.getNoteBookId();
-		NoteBook book = CacheScheduler.getOne(CacheMode.E_ID, noteBookId, NoteBook.class,
+		NoteBook book = CacheScheduler_Old.getOne(CacheMode.E_ID, noteBookId, NoteBook.class,
 				() -> nDAO.selectExistedNoteBook(noteBookId));
 		if (loginerId != book.getOwnerId()) {
 			throw new LogicException(SMError.CANNOT_SEE_OTHERS_NOTE);
@@ -230,7 +230,7 @@ public class NoteLogicImpl extends NoteLogic {
 	
 	@Override
 	public MemoProxy loadMemo(long loginerId) throws DBException, LogicException {
-		Memo memo = CacheScheduler.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginerId, Memo.class, 
+		Memo memo = CacheScheduler_Old.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginerId, Memo.class,
 				 ()->nDAO.selectMemoByOwner(loginerId), ()->initMemo(loginerId));
 		
 		MemoProxy proxy = new MemoProxy(memo);
@@ -281,7 +281,7 @@ public class NoteLogicImpl extends NoteLogic {
 	
 	@Override
 	public void deleteNoteBook(long deletorId, long id) throws DBException, LogicException {
-		NoteBook book = CacheScheduler.getOne(CacheMode.E_ID, id, NoteBook.class, () -> nDAO.selectExistedNoteBook(id));
+		NoteBook book = CacheScheduler_Old.getOne(CacheMode.E_ID, id, NoteBook.class, () -> nDAO.selectExistedNoteBook(id));
 		if (deletorId != book.getOwnerId()) {
 			throw new LogicException(SMError.CANNOT_EDIT_NOTE_BOOK_OF_OTHERS, "不能删除非本人的笔记本");
 		}
@@ -293,14 +293,14 @@ public class NoteLogicImpl extends NoteLogic {
 		/* 这里删除 就不管缓存了 等缓存自己消亡就行 */
 		nDAO.deleteNotesByBook(book.getId());
 
-		CacheScheduler.deleteEntityById(book, idForFunc -> nDAO.deleteExistedNoteBook(idForFunc));
+		CacheScheduler_Old.deleteEntityById(book, idForFunc -> nDAO.deleteExistedNoteBook(idForFunc));
 	}
 
 	@Override
 	public void deleteNote(long deletorId, long id) throws DBException, LogicException {
-		Note note = CacheScheduler.getOne(CacheMode.E_ID, id, Note.class, () -> nDAO.selectExistedNote(id));
+		Note note = CacheScheduler_Old.getOne(CacheMode.E_ID, id, Note.class, () -> nDAO.selectExistedNote(id));
 
-		NoteBook book = CacheScheduler.getOne(CacheMode.E_ID, note.getNoteBookId(), NoteBook.class,
+		NoteBook book = CacheScheduler_Old.getOne(CacheMode.E_ID, note.getNoteBookId(), NoteBook.class,
 				() -> nDAO.selectExistedNoteBook(note.getNoteBookId()));
 		
 		if (deletorId != book.getOwnerId()) {
@@ -309,12 +309,12 @@ public class NoteLogicImpl extends NoteLogic {
 
 		checkBookOpened(book);
 
-		CacheScheduler.deleteEntityById(note, idForFunc -> nDAO.deleteExistedNote(idForFunc));
+		CacheScheduler_Old.deleteEntityById(note, idForFunc -> nDAO.deleteExistedNote(idForFunc));
 	}
 
 	@Override
 	public void closeNoteBook(long closerId, long bookId) throws DBException, LogicException {
-		NoteBook book = CacheScheduler.getOne(CacheMode.E_ID, bookId, NoteBook.class,
+		NoteBook book = CacheScheduler_Old.getOne(CacheMode.E_ID, bookId, NoteBook.class,
 				() -> nDAO.selectExistedNoteBook(bookId));
 		if (closerId != book.getOwnerId()) {
 			throw new LogicException(SMError.CANNOT_EDIT_NOTE_BOOK_OF_OTHERS, "不能关闭非本人的笔记本");
@@ -323,17 +323,17 @@ public class NoteLogicImpl extends NoteLogic {
 		checkBookOpened(book);
 
 		if (book.getNote().strip().length() == 0 && !nDAO.includeNotesByBook(bookId)) {
-			CacheScheduler.deleteEntityById(book, idForFunc -> nDAO.deleteExistedNoteBook(idForFunc));
+			CacheScheduler_Old.deleteEntityById(book, idForFunc -> nDAO.deleteExistedNoteBook(idForFunc));
 			return;
 		}
 
 		book.setClosed(true);
-		CacheScheduler.saveEntity(book, one -> nDAO.updateExistedNoteBook(one));
+		CacheScheduler_Old.saveEntity(book, one -> nDAO.updateExistedNoteBook(one));
 	}
 
 	@Override
 	public void openNoteBook(long closerId, long bookId) throws DBException, LogicException {
-		NoteBook book = CacheScheduler.getOne(CacheMode.E_ID, bookId, NoteBook.class,
+		NoteBook book = CacheScheduler_Old.getOne(CacheMode.E_ID, bookId, NoteBook.class,
 				() -> nDAO.selectExistedNoteBook(bookId));
 		if (closerId != book.getOwnerId()) {
 			throw new LogicException(SMError.CANNOT_EDIT_NOTE_BOOK_OF_OTHERS, "不能重启非本人的笔记本");
@@ -344,21 +344,21 @@ public class NoteLogicImpl extends NoteLogic {
 		}
 
 		book.setClosed(false);
-		CacheScheduler.saveEntity(book, one -> nDAO.updateExistedNoteBook(one));
+		CacheScheduler_Old.saveEntity(book, one -> nDAO.updateExistedNoteBook(one));
 	}
 
 	@Override
 	public void addItemToMemo(long adderId, String content, NoteLabel label, String note,long srcNoteId)
 			throws LogicException, DBException {
 		
-		Memo memo = CacheScheduler.getOne(CacheMode.E_UNIQUE_FIELD_ID, adderId, Memo.class, ()->nDAO.selectExistedMemoByOwner(adderId));
+		Memo memo = CacheScheduler_Old.getOne(CacheMode.E_UNIQUE_FIELD_ID, adderId, Memo.class, ()->nDAO.selectExistedMemoByOwner(adderId));
 		String srcNoteName = "";
 		long srcBookId = 0;
 		String srcBookName = "";
 		if(srcNoteId != 0) {
-			Note srcNote = CacheScheduler.getOne(CacheMode.E_ID, srcNoteId, Note.class, () -> nDAO.selectExistedNote(srcNoteId));
+			Note srcNote = CacheScheduler_Old.getOne(CacheMode.E_ID, srcNoteId, Note.class, () -> nDAO.selectExistedNote(srcNoteId));
 			srcNoteName = srcNote.getName();
-			NoteBook book = CacheScheduler.getOne(CacheMode.E_ID, srcNote.getNoteBookId(), NoteBook.class,
+			NoteBook book = CacheScheduler_Old.getOne(CacheMode.E_ID, srcNote.getNoteBookId(), NoteBook.class,
 					() -> nDAO.selectExistedNoteBook(srcNote.getNoteBookId()));
 			
 			if (adderId != book.getOwnerId()) {
@@ -373,36 +373,36 @@ public class NoteLogicImpl extends NoteLogic {
 		}
 		
 		NoteContentConverter.addItemToMemo(memo, content, label, note, srcNoteId, srcNoteName,srcBookId,srcBookName);
-		CacheScheduler.saveEntity(memo,p->nDAO.updateExistedMemo(p));
+		CacheScheduler_Old.saveEntity(memo, p->nDAO.updateExistedMemo(p));
 	}
 
 	@Override
 	public void removeItemFromMemo(long removerId, int itemId) throws LogicException, DBException {
-		Memo one = CacheScheduler.getOne(CacheMode.E_UNIQUE_FIELD_ID, removerId, Memo.class, ()->nDAO.selectExistedMemoByOwner(removerId));
+		Memo one = CacheScheduler_Old.getOne(CacheMode.E_UNIQUE_FIELD_ID, removerId, Memo.class, ()->nDAO.selectExistedMemoByOwner(removerId));
 		NoteContentConverter.removeItemFromMemo(one, itemId);
-		CacheScheduler.saveEntity(one,p->nDAO.updateExistedMemo(p));
+		CacheScheduler_Old.saveEntity(one, p->nDAO.updateExistedMemo(p));
 	}
 
 	@Override
 	public void saveMemoItem(long updaterId,int itemId,String content, NoteLabel label, String note)
 			throws LogicException, DBException {
-		Memo memo = CacheScheduler.getOne(CacheMode.E_UNIQUE_FIELD_ID, updaterId, Memo.class, ()->nDAO.selectExistedMemoByOwner(updaterId));
+		Memo memo = CacheScheduler_Old.getOne(CacheMode.E_UNIQUE_FIELD_ID, updaterId, Memo.class, ()->nDAO.selectExistedMemoByOwner(updaterId));
 		NoteContentConverter.updateMemoItem(memo, itemId, content, label, note);
-		CacheScheduler.saveEntity(memo,p->nDAO.updateExistedMemo(p));
+		CacheScheduler_Old.saveEntity(memo, p->nDAO.updateExistedMemo(p));
 	}
 
 	@Override
 	public void saveMemoItemsSeq(long updaterId, List<Integer> seqIds) throws LogicException, DBException {
-		Memo memo = CacheScheduler.getOne(CacheMode.E_UNIQUE_FIELD_ID, updaterId, Memo.class, ()->nDAO.selectExistedMemoByOwner(updaterId));
+		Memo memo = CacheScheduler_Old.getOne(CacheMode.E_UNIQUE_FIELD_ID, updaterId, Memo.class, ()->nDAO.selectExistedMemoByOwner(updaterId));
 		NoteContentConverter.updateMemoItemsSeq(memo, seqIds);
-		CacheScheduler.saveEntity(memo,p->nDAO.updateExistedMemo(p));
+		CacheScheduler_Old.saveEntity(memo, p->nDAO.updateExistedMemo(p));
 	}
 
 	@Override
 	public void saveMemoItemLabel(long updaterId, int itemId, NoteLabel label) throws LogicException, DBException {
-		Memo memo = CacheScheduler.getOne(CacheMode.E_UNIQUE_FIELD_ID, updaterId, Memo.class, ()->nDAO.selectExistedMemoByOwner(updaterId));
+		Memo memo = CacheScheduler_Old.getOne(CacheMode.E_UNIQUE_FIELD_ID, updaterId, Memo.class, ()->nDAO.selectExistedMemoByOwner(updaterId));
 		NoteContentConverter.updateMemoItemLabel(memo, itemId, label);
-		CacheScheduler.saveEntity(memo,p->nDAO.updateExistedMemo(p));
+		CacheScheduler_Old.saveEntity(memo, p->nDAO.updateExistedMemo(p));
 	}
 
 }
