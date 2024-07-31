@@ -29,7 +29,12 @@ public enum CacheMode {
 	/*val为 account:email/telval*/
 	T_EMAIL_FOR_RESET_PWD,
 	T_TEL_FOR_RESET_PWD,
-	
+
+	/**
+	 * 缓存是否有权限
+	 */
+	PERM,
+
 	/**
 	 * 代表整个系统就一份的对象缓存
 	 * key为 tp:uni:obj

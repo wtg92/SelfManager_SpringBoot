@@ -1,20 +1,7 @@
 package manager.dao.impl;
 
-import static manager.util.DBUtil.countAllEntities;
-import static manager.util.DBUtil.countByField;
-import static manager.util.DBUtil.deleteGeneralRTableData;
-import static manager.util.DBUtil.includeUniqueEntityByField;
-import static manager.util.DBUtil.insertEntity;
-import static manager.util.DBUtil.insertGeneralRTableData;
-import static manager.util.DBUtil.selectAllEntities;
-import static manager.util.DBUtil.selectEntity;
-import static manager.util.DBUtil.selectGeneralRTableData;
-import static manager.util.DBUtil.selectGeneralRTableDataInInt;
-import static manager.util.DBUtil.selectUniqueEntityByField;
-import static manager.util.DBUtil.selectUniqueExistedEntityByField;
-import static manager.util.DBUtil.updateExistedEntity;
-import static manager.util.DBUtil.processDBException;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.hibernate.Session;
@@ -31,6 +18,8 @@ import manager.system.SMPerm;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+
+import static manager.util.DBUtil.*;
 
 
 @Repository
@@ -89,6 +78,44 @@ public class UserDAOImpl implements UserDAO {
 	public void deletePermsFromGroup(List<SMPerm> perms, long groupId) throws DBException {
 		deleteGeneralRTableData(SMDB.T_R_GROUP_PERM, SMDB.F_PERM_ID, SMDB.F_USER_GROUP_ID,
 				perms.stream().map(perm->(long)perm.getDbCode()).collect(Collectors.toList()), groupId, sessionFactory);
+	}
+
+	@Override
+	public List<User> selectUsersByIds(List<Long> userIds) {
+		return selectEntitiesByManyField(User.class,SMDB.F_ID,userIds, String::valueOf, sessionFactory);
+	}
+
+	@Override
+	public boolean hasPerm(long userId, SMPerm perm) {
+		return sessionFactory.fromStatelessSession((session)->
+			 session.createNativeQuery("""
+					select count(*)>0 from scientific_manager.user u1
+					left join
+					r_user_group r1 on u1.id = r1.user_id
+					left join
+					r_group_perm r2 on r1.user_group_id = r2.user_group_id
+					where u1.id = ? and r2.perm_id = ?
+				""",Boolean.class)
+					.setParameter(1,userId)
+					.setParameter(2,perm.getDbCode())
+					.uniqueResult()
+		);
+	}
+
+	@Override
+	public List<Integer> selectPermsByUser(long userId) {
+		return sessionFactory.fromStatelessSession((session)->
+				session.createNativeQuery("""
+					select count(*)>0 from scientific_manager.user u1
+					left join
+					r_user_group r1 on u1.id = r1.user_id
+					left join
+					r_group_perm r2 on r1.user_group_id = r2.user_group_id
+					where u1.id = ?
+				""",Integer.class)
+						.setParameter(1,userId)
+						.list()
+		);
 	}
 
 	@Override

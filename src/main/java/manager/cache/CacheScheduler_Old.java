@@ -2,9 +2,9 @@ package manager.cache;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
-import static manager.cache.CacheConverter.createKey;
+import static manager.cache.CacheConverter.createEntityKey;
 import static manager.cache.CacheConverter.createPatternKey;
-import static manager.cache.CacheConverter.createTempKey;
+import static manager.cache.CacheConverter.createGeneralKey;
 import static manager.cache.CacheConverter.createTempKeyByBiIdentifiers;
 import static manager.cache.CacheConverter.parseRVal;
 import static manager.cache.CacheConverter.parseRValInInt;
@@ -64,7 +64,7 @@ public abstract class CacheScheduler_Old {
 			return generator.get();
 		}
 		
-		String key = createKey(mode,identifier,getEntityTableName(cla));
+		String key = createEntityKey(mode,identifier,getEntityTableName(cla));
 		try {
 			String val = CacheUtil_OLD.getOne(key);
 			return JSON.parseObject(val, cla);
@@ -96,7 +96,7 @@ public abstract class CacheScheduler_Old {
 			}
 		}
 		
-		String key = createKey(mode,identifier,getEntityTableName(cla));
+		String key = createEntityKey(mode,identifier,getEntityTableName(cla));
 		try {
 			String val = CacheUtil_OLD.getOne(key);
 			return JSON.parseObject(val, cla);
@@ -156,7 +156,7 @@ public abstract class CacheScheduler_Old {
 		String patternKey = createPatternKey(mode,tableName);
 		/*get all keys in cache*/
 		List<String> existedKeysInCache = CacheUtil_OLD.findKeys(patternKey);
-		List<String> keysForMatch = identifiersNoDup.stream().map(identifier->CacheConverter.createKey(mode, identifier, tableName))
+		List<String> keysForMatch = identifiersNoDup.stream().map(identifier->CacheConverter.createEntityKey(mode, identifier, tableName))
 				.collect(toList());
 		List<String> matchedExistedKeys = existedKeysInCache.stream().filter(key->keysForMatch.contains(key)).collect(toList());
 		
@@ -179,7 +179,7 @@ public abstract class CacheScheduler_Old {
 		
 		for(Long idenfierForAddToCache : deadIdentifiers) {
 			T t = oneGenerator.apply(idenfierForAddToCache);
-			String keyForOne = createKey(mode,idenfierForAddToCache,tableName);
+			String keyForOne = createEntityKey(mode,idenfierForAddToCache,tableName);
 			String jsonStr = JSON.toJSONString(t);
 			CacheUtil_OLD.set(keyForOne,jsonStr);
 			rlt.add(JSON.parseObject(jsonStr, cla));
@@ -223,7 +223,7 @@ public abstract class CacheScheduler_Old {
 		T t = generator.get();
 		String jsonStr = JSON.toJSONString(t);
 		
-		String key = createKey(mode, keyIdentifierGenerator.apply(t), tableName);  
+		String key = createEntityKey(mode, keyIdentifierGenerator.apply(t), tableName);
 		CacheUtil_OLD.set(key,jsonStr);
 		
 		return JSON.parseObject(jsonStr, cla);
@@ -237,7 +237,7 @@ public abstract class CacheScheduler_Old {
 
 		updator.accept(one);
 
-		String key = createKey(CacheMode.E_ID,one.getId(),getEntityTableName(one.getClass()));
+		String key = createEntityKey(CacheMode.E_ID,one.getId(),getEntityTableName(one.getClass()));
 		CacheUtil_OLD.deleteOne(key);
 	}
 	
@@ -256,7 +256,7 @@ public abstract class CacheScheduler_Old {
 			return;
 		}
 		
-		String key = createKey(CacheMode.E_ID,one.getId(),getEntityTableName(one.getClass()));
+		String key = createEntityKey(CacheMode.E_ID,one.getId(),getEntityTableName(one.getClass()));
 		try {
 			updator.accept(one);
 		}catch(DBException e) {
@@ -293,7 +293,7 @@ public abstract class CacheScheduler_Old {
 			}
 		}finally {
 			if(ones.size() > 0) {
-				CacheUtil_OLD.deleteOnes(ones.stream().map(one->createKey(CacheMode.E_ID,one.getId(),getEntityTableName(one.getClass()))).collect(toList()));
+				CacheUtil_OLD.deleteOnes(ones.stream().map(one-> createEntityKey(CacheMode.E_ID,one.getId(),getEntityTableName(one.getClass()))).collect(toList()));
 			}
 		}
 	}
@@ -308,7 +308,7 @@ public abstract class CacheScheduler_Old {
 		}
 		
 		List<String> keysForDelete = identifiers.stream()
-				.map(identifier->CacheConverter.createKey(mode, identifier, tableName))
+				.map(identifier->CacheConverter.createEntityKey(mode, identifier, tableName))
 				.collect(toList());
 		
 		return CacheUtil_OLD.deleteOnes(keysForDelete);
@@ -324,7 +324,7 @@ public abstract class CacheScheduler_Old {
 			return false;
 		}
 		
-		String key = CacheConverter.createKey(mode, identifier, tableName);
+		String key = CacheConverter.createEntityKey(mode, identifier, tableName);
 		
 		return CacheUtil_OLD.deleteOne(key);
 	}
@@ -337,7 +337,7 @@ public abstract class CacheScheduler_Old {
 		if(!USING_REDIS_CACHE ) {
 			return ;
 		}
-		String key = CacheConverter.createKey(CacheMode.E_ID, id, tableName);
+		String key = CacheConverter.createEntityKey(CacheMode.E_ID, id, tableName);
 		CacheUtil_OLD.deleteOne(key);
 	}
 	
@@ -349,7 +349,7 @@ public abstract class CacheScheduler_Old {
 
 
 	public static boolean deleteTempKey(CacheMode mode, Object ...identifier) {
-		String key = createTempKey(mode, identifier);
+		String key = createGeneralKey(mode, identifier);
 		if(!USING_REDIS_CACHE ) {
 			redisSubstitute.remove(key);
 			return true;
@@ -365,11 +365,11 @@ public abstract class CacheScheduler_Old {
 	 * @return
 	 * @throws DBException
 	 */
-	public static List<Long> getRIds(CacheMode mode, String tableName, long identifier, ThrowableSupplier<List<Long>, DBException> generator) throws DBException {
+	public static List<Long>  getRIds(CacheMode mode, String tableName, long identifier, ThrowableSupplier<List<Long>, DBException> generator) throws DBException {
 		if(!USING_REDIS_CACHE) {
 			return generator.get();
 		}
-		String key = createKey(mode, identifier, tableName);
+		String key = createEntityKey(mode, identifier, tableName);
 		try {
 			return parseRVal(CacheUtil_OLD.getOne(key));
 		} catch (NoSuchElement e) {
@@ -385,7 +385,7 @@ public abstract class CacheScheduler_Old {
 		if(!USING_REDIS_CACHE) {
 			return generator.get();
 		}
-		String key = createKey(mode, identifier, tableName);
+		String key = createEntityKey(mode, identifier, tableName);
 		try {
 			return parseRValInInt(CacheUtil_OLD.getOne(key));
 		} catch (NoSuchElement e) {
@@ -402,7 +402,7 @@ public abstract class CacheScheduler_Old {
 		if(!USING_REDIS_CACHE) {
 			return judge.get();
 		}
-		String key = createKey(mode, identifier, tableName);
+		String key = createEntityKey(mode, identifier, tableName);
 		boolean exists = CacheUtil_OLD.exists(key);
 		if(exists)
 			return true;
@@ -482,7 +482,7 @@ public abstract class CacheScheduler_Old {
 	 * @return true 代表key在数据库中不存在，并且成功设置上了所需要的值 false 表明在数据库中已存在，没有set值
 	 */
 	public static boolean setTempMapOnlyIfKeyNotExists(CacheMode mode,String identifier,String mapKey,String mapVal) {
-		String key = createTempKey(mode, identifier);
+		String key = createGeneralKey(mode, identifier);
 		if(!USING_REDIS_CACHE) {
 			if(redisMapSubstitute.containsKey(key)) {
 				Map<String,String> existed = redisMapSubstitute.get(key);
@@ -504,7 +504,7 @@ public abstract class CacheScheduler_Old {
 	 */
 	public static boolean setTempMapOnlyIfKeyExists(CacheMode mode,String identifier,String mapKey,String mapVal) {
 		
-		String key = createTempKey(mode, identifier);
+		String key = createGeneralKey(mode, identifier);
 		
 		if(!USING_REDIS_CACHE) {
 			if(!redisMapSubstitute.containsKey(key)) {
@@ -521,7 +521,7 @@ public abstract class CacheScheduler_Old {
 	 * @throws NoSuchElement key not exists
 	 */
 	public static void setTempMap(CacheMode mode, String identifier,String mapKey,String mapVal) throws NoSuchElement{
-		String key = createTempKey(mode, identifier);
+		String key = createGeneralKey(mode, identifier);
 		
 		if(!USING_REDIS_CACHE) {
 			if(!redisMapSubstitute.containsKey(key))
@@ -535,7 +535,7 @@ public abstract class CacheScheduler_Old {
 	}
 	
 	public static void setTemp(CacheMode mode, String identifier,String value){
-		String key = createTempKey(mode, identifier);
+		String key = createGeneralKey(mode, identifier);
 		
 		if(!USING_REDIS_CACHE) {
 			redisSubstitute.put(key, value);
@@ -564,7 +564,7 @@ public abstract class CacheScheduler_Old {
 		if(!USING_REDIS_CACHE) {
 			return;
 		}
-		String key = createKey(CacheMode.E_ID,t.getId(),getEntityTableName(t.getClass()));
+		String key = createEntityKey(CacheMode.E_ID,t.getId(),getEntityTableName(t.getClass()));
 		CacheUtil_OLD.set(key, JSON.toJSONString(t));
 	}
 	
@@ -573,14 +573,14 @@ public abstract class CacheScheduler_Old {
 			return;
 		}
 		
-		Map<String,String> ones = target.stream().collect(toMap(t->createKey(CacheMode.E_ID,t.getId()
+		Map<String,String> ones = target.stream().collect(toMap(t-> createEntityKey(CacheMode.E_ID,t.getId()
 				,getEntityTableName(t.getClass())),t->JSON.toJSONString(t)));
 		CacheUtil_OLD.set(ones);
 	}
 	
 	
 	public static boolean existsForTemp(CacheMode mode, String identifier) {
-		String key = createTempKey(mode, identifier);
+		String key = createGeneralKey(mode, identifier);
 		
 		if(!USING_REDIS_CACHE) {
 			boolean existed = redisSubstitute.containsKey(key) || redisMapSubstitute.containsKey(key);
@@ -590,7 +590,7 @@ public abstract class CacheScheduler_Old {
 	}
 
 	public static String getTempMapValWithoutReset(CacheMode mode, String identifier, String mapKey) throws NoSuchElement{
-		String key = createTempKey(mode, identifier);
+		String key = createGeneralKey(mode, identifier);
 		
 		if(!USING_REDIS_CACHE) {
 			Map<String,String> tempEntry = redisMapSubstitute.get(key);
@@ -607,7 +607,7 @@ public abstract class CacheScheduler_Old {
 		try {
 			return getTempVal(mode, identifiers);
 		} catch (NoSuchElement e) {
-			String key = createTempKey(mode, identifiers);
+			String key = createGeneralKey(mode, identifiers);
 			String val = generator.get();
 			if(!USING_REDIS_CACHE) {
 				redisSubstitute.put(key, val);
@@ -623,7 +623,7 @@ public abstract class CacheScheduler_Old {
 		try {
 			return getTempVal(mode, identifier);
 		} catch (NoSuchElement e) {
-			String key = createTempKey(mode, pretreatForString(identifier).toString());
+			String key = createGeneralKey(mode, pretreatForString(identifier).toString());
 			String val = pretreatForString(generator.get()).toString();
 			if(!USING_REDIS_CACHE) {
 				redisSubstitute.put(key, val);
@@ -635,7 +635,7 @@ public abstract class CacheScheduler_Old {
 	}
 	
 	public static String getTempVal(CacheMode mode, Object ...identifiers) throws DBException, NoSuchElement {
-		String key = createTempKey(mode, identifiers);
+		String key = createGeneralKey(mode, identifiers);
 		if(!USING_REDIS_CACHE) {
 			if(!redisSubstitute.containsKey(key))
 				throw new NoSuchElement();
@@ -678,7 +678,7 @@ public abstract class CacheScheduler_Old {
 		if(!USING_REDIS_CACHE) {
 			return;
 		}
-		String key = createKey(mode, theOneId, tableName);
+		String key = createEntityKey(mode, theOneId, tableName);
 		String valForAppend = CacheConverter.createRsValForAppend(theManyIds);
 		CacheUtil_OLD.appendOnlyIfExists(key, valForAppend);
 	}

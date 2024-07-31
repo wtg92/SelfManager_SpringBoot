@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import manager.cache.CacheMode;
 import manager.system.SM;
 import manager.util.CommonUtil;
 import manager.util.ReflectUtil;
@@ -30,11 +29,18 @@ public abstract class CacheConverter {
 	private static String FORMER_ARG_FOR_KEY = "1";
 	private static String LATTER_ARG_FOR_KEY = "0";
 	private static String TEMP_PREFIX = "tp";
-	
-	public static String createKey(CacheMode mode, long identifier, String tableName) {
+
+	public static String getPrefixEntity(String tableName){
+		return  SM.DB_NAME + SPLIT_CHAR + tableName;
+	}
+
+	public static String createEntityKey(CacheMode mode, long identifier, String tableName) {
         return switch (mode) {
-            case E_ID, E_UNIQUE_FIELD_ID -> SM.DB_NAME + SPLIT_CHAR + tableName + SPLIT_CHAR + identifier;
-            case R_ONE_TO_MANY_FORMER ->
+            case E_ID, E_UNIQUE_FIELD_ID -> getPrefixEntity(tableName) + SPLIT_CHAR + identifier;
+			/**
+			 * 不该再有关系的实体了
+			 */
+			case R_ONE_TO_MANY_FORMER ->
                     SM.DB_NAME + SPLIT_CHAR + tableName + SPLIT_CHAR + FORMER_ARG_FOR_KEY + SPLIT_CHAR + identifier;
             case R_ONE_TO_MANY_LATTER ->
                     SM.DB_NAME + SPLIT_CHAR + tableName + SPLIT_CHAR + LATTER_ARG_FOR_KEY + SPLIT_CHAR + identifier;
@@ -44,7 +50,7 @@ public abstract class CacheConverter {
             }
         };
 	}
-	public static String createTempKey(CacheMode mode, Object ...identifier) {
+	public static String createGeneralKey(CacheMode mode, Object ...identifier) {
 		String identifierStr = Arrays.stream(identifier)
 				.filter(one->{
 					if(one  == null){
@@ -54,21 +60,18 @@ public abstract class CacheConverter {
 				})
 				.map(Object::toString)
 				.collect(Collectors.joining(SPLIT_CHAR));
-		switch(mode) {
-		case T_USER:
-			return TEMP_PREFIX+SPLIT_CHAR+"user"+SPLIT_CHAR+identifierStr;
-		case T_WS_COUNT_FOR_DATE:
-			return TEMP_PREFIX+SPLIT_CHAR+"ws"+SPLIT_CHAR+identifierStr;
-		case T_EMAIL_FOR_SIGN_IN:
-			return TEMP_PREFIX+SPLIT_CHAR+"email"+SPLIT_CHAR+identifierStr;
-		case T_TEL_FOR_SIGN_IN:
-			return TEMP_PREFIX+SPLIT_CHAR+"tel"+SPLIT_CHAR+identifierStr;
-		case T_UNIQUE_OBJ:
-			return TEMP_PREFIX+SPLIT_CHAR+"uni"+SPLIT_CHAR+identifierStr;
-		default:
-			assert false : mode;
-		throw new RuntimeException("未配置的缓存模型 "+mode);
-		}
+        return switch (mode) {
+            case T_USER -> TEMP_PREFIX + SPLIT_CHAR + "user" + SPLIT_CHAR + identifierStr;
+            case T_WS_COUNT_FOR_DATE -> TEMP_PREFIX + SPLIT_CHAR + "ws" + SPLIT_CHAR + identifierStr;
+            case T_EMAIL_FOR_SIGN_IN -> TEMP_PREFIX + SPLIT_CHAR + "email" + SPLIT_CHAR + identifierStr;
+            case T_TEL_FOR_SIGN_IN -> TEMP_PREFIX + SPLIT_CHAR + "tel" + SPLIT_CHAR + identifierStr;
+            case T_UNIQUE_OBJ -> TEMP_PREFIX + SPLIT_CHAR + "uni" + SPLIT_CHAR + identifierStr;
+			case PERM -> identifier[0]+SPLIT_CHAR+identifier[1];
+            default -> {
+                assert false : mode;
+                throw new RuntimeException("未配置的缓存模型 " + mode);
+            }
+        };
 	}
 	
 	

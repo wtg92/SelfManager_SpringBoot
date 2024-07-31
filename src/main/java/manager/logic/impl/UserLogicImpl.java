@@ -2,6 +2,8 @@ package manager.logic.impl;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
+import static manager.cache.CacheConverter.createGeneralKey;
+import static manager.cache.CacheConverter.createTempKeyByBiIdentifiers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,6 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import jakarta.transaction.Transactional;
+import manager.cache.*;
 import manager.dao.UserDAO;
 import manager.data.UserSummary;
 import manager.data.proxy.UserGroupProxy;
@@ -23,8 +26,6 @@ import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.NoSuchElement;
 import manager.logic.UserLogic;
-import manager.cache.CacheScheduler_Old;
-import manager.cache.CacheMode;
 import manager.system.Gender;
 import manager.system.NoSuchElementType;
 import manager.system.SM;
@@ -33,21 +34,19 @@ import manager.system.SMError;
 import manager.system.SMPerm;
 import manager.system.UserUniqueField;
 import manager.system.VerifyUserMethod;
-import manager.cache.CacheUtil_OLD;
 import manager.util.EmailUtil;
 import manager.util.SMSUtil;
 import manager.util.SecurityUtil;
-import manager.util.ThrowableFunction;
 import manager.util.ThrowableSupplier;
 import manager.util.YZMUtil;
 import manager.util.YZMUtil.YZMInfo;
+import manager.util.locks.UserLockManager;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 
 /**
  * 2023.9.19 Review了一次 主要修改的是 在验证验证码时 如果验证失效 应当删除验证码缓存 使其验证码失效
- * TODO 但对CacheScheduler不放心 找机会Review一下CacheScheduler
  */
 @Service
 public class UserLogicImpl extends UserLogic {
@@ -58,41 +57,38 @@ public class UserLogicImpl extends UserLogic {
 	@Resource
 	private YZMUtil yzmUtil;
 
+	@Resource
+	private UserLockManager locker;
+
+	@Resource
+	CacheOperator cache;
+
+
 	@Override
-	public boolean hasPerm(long userId, SMPerm perm) throws LogicException, DBException {
+	public User getUser(long userId){
+		ThrowableSupplier<User, DBException> generator = ()-> uDAO.selectExistedUser(userId);
+		return cache.getOne(CacheMode.E_ID,userId,User.class,generator);
+	}
+
+
+
+	@Override
+	public boolean hasPerm(long userId, SMPerm perm) {
 		/*admin owning all perms*/
 		if(isAdmin(userId)) {
 			return true;
 		}
-		ThrowableSupplier<List<Long>, DBException> userGroupGenerator = ()-> uDAO.selectGroupsByUser(userId);
-		List<Long> groupsId = CacheScheduler_Old.getRIds(CacheMode.R_ONE_TO_MANY_FORMER,SMDB.T_R_USER_GROUP,userId,userGroupGenerator);
-		for(Long groupId : groupsId) {
-			ThrowableSupplier<List<Integer>, DBException> groupPermGenerator = ()-> uDAO.selectPermsByGroup(groupId);
-			List<Integer> permsId = CacheScheduler_Old.getRIdsInInt(CacheMode.R_ONE_TO_MANY_FORMER, SMDB.T_R_GROUP_PERM, groupId, groupPermGenerator);
-			if(permsId.contains(perm.getDbCode()))
-				return true;
-		}
-		
-		return false;
+
+		Set<Integer> perms = cache.getPermsByUser(userId,()->new HashSet<>(uDAO.selectPermsByUser(userId)));
+		return perms.contains(perm.getDbCode());
 	}
 
 	private Set<SMPerm> getUserAllPerms(long userId) throws DBException, LogicException{
 		if(isAdmin(userId)) {
 			return Arrays.stream(SMPerm.values()).filter(perm->perm != SMPerm.UNDECIDED).collect(toSet());
 		}
-		
-		Set<SMPerm> perms = new HashSet<SMPerm>();
-		
-		ThrowableSupplier<List<Long>, DBException> userGroupGenerator = ()-> uDAO.selectGroupsByUser(userId);
-		List<Long> groupsId = CacheScheduler_Old.getRIds(CacheMode.R_ONE_TO_MANY_FORMER,SMDB.T_R_USER_GROUP,userId,userGroupGenerator);
-		
-		for(Long groupId : groupsId) {
-			ThrowableSupplier<List<Integer>, DBException> groupPermGenerator = ()-> uDAO.selectPermsByGroup(groupId);
-			List<Integer> permsId = CacheScheduler_Old.getRIdsInInt(CacheMode.R_ONE_TO_MANY_FORMER, SMDB.T_R_GROUP_PERM, groupId, groupPermGenerator);
-			perms.addAll(permsId.stream().map(SMPerm::valueOfDBCode).collect(toSet()));
-		}
-		
-		return perms;
+		return new HashSet<>(cache.getPermsByUser(userId,()->new HashSet<>(uDAO.selectPermsByUser(userId)))
+				.stream().map(SMPerm::valueOfDBCode).toList());
 	}
 	
 
@@ -107,51 +103,45 @@ public class UserLogicImpl extends UserLogic {
 					//TODO 未来做点处理  防止连续登录
 					throw new LogicException(SMError.PWD_WRONG);
 				}
-				
-				CacheScheduler_Old.putEntityToCacheById(user);
-				CacheScheduler_Old.deleteTempKey(CacheMode.T_USER, uuId);
-				
+
+				cache.removeTempUser(uuId);
 				return loadUser(user.getId(), user.getId());
 			} catch (NoSuchElement e) {
 				throw new LogicException(SMError.ACCOUNT_NULL, account);
 			}
 		}
 		case EMAIL_VERIFY_CODE:{
-			try {
-				CacheMode mode = CacheMode.T_EMAIL_FOR_SIGN_IN;
-				String ans = CacheScheduler_Old.getTempVal(mode, email);
-				if(!ans.equals(emailVerifyCode)) {
-					CacheScheduler_Old.deleteTempKey(mode, email);
-					throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL,emailVerifyCode);
-				}
-				
-				User user = uDAO.selectUniqueUserByField(SMDB.F_EMAIL, email);
-				CacheScheduler_Old.putEntityToCacheById(user);
-				CacheScheduler_Old.deleteTempKey(CacheMode.T_USER, uuId);
-				
-				return loadUser(user.getId(), user.getId());
-			} catch (NoSuchElement e) {
+			CacheMode mode = CacheMode.T_EMAIL_FOR_SIGN_IN;
+			String key = createGeneralKey(mode, email);
+			String ans = cache.get(key);
+			if(ans == null)
 				throw new LogicException(SMError.EMAIL_VERIFY_TIMEOUT, email);
+
+			if(!ans.equals(emailVerifyCode)) {
+				cache.remove(key);
+				throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL,emailVerifyCode);
 			}
+
+			User user = uDAO.selectUniqueUserByField(SMDB.F_EMAIL, email);
+			cache.removeTempUser(uuId);
+			return loadUser(user.getId(), user.getId());
 		}
 
 		case TEL_VERIFY_CODE:{
-			try {
-				CacheMode mode = CacheMode.T_TEL_FOR_SIGN_IN;
-				String ans = CacheScheduler_Old.getTempVal(mode, tel);
-				if(!ans.equals(telVerifyCode)) {
-					CacheScheduler_Old.deleteTempKey(mode, tel);
-					throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL,telVerifyCode);
-				}
-				
-				User user = uDAO.selectUniqueUserByField(SMDB.F_TEL_NUM, tel);
-				CacheScheduler_Old.putEntityToCacheById(user);
-				CacheScheduler_Old.deleteTempKey(CacheMode.T_USER, uuId);
-				
-				return loadUser(user.getId(), user.getId());
-			} catch (NoSuchElement e) {
-				throw new LogicException(SMError.TEL_VERIFY_TIMEOUT, email);
+			CacheMode mode = CacheMode.T_TEL_FOR_SIGN_IN;
+			String key = createGeneralKey(mode, email);
+			String ans = cache.get(key);
+			if(ans == null)
+				throw new LogicException(SMError.TEL_VERIFY_TIMEOUT, tel);
+
+			if(!ans.equals(telVerifyCode)) {
+				cache.remove(key);
+				throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL,telVerifyCode);
 			}
+
+			User user = uDAO.selectUniqueUserByField(SMDB.F_TEL_NUM, tel);
+			cache.removeTempUser(uuId);
+			return loadUser(user.getId(), user.getId());
 		}
 		default:
 			assert false : method;
@@ -159,15 +149,13 @@ public class UserLogicImpl extends UserLogic {
 		}
 	}
 
-	@Override
-	public User getUser(long userId){
-		ThrowableSupplier<User, DBException> generator = ()-> uDAO.selectExistedUser(userId);
-		return CacheScheduler_Old.getOne(CacheMode.E_ID,userId,User.class,generator);
-	}
+
 
 	@Override
-	public UserProxy loadUser(long userId, long loginerId) throws LogicException, DBException {
-		/*TODO loginerId决定能看到什么信息 但先不管了 不管的原因：似乎现在只有admin才会调用该函数*/
+	public UserProxy loadUser(long userId, long loginId) throws LogicException, DBException {
+		if(!isAdmin(loginId) && userId != loginId){
+			throw new LogicException(SMError.COMMON,"Unexpected");
+		}
 		User user=  getUser(userId);
 		UserProxy proxy = new UserProxy();
 		proxy.user = user;
@@ -182,12 +170,12 @@ public class UserLogicImpl extends UserLogic {
 
 		User user = new User();
 		
-		if(account.strip().length() == 0)
+		if(account.isBlank())
 			throw new LogicException(SMError.SIGN_UP_ILLGEAL,"账号不能为空");
 		
 		user.setAccount(account);
 		
-		if(nickName.strip().length() == 0)
+		if(nickName.isBlank())
 			throw new LogicException(SMError.SIGN_UP_ILLGEAL,"昵称不能为空");
 		
 		user.setNickName(nickName);
@@ -200,17 +188,17 @@ public class UserLogicImpl extends UserLogic {
 		
 		user.setGender(gender);
 		
-		if(email.strip().length() == 0 && tel.strip().length() == 0) {
+		if(email.isBlank() && tel.isBlank()) {
 			throw new LogicException(SMError.SIGN_UP_ILLGEAL,"邮箱和手机号必须至少填入一个");
 		};
 		
-		if(email.strip().length()>0) {
+		if(!email.isBlank()) {
 			try {
-				String ans = CacheScheduler_Old.getTempMapValWithoutReset(CacheMode.T_USER, uuId, EMAIL_VERIFY_CODE_KEY_FOR_SIGN_UP);
+				String ans = cache.getTempUserMapVal( uuId, EMAIL_VERIFY_CODE_KEY_FOR_SIGN_UP);
 				if(!ans.equals(emailVerifyCode)) {
 					throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL,"邮箱验证码错误");
 				}
-				String matchEmail = CacheScheduler_Old.getTempMapValWithoutReset(CacheMode.T_USER, uuId, EMAIL_KEY_FOR_SIGN_UP);
+				String matchEmail = cache.getTempUserMapVal( uuId, EMAIL_KEY_FOR_SIGN_UP);
 				if(!matchEmail.equals(email)) {
 					throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL,"注册邮箱与验证邮箱不匹配");
 				}
@@ -222,13 +210,13 @@ public class UserLogicImpl extends UserLogic {
 			
 		}
 		
-		if(tel.strip().length()>0) {
+		if(!tel.isBlank()) {
 			try {
-				String ans = CacheScheduler_Old.getTempMapValWithoutReset(CacheMode.T_USER, uuId, TEL_VERIFY_CODE_KEY_FOR_SIGN_UP);
+				String ans = cache.getTempUserMapVal( uuId, TEL_VERIFY_CODE_KEY_FOR_SIGN_UP);
 				if(!ans.equals(telVerifyCode)) {
 					throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL,"手机验证码错误");
 				}
-				String matchTel = CacheScheduler_Old.getTempMapValWithoutReset(CacheMode.T_USER, uuId, TEL_KEY_FOR_SIGN_UP);
+				String matchTel = cache.getTempUserMapVal( uuId, TEL_KEY_FOR_SIGN_UP);
 				if(!matchTel.equals(tel)) {
 					throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL,"注册手机与验证手机不匹配");
 				}
@@ -244,8 +232,7 @@ public class UserLogicImpl extends UserLogic {
 		/*这里比较特殊 是系统自动添加的 并且相对来说太过频繁 不应该重置缓存 这里选择直接添加进缓存 影响到的是 一个组里有多少用户*/
 		uDAO.insertUsersToGroup(List.of(uId), defaultGroup.getId());
 		
-		CacheScheduler_Old.appendROnlyIfExists(CacheMode.R_ONE_TO_MANY_LATTER,SMDB.T_R_USER_GROUP,defaultGroup.getId(),uId);
-		CacheScheduler_Old.deleteTempKey(CacheMode.T_USER, uuId);
+		cache.deleteGeneralKey(CacheMode.T_USER, uuId);
 		
 		return uId;
 	}
@@ -253,12 +240,10 @@ public class UserLogicImpl extends UserLogic {
 
 	/**
 	 * 似乎不用缓存比较好 但底层如果是用缓存取每一个的话 如果底层置信 则本函数置信
-	 * TODO 校验一下返回值数量是否和usersId 一致
 	 */
 	@Override
 	public List<User> getUsers(List<Long> usersId) throws LogicException, DBException {
-		ThrowableFunction<Long,User, DBException> generator = (userId)-> uDAO.selectExistedUser(userId);
-		return CacheScheduler_Old.getOnes(CacheMode.E_ID,usersId,User::getId,User.class,generator);
+		return uDAO.selectUsersByIds(usersId);
 	}
 	
 	@Override
@@ -271,49 +256,43 @@ public class UserLogicImpl extends UserLogic {
 		if(users.size() != usersId.size())
 			throw new LogicException(SMError.INCONSISTENT_ARGS_BETWEEN_DATA,"数量不一致 "+usersId.size() + " vs " + users.size());
 		
-		ThrowableSupplier<Boolean, DBException> judger = ()->uDAO.includeUserGroup(groupId);
-		if(!CacheScheduler_Old.existsByIdentifier(CacheMode.E_ID,SMDB.T_USER_GROUP,groupId,judger)) {
+		if(!uDAO.includeUserGroup(groupId))
 			throw new LogicException(SMError.INCONSISTENT_ARGS_BETWEEN_DATA,"用户组不存在 "+groupId);
-		}
-		
-		ThrowableSupplier<List<Long>, DBException> generator = ()-> uDAO.selectUsersIdByGroup(groupId);
-		List<Long> usersForThisGroup = CacheScheduler_Old.getRIds(CacheMode.R_ONE_TO_MANY_LATTER, SMDB.T_R_USER_GROUP, groupId, generator);
+
+		List<Long> usersForThisGroup = uDAO.selectUsersIdByGroup(groupId);
 		List<Long> distinctUsers = usersId.stream().filter(uId->!usersForThisGroup.contains(uId)).collect(toList());
 		
-		if(distinctUsers.size() == 0) {
+		if(distinctUsers.isEmpty()) {
 			logger.log(Level.WARNING,"添加的user全是已存在在组里的 "+groupId,"uL.addUsersToGroup");
 			return;
 		}
 		
 		uDAO.insertUsersToGroup(distinctUsers, groupId);
-		CacheScheduler_Old.deleteRCachesIfExist(CacheMode.R_ONE_TO_MANY_FORMER,SMDB.T_R_USER_GROUP,usersId);
-		CacheScheduler_Old.deleteRCacheIfExists(CacheMode.R_ONE_TO_MANY_LATTER, SMDB.T_R_USER_GROUP, groupId);
+
+		cache.clearPerms();
 	}
 
 	@Override
-	public synchronized void overrideGroupPerms(List<SMPerm> permsForOverride, long groupId, long loginerId) throws LogicException, DBException {
+	public synchronized void overrideGroupPerms(List<SMPerm> permsForOverride, long groupId, long loginId) throws LogicException, DBException {
 
-		checkPerm(loginerId, SMPerm.EDIT_PERMS_TO_GROUP);
+		checkPerm(loginId, SMPerm.EDIT_PERMS_TO_GROUP);
 		
-		ThrowableSupplier<Boolean, DBException> judger = ()->uDAO.includeUserGroup(groupId);
-		if(!CacheScheduler_Old.existsByIdentifier(CacheMode.E_ID,SMDB.T_USER_GROUP,groupId,judger)) {
+		if(!uDAO.includeUserGroup(groupId)) {
 			throw new LogicException(SMError.INCONSISTENT_ARGS_BETWEEN_DATA,"用户组不存在 "+groupId);
 		}
 		
-		ThrowableSupplier<List<Integer>, DBException> generator = ()-> uDAO.selectPermsByGroup(groupId);
-		List<SMPerm> permsForThisGroup = CacheScheduler_Old.getRIdsInInt(CacheMode.R_ONE_TO_MANY_FORMER, SMDB.T_R_GROUP_PERM, groupId, generator)
-				.stream().map(SMPerm::valueOfDBCode).collect(toList());
+		List<SMPerm> permsForThisGroup =uDAO.selectPermsByGroup(groupId)
+				.stream().map(SMPerm::valueOfDBCode).toList();
 		List<SMPerm> permsForAdd = permsForOverride.stream().filter(perm->!permsForThisGroup.contains(perm)).collect(toList());
 		List<SMPerm> permsForDelete = permsForThisGroup.stream().filter(perm->!permsForOverride.contains(perm)).collect(toList());
-		if(permsForAdd.size()>0) {
+		if(!permsForAdd.isEmpty()) {
 			uDAO.insertPermsToGroup(permsForAdd, groupId);
 		}
-		if(permsForDelete.size()>0) {
+		if(!permsForDelete.isEmpty()) {
 			uDAO.deletePermsFromGroup(permsForDelete, groupId);	
 		}
 
-		CacheScheduler_Old.deleteRCachesIfExistByInt(CacheMode.R_ONE_TO_MANY_LATTER,SMDB.T_R_GROUP_PERM,permsForAdd.stream().map(SMPerm::getDbCode).collect(toList()));
-		CacheScheduler_Old.deleteRCacheIfExists(CacheMode.R_ONE_TO_MANY_FORMER, SMDB.T_R_GROUP_PERM, groupId);
+		cache.clearPerms();
 	}
 
 	@Override
@@ -330,7 +309,7 @@ public class UserLogicImpl extends UserLogic {
 		
 		return uDAO.insertUserGroup(group);
 	}
-	
+
 	@Override
 	public String createTempUser() throws LogicException {
 		String uuId = "";
@@ -340,7 +319,7 @@ public class UserLogicImpl extends UserLogic {
 			 * 这里其实分了两步：
 			 * 临时用户的数据结构是  用户:::uuId {} 这里只是为了初始化一个临时用户
 			 */
-			if(CacheScheduler_Old.setTempMapOnlyIfKeyNotExists(CacheMode.T_USER,uuId,"","")) {
+			if(cache.setTempUser(uuId)) {
 				break;
 			}else {
 				logger.log(Level.WARNING,"遇到了UUID的BUG?出现了重复的UUID？"+uuId);
@@ -353,9 +332,8 @@ public class UserLogicImpl extends UserLogic {
 	public YZMInfo createTelYZM(String uuId, String old) throws LogicException {
 		YZMInfo rlt = yzmUtil.createYZM(old);
 		try {
-			CacheScheduler_Old.setTempMap(CacheMode.T_USER, uuId, TEL_YZM_KEY, String.valueOf(rlt.xForCheck));
+			cache.setTempMap( uuId, TEL_YZM_KEY, String.valueOf(rlt.xForCheck));
 		} catch (NoSuchElement e) {
-			assert e.type ==  NoSuchElementType.REDIS_KEY_NOT_EXISTS;
 			throw new LogicException(SMError.TEMP_USER_TIMEOUT);
 		}
 		return rlt;
@@ -365,7 +343,7 @@ public class UserLogicImpl extends UserLogic {
 	public YZMInfo createEmailYZM(String uuId, String old) throws LogicException {
 		YZMInfo rlt = yzmUtil.createYZM(old);
 		try {
-			CacheScheduler_Old.setTempMap(CacheMode.T_USER, uuId, EMAIL_YZM_KEY, String.valueOf(rlt.xForCheck));
+			cache.setTempMap( uuId, EMAIL_YZM_KEY, String.valueOf(rlt.xForCheck));
 		} catch (NoSuchElement e) {
 			assert e.type ==  NoSuchElementType.REDIS_KEY_NOT_EXISTS;
 			throw new LogicException(SMError.TEMP_USER_TIMEOUT);
@@ -395,7 +373,7 @@ public class UserLogicImpl extends UserLogic {
 	
 	private boolean checkTelYZM(String uuId,int x) throws LogicException {
 		try {
-			String answer = CacheScheduler_Old.getTempMapValWithoutReset(CacheMode.T_USER,uuId,TEL_YZM_KEY);
+			String answer = cache.getTempUserMapVal(uuId,TEL_YZM_KEY);
 			int ans = Integer.parseInt(answer);
 			return Math.abs(ans-x) <= RIGHT_RANGE_FOR_YZM;
 		} catch (NoSuchElement e) {
@@ -405,68 +383,49 @@ public class UserLogicImpl extends UserLogic {
 	
 	private boolean checkEmailYZM(String uuId,int x) throws LogicException {
 		try {
-			String answer = CacheScheduler_Old.getTempMapValWithoutReset(CacheMode.T_USER,uuId,EMAIL_YZM_KEY);
+			String answer = cache.getTempUserMapVal(uuId,EMAIL_YZM_KEY);
 			int ans = Integer.parseInt(answer);
 			return Math.abs(ans-x) <= RIGHT_RANGE_FOR_YZM;
 		} catch (NoSuchElement e) {
 			throw new LogicException(SMError.TEMP_USER_TIMEOUT);
 		}
 	}
-	
+
 	@Override
-	public String sendTelVerifyCodeForSignUp(String tel, String uuId, int YZM) throws LogicException {
+	public void sendTelVerifyCodeForSignUp(String tel, String uuId, int YZM) throws LogicException {
+		/**
+		 * 将来会引入Google的吗？
+		 * 如果引入的话 是否就不再需要这个了
+		 * 本身这里可能有点诡异 为何在生成验证码的时候 生成了verifyCode?
+		 */
 		if(!checkTelYZM(uuId, YZM)) {
 			throw new LogicException(SMError.CHECK_YZM_ERROR);
 		}
 		/*checkEmailYZM 保证了key一定存在（极小的可能性不存在，但那不考虑了）*/
 		try {
-			String verifyCode = CacheScheduler_Old.getTempMapValWithoutReset(CacheMode.T_USER,uuId,TEL_VERIFY_CODE_KEY_FOR_SIGN_UP);
-			CacheScheduler_Old.setTempMap(CacheMode.T_USER, uuId, TEL_KEY_FOR_SIGN_UP, tel);
-			/*代表需要重发*/
-			/*TODO 逻辑层未来做点时间校验？别发的太频繁*/
-			SMSUtil.sendSMS(SMSUtil.SIGN_UP_TEMPLATE_ID, tel, verifyCode, CacheUtil_OLD.TEMP_ALIVE_SECONDS/60);
-			return verifyCode;
+			String verifyCode = createVerifyCode();
+			cache.setTempMap( uuId, TEL_VERIFY_CODE_KEY_FOR_SIGN_UP, verifyCode);
+			cache.setTempMap( uuId, TEL_KEY_FOR_SIGN_UP, tel);
+			SMSUtil.sendSMS(SMSUtil.SIGN_UP_TEMPLATE_ID, tel, verifyCode, cache.getExpirationSeconds());
 		} catch (NoSuchElement e) {
-			try {
-				String verifyCode = createVerifyCode();
-				CacheScheduler_Old.setTempMap(CacheMode.T_USER, uuId, TEL_VERIFY_CODE_KEY_FOR_SIGN_UP, verifyCode);
-				CacheScheduler_Old.setTempMap(CacheMode.T_USER, uuId, TEL_KEY_FOR_SIGN_UP, tel);
-				SMSUtil.sendSMS(SMSUtil.SIGN_UP_TEMPLATE_ID, tel, verifyCode, CacheUtil_OLD.TEMP_ALIVE_SECONDS/60);
-				return verifyCode;
-			} catch (NoSuchElement e1) {
-				assert e.type ==  NoSuchElementType.REDIS_KEY_NOT_EXISTS;
-				throw new LogicException(SMError.TEMP_USER_TIMEOUT);
-			}
+			throw new LogicException(SMError.TEMP_USER_TIMEOUT);
 
 		}
 	}
 
 	@Override
-	public String sendEmailVerifyCodeForSignUp(String email, String uuId, int YZM) throws LogicException {
+	public void sendEmailVerifyCodeForSignUp(String email, String uuId, int YZM) throws LogicException {
 		if(!checkEmailYZM(uuId, YZM)) {
 			throw new LogicException(SMError.CHECK_YZM_ERROR);
 		}
 		/*checkEmailYZM 保证了key一定存在（极小的可能性不存在，但那不考虑了）*/
 		try {
-			String verifyCode = CacheScheduler_Old.getTempMapValWithoutReset(CacheMode.T_USER,uuId,EMAIL_VERIFY_CODE_KEY_FOR_SIGN_UP);
-			CacheScheduler_Old.setTempMap(CacheMode.T_USER, uuId, EMAIL_KEY_FOR_SIGN_UP, email);
-			/*代表需要重发*/
-			/*TODO 逻辑层未来做点时间校验？别发的太频繁*/
+			String verifyCode = createVerifyCode();
+			cache.setTempMap(uuId, EMAIL_KEY_FOR_SIGN_UP, email);
+			cache.setTempMap(uuId, EMAIL_VERIFY_CODE_KEY_FOR_SIGN_UP, verifyCode);
 			EmailUtil.sendSimpleEmail(email,VERIFY_CODE_EMAIL_SUBJECT , createSignUpEmailMes(verifyCode));
-			return verifyCode;
 		} catch (NoSuchElement e) {
-			try {
-				String verifyCode = createVerifyCode();
-				CacheScheduler_Old.setTempMap(CacheMode.T_USER, uuId, EMAIL_KEY_FOR_SIGN_UP, email);
-				CacheScheduler_Old.setTempMap(CacheMode.T_USER, uuId, EMAIL_VERIFY_CODE_KEY_FOR_SIGN_UP, verifyCode);
-	
-				EmailUtil.sendSimpleEmail(email,VERIFY_CODE_EMAIL_SUBJECT , createSignUpEmailMes(verifyCode));
-				return verifyCode;
-			} catch (NoSuchElement e1) {
-				assert e.type ==  NoSuchElementType.REDIS_KEY_NOT_EXISTS;
-				throw new LogicException(SMError.TEMP_USER_TIMEOUT);
-			}
-
+			throw new LogicException(SMError.TEMP_USER_TIMEOUT);
 		}
 	}
 	
@@ -487,7 +446,8 @@ public class UserLogicImpl extends UserLogic {
 			}
 			
 			String verifyCode = createVerifyCode();
-			CacheScheduler_Old.setTempByBiIdentifiers(CacheMode.T_EMAIL_FOR_RESET_PWD,account,val, verifyCode);
+			String key = createTempKeyByBiIdentifiers(CacheMode.T_EMAIL_FOR_RESET_PWD,account,val);
+			cache.set(key,verifyCode);
 			EmailUtil.sendSimpleEmail(val,VERIFY_CODE_EMAIL_SUBJECT , createResetPwdMes(verifyCode));
 			return;
 		}
@@ -497,7 +457,8 @@ public class UserLogicImpl extends UserLogic {
 			}
 			
 			String verifyCode = createVerifyCode();
-			CacheScheduler_Old.setTempByBiIdentifiers(CacheMode.T_TEL_FOR_RESET_PWD, account,val, verifyCode);
+			String key = createTempKeyByBiIdentifiers(CacheMode.T_TEL_FOR_RESET_PWD,account,val);
+			cache.set(key,verifyCode);
 			SMSUtil.sendSMS(SMSUtil.RESET_PWD_TEMPLATE_ID, val, verifyCode);
 			return;
 		}
@@ -510,57 +471,43 @@ public class UserLogicImpl extends UserLogic {
 	
 	
 	@Override
-	public String sendTelVerifyCodeForSignIn(String tel) throws LogicException, DBException {
+	public void sendTelVerifyCodeForSignIn(String tel) throws LogicException, DBException {
 		if(!uDAO.includeUniqueUserByField(SMDB.F_TEL_NUM, tel)) {
 			throw new LogicException(SMError.NON_EXISTED_TEL,tel);
 		}
 		String verifyCode = createVerifyCode();
-		CacheScheduler_Old.setTemp(CacheMode.T_TEL_FOR_SIGN_IN, tel, verifyCode);
-		SMSUtil.sendSMS(SMSUtil.SIGN_IN_TEMPLATE_ID, tel, verifyCode, CacheUtil_OLD.TEMP_ALIVE_SECONDS/60);
-		return verifyCode;
+		String key = createGeneralKey(CacheMode.T_TEL_FOR_SIGN_IN, tel);
+		cache.set(key, verifyCode);
+		SMSUtil.sendSMS(SMSUtil.SIGN_IN_TEMPLATE_ID, tel, verifyCode,  cache.getExpirationSeconds());
 	}
 
 	@Override
-	public String sendEmailVerifyCodeForSignIn(String email) throws LogicException, DBException {
+	public void sendEmailVerifyCodeForSignIn(String email) throws LogicException, DBException {
 		if(!uDAO.includeUniqueUserByField(SMDB.F_EMAIL, email)) {
 			throw new LogicException(SMError.NON_EXISTED_EMAIL,email);
 		}
 		String verifyCode = createVerifyCode();
-		CacheScheduler_Old.setTemp(CacheMode.T_EMAIL_FOR_SIGN_IN, email, verifyCode);
+		String key = createGeneralKey(CacheMode.T_EMAIL_FOR_SIGN_IN, email);
+		cache.set(key, verifyCode);
 		EmailUtil.sendSimpleEmail(email,VERIFY_CODE_EMAIL_SUBJECT , createSignInEmailMes(verifyCode));
-		return verifyCode;
 	}
 	
 	@Override
 	public boolean exists(UserUniqueField field, String val) throws DBException, LogicException {
-		switch (field) {
-		case ACCOUNT:
-			return CacheScheduler_Old.existsByField(CacheMode.E_ID, User::getAccount, val,  User.class,
-					()->uDAO.includeUniqueUserByField(SMDB.F_ACCOUNT, val));
-		case EMAIL:
-			return CacheScheduler_Old.existsByField(CacheMode.E_ID, User::getEmail, val,  User.class,
-					()->uDAO.includeUniqueUserByField(SMDB.F_EMAIL, val));
-		case TEL_NUM:
-			return CacheScheduler_Old.existsByField(CacheMode.E_ID, User::getTelNum, val,  User.class,
-					()->uDAO.includeUniqueUserByField(SMDB.F_TEL_NUM, val));
-		case WEI_XIN_OPEN_ID:
-			return CacheScheduler_Old.existsByField(CacheMode.E_ID, User::getWeiXinOpenId, val,  User.class,
-					()->uDAO.includeUniqueUserByField(SMDB.F_WEI_XIN_OPEN_ID, val));
-		case ID_NUM:
-			return CacheScheduler_Old.existsByField(CacheMode.E_ID, User::getIdNum, val,  User.class,
-					()->uDAO.includeUniqueUserByField(SMDB.F_ID_NUM, val));
-		case NICK_NAME:
-			return CacheScheduler_Old.existsByField(CacheMode.E_ID, User::getNickName, val,  User.class,
-					()->uDAO.includeUniqueUserByField(SMDB.F_NICK_NAME, val));
-		default:
-			throw new RuntimeException("未配置的检查类型"+field);
-		}
-
+        return switch (field) {
+            case ACCOUNT -> uDAO.includeUniqueUserByField(SMDB.F_ACCOUNT, val);
+            case EMAIL -> uDAO.includeUniqueUserByField(SMDB.F_EMAIL, val);
+            case TEL_NUM -> uDAO.includeUniqueUserByField(SMDB.F_TEL_NUM, val);
+            case WEI_XIN_OPEN_ID ->uDAO.includeUniqueUserByField(SMDB.F_WEI_XIN_OPEN_ID, val);
+            case ID_NUM -> uDAO.includeUniqueUserByField(SMDB.F_ID_NUM, val);
+            case NICK_NAME -> uDAO.includeUniqueUserByField(SMDB.F_NICK_NAME, val);
+            default -> throw new RuntimeException("未配置的检查类型" + field);
+        };
 	}
 
 	@Override
 	public boolean confirmTempUser(String uuId) {
-		return CacheScheduler_Old.existsForTemp(CacheMode.T_USER, uuId);
+		return cache.existsForTemp(uuId);
 	}
 
 	
@@ -593,7 +540,7 @@ public class UserLogicImpl extends UserLogic {
 		/**
 		 * 所谓的活跃用户 指的就是缓存里的用户
 		 */
-		summary.countActiveUsers = CacheScheduler_Old.countAll(CacheMode.E_ID, User.class);
+		summary.countActiveUsers = cache.countAllEntities(User.class);
 		return summary;
 	}
 
@@ -647,46 +594,38 @@ public class UserLogicImpl extends UserLogic {
 				throw new LogicException(SMError.NON_EXISTED_EMAIL);
 			}
 			
-			String forCheck = null;
-			try {
-				forCheck = CacheScheduler_Old.getTempValByBiIdentifiers(CacheMode.T_EMAIL_FOR_RESET_PWD,account,val);
-			} catch (NoSuchElement e) {
+			String key = createTempKeyByBiIdentifiers(CacheMode.T_EMAIL_FOR_RESET_PWD,account,val);
+			String forCheck = cache.get(key);
+			if(forCheck == null)
 				throw new LogicException(SMError.TEL_VERIFY_TIMEOUT,"验证码已失效，请重新获取");
-			}
 			if(!forCheck.equals(verifyCode)) {
-				boolean debugFlag = CacheScheduler_Old.deleteTempValByBiIdentifiers(CacheMode.T_EMAIL_FOR_RESET_PWD,account,val);
-				if(!debugFlag){
-					logger.log(Level.SEVERE,"THIS Must Be Wrong::Should Be Deleted "+ account+":"+val);
-				}
+				cache.remove(key);
 				throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL);
 			}
 			
 			user.setPassword(resetPWD);
 			SecurityUtil.encodeUserPwd(user);
-			CacheScheduler_Old.saveEntityAndDeleteCache(user, one -> uDAO.updateExistedUser(user));
+			cache.saveEntity(user, one -> uDAO.updateExistedUser(user));
 			return;
 		}
 		case TEL_VERIFY_CODE:{
 			if(user.getTelNum() == null ||!user.getTelNum().equals(val)) {
 				throw new LogicException(SMError.NON_EXISTED_TEL,"账号和手机号不匹配"+val);
 			}
-			
-			String forCheck = null;
-			try {
-				forCheck = CacheScheduler_Old.getTempValByBiIdentifiers(CacheMode.T_TEL_FOR_RESET_PWD, account,val);
-			} catch (NoSuchElement e) {
+
+			String key = createTempKeyByBiIdentifiers(CacheMode.T_TEL_FOR_RESET_PWD,account,val);
+			String forCheck = cache.get(key);
+			if(forCheck == null)
 				throw new LogicException(SMError.TEL_VERIFY_TIMEOUT,"验证码已失效，请重新获取");
-			}
+
 			if(!forCheck.equals(verifyCode)) {
-				boolean debugFlag = CacheScheduler_Old.deleteTempValByBiIdentifiers(CacheMode.T_TEL_FOR_RESET_PWD,account,val);
-				if(!debugFlag){
-					logger.log(Level.SEVERE,"THIS Must Be Wrong::Should Be Deleted ZZ");
-				}
+				cache.remove(key);
 				throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL);
 			}		
+			
 			user.setPassword(resetPWD);
 			SecurityUtil.encodeUserPwd(user);
-			CacheScheduler_Old.saveEntityAndDeleteCache(user, one -> uDAO.updateExistedUser(user));
+			cache.saveEntity(user, one -> uDAO.updateExistedUser(user));
 			return;
 		}
 		default:

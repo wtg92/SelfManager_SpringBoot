@@ -91,9 +91,32 @@ public abstract class DBUtil {
 			}
 		});
 	}
+
 	/**
-	 *  ！！！theManyVals 只适合Long类型的，假如非Long类型，SQL应该就错了
+	 *
+	 * @param theManyValsTranslator 假设是long类型 直接转化成字符串  字符串类型转化自己加双引号
 	 */
+	public static<T,E> List<T> selectEntitiesByManyField(Class<T> cla,
+													 String theManyField, List<E> theManyVals,Function<E,Object> theManyValsTranslator,
+													 SessionFactory hbFactory) throws DBException {
+		if(theManyVals.isEmpty()) {
+			return new ArrayList<>();
+		}
+
+		return hbFactory.fromSession(session -> {
+			try{
+				String tableName = CommonUtil.getEntityTableName(cla);
+				String theManySql = theManyVals.stream().map(val -> theManyValsTranslator.apply(val).toString()).collect(Collectors.joining(","));
+				String hql = String.format("FROM %s WHERE (%s in (%s))", transTableToEntity(tableName), transFieldToAttr(theManyField),theManySql);
+				TypedQuery<T> query =
+						session.createQuery(hql, cla);
+				return query.getResultList();
+			}catch (Exception e){
+				throw processDBException(e);
+			}
+		});
+	}
+
 	public static<T,E> List<T> selectEntitiesByFieldAndManyField(Class<T> cla, String theOneField, Object theOneVal,
 			String theManyField, List<E> theManyVals,Function<E,Object> theManyValsTranslator,
 			SessionFactory hbFactory) throws DBException {

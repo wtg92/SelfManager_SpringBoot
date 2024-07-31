@@ -44,6 +44,8 @@ public interface  UserDAO {
 	
 	void deletePermsFromGroup(List<SMPerm> perms,long groupId) throws DBException;
 
+	List<User> selectUsersByIds(List<Long> userIds);
+
 	default User selectExistedUser(long id) throws DBException {
 		try {
 			return selectUser(id);
@@ -59,5 +61,9 @@ public interface  UserDAO {
 			throw new DBException(SMError.INCONSISTENT_DB_ERROR,field+" "+val);
 		}
 	}
-	
+
+    boolean hasPerm(long userId, SMPerm perm);
+
+	List<Integer> selectPermsByUser(long userId);
+
 }

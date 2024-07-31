@@ -19,9 +19,13 @@ logging:
 cache:
   common:
     max-size-in-m: 1024
-    expiration-of-min: 5
+    expiration-of-min: 1
 
+  perms:
+    max-num: 100000
 
+  temp-users:
+    max-num: 100000
 
 lock:
   expirationCheckCron: 0/30 * * * * ?

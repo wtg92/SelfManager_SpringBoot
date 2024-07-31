@@ -2,6 +2,7 @@ package manager.logic;
 
 import java.util.List;
 
+import manager.cache.CacheOperator;
 import manager.data.UserSummary;
 import manager.data.proxy.UserGroupProxy;
 import manager.data.proxy.UserProxy;
@@ -17,6 +18,9 @@ import manager.system.UserUniqueField;
 import manager.system.VerifyUserMethod;
 import manager.util.CommonUtil;
 import manager.util.YZMUtil.YZMInfo;
+import manager.util.locks.UserLockManager;
+
+import javax.annotation.Resource;
 
 /**
  * temp相关 性能考虑 就不sync了 原因是 sync是为了addPermsToGroup 和 addUsersToGroup 这两个都和temp无关
@@ -43,7 +47,9 @@ public abstract class UserLogic {
 	final protected static String TEL_VERIFY_CODE_KEY_FOR_SIGN_UP = "tel_verify_code_fsu";
 
 	final protected static String VERIFY_CODE_EMAIL_SUBJECT = SM.BRAND_NAME+"验证码";
-	
+
+
+
 	protected static String createSignUpEmailMes(String verifyCode) {
 		return String.format("您好，您正在注册 %s 账号，您的验证码为 %s，"
 				+ "请尽快完成注册，防止验证码过期失效。如果非本人操作，抱歉打扰，请忽略本邮件。",SM.BRAND_NAME,verifyCode); 
@@ -112,11 +118,11 @@ public abstract class UserLogic {
 	/**
 	 * @return verfiyCode 仅仅是给test使用 UI不能用
 	 */
-	public abstract String sendTelVerifyCodeForSignUp(String tel,String uuId,int YZM) throws LogicException;
-	public abstract String sendEmailVerifyCodeForSignUp(String email,String uuId,int YZM) throws LogicException;
+	public abstract void sendTelVerifyCodeForSignUp(String tel,String uuId,int YZM) throws LogicException;
+	public abstract void sendEmailVerifyCodeForSignUp(String email,String uuId,int YZM) throws LogicException;
 	
-	public abstract String sendTelVerifyCodeForSignIn(String tel) throws LogicException, DBException;
-	public abstract String sendEmailVerifyCodeForSignIn(String email) throws LogicException, DBException;
+	public abstract void sendTelVerifyCodeForSignIn(String tel) throws LogicException, DBException;
+	public abstract void sendEmailVerifyCodeForSignIn(String email) throws LogicException, DBException;
 	
 	public abstract void sendVerifyCodeForResetPWD(String account,String val,VerifyUserMethod method) throws LogicException, DBException;
 	
