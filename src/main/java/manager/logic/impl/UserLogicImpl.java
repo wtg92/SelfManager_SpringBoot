@@ -67,7 +67,7 @@ public class UserLogicImpl extends UserLogic {
 	@Override
 	public User getUser(long userId){
 		ThrowableSupplier<User, DBException> generator = ()-> uDAO.selectExistedUser(userId);
-		return cache.getOne(CacheMode.E_ID,userId,User.class,generator);
+		return cache.getEntity(CacheMode.E_ID,userId,User.class,generator);
 	}
 
 

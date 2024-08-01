@@ -2,7 +2,6 @@ package manager.cache;
 
 import com.alibaba.fastjson2.JSON;
 import manager.entity.SMEntity;
-import manager.entity.general.User;
 import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.NoSuchElement;
@@ -58,8 +57,8 @@ public class CacheOperator {
 		caches.Common_Cache.invalidate(key);
 	}
 
-	public  <T extends SMEntity> T getOne(CacheMode mode, long identifier, Class<T> cla,
-			ThrowableSupplier<T, DBException> generator) throws LogicException, DBException {
+	public  <T extends SMEntity> T getEntity(CacheMode mode, long identifier, Class<T> cla,
+											 ThrowableSupplier<T, DBException> generator) throws LogicException, DBException {
 		String key = createEntityKey(mode,identifier,getEntityTableName(cla));
 		String val = caches.Common_Cache.get(key,(k)->JSON.toJSONString(generator.get()));
 		return JSON.parseObject(val, cla);
@@ -121,7 +120,7 @@ public class CacheOperator {
 		if(val != null){
 			return val;
 		}
-		return caches.Common_Cache.get(key,(k)->JSON.toJSONString(generator.get()));
+		return caches.Common_Cache.get(key,(k)->generator.get());
 	}
 
 

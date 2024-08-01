@@ -75,11 +75,11 @@ public class WorkLogicImpl extends WorkLogic{
 	CacheOperator cache;
 
 	private Plan getPlan(long planId){
-		return cache.getOne(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
+		return cache.getEntity(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
 	}
 
 	private WorkSheet getWorksheet(long wsId){
-		return cache.getOne(CacheMode.E_ID,wsId, WorkSheet.class, ()->wDAO.selectExistedWorkSheet(wsId));
+		return cache.getEntity(CacheMode.E_ID,wsId, WorkSheet.class, ()->wDAO.selectExistedWorkSheet(wsId));
 	}
 
 	private PlanDept getPlanDept(long loginId){
@@ -363,7 +363,7 @@ public class WorkLogicImpl extends WorkLogic{
 	
 	@Override
 	public void savePlanItemFold(long loginId, long planId, int itemId, boolean fold) throws LogicException, DBException {
-		Plan plan = cache.getOne(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
+		Plan plan = cache.getEntity(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
 		if(plan.getOwnerId() != loginId) {
 			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
 		}
@@ -1066,7 +1066,7 @@ public class WorkLogicImpl extends WorkLogic{
 	 */
 	@Override
 	public void syncPlanTagsToWorkSheet(long loginId, long planId) throws SMException {
-		Plan target = cache.getOne(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
+		Plan target = cache.getEntity(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
 		if(target.getOwnerId() != loginId) {
 			throw new LogicException(SMError.CANNOT_SYNC_OTHERS_PLAN_TAGS);
 		}
