@@ -194,28 +194,14 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
 
-	    <dependency>
-	      <groupId>co.elastic.clients</groupId>
-	      <artifactId>elasticsearch-java</artifactId>
-	      <version>8.11.1</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>elasticsearch-rest-client</artifactId>
-					<groupId>org.elasticsearch.client</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jakarta.json-api</artifactId>
-					<groupId>jakarta.json</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
+
 		<dependency>
-			<groupId>org.elasticsearch.client</groupId>
-			<artifactId>elasticsearch-rest-client</artifactId>
-			<version>8.11.1</version>
+			<groupId>co.elastic.clients</groupId>
+			<artifactId>elasticsearch-java</artifactId>
+			<version>8.14.3</version>
 		</dependency>
+
 	    <dependency>
 	      <groupId>com.fasterxml.jackson.core</groupId>
 	      <artifactId>jackson-databind</artifactId>

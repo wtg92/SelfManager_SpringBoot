@@ -64,6 +64,15 @@ public class WorkSheet extends SMGeneralEntity {
 	@Column
 	private String plan;
 
+	@Override
+	public WorkSheet clone(){
+        try {
+            return (WorkSheet) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 	public String getDataVersion() {
 		return dataVersion;
 	}

@@ -19,13 +19,19 @@ logging:
 cache:
   common:
     max-size-in-m: 1024
-    expiration-of-min: 1
+    expiration-of-min: 10
 
+  temp:
+    max-size-in-m: 500
+    expiration-of-min: 15
   perms:
     max-num: 100000
 
   temp-users:
     max-num: 100000
+
+  worksheets:
+    max-num: 5000
 
 lock:
   expirationCheckCron: 0/30 * * * * ?

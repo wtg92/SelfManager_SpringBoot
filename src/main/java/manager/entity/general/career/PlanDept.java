@@ -33,7 +33,14 @@ public class PlanDept extends SMGeneralEntity {
 	
 	@Column
 	private Long ownerId;
-	
+	@Override
+	public PlanDept clone(){
+		try {
+			return (PlanDept) super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new RuntimeException(e);
+		}
+	}
 	public PlanDept() {}
 
 	public Calendar getCreateTime() {

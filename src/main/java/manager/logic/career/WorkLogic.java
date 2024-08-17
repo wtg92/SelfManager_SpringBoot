@@ -126,7 +126,7 @@ public abstract class WorkLogic{
 	 *  								2024-02-07
 	 * @param page 从0开始
 	 */
-	public abstract List<WorkSheet> loadWorkSheetInfosRecently(long opreatorId,int page) throws DBException, LogicException;
+	public abstract List<WorkSheet> loadWorkSheetInfosRecently(long operateId,int page) throws DBException, LogicException;
 	
 	public abstract WorkSheetProxy loadWorkSheet(long loginId,long wsId) throws DBException, LogicException;
 	public abstract WorkSheet getWorksheet(long loginId,long wsId);
@@ -152,12 +152,12 @@ public abstract class WorkLogic{
 	  * 假如存在一个WorkItem 依据该Plan 建立(No Cache)，那么会将改plan的EndDate设为今天，并且将状态设置为abandon.
 	  * 否则，直接删除
 	 */
-	public abstract void abandonPlan(long opreatorId,long planId) throws LogicException, DBException;
+	public abstract void abandonPlan(long operateId,long planId) throws LogicException, DBException;
 	/* 状态设置为Finished 改plan的EndDate设为今天*/
-	public abstract void finishPlan(long opreatorId,long planId) throws LogicException, DBException;
+	public abstract void finishPlan(long operateId,long planId) throws LogicException, DBException;
 	
-	public abstract void resetPlanTags(long opreatorId,long planId,List<String> tags) throws SMException;
-	public abstract void resetWorkSheetTags(long opreatorId,long wsId,List<String> tags) throws SMException;
+	public abstract void resetPlanTags(long operateId,long planId,List<String> tags) throws SMException;
+	public abstract void resetWorkSheetTags(long operateId,long wsId,List<String> tags) throws SMException;
 
 	
 	public abstract void saveWorkItemPlanItemId(long updaterId,long wsId,int workItemId, int planItemId) throws LogicException, DBException;
@@ -193,11 +193,11 @@ public abstract class WorkLogic{
 	 * 
 	 * @return workSheetId
 	 */
-	public abstract long openWorkSheetToday(long opreatorId,long planId) throws DBException, LogicException;
+	public abstract long openWorkSheetToday(long operateId,long planId) throws DBException, LogicException;
 	
 	public abstract void deleteWorkSheet(long deletorId,long wsId) throws DBException, LogicException;
-	public abstract void assumeWorkSheetFinished(long opreatorId,long wsId) throws LogicException, DBException;
-	public abstract void cancelAssumeWorkSheetFinished(long opreatorId,long wsId) throws LogicException, DBException;
+	public abstract void assumeWorkSheetFinished(long operateId,long wsId) throws LogicException, DBException;
+	public abstract void cancelAssumeWorkSheetFinished(long operateId,long wsId) throws LogicException, DBException;
 
 	public abstract void syncToBalance(long loginId, long wsId, int planItemId) throws DBException, LogicException;
 	public abstract void syncAllToBalance(long loginId, long wsId) throws DBException, LogicException;

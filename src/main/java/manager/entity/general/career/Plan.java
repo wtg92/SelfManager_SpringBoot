@@ -2,11 +2,9 @@ package manager.entity.general.career;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import manager.util.TimeUtil;
 import org.hibernate.annotations.DynamicInsert;
@@ -20,6 +18,7 @@ import manager.system.career.PlanState;
 import manager.system.career.converter.PlanSettingConverter;
 import manager.system.career.converter.PlanStateConverter;
 import manager.system.converter.TagsConverter;
+import org.hibernate.annotations.Immutable;
 
 @Entity
 @Table(name = SMDB.T_PLAN)
@@ -80,6 +79,15 @@ public class Plan extends SMGeneralEntity {
 	@Deprecated
 	private Calendar startDate = TimeUtil.getBlank();
 
+	@Override
+	public Plan clone(){
+		try {
+			return (Plan) super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	public Plan() {}
 	
 	public boolean hasSetting(PlanSetting target) {
@@ -88,7 +96,6 @@ public class Plan extends SMGeneralEntity {
 		
 		return setting.contains(target);
 	}
-
 
 	public Calendar getCreateTime() {
 		return createTime;

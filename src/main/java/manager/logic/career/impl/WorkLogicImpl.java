@@ -14,6 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import com.alibaba.fastjson2.JSON;
 import manager.cache.CacheOperator;
 import manager.dao.career.WorkDAO;
 import manager.data.EntityTag;
@@ -59,6 +60,9 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 
+/**
+ * 关于缓存的clone getEntity 其实不必clone
+ */
 @Service
 public class WorkLogicImpl extends WorkLogic{
 	
@@ -78,8 +82,12 @@ public class WorkLogicImpl extends WorkLogic{
 		return cache.getEntity(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
 	}
 
+	/**
+	 * 内存里的缓存 有一个危险 是可能被修改
+	 * 因此所有的get 都需要clone一下
+	 */
 	private WorkSheet getWorksheet(long wsId){
-		return cache.getEntity(CacheMode.E_ID,wsId, WorkSheet.class, ()->wDAO.selectExistedWorkSheet(wsId));
+		return cache.getWorksheet(wsId, ()->wDAO.selectExistedWorkSheet(wsId));
 	}
 
 	private PlanDept getPlanDept(long loginId){
@@ -89,7 +97,7 @@ public class WorkLogicImpl extends WorkLogic{
 
 	private void updateWorksheetSynchronously(WorkSheet ws, long loginId){
 		locker.lockByUserAndClass(loginId,()->{
-			cache.saveEntity(ws, one->wDAO.updateExistedWorkSheet(one));
+			cache.saveWorksheet(ws, one->wDAO.updateExistedWorkSheet(one));
 		});
 	}
 
@@ -234,16 +242,14 @@ public class WorkLogicImpl extends WorkLogic{
 	
 	@Override
 	public void resetPlanTags(long loginId, long planId, List<String> tags) throws SMException {
-		Plan plan = getPlan(loginId);
+		Plan plan = getPlan(planId);
 		if(plan.getOwnerId() != loginId) {
 			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
 		}
 		
 		List<EntityTag> entityTags = tags.stream().map(tag->new EntityTag(tag, false)).collect(toList());
 		TagCalculator.checkTagsForReset(entityTags);
-		
 		plan.setTags(entityTags);
-		
 		updatePlanSynchronously(plan,loginId);
 	}
 	
@@ -908,7 +914,8 @@ public class WorkLogicImpl extends WorkLogic{
 			throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS,loginId+" vs "+ws.getOwnerId());
 		}
 		locker.lockByUserAndClass(loginId,()->{
-			cache.deleteEntityById(ws, id->wDAO.deleteExistedWorkSheet(id));
+			wDAO.deleteExistedWorkSheet(wsId);
+			cache.removeWorksheet(wsId);
 			deleteCountRecord(ws.getDateUtc(),ws.getTimezone());
 		});
 	}
@@ -1075,7 +1082,7 @@ public class WorkLogicImpl extends WorkLogic{
 		
 	 	for(WorkSheet workSheet : toSave) {
 	 		List<EntityTag> tagsByPlan =  CommonUtil.cloneList(target.getTags(),tag->{
-	 			EntityTag one = tag.clone();
+	 			EntityTag one = tag;
 	 			one.createdBySystem = true;
 	 			return one;
 	 		});

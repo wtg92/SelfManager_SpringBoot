@@ -13,7 +13,7 @@ public class WorkSheetProxy {
 	public boolean finishPlanWithoutDeptItems;
 	public WorkSheetProxy(WorkSheet ws) {
 		super();
-		this.ws = ws;
+		this.ws =  ws;
 	}
 	
 }

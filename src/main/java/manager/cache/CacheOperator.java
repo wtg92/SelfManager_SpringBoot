@@ -2,6 +2,7 @@ package manager.cache;
 
 import com.alibaba.fastjson2.JSON;
 import manager.entity.SMEntity;
+import manager.entity.general.career.WorkSheet;
 import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.NoSuchElement;
@@ -28,6 +29,8 @@ import static manager.util.CommonUtil.*;
 /**
  * 有一点诡异
  * 不过把分逻辑的各个缓存都放在这里处理吧
+ *
+ * !!! 所有的特定类型的缓存都需要clone 不允许被上层改动
  */
 @Component
 public class CacheOperator {
@@ -62,6 +65,11 @@ public class CacheOperator {
 		String key = createEntityKey(mode,identifier,getEntityTableName(cla));
 		String val = caches.Common_Cache.get(key,(k)->JSON.toJSONString(generator.get()));
 		return JSON.parseObject(val, cla);
+	}
+
+
+	public WorkSheet getWorksheet(Long wsId,ThrowableSupplier<WorkSheet, DBException> generator) throws LogicException, DBException {
+		return caches.Worksheet_Cache.get(wsId,(k)->generator.get()).clone();
 	}
 
 	public Set<Integer> getPermsByUser(Long userId, Supplier<Set<Integer>> generator) {
@@ -125,7 +133,8 @@ public class CacheOperator {
 
 
 	/**
-	 * 先使用这个吧 至少会减轻服务器压力 不是吗
+	 * 必须要delete的原因是
+	 * hbVersion
 	 */
 	public <T extends SMEntity> void saveEntity(T one,ThrowableConsumer<T, DBException> updator) throws DBException, LogicException {
 		String key = createEntityKey(CacheMode.E_ID,one.getId(),getEntityTableName(one.getClass()));
@@ -137,8 +146,26 @@ public class CacheOperator {
 			}
 			throw e;
 		}
-		String jsonStr = JSON.toJSONString(one);
-		putKeyVal(key,jsonStr);
+		deleteFromKey(key);
+	}
+
+
+	public void removeWorksheet(long id){
+		caches.Worksheet_Cache.invalidate(id);
+	}
+
+
+	public void saveWorksheet(WorkSheet one,ThrowableConsumer<WorkSheet, DBException> updator) throws DBException, LogicException {
+		long key = one.getId();
+		try {
+			updator.accept(one);
+		}catch(DBException e) {
+			if(e.type == SMError.DB_SYNC_ERROR) {
+				removeWorksheet(key);
+			}
+			throw e;
+		}
+		caches.Worksheet_Cache.invalidate(key);
 	}
 
 	public<T extends SMEntity> long countAllEntities(Class<T> cla) {
@@ -179,6 +206,7 @@ public class CacheOperator {
 	}
 
 
+
 	public void deleteGeneralKey(CacheMode mode, Object ...identifier) {
 		String key = createGeneralKey(mode, identifier);
 		deleteFromKey(key);
@@ -210,7 +238,7 @@ public class CacheOperator {
 		return tempUser.get(key);
 	}
 
-	public void setTempMap(String uuId, String key, String val) {
+	public void setTempUserMap(String uuId, String key, String val) {
 		Map<String, String> tempUser = caches.Temp_Users_Cache.getIfPresent(uuId);
 
 		if(tempUser == null)
@@ -219,7 +247,7 @@ public class CacheOperator {
 		tempUser.put(key,val);
 	}
 
-	public boolean existsForTemp(String uuId) {
+	public boolean existsForTempUser(String uuId) {
 		return caches.Temp_Users_Cache.getIfPresent(uuId) != null;
 	}
 

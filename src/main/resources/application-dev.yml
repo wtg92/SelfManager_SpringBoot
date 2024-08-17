@@ -15,4 +15,10 @@ logging:
 #      springframework: DEBUG
 #自定义
 hibernate:
-  showSQL: false
+  showSQL: true
+
+elasticsearch:
+  username: elastic
+  password: Ff9T*EC5HmBchAz5=Pb5
+  url: https://localhost:9200
+  p12path: E:\elasticsearch-8.14.3-windows-x86_64\elasticsearch-8.14.3\config\certs\http.p12

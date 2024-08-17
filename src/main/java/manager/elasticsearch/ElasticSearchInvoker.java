@@ -1,7 +1,8 @@
-package manager.logic.elasticsearch;
+package manager.elasticsearch;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.IndexResponse;
+import co.elastic.clients.elasticsearch.indices.CreateIndexRequest;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.ElasticsearchTransport;
 import co.elastic.clients.transport.TransportUtils;
@@ -14,27 +15,51 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import javax.net.ssl.SSLContext;
+import java.io.File;
+import java.io.IOException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-@Component
+//@Component
 public class ElasticSearchInvoker {
 
     public static String USER_PICS_INDEX = "user-pics";
 
-    private final String USERNAME = "elastic";
-    private final String PWD = "IKNdUS=QBocqIGED*kn=";
-    String serverUrl = "https://localhost:9200";
-    SSLContext sslContext = TransportUtils.sslContextFromCaFingerprint("c67252fbd1b27ab6f994e4a9a8d4f6f96be93357535b36de9e3609cb001cf6bf");
+    @Value("${elasticsearch.username}")
+    private String USERNAME;
+    @Value("${elasticsearch.password}")
+    private String PWD;
+    @Value("${elasticsearch.url}")
+    private String serverUrl;
+    @Value("${elasticsearch.p12path}")
+    private String p12Path;
 
+    SSLContext sslContext;
 
+    @PostConstruct
+    void init(){
+        SSLContextBuilder sslBuilder = SSLContextBuilder.create();
+        try {
+            sslBuilder.loadTrustMaterial(new File(p12Path));
+            sslContext = sslBuilder.build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
 
 
     public void doThings(ThrowableConsumer<ElasticsearchClient,Exception> consumer){
@@ -68,7 +93,7 @@ public class ElasticSearchInvoker {
     }
 
 
-    public void createIndex(String name) throws  Exception{
+    public void createIndex(String name){
         doThings((esClient)->{
             esClient.indices().create(c->c.index(name));
         });

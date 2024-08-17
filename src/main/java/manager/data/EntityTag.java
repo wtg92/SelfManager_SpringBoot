@@ -1,5 +1,7 @@
 package manager.data;
 
+import java.util.Objects;
+
 public class EntityTag implements Cloneable{
 	
 	public String name;
@@ -8,7 +10,19 @@ public class EntityTag implements Cloneable{
 	public String toString() {
 		return String.format(" {name:'%s', createdBySystem:'%s}", name, createdBySystem);
 	}
-	
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof EntityTag entityTag)) return false;
+        return Objects.equals(name, entityTag.name) && Objects.equals(createdBySystem, entityTag.createdBySystem);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(name, createdBySystem);
+	}
+
 	public EntityTag() {}
 
 	public EntityTag(String name, Boolean createdBySystem) {
@@ -16,7 +30,9 @@ public class EntityTag implements Cloneable{
 		this.name = name;
 		this.createdBySystem = createdBySystem;
 	}
-	
+
+
+
 	@Override
 	public EntityTag clone() {
 		try {
@@ -25,5 +41,20 @@ public class EntityTag implements Cloneable{
 			throw new RuntimeException(e.getMessage());
 		}
 	}
-	
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Boolean getCreatedBySystem() {
+		return createdBySystem;
+	}
+
+	public void setCreatedBySystem(Boolean createdBySystem) {
+		this.createdBySystem = createdBySystem;
+	}
 }

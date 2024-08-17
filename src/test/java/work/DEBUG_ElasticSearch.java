@@ -3,7 +3,6 @@ package work;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.GetResponse;
 import co.elastic.clients.elasticsearch.core.IndexResponse;
-import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
@@ -11,29 +10,28 @@ import co.elastic.clients.transport.ElasticsearchTransport;
 import co.elastic.clients.transport.TransportUtils;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
 import com.alibaba.fastjson2.JSON;
-import manager.logic.elasticsearch.ElasticSearchInvoker;
-import org.apache.http.Header;
+import manager.elasticsearch.ElasticSearchInvoker;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
-import org.apache.http.message.BasicHeader;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.junit.Test;
 
-import javax.naming.directory.SearchResult;
 import javax.net.ssl.SSLContext;
 import java.io.File;
-import java.time.Duration;
 import java.util.*;
 
 public class DEBUG_ElasticSearch {
 
     private final static String USERNAME = "elastic";
-    private final static String PWD = "IKNdUS=QBocqIGED*kn=";
+    private final static String PWD = "Ff9T*EC5HmBchAz5=Pb5";
+
+
 
     @Test
     public void test() throws  Exception{
@@ -109,10 +107,38 @@ public class DEBUG_ElasticSearch {
     }
     ElasticSearchInvoker invoker = new ElasticSearchInvoker();
 
+    String serverUrl = "https://localhost:9200";
     @Test
     public void flow1() throws  Exception{
+        final CredentialsProvider credentialsProvider =
+                new BasicCredentialsProvider();
+        credentialsProvider.setCredentials(AuthScope.ANY,
+                new UsernamePasswordCredentials(USERNAME, PWD));
 
-        invoker.createIndex(ElasticSearchInvoker.USER_PICS_INDEX);
+        SSLContextBuilder sslBuilder = SSLContextBuilder.create();
+        sslBuilder.loadTrustMaterial(new File("E:\\elasticsearch-8.14.3-windows-x86_64\\elasticsearch-8.14.3\\config\\certs\\http.p12"));
+        final SSLContext sslContext = sslBuilder.build();
+        RestClientBuilder builder = RestClient
+                .builder(HttpHost.create(serverUrl))
+                .setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
+                    @Override
+                    public HttpAsyncClientBuilder customizeHttpClient(
+                            HttpAsyncClientBuilder httpClientBuilder) {
+                        return httpClientBuilder
+                                .setSSLContext(sslContext)
+                                .setDefaultCredentialsProvider(credentialsProvider);
+                    }
+                });
+        try(RestClient restClient = builder.build();
+            ElasticsearchTransport transport = new RestClientTransport(
+                    restClient, new JacksonJsonpMapper());) {
+            // And create the API client
+            ElasticsearchClient esClient = new ElasticsearchClient(transport);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            throw  new RuntimeException(e);
+        }
     }
 
 

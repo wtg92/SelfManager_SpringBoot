@@ -3,7 +3,7 @@ package manager.cache;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import manager.system.SMPerm;
+import manager.entity.general.career.WorkSheet;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -19,8 +19,9 @@ import java.util.Set;
 public class CaffeineCollection {
 
     @Value("${cache.common.max-size-in-m}")
-    private Long COMMON_MAX_SIZE_OF_M;
-
+    private Long COMMON_MAX_SIZE_IN_M;
+    @Value("${cache.temp.max-size-in-m}")
+    private Long COMMON_MAX_SIZE_IN_M_FOR_TEMP;
 
     @Value("${cache.perms.max-num}")
     private Integer PERMS_MAX_NUM;
@@ -31,27 +32,54 @@ public class CaffeineCollection {
     @Value("${cache.temp-users.max-num}")
     private Integer TEMP_USERS_MAX_NUM;
 
+    @Value("${cache.worksheets.max-num}")
+    private Integer WORKSHEETS_MAX_NUM;
+
+    @Value("${cache.temp.expiration-of-min}")
+    private Integer TEMP_EXPIRATION_OF_MIN;
+
     @PostConstruct
     public void init() {
         Common_Cache = generateCommonCache();
+        Common_Temp_Cache = generateCommonTempCache();
+
         Perms_Cache = generateEnumCache(PERMS_MAX_NUM);
-        Temp_Users_Cache = generateTempUsersCache(TEMP_USERS_MAX_NUM);
+        Worksheet_Cache = generateSpecificEntityCache(WORKSHEETS_MAX_NUM,COMMON_EXPIRATION_OF_MIN);
+        Temp_Users_Cache = generateSpecificEntityCache(TEMP_USERS_MAX_NUM, TEMP_EXPIRATION_OF_MIN);
+    }
+
+    private Cache<String, String> generateCommonTempCache() {
+        return Caffeine.newBuilder()
+                .maximumWeight(COMMON_MAX_SIZE_IN_M_FOR_TEMP * 1024 * 1024)
+                .weigher((String key, String value) -> {
+                    // 计算每个条目的权重，假设每个条目的权重是其占用的内存大小（字节）
+                    return estimateStringMemoryUsage(value);
+                })
+                .expireAfterWrite(Duration.ofMinutes(TEMP_EXPIRATION_OF_MIN))
+                .expireAfterAccess(Duration.ofMinutes(TEMP_EXPIRATION_OF_MIN))
+                .build();
     }
 
     public Cache<String, String>  Common_Cache;
+
+    public Cache<String, String> Common_Temp_Cache;
 
     public Cache<Long, Set<Integer>> Perms_Cache;
 
     public Cache<String, Map<String,String>> Temp_Users_Cache;
 
+    public Cache<Long, WorkSheet> Worksheet_Cache;
 
-    private Cache<String, Map<String,String>> generateTempUsersCache(int maxSize) {
+
+
+    private <T,V> Cache<V, T> generateSpecificEntityCache(int maxSize,int expirationMin) {
         return Caffeine.newBuilder()
                 .maximumSize(maxSize)
-                .expireAfterWrite(Duration.ofMinutes(COMMON_EXPIRATION_OF_MIN))
-                .expireAfterAccess(Duration.ofMinutes(COMMON_EXPIRATION_OF_MIN))
+                .expireAfterWrite(Duration.ofMinutes(expirationMin))
+                .expireAfterAccess(Duration.ofMinutes(expirationMin))
                 .build();
     }
+
 
 
 
@@ -67,7 +95,7 @@ public class CaffeineCollection {
 
     private Cache<String, String>  generateCommonCache() {
         return Caffeine.newBuilder()
-                .maximumWeight(COMMON_MAX_SIZE_OF_M * 1024 * 1024)
+                .maximumWeight(COMMON_MAX_SIZE_IN_M * 1024 * 1024)
                 .weigher((String key, String value) -> {
                     // 计算每个条目的权重，假设每个条目的权重是其占用的内存大小（字节）
                     return estimateStringMemoryUsage(value);

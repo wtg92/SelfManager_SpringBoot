@@ -26,12 +26,14 @@ public enum SMError {
 	TEMP_USER_TIMEOUT(15,"停留页面过长，相关数据已失效，请保存好页面信息，刷新页面以重新获取数据"),
 	CHECK_YZM_ERROR(16,"图片验证码校验失败"),
 	SEND_EMAIL_ERROR(17,"发送邮件出现错误，请在检查邮箱地址没有填写错误后，稍候再试"),
-	SIGN_UP_ILLGEAL(18,"注册格式非法"),
+	SIGN_UP_ILLEGAL(18,"注册格式非法"),
 	CHECK_VERIFY_CODE_FAIL(19,"验证码校验失败"),
 	ACCOUNT_NULL(20,"账号不存在"),
 	EMAIL_NULL(21,"email不存在"),
 	EMAIL_VERIFY_TIMEOUT(22,"邮箱验证码已失效"),
+	INCONSISTENT_AUTHENTICATION_MAIL(23),
 	TEL_VERIFY_TIMEOUT(24,"手机验证码已失效"),
+	INCONSISTENT_AUTHENTICATION_TEL(25),
 	PWD_WRONG(26,"密码错误"),
 	REQUEST_ARG_NULL(27,"请求参数为空"),
 	REQUEST_ARG_ILLEGAL(28,"请求参数不合法"),
@@ -91,7 +93,21 @@ public enum SMError {
 	MODIFY_DPI_ERROR(76,"修改图片DPI失败"),
 	ILLEGAL_TAG(77,"标签中包含非法字符"),
 	DUP_TAG(78,"标签重复"),
-	COMMON(79);
+	COMMON(79),
+
+
+
+
+
+
+
+	;
+//
+//	CHECK_VERIFY_CODE_FAIL(81,"验证码校验失败"),
+//	CHECK_VERIFY_CODE_FAIL(82,"验证码校验失败"),
+//	CHECK_VERIFY_CODE_FAIL(83"验证码校验失败"),
+
+
 	;
 	public final String description;
 	public final int code;

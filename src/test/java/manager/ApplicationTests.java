@@ -1,8 +1,12 @@
 package manager;
 
+import com.alibaba.fastjson2.JSON;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import manager.dao.UserDAO;
 import manager.dao.career.WorkDAO;
+import manager.data.proxy.career.PlanProxy;
+import manager.data.proxy.career.WorkSheetProxy;
+import manager.elasticsearch.ElasticSearchInvoker;
 import manager.logic.UserLogic;
 import manager.logic.career.WorkLogic;
 import manager.system.SMPerm;
@@ -34,6 +38,11 @@ class ApplicationTests {
 	@Autowired
 	WorkDAO workDAO;
 
+//	@Resource
+	ElasticSearchInvoker invoker;
+
+	@Resource
+	WorkLogic workLogic;
 	@Test
 	void contextLoads() {
 		System.out.println("say Hello");
@@ -64,12 +73,45 @@ class ApplicationTests {
 		/**
 		 *
 		 */
-		Caffeine.newBuilder()
-				.maximumSize(10_000)
-				.expireAfterWrite(Duration.ofMinutes(5))
-				.refreshAfterWrite(Duration.ofMinutes(1))
-				.build();
+		try {
+			Caffeine.newBuilder()
+					.maximumSize(10_000)
+					.expireAfterWrite(Duration.ofMinutes(5))
+					.refreshAfterWrite(Duration.ofMinutes(1))
+					.build();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 
+	@Test
+	public void test3(){
+		invoker.createIndex("Test");
+	}
+
+	@Test
+	public  void testCache(){
+		wl.loadWorkSheet(1,1213);
+		wl.loadWorkSheet(1,1213);
+	}
+
+	@Test
+	public  void testWorkLogic(){
+		long id = 39;
+		int loginId = 1;
+		PlanProxy planProxy = workLogic.loadPlan(loginId, id);
+		System.out.println(JSON.toJSONString(planProxy));
+		System.out.println(JSON.toJSONString(planProxy.plan.getTags()));
+		workLogic.resetPlanTags(id,loginId,Arrays.asList("哈哈"));
+		planProxy = workLogic.loadPlan(loginId, id);
+		System.out.println(JSON.toJSONString(planProxy.plan.getTags()));
+	}
+
+	@Test
+	public  void testWorkLogic2(){
+		long id = 39;
+		int loginId = 1;
+		workLogic.resetPlanTags(loginId,id,Arrays.asList(""));
+	}
 }

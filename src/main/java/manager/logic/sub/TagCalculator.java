@@ -55,7 +55,7 @@ public abstract class TagCalculator {
 			return new ArrayList<>();
 		}
 		
-		return Arrays.asList(tagsStr.split(SEPERATOR)).stream().filter(e->e.trim().length()>0)
+		return Arrays.stream(tagsStr.split(SEPERATOR)).filter(e-> !e.trim().isEmpty())
 				.map(TagCalculator::parseTo).collect(Collectors.toList());
 	}
 	

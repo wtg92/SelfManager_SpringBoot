@@ -171,12 +171,12 @@ public class UserLogicImpl extends UserLogic {
 		User user = new User();
 		
 		if(account.isBlank())
-			throw new LogicException(SMError.SIGN_UP_ILLGEAL,"账号不能为空");
+			throw new LogicException(SMError.SIGN_UP_ILLEGAL,"账号不能为空");
 		
 		user.setAccount(account);
 		
 		if(nickName.isBlank())
-			throw new LogicException(SMError.SIGN_UP_ILLGEAL,"昵称不能为空");
+			throw new LogicException(SMError.SIGN_UP_ILLEGAL,"昵称不能为空");
 		
 		user.setNickName(nickName);
 		
@@ -184,28 +184,28 @@ public class UserLogicImpl extends UserLogic {
 		SecurityUtil.encodeUserPwd(user);
 		
 		if(gender == Gender.UNDECIDED)
-			throw new LogicException(SMError.SIGN_UP_ILLGEAL,"性别不能为空");
+			throw new LogicException(SMError.SIGN_UP_ILLEGAL,"性别不能为空");
 		
 		user.setGender(gender);
 		
 		if(email.isBlank() && tel.isBlank()) {
-			throw new LogicException(SMError.SIGN_UP_ILLGEAL,"邮箱和手机号必须至少填入一个");
+			throw new LogicException(SMError.SIGN_UP_ILLEGAL,"邮箱和手机号必须至少填入一个");
 		};
 		
 		if(!email.isBlank()) {
 			try {
 				String ans = cache.getTempUserMapVal( uuId, EMAIL_VERIFY_CODE_KEY_FOR_SIGN_UP);
 				if(!ans.equals(emailVerifyCode)) {
-					throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL,"邮箱验证码错误");
+					throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL);
 				}
 				String matchEmail = cache.getTempUserMapVal( uuId, EMAIL_KEY_FOR_SIGN_UP);
 				if(!matchEmail.equals(email)) {
-					throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL,"注册邮箱与验证邮箱不匹配");
+					throw new LogicException(SMError.INCONSISTENT_AUTHENTICATION_MAIL);
 				}
 				
 				user.setEmail(email);
 			} catch (NoSuchElement e) {
-				throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL,"邮箱验证码已过期失效");
+				throw new LogicException(SMError.EMAIL_VERIFY_TIMEOUT);
 			}
 			
 		}
@@ -214,17 +214,15 @@ public class UserLogicImpl extends UserLogic {
 			try {
 				String ans = cache.getTempUserMapVal( uuId, TEL_VERIFY_CODE_KEY_FOR_SIGN_UP);
 				if(!ans.equals(telVerifyCode)) {
-					throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL,"手机验证码错误");
+					throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL);
 				}
 				String matchTel = cache.getTempUserMapVal( uuId, TEL_KEY_FOR_SIGN_UP);
 				if(!matchTel.equals(tel)) {
-					throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL,"注册手机与验证手机不匹配");
+					throw new LogicException(SMError.INCONSISTENT_AUTHENTICATION_TEL);
 				}
-				
-				
 				user.setTelNum(tel);
 			} catch (NoSuchElement e) {
-				throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL,"手机验证码已过期失效");
+				throw new LogicException(SMError.TEL_VERIFY_TIMEOUT);
 			}
 		}
 		long uId = uDAO.insertUser(user);
@@ -332,7 +330,7 @@ public class UserLogicImpl extends UserLogic {
 	public YZMInfo createTelYZM(String uuId, String old) throws LogicException {
 		YZMInfo rlt = yzmUtil.createYZM(old);
 		try {
-			cache.setTempMap( uuId, TEL_YZM_KEY, String.valueOf(rlt.xForCheck));
+			cache.setTempUserMap( uuId, TEL_YZM_KEY, String.valueOf(rlt.xForCheck));
 		} catch (NoSuchElement e) {
 			throw new LogicException(SMError.TEMP_USER_TIMEOUT);
 		}
@@ -343,7 +341,7 @@ public class UserLogicImpl extends UserLogic {
 	public YZMInfo createEmailYZM(String uuId, String old) throws LogicException {
 		YZMInfo rlt = yzmUtil.createYZM(old);
 		try {
-			cache.setTempMap( uuId, EMAIL_YZM_KEY, String.valueOf(rlt.xForCheck));
+			cache.setTempUserMap( uuId, EMAIL_YZM_KEY, String.valueOf(rlt.xForCheck));
 		} catch (NoSuchElement e) {
 			assert e.type ==  NoSuchElementType.REDIS_KEY_NOT_EXISTS;
 			throw new LogicException(SMError.TEMP_USER_TIMEOUT);
@@ -404,8 +402,8 @@ public class UserLogicImpl extends UserLogic {
 		/*checkEmailYZM 保证了key一定存在（极小的可能性不存在，但那不考虑了）*/
 		try {
 			String verifyCode = createVerifyCode();
-			cache.setTempMap( uuId, TEL_VERIFY_CODE_KEY_FOR_SIGN_UP, verifyCode);
-			cache.setTempMap( uuId, TEL_KEY_FOR_SIGN_UP, tel);
+			cache.setTempUserMap( uuId, TEL_VERIFY_CODE_KEY_FOR_SIGN_UP, verifyCode);
+			cache.setTempUserMap( uuId, TEL_KEY_FOR_SIGN_UP, tel);
 			SMSUtil.sendSMS(SMSUtil.SIGN_UP_TEMPLATE_ID, tel, verifyCode, cache.getExpirationSeconds());
 		} catch (NoSuchElement e) {
 			throw new LogicException(SMError.TEMP_USER_TIMEOUT);
@@ -421,8 +419,8 @@ public class UserLogicImpl extends UserLogic {
 		/*checkEmailYZM 保证了key一定存在（极小的可能性不存在，但那不考虑了）*/
 		try {
 			String verifyCode = createVerifyCode();
-			cache.setTempMap(uuId, EMAIL_KEY_FOR_SIGN_UP, email);
-			cache.setTempMap(uuId, EMAIL_VERIFY_CODE_KEY_FOR_SIGN_UP, verifyCode);
+			cache.setTempUserMap(uuId, EMAIL_KEY_FOR_SIGN_UP, email);
+			cache.setTempUserMap(uuId, EMAIL_VERIFY_CODE_KEY_FOR_SIGN_UP, verifyCode);
 			EmailUtil.sendSimpleEmail(email,VERIFY_CODE_EMAIL_SUBJECT , createSignUpEmailMes(verifyCode));
 		} catch (NoSuchElement e) {
 			throw new LogicException(SMError.TEMP_USER_TIMEOUT);
@@ -507,7 +505,7 @@ public class UserLogicImpl extends UserLogic {
 
 	@Override
 	public boolean confirmTempUser(String uuId) {
-		return cache.existsForTemp(uuId);
+		return cache.existsForTempUser(uuId);
 	}
 
 	
@@ -545,8 +543,8 @@ public class UserLogicImpl extends UserLogic {
 	}
 
 	@Override
-	public List<UserProxy> loadUsersOfGroup(long groupId, long loginerId) throws LogicException, DBException {
-		checkPerm(loginerId, SMPerm.SEE_USERS_AND_USER_GROUPS_DATA);
+	public List<UserProxy> loadUsersOfGroup(long groupId, long loginId) throws LogicException, DBException {
+		checkPerm(loginId, SMPerm.SEE_USERS_AND_USER_GROUPS_DATA);
 		return uDAO.selectUsersByGroup(groupId,SMDB.MAX_NUM_IN_ONE_SELECT).stream().map(user->{
 			UserProxy proxy = new UserProxy();
 			proxy.user=user;
@@ -597,7 +595,7 @@ public class UserLogicImpl extends UserLogic {
 			String key = createTempKeyByBiIdentifiers(CacheMode.T_EMAIL_FOR_RESET_PWD,account,val);
 			String forCheck = cache.get(key);
 			if(forCheck == null)
-				throw new LogicException(SMError.TEL_VERIFY_TIMEOUT,"验证码已失效，请重新获取");
+				throw new LogicException(SMError.EMAIL_VERIFY_TIMEOUT);
 			if(!forCheck.equals(verifyCode)) {
 				cache.remove(key);
 				throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL);
@@ -616,7 +614,7 @@ public class UserLogicImpl extends UserLogic {
 			String key = createTempKeyByBiIdentifiers(CacheMode.T_TEL_FOR_RESET_PWD,account,val);
 			String forCheck = cache.get(key);
 			if(forCheck == null)
-				throw new LogicException(SMError.TEL_VERIFY_TIMEOUT,"验证码已失效，请重新获取");
+				throw new LogicException(SMError.TEL_VERIFY_TIMEOUT);
 
 			if(!forCheck.equals(verifyCode)) {
 				cache.remove(key);
