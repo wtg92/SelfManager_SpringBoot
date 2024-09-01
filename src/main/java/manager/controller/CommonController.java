@@ -61,7 +61,12 @@ public class CommonController {
 
     @GetMapping("/getTimezones")
     public Set<String> getTimezones() {
-        return ZoneId.getAvailableZoneIds();
+        Set<String> availableZoneIds = ZoneId.getAvailableZoneIds();
+        /**
+         * 有些时区废弃
+         */
+        availableZoneIds.remove("America/Shiprock");
+        return availableZoneIds;
     }
 
     @GetMapping("/languages")

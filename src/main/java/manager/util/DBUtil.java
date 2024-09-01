@@ -79,17 +79,19 @@ public abstract class DBUtil {
 	
 	public static<T> List<T> selectEntitiesByField(Class<T> cla, String fieldName, Object val,
 			SessionFactory hbFactory) throws DBException {
-		return hbFactory.fromStatelessSession((session)->{
-			try {
-			String tableName = CommonUtil.getEntityTableName(cla);
-			String hql = String.format("FROM %s WHERE %s=:val", transTableToEntity(tableName), transFieldToAttr(fieldName));
-			TypedQuery<T> query = session.createQuery(hql, cla);
-			query.setParameter("val", CommonUtil.pretreatForString(val));
-			return query.getResultList();
-			} catch (Exception e) {
-				throw processDBException(e);
-			}
-		});
+		try {
+			return hbFactory.fromStatelessSession((session)->{
+
+				String tableName = CommonUtil.getEntityTableName(cla);
+				String hql = String.format("FROM %s WHERE %s=:val", transTableToEntity(tableName), transFieldToAttr(fieldName));
+				TypedQuery<T> query = session.createQuery(hql, cla);
+				query.setParameter("val", CommonUtil.pretreatForString(val));
+				return query.getResultList();
+
+			});
+		} catch (Exception e) {
+			throw processDBException(e);
+		}
 	}
 
 	/**
@@ -215,21 +217,22 @@ public abstract class DBUtil {
 		fillTermsSQL(additionalParams,likes,equals,greaterThan,lessThan,storageCalculator);
 
 		String hql = String.format("SELECT COUNT(*) FROM %s WHERE 1=1 "+additionalParams.toString(), transTableToEntity(tableName));
+		try {
+			return hbFactory.fromStatelessSession(session -> {
 
-		return hbFactory.fromStatelessSession(session -> {
-			try {
-				FinalHandler<Query<Long>> handler = new FinalHandler<>();
-				handler.val = session.createQuery(hql, Long.class);
+					FinalHandler<Query<Long>> handler = new FinalHandler<>();
+					handler.val = session.createQuery(hql, Long.class);
 
-				storageCalculator.consumerValues((key,val)->{
-					handler.val =handler.val.setParameter(key,val);
-				});
+					storageCalculator.consumerValues((key,val)->{
+						handler.val =handler.val.setParameter(key,val);
+					});
 
-				return handler.val.uniqueResult();
-			}catch (Exception e) {
-				throw processDBException(e);
-			}
-		});
+					return handler.val.uniqueResult();
+
+			});
+		}catch (Exception e) {
+			throw processDBException(e);
+		}
 	}
 
 	public static<T> List<T> selectEntitiesByRange(Class<T> cla, String rangeFieldName,Long minBorder,Long maxBorder,
@@ -249,23 +252,22 @@ public abstract class DBUtil {
 		String hql = String.format("FROM %s WHERE %s>=:val1 and %s<=:val2 "+additionalParams.toString(), transTableToEntity(tableName)
 				,transFieldToAttr(rangeFieldName)
 				,transFieldToAttr(rangeFieldName));
+		try {
+			return hbFactory.fromStatelessSession(session -> {
 
-		return hbFactory.fromStatelessSession(session -> {
-			try {
-				FinalHandler<Query<T>> handler = new FinalHandler<>();
-				handler.val = session.createQuery(hql, cla)
-						.setParameter("val1", minBorder)
-						.setParameter("val2", maxBorder);
+					FinalHandler<Query<T>> handler = new FinalHandler<>();
+					handler.val = session.createQuery(hql, cla)
+							.setParameter("val1", minBorder)
+							.setParameter("val2", maxBorder);
 
-				storageCalculator.consumerValues((key,val)->{
-					handler.val =handler.val.setParameter(key,val);
-				});
-
-				return handler.val.getResultList();
-			}catch (Exception e) {
-				throw processDBException(e);
-			}
-		});
+					storageCalculator.consumerValues((key,val)->{
+						handler.val =handler.val.setParameter(key,val);
+					});
+					return handler.val.getResultList();
+			});
+		}catch (Exception e) {
+			throw processDBException(e);
+		}
 	}
 
 	/*闭区间*/
@@ -298,17 +300,18 @@ public abstract class DBUtil {
 			SessionFactory hbFactory) throws DBException {
 
 		String tableName = CommonUtil.getEntityTableName(cla);
-		return hbFactory.fromStatelessSession(session -> {
-			try {
-			String hql = String.format("FROM %s WHERE %s=:val1 and %s=:val2", transTableToEntity(tableName), transFieldToAttr(field1Name),transFieldToAttr(field2Name));
-			return session.createQuery(hql, cla)
-					.setParameter("val1", CommonUtil.pretreatForString(field1val) )
-					.setParameter("val2", CommonUtil.pretreatForString(field2val))
-					.getResultList();
-			} catch (Exception e) {
-				throw processDBException(e);
-			}
-		});
+		try {
+			return hbFactory.fromStatelessSession(session -> {
+				String hql = String.format("FROM %s WHERE %s=:val1 and %s=:val2", transTableToEntity(tableName), transFieldToAttr(field1Name),transFieldToAttr(field2Name));
+				return session.createQuery(hql, cla)
+						.setParameter("val1", CommonUtil.pretreatForString(field1val) )
+						.setParameter("val2", CommonUtil.pretreatForString(field2val))
+						.getResultList();
+
+			});
+		} catch (Exception e) {
+			throw processDBException(e);
+		}
 
 	}
 
@@ -349,17 +352,19 @@ public abstract class DBUtil {
 	public static<T> long countEntitiesByRange(Class<T> cla, String field, Object min,Object max,
 			SessionFactory hbFactory) throws DBException {
 		String tableName = CommonUtil.getEntityTableName(cla);
-		return hbFactory.fromStatelessSession(session->{
-			try {
-				String sql = String.format("SELECT COUNT(*) FROM %s WHERE %s>=? and %s<=?", tableName, field,field);
-				return session.createQuery(sql, Long.class)
-					.setParameter(1, CommonUtil.pretreatForString(min))
-					.setParameter(2, CommonUtil.pretreatForString(max))
-					.getSingleResult();
-			} catch (Exception e) {
-				throw processDBException(e);
-			}
-		});
+		try {
+			return hbFactory.fromStatelessSession(session->{
+
+					String sql = String.format("SELECT COUNT(*) FROM %s WHERE %s>=? and %s<=?", tableName, field,field);
+					return session.createQuery(sql, Long.class)
+						.setParameter(1, CommonUtil.pretreatForString(min))
+						.setParameter(2, CommonUtil.pretreatForString(max))
+						.getSingleResult();
+
+			});
+		} catch (Exception e) {
+			throw processDBException(e);
+		}
 	}
 
 
@@ -370,15 +375,17 @@ public abstract class DBUtil {
 
 	public static long countAllEntities(Class<? extends SMEntity> cla,SessionFactory hbFactory) throws DBException {
 		String tableName = CommonUtil.getEntityTableName(cla);
-		return hbFactory.fromStatelessSession((session)->{
-			try {
-				String sql = String.format("SELECT COUNT(*) FROM %s", tableName);
-				return session.createQuery(sql, Long.class)
-					.getSingleResult();
-			} catch (Exception e) {
-				throw processDBException(e);
-			}
-		});
+		try {
+			return hbFactory.fromStatelessSession((session)->{
+
+					String sql = String.format("SELECT COUNT(*) FROM %s", tableName);
+					return session.createQuery(sql, Long.class)
+						.getSingleResult();
+
+			});
+		} catch (Exception e) {
+			throw processDBException(e);
+		}
 	}
 
 	public static long  countByTriFields(String tableName
@@ -386,93 +393,94 @@ public abstract class DBUtil {
 			,String field2,Object val2
 			,String field3,Object val3
 			,SessionFactory hbFactory) throws DBException {
-		return hbFactory.fromStatelessSession(session->{
-			try {
-				String sql = String.format("SELECT COUNT(*) FROM %s WHERE %s=? and %s=? and %s=?"
-						, tableName, field1,field2,field3);
-				return session.createNativeQuery(sql, Long.class)
-						.setParameter(1, val1)
-						.setParameter(2, val2)
-						.setParameter(3, val3)
-						.uniqueResult();
-			} catch (Exception e) {
-				throw processDBException(e);
-			}
-		});
+		try {
+			return hbFactory.fromStatelessSession(session->{
+					String sql = String.format("SELECT COUNT(*) FROM %s WHERE %s=? and %s=? and %s=?"
+							, tableName, field1,field2,field3);
+					return session.createNativeQuery(sql, Long.class)
+							.setParameter(1, val1)
+							.setParameter(2, val2)
+							.setParameter(3, val3)
+							.uniqueResult();
+			});
+		} catch (Exception e) {
+			throw processDBException(e);
+		}
 	}
 
 
 	public static long  countByBiFields(String tableName, String field1, Object val1,String field2,Object val2,SessionFactory hbFactory) throws DBException {
-		return hbFactory.fromStatelessSession(session->{
-			try {
-				String sql = String.format("SELECT COUNT(*) FROM %s WHERE %s=? and %s=?"
-						, tableName, field1,field2);
-				return session.createNativeQuery(sql, Long.class)
-						.setParameter(1, CommonUtil.pretreatForString(val1))
-						.setParameter(2, CommonUtil.pretreatForString(val2))
-						.uniqueResult();
-			} catch (Exception e) {
-				throw processDBException(e);
-			}
-		});
+		try {
+			return hbFactory.fromStatelessSession(session->{
+
+					String sql = String.format("SELECT COUNT(*) FROM %s WHERE %s=? and %s=?"
+							, tableName, field1,field2);
+					return session.createNativeQuery(sql, Long.class)
+							.setParameter(1, CommonUtil.pretreatForString(val1))
+							.setParameter(2, CommonUtil.pretreatForString(val2))
+							.uniqueResult();
+
+			});
+		} catch (Exception e) {
+			throw processDBException(e);
+		}
 	}
 
 	public static long countByField(String tableName, String fieldName, Object val,SessionFactory hbFactory) throws DBException {
+		try {
+			return hbFactory.fromStatelessSession(session->{
 
-		return hbFactory.fromStatelessSession(session->{
-			try {
-				String sql = String.format("SELECT COUNT(*) FROM %s WHERE %s=?", tableName, fieldName);
-				return session.createNativeQuery(sql, Long.class)
-						.setParameter(1, CommonUtil.pretreatForString(val))
-						.getSingleResult();
-			} catch (Exception e) {
-				throw  processDBException(e);
-			}
-		});
+					String sql = String.format("SELECT COUNT(*) FROM %s WHERE %s=?", tableName, fieldName);
+					return session.createNativeQuery(sql, Long.class)
+							.setParameter(1, CommonUtil.pretreatForString(val))
+							.getSingleResult();
+			});
+		} catch (Exception e) {
+			throw  processDBException(e);
+		}
 	}
 
 	public static<T extends SMGeneralEntity> long insertEntity(T one,SessionFactory hbFactory) throws DBException {
 		one.setCreateUtc(System.currentTimeMillis());
 		one.setUpdateUtc(System.currentTimeMillis());
-
-		hbFactory.inTransaction(session -> {
-			try{
-				session.persist(one);
-			}catch (Exception e){
-				throw processDBException(e);
-			}
-		});
+		try{
+			hbFactory.inTransaction(session ->
+				session.persist(one)
+			);
+		}catch (Exception e){
+			throw processDBException(e);
+		}
 		return one.getId();
 	}
 
 	public static<T extends SMGeneralEntity> T selectEntity(long id,Class<T> cla,SessionFactory hbFactory) throws NoSuchElement {
+		try {
+			T rlt = hbFactory.fromStatelessSession((session)-> {
+					return session.get(cla, id);
+			});
+			if (rlt == null)
+				throw new NoSuchElement();
+			return rlt;
+		} catch (Exception e) {
+			throw processDBException(e);
+		}
 
-		T rlt = hbFactory.fromStatelessSession((session)-> {
-			try {
-				return session.get(cla, id);
-			} catch (Exception e) {
-				throw processDBException(e);
-			}
-		});
-		if (rlt == null)
-			throw new NoSuchElement();
-
-		return rlt;
 	}
 
 
 	public static<T extends SMGeneralEntity> void updateExistedEntity(T one,SessionFactory hbFactory) throws DBException {
 		one.setUpdateUtc(System.currentTimeMillis());
 		assert one.getId() != 0;
-		hbFactory.inTransaction(session -> {
-			try {
-				session.merge(one);
-			} catch (OptimisticLockException e) {
-				throw new DBException(SMError.DB_SYNC_ERROR);
-			} catch (Exception e) {
-				throw processDBException(e);
-			}
-		});
+		try {
+			hbFactory.inTransaction(session -> {
+					session.merge(one);
+			});
+		} catch (OptimisticLockException e) {
+			throw new DBException(SMError.DB_SYNC_ERROR);
+		} catch (Exception e) {
+			throw processDBException(e);
+		}
+
 	}
 	public static DBException processDBException(Exception e){
 		e.printStackTrace();
@@ -639,17 +647,18 @@ public abstract class DBUtil {
 	public static void insertGeneralRTableData(String tableName, List<Long> argIds1, long argId2, SessionFactory hbFactory) throws DBException {
 		if (argIds1.isEmpty())
 			return;
-		hbFactory.inTransaction((one)->{
-			try {
+		try {
+			hbFactory.inTransaction((one)->{
 				String rSql = argIds1.stream().map(argId1 ->
 					"(null," + argId1 + "," + argId2 + ")"
 				).collect(Collectors.joining(","));
 				one.createNativeQuery("INSERT INTO "+tableName+" values "+rSql,Object.class)
 						.executeUpdate();
-			} catch (Exception e) {
-				throw processDBException(e);
-			}
-		});
+
+			});
+		} catch (Exception e) {
+			throw processDBException(e);
+		}
 	}
 
 	@Deprecated
@@ -675,15 +684,17 @@ public abstract class DBUtil {
 	}
 
 	public static<T extends SMEntity> int deleteEntitiesByField(Class<T> cla, String field,Object val,SessionFactory hbFactory) throws DBException {
+		try {
+			return hbFactory.fromTransaction(session ->{
 
-		return hbFactory.fromTransaction(session ->{
-			try {
-				return session.createNativeQuery("DELETE FROM "+CommonUtil.getEntityTableName(cla)+" WHERE "+field+"=?  ", Long.class)
-								.setParameter(1, val)
-								.executeUpdate();
-			} catch (Exception e) {
-				throw processDBException(e);
-			}});
+					return session.createNativeQuery("DELETE FROM "+CommonUtil.getEntityTableName(cla)+" WHERE "+field+"=?  ", Long.class)
+									.setParameter(1, val)
+									.executeUpdate();
+
+			});
+		} catch (Exception e) {
+			throw processDBException(e);
+		}
 	}
 
 	public static<T extends SMEntity> void deleteEntity(Class<T> cla, long id,SessionFactory hbFactory) throws DBException {
@@ -704,30 +715,30 @@ public abstract class DBUtil {
 		}
 
 		String theManySql = theManyIds.stream().map(String::valueOf).collect(Collectors.joining(","));
-		hbFactory.fromTransaction(session ->{
-			try {
-				return session.createNativeQuery("DELETE FROM "+tableName+" WHERE (? in (?)) and ?=?  ", Long.class)
-					.setParameter(1, fieldForTheMany)
-					.setParameter(2, theManySql)
-					.setParameter(3, fieldForTheOne)
-					.setParameter(4, theOneId)
-					.executeUpdate();
-			} catch (Exception e) {
-				throw processDBException(e);
-			}});
+		try {
+			hbFactory.fromTransaction(session -> session.createNativeQuery("DELETE FROM "+tableName+" WHERE (? in (?)) and ?=?  ", Long.class)
+				.setParameter(1, fieldForTheMany)
+				.setParameter(2, theManySql)
+				.setParameter(3, fieldForTheOne)
+				.setParameter(4, theOneId)
+				.executeUpdate());
+		} catch (Exception e) {
+			throw processDBException(e);
+		}
 	}
 
 	public static List<Long> selectGeneralRTableData(String tableName, String fieldForTheMany, String fieldForTheOne,
 			long theOneId, SessionFactory hbFactory) throws DBException {
+		try {
 			return hbFactory.fromStatelessSession(session->{
-				try {
 					return session.createNativeQuery("SELECT "+fieldForTheMany+" FROM "+tableName+" WHERE "+fieldForTheOne+" = ?  ", Long.class)
 							.setParameter(1,theOneId)
 							.getResultList();
-				} catch (Exception e) {
-					throw processDBException(e);
-				}}
+				}
 			);
+		} catch (Exception e) {
+			throw processDBException(e);
+		}
 	}
 	
 	public static List<Integer> selectGeneralRTableDataInInt(String tableName, String fieldForTheMany, String fieldForTheOne,
