@@ -5,6 +5,7 @@ import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
+import org.apache.solr.client.solrj.beans.Field;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -34,7 +35,8 @@ public class NoteBook extends SMGeneralEntity {
 	/*备注*/
 	@Column
 	private String note;
-	
+
+	@Field
 	@Column
 	private String name;
 	

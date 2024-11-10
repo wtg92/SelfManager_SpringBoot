@@ -6,7 +6,6 @@ import manager.dao.UserDAO;
 import manager.dao.career.WorkDAO;
 import manager.data.proxy.career.PlanProxy;
 import manager.data.proxy.career.WorkSheetProxy;
-import manager.elasticsearch.ElasticSearchInvoker;
 import manager.logic.UserLogic;
 import manager.logic.career.WorkLogic;
 import manager.system.SMPerm;
@@ -38,8 +37,6 @@ class ApplicationTests {
 	@Autowired
 	WorkDAO workDAO;
 
-//	@Resource
-	ElasticSearchInvoker invoker;
 
 	@Resource
 	WorkLogic workLogic;
@@ -85,10 +82,6 @@ class ApplicationTests {
 	}
 
 
-	@Test
-	public void test3(){
-		invoker.createIndex("Test");
-	}
 
 	@Test
 	public  void testCache(){

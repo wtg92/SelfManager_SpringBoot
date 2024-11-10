@@ -431,7 +431,7 @@ public class WorkLogicImpl extends WorkLogic{
 		assert plan.getState() != after;
 		long endTime = System.currentTimeMillis();
 
-		//TODO 重新看一下Log
+
 		WorkContentConverter.addLog(plan, CareerLogAction.ABANDON_PLAN, loginId,
 				plan.getState().getDbCode(),
 				after.getDbCode(),

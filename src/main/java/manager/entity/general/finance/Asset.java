@@ -2,41 +2,41 @@ package manager.entity.general.finance;
 
 import java.util.Calendar;
 
-import manager.annotation.Neo4jField;
+import manager.annotation.SolrField;
 import manager.entity.general.SMGeneralEntity;
 
 public class Asset extends SMGeneralEntity{
 
 	private static final long serialVersionUID = 1L;
 	
-	@Neo4jField
+	@SolrField
 	private Double value;
 	/**
 	 * 值单位 元/美元/比特币/自定义 
 	 */
-	@Neo4jField
+	@SolrField
 	private String valueUnit;
 	/**
 	 * 由于汇率等 钱的变动至少是以天为单位的 因此不记录时分秒 无意义
 	 */
-	@Neo4jField
+	@SolrField
 	private Calendar valueDate;
 	/**
 	 * 资产/不动产/自定义
 	 */
-	@Neo4jField
+	@SolrField
 	private String type;
 	
-	@Neo4jField
+	@SolrField
 	private String remark;
 	
-	@Neo4jField
+	@SolrField
 	private String name;
 	
 	/**
 	 * 支出/收入
 	 */
-	@Neo4jField
+	@SolrField
 	private Boolean isExpenses;
 	
 	

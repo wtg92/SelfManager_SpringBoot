@@ -15,10 +15,14 @@ public abstract class SMDB {
 	public static final String T_WORK_SHEET = "work_sheet";
 	public static final String T_MEMO = "memo";
 	public static final String T_NOTE_BOOK = "note_book";
+
+
 	public static final String T_NOTE = "note";
 	public static final String T_TOOL_RECORD = "tool_record";
-	
-	
+
+
+	public static final String E_SHARING_BOOK = "SHARING_BOOK";
+
 	public static final String[] ALL_TABLES = new String[] {
 			T_USER,
 			T_USER_GROUP,

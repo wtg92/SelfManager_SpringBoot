@@ -5,6 +5,8 @@ package manager.entity.general;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Version;
+import manager.annotation.SolrField;
+import org.apache.solr.client.solrj.beans.Field;
 import org.hibernate.annotations.OptimisticLockType;
 import org.hibernate.annotations.OptimisticLocking;
 
@@ -16,9 +18,11 @@ import manager.entity.SMEntity;
 public abstract class SMGeneralEntity extends SMEntity implements Cloneable{
 	
 	private static final long serialVersionUID = 6178314886295205584L;
-	
+	@SolrField
+	@Field
 	@Column
 	private Long createUtc;
+	@SolrField
 	@Column
 	private Long updateUtc;
 

@@ -3,6 +3,8 @@ package manager.entity.general.career;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import manager.annotation.SolrEntity;
+import manager.annotation.SolrField;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -14,8 +16,7 @@ import java.util.Calendar;
 
 @Entity
 @Table(name = SMDB.T_NOTE)
-@DynamicInsert
-@DynamicUpdate
+@SolrEntity(name = SMDB.T_NOTE)
 public class Note extends SMGeneralEntity {
 
 	private static final long serialVersionUID = 6913789086585365898L;
@@ -27,9 +28,11 @@ public class Note extends SMGeneralEntity {
 	@Deprecated
 	private Calendar updateTime;
 
+	@SolrField
 	@Column
 	private String content;
-	
+
+	@SolrField
 	@Column
 	private String name;
 	
