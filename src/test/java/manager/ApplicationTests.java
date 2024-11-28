@@ -5,21 +5,16 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import manager.dao.UserDAO;
 import manager.dao.career.WorkDAO;
 import manager.data.proxy.career.PlanProxy;
-import manager.data.proxy.career.WorkSheetProxy;
-import manager.logic.UserLogic;
-import manager.logic.career.WorkLogic;
+import manager.service.UserLogic;
+import manager.service.work.WorkLogic;
 import manager.system.SMPerm;
-import org.hibernate.graph.Graph;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import manager.SelfManagerSpringbootApplication;
-
 import javax.annotation.Resource;
-import java.security.Key;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;

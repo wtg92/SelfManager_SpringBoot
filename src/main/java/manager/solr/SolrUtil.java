@@ -1,17 +1,20 @@
 package manager.solr;
 
-import org.apache.solr.client.solrj.request.schema.SchemaRequest;
-
-import java.util.Map;
+import manager.solr.constants.CustomProcessors;
+import org.apache.solr.client.solrj.beans.DocumentObjectBinder;
 
 public abstract class SolrUtil {
 
-    public static Map<String,String[]>  appendUniqueField(Map<String,String[]> src,String keyName){
+    /**
+     * Bad Design Of SolrJ causes this.
+     */
+    public static DocumentObjectBinder binder = new DocumentObjectBinder();
 
-
-
-        return src;
+    public static String getMultipleFieldParam(String ...params){
+        return String.join(",", params);
     }
 
-
+    public static String getAutoGenerateIdConfig(){
+        return getMultipleFieldParam(CustomProcessors.IGNORE_ID, CustomProcessors.AUTO_GENERATE_ID);
+    }
 }

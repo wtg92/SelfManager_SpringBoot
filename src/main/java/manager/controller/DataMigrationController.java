@@ -1,15 +1,11 @@
 package manager.controller;
 
-import manager.entity.general.career.WorkSheet;
-import manager.logic.career.DataMigrationService;
+import manager.service.DataMigrationService;
 import manager.util.UIUtil;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.List;
 import java.util.Map;
-
-import static manager.system.SMParm.PAGE;
 
 @RestController
 @RequestMapping("/migration")

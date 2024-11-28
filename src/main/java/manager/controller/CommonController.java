@@ -4,7 +4,7 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import manager.logic.career.WorkLogic;
+import manager.service.work.WorkLogic;
 import manager.system.Gender;
 import manager.system.Language;
 import manager.system.VerifyUserMethod;

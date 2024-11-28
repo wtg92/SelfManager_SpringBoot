@@ -7,7 +7,7 @@ import manager.data.proxy.career.PlanProxy;
 import manager.data.proxy.career.WorkSheetProxy;
 import manager.entity.general.career.Plan;
 import manager.entity.general.career.WorkSheet;
-import manager.logic.career.WorkLogic;
+import manager.service.work.WorkLogic;
 import manager.servlet.ServletAdapter;
 import manager.system.career.PlanItemType;
 import manager.system.career.PlanSetting;

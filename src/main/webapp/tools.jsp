@@ -1,5 +1,5 @@
 <%@page import="manager.system.career.BookStyle"%>
-<%@page import="manager.logic.career.WorkLogic"%>
+<%@page import="manager.service.work.WorkLogic"%>
 <%@page import="manager.system.Gender"%>
 <%@page import="manager.system.VerifyUserMethod"%>
 <%@page import="manager.system.SM"%>

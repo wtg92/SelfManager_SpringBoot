@@ -6,7 +6,7 @@ import java.util.List;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 import manager.data.EntityTag;
-import manager.logic.sub.TagCalculator;
+import manager.booster.TagCalculator;
 
 
 @Converter

@@ -5,12 +5,12 @@ import org.junit.runners.Suite.SuiteClasses;
 
 import manager.dao.UserDAOTest;
 import manager.dao.WorkDAOTest;
-import manager.logic.UserLogicTest;
-import manager.logic.career.NoteLogicStaticTest;
-import manager.logic.career.NoteLogicTest;
-import manager.logic.career.WorkContentConverterTest;
-import manager.logic.career.WorkLogicTest;
-import manager.logic.tool.ToolLogicTest;
+import manager.service.UserLogicTest;
+import manager.service.books.NoteLogicStaticTest;
+import manager.service.books.NoteLogicTest;
+import manager.service.books.WorkContentConverterTest;
+import manager.service.books.WorkLogicTest;
+import manager.service.tool.ToolLogicTest;
 import manager.system.EnumTest;
 import manager.util.TimeUtilTest;
 

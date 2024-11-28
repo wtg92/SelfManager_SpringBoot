@@ -4,7 +4,7 @@ import com.alibaba.fastjson2.JSONObject;
 import manager.data.LoginInfo;
 import manager.data.proxy.UserProxy;
 import manager.exception.LogicException;
-import manager.logic.UserLogic;
+import manager.service.UserLogic;
 import manager.servlet.ServletAdapter;
 import manager.system.Gender;
 import manager.system.UserUniqueField;

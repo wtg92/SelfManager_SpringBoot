@@ -45,7 +45,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import manager.data.proxy.UserProxy;
 import manager.exception.DBException;
 import manager.exception.LogicException;
-import manager.logic.UserLogic;
+import manager.service.UserLogic;
 import manager.system.Gender;
 import manager.system.SMError;
 import manager.system.SMOP;

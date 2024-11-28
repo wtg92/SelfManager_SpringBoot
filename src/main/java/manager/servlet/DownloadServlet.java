@@ -20,7 +20,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import manager.exception.LogicException;
 import manager.exception.SMException;
-import manager.logic.tool.ToolLogic;
+import manager.service.tool.ToolLogic;
 import manager.system.SMError;
 import manager.system.SMOP;
 import manager.system.tool.Tool;
