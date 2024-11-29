@@ -334,8 +334,8 @@ public abstract class WorkLogic{
 	 *  PlanItemProxy.remainingValForCur :  对于root节点 设置的投入值，算差值，差值如果全部交由该节点消除，将会是多少
 	 *  WorkItemProxy.remainingValAtStart ： 这一条workItem是基于多大的值开始进行计算的？
 	 */
-	protected static void calculateWSContentDetail(WorkSheetContent ws) {
-		List<WorkItemProxy> accumaltorForWorkItem = new ArrayList<WorkItemProxy>();
+	public static void calculateWSContentDetail(WorkSheetContent ws) {
+		List<WorkItemProxy> accumulatorForWorkItem = new ArrayList<WorkItemProxy>();
 		/* workItem按startTime排序 所以每一个workItem的remainingValForCur
 		 *  就相当于把已遍历的workItem当做所有workItem求出的对应planItem的remainningVal值
 		 * 但这里当心的是需要planItems克隆 不能影响到已经计算完毕的planItems
@@ -347,13 +347,13 @@ public abstract class WorkLogic{
 			List<PlanItemProxy> planItemsForTemp = ws.planItems.stream().map(PlanItemProxy::clone)
 					.collect(toList());
 			
-			calculatePlanItemProxyDetail(planItemsForTemp, accumaltorForWorkItem);
+			calculatePlanItemProxyDetail(planItemsForTemp, accumulatorForWorkItem);
 			
 			workItem.remainingValAtStart = parseTo(planItemsForTemp).values().stream()
 					.map(node->node.item)
 					.filter(planItem->planItem.item.getId().equals(workItem.item.getPlanItemId())).findAny().get().remainingValForCur;
 			
-			accumaltorForWorkItem.add(workItem);
+			accumulatorForWorkItem.add(workItem);
 		});
 		calculatePlanItemProxyDetail(ws.planItems, ws.workItems);
 	}
