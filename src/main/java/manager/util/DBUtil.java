@@ -23,7 +23,7 @@ import manager.entity.SMEntity;
 import manager.entity.general.SMGeneralEntity;
 import manager.exception.DBException;
 import manager.exception.NoSuchElement;
-import manager.system.SMDB;
+import manager.system.DBConstants;
 import manager.system.SMError;
 import org.hibernate.query.Query;
 
@@ -198,7 +198,7 @@ public abstract class DBUtil {
 					handler.val =handler.val.setParameter(key,val);
 				});
 
-				return handler.val.setMaxResults(SM.MAX_LINES).getResultList();
+				return handler.val.setMaxResults(SM.MAX_DB_LINES_IN_ONE_SELECTS).getResultList();
 			}catch (Exception e) {
 				throw processDBException(e);
 			}
@@ -698,7 +698,7 @@ public abstract class DBUtil {
 	}
 
 	public static<T extends SMEntity> void deleteEntity(Class<T> cla, long id,SessionFactory hbFactory) throws DBException {
-		long deleteRows = deleteEntitiesByField(cla, SMDB.F_ID, id, hbFactory);
+		long deleteRows = deleteEntitiesByField(cla, DBConstants.F_ID, id, hbFactory);
 		if(deleteRows == 0) {
 			assert false;
 		}

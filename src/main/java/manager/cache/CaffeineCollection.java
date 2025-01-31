@@ -3,6 +3,7 @@ package manager.cache;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import manager.entity.general.books.SharingBook;
 import manager.entity.general.career.WorkSheet;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -38,6 +39,9 @@ public class CaffeineCollection {
     @Value("${cache.temp.expiration-of-min}")
     private Integer TEMP_EXPIRATION_OF_MIN;
 
+    @Value("${cache.books.max-num}")
+    private Integer BOOKS_MAX_NUM;
+
     @PostConstruct
     public void init() {
         Common_Cache = generateCommonCache();
@@ -46,6 +50,7 @@ public class CaffeineCollection {
         Perms_Cache = generateEnumCache(PERMS_MAX_NUM);
         Worksheet_Cache = generateSpecificEntityCache(WORKSHEETS_MAX_NUM,COMMON_EXPIRATION_OF_MIN);
         Temp_Users_Cache = generateSpecificEntityCache(TEMP_USERS_MAX_NUM, TEMP_EXPIRATION_OF_MIN);
+        Books_Cache = generateSpecificEntityCache(BOOKS_MAX_NUM,COMMON_EXPIRATION_OF_MIN);
     }
 
     private Cache<String, String> generateCommonTempCache() {
@@ -70,7 +75,7 @@ public class CaffeineCollection {
 
     public Cache<Long, WorkSheet> Worksheet_Cache;
 
-
+    public Cache<String, SharingBook> Books_Cache;
 
     private <T,V> Cache<V, T> generateSpecificEntityCache(int maxSize,int expirationMin) {
         return Caffeine.newBuilder()

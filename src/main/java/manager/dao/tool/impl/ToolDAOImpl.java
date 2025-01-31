@@ -12,7 +12,7 @@ import org.hibernate.SessionFactory;
 import manager.dao.tool.ToolDAO;
 import manager.entity.general.tool.ToolRecord;
 import manager.exception.DBException;
-import manager.system.SMDB;
+import manager.system.DBConstants;
 import manager.system.tool.Tool;
 import org.springframework.stereotype.Repository;
 
@@ -41,7 +41,7 @@ public class ToolDAOImpl implements ToolDAO {
 
 	@Override
 	public ToolRecord selectToolRecordByTool(Tool tool) throws DBException {
-		return selectUniqueExistedEntityByField(ToolRecord.class, SMDB.F_TOOL, tool, sessionFactory);
+		return selectUniqueExistedEntityByField(ToolRecord.class, DBConstants.F_TOOL, tool, sessionFactory);
 	}
 	
 	

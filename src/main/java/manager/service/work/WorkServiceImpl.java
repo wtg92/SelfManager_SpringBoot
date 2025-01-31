@@ -14,11 +14,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import com.alibaba.fastjson2.JSON;
 import manager.cache.CacheOperator;
 import manager.dao.career.WorkDAO;
 import manager.data.EntityTag;
 import manager.data.career.BalanceContent;
-import manager.data.career.StatisticsList;
+import manager.data.career.MultipleItemsResult;
 import manager.data.career.WorkSheetContent;
 import manager.data.career.WorkSheetContent.PlanItemNode;
 import manager.data.proxy.career.PlanBalanceProxy;
@@ -37,7 +38,7 @@ import manager.exception.SMException;
 import manager.booster.TagCalculator;
 import manager.cache.CacheMode;
 import manager.system.SM;
-import manager.system.SMDB;
+import manager.system.DBConstants;
 import manager.system.SMError;
 import manager.system.SMPerm;
 import manager.system.career.CareerLogAction;
@@ -61,9 +62,9 @@ import javax.annotation.Resource;
  * 关于缓存的clone getEntity 其实不必clone
  */
 @Service
-public class WorkLogicImpl extends WorkLogic{
+public class WorkServiceImpl extends WorkService {
 	
-	final private static Logger logger = Logger.getLogger(WorkLogicImpl.class.getName());
+	final private static Logger logger = Logger.getLogger(WorkServiceImpl.class.getName());
 
 	@Resource
 	private WorkDAO wDAO;
@@ -123,11 +124,6 @@ public class WorkLogicImpl extends WorkLogic{
 
 	private void deleteCountRecord(Long dateUtc, String timezone) {
 		cache.deleteGeneralKey(CacheMode.T_WS_COUNT_FOR_DATE, dateUtc,timezone);
-	}
-
-	@Override
-	public long createPlan(long ownerId, String name, Calendar startDate, Calendar endDate, String note) throws LogicException, DBException {
-		throw new RuntimeException("Blocked");
 	}
 
 	@Override
@@ -332,12 +328,6 @@ public class WorkLogicImpl extends WorkLogic{
 	}
 
 	@Override
-	@Deprecated
-	public void savePlan(long saverId, long planId, String name, Calendar startDate, Calendar endDate, String note,
-			boolean recalculateState,List<PlanSetting> settings,int seqWeight) throws LogicException, DBException {
-	}
-
-	@Override
 	public void saveWorkSheetPlanId(long updaterId, long wsId, long planId) throws SMException {
 		WorkSheet ws = getWorksheet(wsId);
 		if(updaterId != ws.getOwnerId()) {
@@ -417,6 +407,7 @@ public class WorkLogicImpl extends WorkLogic{
 		if(plan.getOwnerId() != loginId) {
 			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
 		}
+
 		assert plan.getState() != PlanState.ABANDONED;
 		boolean existsWSBaseThisPlan = wDAO.includeWorkSheetByPlanId(plan.getId());
 		if(!existsWSBaseThisPlan) {
@@ -442,14 +433,13 @@ public class WorkLogicImpl extends WorkLogic{
 
 	@Override
 	public void finishPlan(long loginId, long planId) throws LogicException, DBException {
-		Plan plan = getPlan(loginId);
+		Plan plan = getPlan(planId);
 		if(plan.getOwnerId() != loginId) {
 			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
 		}
-		PlanState after= PlanState.FINISHED;
+		PlanState after= PlanState.ABANDONED;
 		assert plan.getState() != after;
 		long endTime = System.currentTimeMillis();
-
 		WorkContentConverter.addLog(plan, CareerLogAction.FINISH_PLAN, loginId,
 				plan.getState().getDbCode(),
 				after.getDbCode(),
@@ -487,31 +477,7 @@ public class WorkLogicImpl extends WorkLogic{
 		return wDAO.selectWorkSheetInfoRecentlyByOwner(operateId, page, DEFAULT_WS_LIMIT_OF_ONE_PAGE);
 	}
 	
-	
-	/**
-	 *  需要计划名 平均心情 假设不包括同步项  计划的完成情况
-	 */
-	@Override
-	public List<WorkSheetProxy> loadWorkSheetsByDateScope(long loginId, Calendar startDate, Calendar endDate)
-			throws SMException {
-		
-		List<WorkSheet> wss = wDAO.selectWorkSheetsByOwnerAndDateScope(loginId, startDate, endDate);
-		
-		List<WorkSheetProxy> rlt = fillPlanInfos(wss);
-		
-		for(WorkSheetProxy ws: rlt) {
-			WorkSheetContent content = WorkContentConverter.convertWorkSheet(ws.ws);
-			calculateWSContentDetail(content);
-			//TODO 重新计算噢
-//			ws.mood = calculateMoodByWorkItems(content.workItems);
-			List<WorkItemProxy> itemsWithoutDeptItems = content.workItems.stream().filter(item->item.item.getType() != WorkItemType.DEBT).collect(toList());
-			calculatePlanItemProxyDetail(content.planItems, itemsWithoutDeptItems);
-			ws.finishPlanWithoutDeptItems = content.planItems.stream().allMatch(pItem->pItem.remainingValForCur <= 0.0);
-			ws.content = content;
-		}
-		
-		return clearUnnecessaryInfo(rlt);
-	}
+
 
 	@Override
 	public List<WorkSheetProxy> loadWorkSheetsByDateScopeAndTimezone(long loginId, long startDate, long endDate, String timezone, Boolean regardingTimezone) {
@@ -562,10 +528,6 @@ public class WorkLogicImpl extends WorkLogic{
 		return ws;
 	}
 
-	@Override
-	public long loadWorkSheetCount(long loginId,Calendar date) throws SMException {
-		throw new RuntimeException("block");
-	}
 
 	@Override
 	public long getWorkSheetCount(long loginId, Long date, String timezone) {
@@ -573,13 +535,6 @@ public class WorkLogicImpl extends WorkLogic{
 		return Long.parseLong(cache.getGeneralValOrInit(CacheMode.T_WS_COUNT_FOR_DATE
 				,()->String.valueOf(wDAO.countWorkSheetByDateAndTimezone(date,timezone))
 				,date,timezone));
-	}
-
-
-	@Override
-	public List<Plan> loadActivePlans(long loginId) throws LogicException, DBException {
-		uL.checkPerm(loginId, SMPerm.SEE_SELF_PLANS);
-		return wDAO.selectPlansByOwnerAndStates(loginId, List.of(PlanState.ACTIVE));
 	}
 
 	/**
@@ -631,7 +586,6 @@ public class WorkLogicImpl extends WorkLogic{
 
 	/**
 	 * 所有的时间类型需要处理时区问题 因此改用utc时间戳的方式记载时间
-	 * TODO 最终处理数据问题
 	 * 处理之后 理论上说 本方法就没有了
 	 * @param plan
 	 */
@@ -686,8 +640,8 @@ public class WorkLogicImpl extends WorkLogic{
 
 	private long countPlansByOwnerAndState(long ownerId,PlanState state){
 		Map<String,Object> equals = new HashMap<>();
-		equals.put(SMDB.F_STATE,state);
-		equals.put(SMDB.F_OWNER_ID,ownerId);
+		equals.put(DBConstants.F_STATE,state);
+		equals.put(DBConstants.F_OWNER_ID,ownerId);
 		return wDAO.countPlansByTerms(null,equals,null,null);
 	}
 	
@@ -707,99 +661,92 @@ public class WorkLogicImpl extends WorkLogic{
 
 	private long countWorkSheetByOwnerAndState(long loginId,WorkSheetState state){
 		Map<String,Object> equals = new HashMap<>();
-		equals.put(SMDB.F_STATE,state);
-		equals.put(SMDB.F_OWNER_ID,loginId);
+		equals.put(DBConstants.F_STATE,state);
+		equals.put(DBConstants.F_OWNER_ID,loginId);
 		return wDAO.countWorksheetsByTerms(null,equals,null,null);
-	}
-	
-	@Override
-	public List<Plan> loadPlansByState(long ownerId,PlanState stateZT,int pageNum,int pageSize) throws LogicException, DBException {
-		if(stateZT == PlanState.UNDECIDED) {
-			return wDAO.selectPlansByField(SMDB.F_OWNER_ID, ownerId);
-		}
-		return wDAO.selectPlansByOwnerAndStates(ownerId, Arrays.asList(stateZT));
 	}
 
 	@Override
-	public StatisticsList<Plan> loadPlansByTerms(long loginId, Integer state, String name, Long startUtcForCreate, Long endUtcForCreate, Long startUtcForUpdate, Long endUtcForUpdate, String timezone) {
+	public MultipleItemsResult<Plan> loadPlansByTerms(long loginId, Integer state, String name, Long startUtcForCreate, Long endUtcForCreate, Long startUtcForUpdate, Long endUtcForUpdate, String timezone) {
 		Map<String,Object> likes = new HashMap<>();
-		if(!name.isEmpty()){
-			likes.put(SMDB.F_NAME,name);
+
+		if(!CommonUtil.emptyJudge(name,String::isEmpty)){
+			likes.put(DBConstants.F_NAME,name);
 		}
 
 		Map<String,Object> equals = new HashMap<>();
-		equals.put(SMDB.F_OWNER_ID,loginId);
-		if(state != 0){
-			equals.put(SMDB.F_STATE,PlanState.valueOfDBCode(state));
+		equals.put(DBConstants.F_OWNER_ID,loginId);
+		if(!CommonUtil.emptyJudge(state,s->s == 0)){
+			equals.put(DBConstants.F_STATE,PlanState.valueOfDBCode(state));
 		}
 
-		if(!timezone.isEmpty()){
-			equals.put(SMDB.F_TIMEZONE,timezone);
+		if(!CommonUtil.emptyJudge(timezone,String::isEmpty)){
+			equals.put(DBConstants.F_TIMEZONE,timezone);
 		}
 
 		Map<String,Object> greaterThan = new HashMap<>();
 
-		if(startUtcForCreate != 0){
-			greaterThan.put(SMDB.F_CREATE_UTC,startUtcForCreate);
+		if(!CommonUtil.emptyJudge(startUtcForCreate,s->s == 0)){
+			greaterThan.put(DBConstants.F_CREATE_UTC,startUtcForCreate);
 		}
-		if(startUtcForUpdate != 0){
-			greaterThan.put(SMDB.F_UPDATE_UTC,startUtcForUpdate);
+		if(!CommonUtil.emptyJudge(startUtcForUpdate,s->s == 0)){
+			greaterThan.put(DBConstants.F_UPDATE_UTC,startUtcForUpdate);
 		}
 
 		Map<String,Object> lessThan = new HashMap<>();
-		if(endUtcForCreate != 0){
-			lessThan.put(SMDB.F_CREATE_UTC,endUtcForCreate);
+		if(!CommonUtil.emptyJudge(endUtcForCreate,s->s == 0)){
+			lessThan.put(DBConstants.F_CREATE_UTC,endUtcForCreate);
 		}
-		if(endUtcForUpdate != 0){
-			lessThan.put(SMDB.F_UPDATE_UTC,endUtcForUpdate);
+		if(!CommonUtil.emptyJudge(endUtcForUpdate,s->s == 0)){
+			lessThan.put(DBConstants.F_UPDATE_UTC,endUtcForUpdate);
 		}
 
 		List<Plan> items = wDAO.selectPlansByTerms(likes,equals,greaterThan,lessThan);
 		long count = wDAO.countPlansByTerms(likes,equals,greaterThan,lessThan);
-		StatisticsList<Plan> rlt = new StatisticsList<>();
+		MultipleItemsResult<Plan> rlt = new MultipleItemsResult<>();
 		rlt.items = items;
 		rlt.count = count;
 		return rlt;
 	}
 
 	@Override
-	public StatisticsList<WorkSheetProxy> loadWorksheetsByTerms(long loginId, Integer state, Long startUtcForDate, Long endUtcForDate, Long startUtcForUpdate, Long endUtcForUpdate, String timezone, long planId) {
+	public MultipleItemsResult<WorkSheetProxy> loadWorksheetsByTerms(long loginId, Integer state, Long startUtcForDate, Long endUtcForDate, Long startUtcForUpdate, Long endUtcForUpdate, String timezone, long planId) {
 		Map<String,Object> likes = new HashMap<>();
 
 		Map<String,Object> equals = new HashMap<>();
-		equals.put(SMDB.F_OWNER_ID,loginId);
-		if(state != 0){
-			equals.put(SMDB.F_STATE,WorkSheetState.valueOfDBCode(state));
+		equals.put(DBConstants.F_OWNER_ID,loginId);
+		if(!CommonUtil.emptyJudge(state,s->s == 0)){
+			equals.put(DBConstants.F_STATE,WorkSheetState.valueOfDBCode(state));
 		}
 
-		if(planId != 0){
-			equals.put(SMDB.F_PLAN_ID,planId);
+		if(!CommonUtil.emptyJudge(planId,s->s == 0)){
+			equals.put(DBConstants.F_PLAN_ID,planId);
 		}
 
-		if(!timezone.isEmpty()){
-			equals.put(SMDB.F_TIMEZONE,timezone);
+		if(!CommonUtil.emptyJudge(timezone,String::isEmpty)){
+			equals.put(DBConstants.F_TIMEZONE,timezone);
 		}
 
 		Map<String,Object> greaterThan = new HashMap<>();
 
-		if(startUtcForDate != 0){
-			greaterThan.put(SMDB.F_DATE_UTC,startUtcForDate);
+		if(!CommonUtil.emptyJudge(startUtcForDate,s->s == 0)){
+			greaterThan.put(DBConstants.F_DATE_UTC,startUtcForDate);
 		}
-		if(startUtcForUpdate != 0){
-			greaterThan.put(SMDB.F_UPDATE_UTC,startUtcForUpdate);
+		if(!CommonUtil.emptyJudge(startUtcForUpdate,s->s == 0)){
+			greaterThan.put(DBConstants.F_UPDATE_UTC,startUtcForUpdate);
 		}
 
 		Map<String,Object> lessThan = new HashMap<>();
-		if(endUtcForDate != 0){
-			lessThan.put(SMDB.F_DATE_UTC,endUtcForDate);
+		if(!CommonUtil.emptyJudge(endUtcForDate,s->s == 0)){
+			lessThan.put(DBConstants.F_DATE_UTC,endUtcForDate);
 		}
-		if(endUtcForUpdate != 0){
-			lessThan.put(SMDB.F_UPDATE_UTC,endUtcForUpdate);
+		if(!CommonUtil.emptyJudge(endUtcForUpdate,s->s == 0)){
+			lessThan.put(DBConstants.F_UPDATE_UTC,endUtcForUpdate);
 		}
 
 		List<WorkSheetProxy> items = clearUnnecessaryInfo(fillPlanInfos(wDAO.selectWorksheetsByTerms(likes,equals,greaterThan,lessThan)));
 		long count = wDAO.countWorksheetsByTerms(likes,equals,greaterThan,lessThan);
-		StatisticsList<WorkSheetProxy> rlt = new StatisticsList<>();
+		MultipleItemsResult<WorkSheetProxy> rlt = new MultipleItemsResult<>();
 		rlt.items = items;
 		rlt.count = count;
 		return rlt;
@@ -821,7 +768,7 @@ public class WorkLogicImpl extends WorkLogic{
 	@Override
 	public List<WorkSheetProxy> loadWorkSheetByState(long loginId, WorkSheetState stateZT){
 		if(stateZT == WorkSheetState.UNDECIDED) {
-			return fillPlanInfos(wDAO.selectWorkSheetByField(SMDB.F_OWNER_ID, loginId));
+			return fillPlanInfos(wDAO.selectWorkSheetByField(DBConstants.F_OWNER_ID, loginId));
 		}
 		return clearUnnecessaryInfo(fillPlanInfos(wDAO.selectWorkSheetByOwnerAndStates(loginId, Arrays.asList(stateZT))));
 	}
@@ -940,10 +887,6 @@ public class WorkLogicImpl extends WorkLogic{
 		updateWorksheetSynchronously(ws,opreatorId);
 	}
 	
-	@Override
-	public void saveWorkItems(long loginId, long wsId, List<WorkItem> workItems) throws SMException {
-		//BLOCK
-	}
 
 	/**
 	 * 和前台配合 为了并发的安全 选择 从取的一刻就锁住
@@ -1075,7 +1018,7 @@ public class WorkLogicImpl extends WorkLogic{
 			throw new LogicException(SMError.CANNOT_SYNC_OTHERS_PLAN_TAGS);
 		}
 		
-		List<WorkSheet> toSave = wDAO.selectWorkSheetByField(SMDB.F_PLAN_ID, planId);
+		List<WorkSheet> toSave = wDAO.selectWorkSheetByField(DBConstants.F_PLAN_ID, planId);
 		
 	 	for(WorkSheet workSheet : toSave) {
 	 		List<EntityTag> tagsByPlan =  CommonUtil.cloneList(target.getTags(),tag->{

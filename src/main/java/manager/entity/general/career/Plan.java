@@ -2,7 +2,6 @@ package manager.entity.general.career;
 
 import java.util.Calendar;
 import java.util.List;
-import java.util.Objects;
 
 import jakarta.persistence.*;
 
@@ -12,16 +11,15 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import manager.data.EntityTag;
 import manager.entity.general.SMGeneralEntity;
-import manager.system.SMDB;
+import manager.system.DBConstants;
 import manager.system.career.PlanSetting;
 import manager.system.career.PlanState;
 import manager.system.career.converter.PlanSettingConverter;
 import manager.system.career.converter.PlanStateConverter;
 import manager.system.converter.TagsConverter;
-import org.hibernate.annotations.Immutable;
 
 @Entity
-@Table(name = SMDB.T_PLAN)
+@Table(name = DBConstants.T_PLAN)
 @DynamicInsert
 @DynamicUpdate
 public class Plan extends SMGeneralEntity {

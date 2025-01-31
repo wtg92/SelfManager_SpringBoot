@@ -1,7 +1,6 @@
 package manager.dao.impl;
 
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.hibernate.Session;
@@ -13,7 +12,7 @@ import manager.entity.general.User;
 import manager.entity.general.UserGroup;
 import manager.exception.DBException;
 import manager.exception.NoSuchElement;
-import manager.system.SMDB;
+import manager.system.DBConstants;
 import manager.system.SMPerm;
 import org.springframework.stereotype.Repository;
 
@@ -61,28 +60,28 @@ public class UserDAOImpl implements UserDAO {
 
 	@Override
 	public void insertUsersToGroup(List<Long> usersId, long groupId) throws DBException {
-		insertGeneralRTableData(SMDB.T_R_USER_GROUP, usersId, groupId, sessionFactory);
+		insertGeneralRTableData(DBConstants.T_R_USER_GROUP, usersId, groupId, sessionFactory);
 	}
 
 	@Override
 	public void insertPermsToGroup(List<SMPerm> perms, long groupId) throws DBException {
-		insertGeneralRTableData(SMDB.T_R_GROUP_PERM,perms.stream().map(perm->(long)perm.getDbCode()).collect(Collectors.toList()), groupId, sessionFactory);
+		insertGeneralRTableData(DBConstants.T_R_GROUP_PERM,perms.stream().map(perm->(long)perm.getDbCode()).collect(Collectors.toList()), groupId, sessionFactory);
 	}
 
 	@Override
 	public void deleteUsersFromGroup(List<Long> usersId, long groupId) throws DBException {
-		deleteGeneralRTableData(SMDB.T_R_USER_GROUP, SMDB.F_USER_ID, SMDB.F_USER_GROUP_ID, usersId,groupId, sessionFactory);
+		deleteGeneralRTableData(DBConstants.T_R_USER_GROUP, DBConstants.F_USER_ID, DBConstants.F_USER_GROUP_ID, usersId,groupId, sessionFactory);
 	}
 
 	@Override
 	public void deletePermsFromGroup(List<SMPerm> perms, long groupId) throws DBException {
-		deleteGeneralRTableData(SMDB.T_R_GROUP_PERM, SMDB.F_PERM_ID, SMDB.F_USER_GROUP_ID,
+		deleteGeneralRTableData(DBConstants.T_R_GROUP_PERM, DBConstants.F_PERM_ID, DBConstants.F_USER_GROUP_ID,
 				perms.stream().map(perm->(long)perm.getDbCode()).collect(Collectors.toList()), groupId, sessionFactory);
 	}
 
 	@Override
 	public List<User> selectUsersByIds(List<Long> userIds) {
-		return selectEntitiesByManyField(User.class,SMDB.F_ID,userIds, String::valueOf, sessionFactory);
+		return selectEntitiesByManyField(User.class, DBConstants.F_ID,userIds, String::valueOf, sessionFactory);
 	}
 
 	@Override
@@ -106,7 +105,7 @@ public class UserDAOImpl implements UserDAO {
 	public List<Integer> selectPermsByUser(long userId) {
 		return sessionFactory.fromStatelessSession((session)->
 				session.createNativeQuery("""
-					select count(*)>0 from scientific_manager.user u1
+					select perm_id from scientific_manager.user u1
 					left join
 					r_user_group r1 on u1.id = r1.user_id
 					left join
@@ -120,22 +119,22 @@ public class UserDAOImpl implements UserDAO {
 
 	@Override
 	public List<Long> selectGroupsByUser(long userId) throws DBException {
-		return selectGeneralRTableData(SMDB.T_R_USER_GROUP, SMDB.F_USER_GROUP_ID, SMDB.F_USER_ID, userId, sessionFactory);
+		return selectGeneralRTableData(DBConstants.T_R_USER_GROUP, DBConstants.F_USER_GROUP_ID, DBConstants.F_USER_ID, userId, sessionFactory);
 	}
 
 	@Override
 	public List<Integer> selectPermsByGroup(long groupId) throws DBException {
-		return selectGeneralRTableDataInInt(SMDB.T_R_GROUP_PERM,SMDB.F_PERM_ID, SMDB.F_USER_GROUP_ID, groupId, sessionFactory);
+		return selectGeneralRTableDataInInt(DBConstants.T_R_GROUP_PERM, DBConstants.F_PERM_ID, DBConstants.F_USER_GROUP_ID, groupId, sessionFactory);
 	}
 
 	@Override
 	public List<Long> selectUsersIdByGroup(long groupId) throws DBException {
-		return selectGeneralRTableData(SMDB.T_R_USER_GROUP, SMDB.F_USER_ID,SMDB.F_USER_GROUP_ID, groupId, sessionFactory);
+		return selectGeneralRTableData(DBConstants.T_R_USER_GROUP, DBConstants.F_USER_ID, DBConstants.F_USER_GROUP_ID, groupId, sessionFactory);
 	}
 
 	@Override
 	public boolean includeUserGroup(long groupId) throws DBException {
-		return includeUniqueEntityByField(UserGroup.class, SMDB.F_ID, groupId, sessionFactory);
+		return includeUniqueEntityByField(UserGroup.class, DBConstants.F_ID, groupId, sessionFactory);
 	}
 
 	@Override
@@ -161,7 +160,7 @@ public class UserDAOImpl implements UserDAO {
 
 	@Override
 	public long countUsersOfGroup(long groupId) throws DBException {
-		return countByField(SMDB.T_R_USER_GROUP, SMDB.F_USER_GROUP_ID, groupId, sessionFactory);
+		return countByField(DBConstants.T_R_USER_GROUP, DBConstants.F_USER_GROUP_ID, groupId, sessionFactory);
 	}
 
 	@Override
@@ -176,7 +175,7 @@ public class UserDAOImpl implements UserDAO {
 		try {
 			session = sessionFactory.getCurrentSession();
 			trans = session.beginTransaction();
-			String sql = String.format("SELECT * FROM %s WHERE %s in (select %s FROM %s WHERE %s=?) limit %s", SMDB.T_USER,SMDB.F_ID,SMDB.F_USER_ID,SMDB.T_R_USER_GROUP,SMDB.F_USER_GROUP_ID,limit);
+			String sql = String.format("SELECT * FROM %s WHERE %s in (select %s FROM %s WHERE %s=?) limit %s", DBConstants.T_USER, DBConstants.F_ID, DBConstants.F_USER_ID, DBConstants.T_R_USER_GROUP, DBConstants.F_USER_GROUP_ID,limit);
 			@SuppressWarnings("unchecked")
 			List<User> entities = session.createQuery(sql,User.class)
 					.setParameter(1, groupId).list();

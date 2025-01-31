@@ -1,11 +1,6 @@
 package manager.system;
 
-public abstract class SMDB {
-	
-	/*一次最多取500条*/
-	public static final int MAX_NUM_IN_ONE_SELECT = 500;
-	
-	
+public abstract class DBConstants {
 	public static final String T_USER = "user";
 	public static final String T_USER_GROUP = "user_group";
 	public static final String T_R_USER_GROUP = "r_user_group";
@@ -39,8 +34,6 @@ public abstract class SMDB {
 	
 	
 	public static final String F_ID= "id";
-	public static final String F_TYPE= "type";
-	public static final String F_NOTE= "note";
 	public static final String F_NAME= "name";
 	public static final String F_CONTENT= "content";
 	public static final String F_ACCOUNT = "account";
@@ -77,8 +70,8 @@ public abstract class SMDB {
 	public static final String F_WITH_TODOS = "with_todos";
 	public static final String F_UPDATE_TIME = "update_time";
 	public static final String F_UPDATE_UTC = "update_utc";
-	public static final String F_CREATE_TIME = "create_time";
 	public static final String F_IMPORTANT = "important";
 	public static final String F_HIDDEN = "hidden";
 	public static final String F_TOOL = "tool";
+
 }

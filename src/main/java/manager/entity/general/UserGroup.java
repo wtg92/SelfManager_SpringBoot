@@ -6,12 +6,12 @@ import jakarta.persistence.Table;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
-import manager.system.SMDB;
+import manager.system.DBConstants;
 
 import java.util.Calendar;
 
 @Entity
-@Table(name = SMDB.T_USER_GROUP)
+@Table(name = DBConstants.T_USER_GROUP)
 @DynamicInsert
 @DynamicUpdate
 public class UserGroup extends SMGeneralEntity {

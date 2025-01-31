@@ -15,7 +15,7 @@ import manager.exception.LogicException;
 import manager.cache.CacheScheduler_Old;
 import manager.system.Gender;
 import manager.system.SM;
-import manager.system.SMDB;
+import manager.system.DBConstants;
 import manager.util.SecurityUtil;
 
 public abstract class TestUtil {
@@ -40,7 +40,7 @@ public abstract class TestUtil {
 		UserDAO uDAO = DAOFactory.getUserDAO();
 		UserGroup group = new UserGroup();
 		group.setName(SM.DEFAULT_BASIC_USER_GROUP);
-		assert !uDAO.includeUniqueUserGroupByField(SMDB.F_NAME,group.getName());
+		assert !uDAO.includeUniqueUserGroupByField(DBConstants.F_NAME,group.getName());
 		uDAO.insertUserGroup(group);
 	}
 	

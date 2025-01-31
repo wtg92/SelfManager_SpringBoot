@@ -5,7 +5,7 @@ import manager.entity.general.User;
 import manager.entity.general.UserGroup;
 import manager.entity.general.career.*;
 import manager.service.work.WorkContentConverter;
-import manager.system.SMDB;
+import manager.system.DBConstants;
 import manager.system.SMPerm;
 import manager.util.*;
 import org.hibernate.SessionFactory;
@@ -51,7 +51,7 @@ public class DataMigrationService {
          */
         {
             Map<String,Object> equals = new HashMap<>();
-            String filed = SMDB.F_TIMEZONE;
+            String filed = DBConstants.F_TIMEZONE;
             equals.put(filed,null);
             Class<Plan> cla = Plan.class;
             String identity = CommonUtil.getEntityTableName(cla)+"_"+filed;
@@ -79,7 +79,7 @@ public class DataMigrationService {
          */
         {
             Map<String,Object> equals = new HashMap<>();
-            String filed = SMDB.F_START_UTC;
+            String filed = DBConstants.F_START_UTC;
             equals.put(filed,null);
             Class<Plan> cla = Plan.class;
             String identity = CommonUtil.getEntityTableName(cla)+"_"+filed;
@@ -99,7 +99,7 @@ public class DataMigrationService {
          */
         {
             Map<String,Object> equals = new HashMap<>();
-            String filed = SMDB.F_END_UTC;
+            String filed = DBConstants.F_END_UTC;
             equals.put(filed,null);
             Class<Plan> cla = Plan.class;
             String identity = CommonUtil.getEntityTableName(cla)+"_"+filed;
@@ -123,7 +123,7 @@ public class DataMigrationService {
          */
         {
             Map<String,Object> equals = new HashMap<>();
-            String filed = SMDB.F_TIMEZONE;
+            String filed = DBConstants.F_TIMEZONE;
             equals.put(filed,null);
             Class<WorkSheet> cla = WorkSheet.class;
             String identity = CommonUtil.getEntityTableName(cla)+"_"+filed;
@@ -143,7 +143,7 @@ public class DataMigrationService {
          */
         {
             Map<String,Object> equals = new HashMap<>();
-            String filed = SMDB.F_DATE_UTC;
+            String filed = DBConstants.F_DATE_UTC;
             equals.put(filed,null);
             Class<WorkSheet> cla = WorkSheet.class;
             String identity = CommonUtil.getEntityTableName(cla)+"_"+filed;
@@ -164,7 +164,7 @@ public class DataMigrationService {
          */
         {
             Map<String,Object> equals = new HashMap<>();
-            String filed = SMDB.F_DATA_VERSION;
+            String filed = DBConstants.F_DATA_VERSION;
             equals.put(filed,null);
             Class<WorkSheet> cla = WorkSheet.class;
             String identity = CommonUtil.getEntityTableName(cla)+"_"+filed;
@@ -190,7 +190,7 @@ public class DataMigrationService {
      */
     private  <T extends SMGeneralEntity>  void  doGeneralMigration(Class<T> cla, Function<T,Calendar> createTimeGetter){
         Map<String,Object> equals = new HashMap<>();
-        String field = SMDB.F_CREATE_UTC;
+        String field = DBConstants.F_CREATE_UTC;
         equals.put(field,null);
         final String identity = CommonUtil.getEntityTableName(cla)+"_"+field;
         Long start = System.currentTimeMillis();

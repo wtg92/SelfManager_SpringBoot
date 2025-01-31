@@ -4,8 +4,10 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import manager.entity.general.books.SharingBook;
 import manager.entity.general.career.WorkSheet;
 import manager.util.RefiningUtil;
+import manager.util.ReflectUtil;
 import manager.util.TimeUtil;
 import manager.util.ZonedTimeUtils;
 import org.junit.Test;
@@ -23,6 +25,13 @@ public class DEBUG_COMMON {
         Calendar cl = Calendar.getInstance();
         cl.setTime(date);
         System.out.println(TimeUtil.parseTime(cl));
+    }
+
+    @Test
+    public void testReflect(){
+        SharingBook book = new SharingBook();
+        book = ReflectUtil.setFiledValue(book,"comment_ch","Unbeliable");
+        System.out.println(book.getComment_ch());
     }
     @Test
     public void testTime(){

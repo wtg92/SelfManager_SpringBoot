@@ -10,14 +10,14 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import manager.system.Gender;
-import manager.system.SMDB;
+import manager.system.DBConstants;
 import manager.system.converter.GenderConverter;
 
 import java.util.Calendar;
 
 
 @Entity
-@Table(name = SMDB.T_USER)
+@Table(name = DBConstants.T_USER)
 @DynamicInsert
 @DynamicUpdate
 public class User extends SMGeneralEntity{

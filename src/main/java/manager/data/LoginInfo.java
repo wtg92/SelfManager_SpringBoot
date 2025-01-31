@@ -10,7 +10,7 @@ public class LoginInfo {
 	public UserProxy user;
 	
 	public boolean seeUsersModule;
-	public boolean seeNotesModule;
+	public boolean seeBooksModule;
 	public boolean seeToolsModule;
 	public boolean seeWorkSheetModule;
 
@@ -23,7 +23,7 @@ public class LoginInfo {
 	
 	private void initPerms() {
 		seeUsersModule = hasPerm(SMPerm.SEE_USERS_MODULE);
-		seeNotesModule = hasPerm(SMPerm.SEE_NOTES_MODULE);
+		seeBooksModule = hasPerm(SMPerm.SEE_BOOKS_MODULE);
 		seeToolsModule = hasPerm(SMPerm.SEE_TOOLS_MODULE);
 		seeWorkSheetModule = hasPerm(SMPerm.SEE_WORKSHEET_MODULE);
 		canDoMigrationOfV1 = hasPerm(SMPerm.DO_MIGRATION_OF_VER1);

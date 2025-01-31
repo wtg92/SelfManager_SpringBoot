@@ -8,25 +8,37 @@ const NOTE_BOOK_NAMESPACE = {
 }
 
 $(function(){
-
+    //DONE 去掉
+    bindMemoDialogEvents();
+    //DONE 去掉
+    loadMemo();
+    //DONE
+    bindDragNavagationEvents();
     window.onbeforeunload = ()=>{
         if(NOTE_BOOK_NAMESPACE.NEEDING_SAVING){
             return "您还没有保存，确定要离开吗";
         }
     };
+    //DONE
+    initNoteBookContentUI();
+    //DONE
+    $("#note_book_content_main_header_units_container").on("click",".note_book_for_unit_header_navagation_container",switchBookContentWindow)
+        .on("click",".note_book_for_unit_header_navagation_close_window_btn",closeBookWindowByClick)
 
-    
+    //DONE
+    $("#note_book_close_all_book_content").click(closeAllBookWindows);
+
+
+    //TODO 标签管理器  我突然记起来 这还是工作表 未做完的一件事 这个的核心是 可移动窗口
     initNoteLabelsManager();
 
-    initNoteBookContentUI();
-    
-    loadMemo();
+
+
 
     loadNoteLabelsAndFillUI();
 
     $("body").on("keydown",monitorHotKeys);
 
-    bindMemoDialogEvents();
 
 
     $("#note_book_content_main_body_container")
@@ -67,17 +79,14 @@ $(function(){
         .on("click",".one_note_book_content_unit_page_control_mark_hidden,.one_note_book_content_unit_page_control_mark_show",changeNoteHidden)
         .on("click",".one_note_book_content_unit_page_control_delete_btn",deleteNoteByClickBtnInPage)
 
-    $("#note_book_content_main_header_units_container").on("click",".note_book_for_unit_header_navagation_container",switchBookContentWindow)
-        .on("click",".note_book_for_unit_header_navagation_close_window_btn",closeBookWindowByClick)
     
 
-    bindDragNavagationEvents();
+
+
     bindDragNoteListUnitEvents();
     bindNotePageSaveEvents();
     
 
-    $("#note_book_close_all_book_content").click(closeAllBookWindows);
-    
 
 });
 
@@ -88,11 +97,11 @@ function copyEMContent(){
     copyToClipboardInDefault(text);
 }
 
-function banDraggingMemoItems(){
-    $("#memo_dialog_body_items_container").find(".one_memo_item_unit_container").prop("draggable",false);
-}
+    function banDraggingMemoItems(){
+        $("#memo_dialog_body_items_container").find(".one_memo_item_unit_container").prop("draggable",false);
+    }
 
-function unbanDraggingMemoItems(){
+    function unbanDraggingMemoItems(){
     $("#memo_dialog_body_items_container").find(".one_memo_item_unit_container").prop("draggable",true);
 }
 
@@ -1486,10 +1495,11 @@ function removeBookNavagtionLoadingState(bookId){
 
 
 function switchWindowByBookId(bookId){
+    //DONE
     $("#note_book_content_main_header_units_container").find(".note_book_for_unit_header_navagation_container").removeClass("select_navagation").end()
         .find(".note_book_for_unit_header_navagation_container[book_id='"+bookId+"']").addClass("select_navagation");
 
-    
+    //DONE
     $("#note_book_content_main_body_container").find(".note_book_for_unit_body_container").hide().end()
         .find(".note_book_for_unit_body_container[book_id='"+bookId+"']").show();
 
@@ -1844,6 +1854,7 @@ function showBookBasicInfoContainer($container){
 }
 
 
+//DONE
 function initNoteBookContentUI(){
     let $container = $("#note_book_content_pattern_container .note_book_for_unit_body_container");
     $container.find(".note_book_content_style_unit").each((i,v)=>{
@@ -1866,16 +1877,23 @@ function fillBookStyle($book,mainColor,subColor){
 
 
 /*For External Module*/
+//TODO ABCD
 function openNoteBook(bookId,usingWatchMode){
+    //DONE 已打开的情况下 重新加载
     addBookNavagtionLoadingState(bookId);
     sendAjax("CareerServlet","c_load_book_content",{
         "book_id" : bookId
     },(data)=>{
+        //DONE
         drawHeaderNavagation(data.book);
+        //DONE
+        removeBookNavagtionLoadingState(data.book.id);
+        //DONE
+        calculateWindowVisibility();
+        //TODO
         drawNotesBookContent(data,usingWatchMode);
         switchWindowByBookId(data.book.id);
-        calculateWindowVisibility();
-        removeBookNavagtionLoadingState(data.book.id);
+
     });
 }
 
@@ -1933,7 +1951,7 @@ function switchContainerMode($content,usingWatchMode){
         openNotePageEditMode($content);
     }
 }
-
+//TODO
 function drawNotesBookContent(data,usingWatchMode){
     let $contentContainer = $("#note_book_content_main_body_container");
 

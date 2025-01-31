@@ -33,6 +33,10 @@ cache:
   worksheets:
     max-num: 5000
 
+  books:
+    max-num: 50000
+
+
 lock:
   expirationCheckCron: 0/30 * * * * ?
   expirationSeconds: 60

@@ -1,4 +1,4 @@
-<%@page import="manager.service.work.WorkLogic"%>
+<%@page import="manager.service.work.WorkService"%>
 <%@page import="manager.system.Gender"%>
 <%@page import="manager.system.VerifyUserMethod"%>
 <%@page import="manager.system.SM"%>

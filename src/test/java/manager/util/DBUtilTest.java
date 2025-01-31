@@ -6,16 +6,16 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import manager.system.SMDB;
+import manager.system.DBConstants;
 
 public class DBUtilTest {
 	
 	@Test
 	public void testTranslateName() {
-		assertEquals("User", transTableToEntity(SMDB.T_USER));
-		assertEquals("UserGroup", transTableToEntity(SMDB.T_USER_GROUP));
-		assertEquals("weiXinOpenId", transFieldToAttr(SMDB.F_WEI_XIN_OPEN_ID));
-		assertEquals("nickName", transFieldToAttr(SMDB.F_NICK_NAME));
+		assertEquals("User", transTableToEntity(DBConstants.T_USER));
+		assertEquals("UserGroup", transTableToEntity(DBConstants.T_USER_GROUP));
+		assertEquals("weiXinOpenId", transFieldToAttr(DBConstants.F_WEI_XIN_OPEN_ID));
+		assertEquals("nickName", transFieldToAttr(DBConstants.F_NICK_NAME));
 	}
 	
 	

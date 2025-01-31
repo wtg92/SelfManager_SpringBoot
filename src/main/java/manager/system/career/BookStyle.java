@@ -4,13 +4,11 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import manager.exception.NoSuchElement;
 import manager.util.SystemUtil;
 
-/**
- * 对于该枚举，Color 应该放到枚举里，因为这是它独有的，不存在复用的问题。
- * */
+
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum BookStyle {
 	UNDECIDED(0,"",""),
-	YELLOW(1,"#fed754"," #ebb501"),
+	YELLOW(1,"#fed754","#ebb501"),
 	CYAN_BLUE(2,"#abc3b5","#7ea38e"),
 	BLUE(3,"#2e95aa","#1e606e"),
 	RED(4,"#cc4b48"," #9c2e2b"),

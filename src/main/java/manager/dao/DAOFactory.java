@@ -1,10 +1,5 @@
 package manager.dao;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
-import org.hibernate.Session;
-
 import manager.dao.career.NoteDAO;
 import manager.dao.career.WorkDAO;
 import manager.dao.career.impl.NoteDAOImpl;
@@ -14,8 +9,7 @@ import manager.dao.finance.impl.FinanceDAOImpl;
 import manager.dao.impl.UserDAOImpl;
 import manager.dao.tool.ToolDAO;
 import manager.dao.tool.impl.ToolDAOImpl;
-import manager.system.SMDB;
-import manager.util.DBUtil;
+import manager.system.DBConstants;
 
 /**
  * 
@@ -60,7 +54,7 @@ public abstract class DAOFactory {
 	}
 	
 	public static void deleteAllTables() {
-		for(String table:SMDB.ALL_TABLES) {
+		for(String table: DBConstants.ALL_TABLES) {
 			deleteTable(table);
 		}
 	}

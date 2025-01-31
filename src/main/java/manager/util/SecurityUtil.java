@@ -62,9 +62,12 @@ public abstract class SecurityUtil {
 	
 
 	
-	public static String encodeInfo(String info) throws LogicException {
+	public static String encodeInfo(Object info) throws LogicException {
+		if(info == null || info.toString().isEmpty()){
+			return "";
+		}
 		try {
-			return Base64.getEncoder().encodeToString(AES.encrypt(info.getBytes()));
+			return Base64.getEncoder().encodeToString(AES.encrypt(info.toString().getBytes()));
 		}catch (Exception e) {
 			throw new LogicException(SMError.UNEXPECTED_ERROR,e.getMessage());
 		}

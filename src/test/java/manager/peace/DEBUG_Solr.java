@@ -2,14 +2,19 @@ package manager.peace;
 
 import com.alibaba.fastjson2.JSON;
 import manager.SelfManagerSpringbootApplication;
+import manager.entity.general.books.BookPage;
 import manager.entity.general.books.SharingBook;
-import manager.entity.general.career.NoteBook;
+import manager.service.UserLogicImpl;
+import manager.service.books.BooksService;
+import manager.service.books.BooksSolrOperator;
 import manager.solr.SolrInvoker;
 import manager.solr.SolrOperator;
 import manager.system.Language;
-import manager.system.SMDB;
+import manager.system.DBConstants;
+import org.checkerframework.checker.index.qual.PolyUpperBound;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -26,6 +31,11 @@ public class DEBUG_Solr{
     @Resource
     SolrOperator operator;
 
+    @Resource
+    BooksService booksService;
+
+    @Resource
+    BooksSolrOperator booksSolrOperator;
     String coreName = "canI";
 
     @Test
@@ -35,8 +45,8 @@ public class DEBUG_Solr{
 
     @Test
     public void test11(){
-        String docName = SMDB.E_SHARING_BOOK;
-        String doc2 = SMDB.E_SHARING_BOOK+"TEST";
+        String docName = DBConstants.E_SHARING_BOOK;
+        String doc2 = DBConstants.E_SHARING_BOOK+"TEST";
         invoker.getCoreStatus(docName).forEach((key,val)->{
             System.out.println(key+":"+val);
         });
@@ -46,34 +56,38 @@ public class DEBUG_Solr{
 
     @Test
     public void test3(){
-        String docName = SMDB.E_SHARING_BOOK;
-        invoker.createCore(SMDB.E_SHARING_BOOK,"E:\\solr\\solr-9.6.1\\server\\solr\\configsets\\shareB");
+        String docName = DBConstants.E_SHARING_BOOK+"six";
+        invoker.createCore(docName,"E:\\solr\\solr-9.6.1\\server\\solr\\configsets\\shareB");
     }
 
+    @Autowired
+    UserLogicImpl ul;
+
+    @Test
+    public void testUser(){
+        System.out.println(JSON.toJSONString(ul.getUserAllPerms(26)));
+        ;
+    }
 
     @Test
     public void testInsert(){
-        String docName = SMDB.E_SHARING_BOOK;
+        String docName = DBConstants.E_SHARING_BOOK;
         boolean flag = operator.initCoreIfNotExist(docName,"E:\\solr\\solr-9.6.1\\server\\solr\\configsets\\shareB");
         System.out.println(flag);
         SharingBook book = new SharingBook();
-        book.setName_ch("ChineseName");
-        book.setComment_en("EnglishName");
         book.setStatus(5);
         book.setCreateUtc(System.currentTimeMillis());
-        book.setDefaultLang(Language.EN.name);
+        book.setDefaultLang(Language.ENGLISH.name);
         book.set_version_((long)-1);
         List<String> vars = Arrays.asList("TestV1;;;V2","Oh my God");
-        book.setVariables_en(vars);
         book.setDisplayPattern(1);
         //Reindex
-        operator.insertDoc(book);
     }
 
     @Test
     public void testGet(){
-        String docName = SMDB.E_SHARING_BOOK;
-        operator.getDocById("1c0b100a-b689-4a2d-a878-c16e32afad30");
+        String docName = DBConstants.E_SHARING_BOOK;
+//        operator.getDocById("1c0b100a-b689-4a2d-a878-c16e32afad30");
     }
 
     @Test
@@ -82,6 +96,34 @@ public class DEBUG_Solr{
     }
 
 
+    @Test
+    public void testQuery(){
+        invoker.testSolrClient();
+    }
 
+    @Test
+    public void testBook(){
+        BookPage book = new BookPage();
+        book.setName_ch("ChineseName");
+        book.setCreateUtc(System.currentTimeMillis());
+        book.set_version_((long)-1);
+        List<String> vars = Arrays.asList("TestV1;;;V2","Oh my God");
+        book.setVariables_en(vars);
+        book.setParentIds(Arrays.asList("1184ec93-fbf2-48dc-b506-d9dfa3fd1352","82e7ce4b-6551-4cc5-af8a-7d2e01c62cd4") );
+        book.setIndexes(Arrays.asList(5));
+        book.setBookId("ohmygod");
+        long userId = 666;
+        booksSolrOperator.insertPage(book,userId);
+    }
+
+    @Test
+    public void testQueryBook(){
+        String parentId  = "";
+        long userId = 12354;
+        boolean isRoot = false;
+        boolean isMax = false;
+        Integer rlt =  booksSolrOperator.queryPageIndex(parentId,userId,isRoot,isMax);
+        System.out.println(rlt);
+    }
 
 }

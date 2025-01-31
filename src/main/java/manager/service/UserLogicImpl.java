@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 import jakarta.transaction.Transactional;
 import manager.cache.*;
 import manager.dao.UserDAO;
+import manager.data.UserBasicInfo;
 import manager.data.UserSummary;
 import manager.data.proxy.UserGroupProxy;
 import manager.data.proxy.UserProxy;
@@ -28,7 +29,7 @@ import manager.exception.NoSuchElement;
 import manager.system.Gender;
 import manager.system.NoSuchElementType;
 import manager.system.SM;
-import manager.system.SMDB;
+import manager.system.DBConstants;
 import manager.system.SMError;
 import manager.system.SMPerm;
 import manager.system.UserUniqueField;
@@ -82,7 +83,7 @@ public class UserLogicImpl extends UserLogic {
 		return perms.contains(perm.getDbCode());
 	}
 
-	private Set<SMPerm> getUserAllPerms(long userId) throws DBException, LogicException{
+	public Set<SMPerm> getUserAllPerms(long userId) throws DBException, LogicException{
 		if(isAdmin(userId)) {
 			return Arrays.stream(SMPerm.values()).filter(perm->perm != SMPerm.UNDECIDED).collect(toSet());
 		}
@@ -96,7 +97,7 @@ public class UserLogicImpl extends UserLogic {
 		switch (method) {
 		case ACCOUNT_PWD: {
 			try {
-				User user = uDAO.selectUniqueUserByField(SMDB.F_ACCOUNT, account);
+				User user = uDAO.selectUniqueUserByField(DBConstants.F_ACCOUNT, account);
 
 				if (!SecurityUtil.verifyUserPwd(user, accountPwd)) {
 					//TODO 未来做点处理  防止连续登录
@@ -121,7 +122,7 @@ public class UserLogicImpl extends UserLogic {
 				throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL,emailVerifyCode);
 			}
 
-			User user = uDAO.selectUniqueUserByField(SMDB.F_EMAIL, email);
+			User user = uDAO.selectUniqueUserByField(DBConstants.F_EMAIL, email);
 			cache.removeTempUser(uuId);
 			return loadUser(user.getId(), user.getId());
 		}
@@ -138,7 +139,7 @@ public class UserLogicImpl extends UserLogic {
 				throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL,telVerifyCode);
 			}
 
-			User user = uDAO.selectUniqueUserByField(SMDB.F_TEL_NUM, tel);
+			User user = uDAO.selectUniqueUserByField(DBConstants.F_TEL_NUM, tel);
 			cache.removeTempUser(uuId);
 			return loadUser(user.getId(), user.getId());
 		}
@@ -225,7 +226,7 @@ public class UserLogicImpl extends UserLogic {
 			}
 		}
 		long uId = uDAO.insertUser(user);
-		UserGroup defaultGroup = uDAO.selectUniqueExistedUserGroupByField(SMDB.F_NAME, SM.DEFAULT_BASIC_USER_GROUP);
+		UserGroup defaultGroup = uDAO.selectUniqueExistedUserGroupByField(DBConstants.F_NAME, SM.DEFAULT_BASIC_USER_GROUP);
 		/*这里比较特殊 是系统自动添加的 并且相对来说太过频繁 不应该重置缓存 这里选择直接添加进缓存 影响到的是 一个组里有多少用户*/
 		uDAO.insertUsersToGroup(List.of(uId), defaultGroup.getId());
 		
@@ -297,7 +298,7 @@ public class UserLogicImpl extends UserLogic {
 		
 		checkPerm(loginerId, SMPerm.CREATE_USER_GROUP);
 		
-		if(uDAO.includeUniqueUserGroupByField(SMDB.F_NAME, name)) {
+		if(uDAO.includeUniqueUserGroupByField(DBConstants.F_NAME, name)) {
 			throw new LogicException(SMError.DUP_USER_GROUP_NAME);
 		}
 		
@@ -431,7 +432,7 @@ public class UserLogicImpl extends UserLogic {
 			throws LogicException, DBException {
 		User user;
 		try {
-			user = uDAO.selectUniqueUserByField(SMDB.F_ACCOUNT, account);
+			user = uDAO.selectUniqueUserByField(DBConstants.F_ACCOUNT, account);
 		} catch (NoSuchElement e) {
 			throw new LogicException(SMError.NON_EXISTED_ACCOUNT,"不存在的账号"+account);
 		}
@@ -469,7 +470,7 @@ public class UserLogicImpl extends UserLogic {
 	
 	@Override
 	public void sendTelVerifyCodeForSignIn(String tel) throws LogicException, DBException {
-		if(!uDAO.includeUniqueUserByField(SMDB.F_TEL_NUM, tel)) {
+		if(!uDAO.includeUniqueUserByField(DBConstants.F_TEL_NUM, tel)) {
 			throw new LogicException(SMError.NON_EXISTED_TEL,tel);
 		}
 		String verifyCode = createVerifyCode();
@@ -480,7 +481,7 @@ public class UserLogicImpl extends UserLogic {
 
 	@Override
 	public void sendEmailVerifyCodeForSignIn(String email) throws LogicException, DBException {
-		if(!uDAO.includeUniqueUserByField(SMDB.F_EMAIL, email)) {
+		if(!uDAO.includeUniqueUserByField(DBConstants.F_EMAIL, email)) {
 			throw new LogicException(SMError.NON_EXISTED_EMAIL,email);
 		}
 		String verifyCode = createVerifyCode();
@@ -492,12 +493,12 @@ public class UserLogicImpl extends UserLogic {
 	@Override
 	public boolean exists(UserUniqueField field, String val) throws DBException, LogicException {
         return switch (field) {
-            case ACCOUNT -> uDAO.includeUniqueUserByField(SMDB.F_ACCOUNT, val);
-            case EMAIL -> uDAO.includeUniqueUserByField(SMDB.F_EMAIL, val);
-            case TEL_NUM -> uDAO.includeUniqueUserByField(SMDB.F_TEL_NUM, val);
-            case WEI_XIN_OPEN_ID ->uDAO.includeUniqueUserByField(SMDB.F_WEI_XIN_OPEN_ID, val);
-            case ID_NUM -> uDAO.includeUniqueUserByField(SMDB.F_ID_NUM, val);
-            case NICK_NAME -> uDAO.includeUniqueUserByField(SMDB.F_NICK_NAME, val);
+            case ACCOUNT -> uDAO.includeUniqueUserByField(DBConstants.F_ACCOUNT, val);
+            case EMAIL -> uDAO.includeUniqueUserByField(DBConstants.F_EMAIL, val);
+            case TEL_NUM -> uDAO.includeUniqueUserByField(DBConstants.F_TEL_NUM, val);
+            case WEI_XIN_OPEN_ID ->uDAO.includeUniqueUserByField(DBConstants.F_WEI_XIN_OPEN_ID, val);
+            case ID_NUM -> uDAO.includeUniqueUserByField(DBConstants.F_ID_NUM, val);
+            case NICK_NAME -> uDAO.includeUniqueUserByField(DBConstants.F_NICK_NAME, val);
             default -> throw new RuntimeException("未配置的检查类型" + field);
         };
 	}
@@ -544,7 +545,7 @@ public class UserLogicImpl extends UserLogic {
 	@Override
 	public List<UserProxy> loadUsersOfGroup(long groupId, long loginId) throws LogicException, DBException {
 		checkPerm(loginId, SMPerm.SEE_USERS_AND_USER_GROUPS_DATA);
-		return uDAO.selectUsersByGroup(groupId,SMDB.MAX_NUM_IN_ONE_SELECT).stream().map(user->{
+		return uDAO.selectUsersByGroup(groupId, SM.MAX_DB_LINES_IN_ONE_SELECTS).stream().map(user->{
 			UserProxy proxy = new UserProxy();
 			proxy.user=user;
 			return proxy;
@@ -556,7 +557,7 @@ public class UserLogicImpl extends UserLogic {
 		switch(method) {
 		case EMAIL_VERIFY_CODE:
 			try {
-				User user = uDAO.selectUniqueUserByField(SMDB.F_EMAIL, val);
+				User user = uDAO.selectUniqueUserByField(DBConstants.F_EMAIL, val);
 				EmailUtil.sendSimpleEmail(val,SM.BRAND_NAME+"找回账号", createRetrieveAccountMes(user.getAccount()));
 			} catch (NoSuchElement e) {
 				throw new LogicException(SMError.NON_EXISTED_EMAIL);
@@ -564,7 +565,7 @@ public class UserLogicImpl extends UserLogic {
 			break;
 		case TEL_VERIFY_CODE:
 			try {
-				User user = uDAO.selectUniqueUserByField(SMDB.F_TEL_NUM, val);
+				User user = uDAO.selectUniqueUserByField(DBConstants.F_TEL_NUM, val);
 				SMSUtil.sendSMS(SMSUtil.RETRIEVE_ACCOUNT_TEMPLATE_ID, val, user.getAccount());
 			} catch (NoSuchElement e) {
 				throw new LogicException(SMError.NON_EXISTED_TEL);
@@ -580,7 +581,7 @@ public class UserLogicImpl extends UserLogic {
 	public synchronized void resetPWD(String account, String val, VerifyUserMethod method, String verifyCode, String resetPWD) throws LogicException, DBException  {
 		User user;
 		try {
-			user = uDAO.selectUniqueUserByField(SMDB.F_ACCOUNT, account);
+			user = uDAO.selectUniqueUserByField(DBConstants.F_ACCOUNT, account);
 		} catch (NoSuchElement e) {
 			throw new LogicException(SMError.NON_EXISTED_ACCOUNT);
 		}
@@ -629,6 +630,14 @@ public class UserLogicImpl extends UserLogic {
 			assert false;
 			throw new RuntimeException("未配置的找回类型"+method.getName());
 		}
+	}
+
+	@Override
+	public UserBasicInfo getBasicInfo(Long decodedId) {
+		UserBasicInfo info = new UserBasicInfo();
+		User user = getUser(decodedId);
+		info.name = user.getNickName();
+		return info;
 	}
 
 }

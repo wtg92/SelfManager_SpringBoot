@@ -13,13 +13,13 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import manager.data.EntityTag;
 import manager.entity.general.SMGeneralEntity;
-import manager.system.SMDB;
+import manager.system.DBConstants;
 import manager.system.career.WorkSheetState;
 import manager.system.career.converter.WorkSheetStateConverter;
 import manager.system.converter.TagsConverter;
 
 @Entity
-@Table(name = SMDB.T_WORK_SHEET)
+@Table(name = DBConstants.T_WORK_SHEET)
 @DynamicInsert
 @DynamicUpdate
 public class WorkSheet extends SMGeneralEntity {

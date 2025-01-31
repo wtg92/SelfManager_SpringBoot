@@ -12,7 +12,7 @@ import static org.junit.Assert.fail;
 
 import java.util.Calendar;
 
-import manager.service.work.WorkLogic;
+import manager.service.work.WorkService;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,7 +30,7 @@ import manager.system.career.PlanItemType;
 import manager.system.career.WorkSheetState;
 import manager.util.TimeUtil;
 
-public class WorkLogicTest {
+public class WorkServiceTest {
 	
 	
 	@Before
@@ -45,52 +45,7 @@ public class WorkLogicTest {
 	 * 2020-10-1 创建计划A（开始日期当天，结束日期至今） 计划B （开始日期 2020-10-10，结束日期至今）
 	 *  基于A开启今日工作表 ok -> 第二次开启今日工作表 fail -> 去到第二天 基于B开启工作表 fail ->去到 2020-10-10 开启工作表 ok 检查基于A开启的工作表（这时它应该超期了）
 	 */
-	@Test
-	public void testFlow1()throws Exception{
-		UserLogic uL = UserLogic.getInstance();
-		WorkLogic wL = WorkLogic.getInstance();
-		
-		/*表明admin已经存在 之后可以直接用userId==1了*/
-		uL.getUser(1);
-		
-		TimeUtil.travelTo("2020-10-01 08:00:00");
-		assert 1 == wL.createPlan(1, "计划A（正在进行中）", TimeUtil.getCurrentDate(), TimeUtil.getBlank(), "");
-		assert 2 == wL.createPlan(1, "计划B（还未开始）", TimeUtil.parseDate("2020-10-10"), TimeUtil.getBlank(), "");
-		
-		/*随便加点 让它不会立马完成*/
-		wL.addItemToPlan(1, 1, "xx", 100, "", PlanItemType.MINUTES, 0, 0);
-		wL.addItemToPlan(1, 2, "xx", 100, "", PlanItemType.MINUTES, 0, 0);
-		
-		assert 1 == wL.openWorkSheetToday(1,1);
-		
-		wL.saveWSPlanItem(1, 1, 1, "zz", 50, "", 0);
-		
-		try {
-			wL.openWorkSheetToday(1, 1);
-			fail();
-		}catch(LogicException e) {
-			assertEquals(SMError.OPEN_WORK_SHEET_SYNC_ERROR, e.type);
-		}
-		
-		TimeUtil.travelDays(1);
-		wL.loadActivePlans(1);
-		try {
-			wL.openWorkSheetToday(1, 2);
-			fail();
-		}catch(LogicException e) {
-			assertEquals(SMError.OPEN_WORK_BASE_WRONG_STATE_PLAN, e.type);
-		}
-		
-		TimeUtil.travelTo("2020-10-10 08:00:00");
-		assertEquals(2, wL.loadActivePlans(1).size());
-		assert 2 == wL.openWorkSheetToday(1, 2);
-		
-		/*触发对过去WS的刷新*/
-		wL.loadWorkSheetInfosRecently(1, 0);
-		assertEquals(WorkSheetState.OVERDUE, wL.loadWorkSheet(1, 1).ws.getState());
-		
-	}
-	
+
 	/**
 	 * A 1次                                
 	 * B 10分钟                                                                                
@@ -138,7 +93,7 @@ public class WorkLogicTest {
 		
 		WorkSheetContent wsContent = convertWorkSheet(ws);
 		
-		WorkLogic.calculateWSContentDetail(wsContent);
+		WorkService.calculateWSContentDetail(wsContent);
 
 		assertEquals(2 , wsContent.planItems.size());
 		
@@ -151,7 +106,7 @@ public class WorkLogicTest {
 		assert 3 == addItemToWorkSheet(ws, 1, 4, 100, "", 0, false,startTime , TimeUtil.getBlank());
 		
 		wsContent = convertWorkSheet(ws);
-		WorkLogic.calculateWSContentDetail(wsContent);
+		WorkService.calculateWSContentDetail(wsContent);
 		assertEquals(100,wsContent.planItems.get(0).descendants.get(0).sumValForWorkItems);
 		
 		assertTrue(wsContent.planItems.get(0).remainingValForCur+"", -2==wsContent.planItems.get(0).remainingValForCur);
@@ -164,7 +119,7 @@ public class WorkLogicTest {
 		
 		assert 4 == addItemToWorkSheet(ws, 1, 3, 100, "", 0, false,startTime , TimeUtil.getBlank());
 		wsContent = convertWorkSheet(ws);
-		WorkLogic.calculateWSContentDetail(wsContent);
+		WorkService.calculateWSContentDetail(wsContent);
 		assertEquals(200,wsContent.planItems.get(0).descendants.get(0).sumValForWorkItems);
 		assertTrue(wsContent.planItems.get(0).remainingValForCur+"", -4==wsContent.planItems.get(0).remainingValForCur);
 		assertTrue(wsContent.planItems.get(0).descendants.get(0).remainingValForCur+"", -200==wsContent.planItems.get(0).descendants.get(0).remainingValForCur);
@@ -182,13 +137,12 @@ public class WorkLogicTest {
 	@Test
 	public void testSyncPlanItemWithDept() throws Exception{
 		UserLogic uL = UserLogic.getInstance();
-		WorkLogic wL = WorkLogic.getInstance();
+		WorkService wL = WorkService.getInstance();
 		
 		/*表明admin已经存在 之后可以直接用userId==1了*/
 		uL.getUser(1);
 		
-		assert 1 == wL.createPlan(1, "计划A（正在进行中）", TimeUtil.getCurrentDate(), TimeUtil.getBlank(), "");
-		
+
 		/*随便加点 让它不会立马完成*/
 		String minutesItem = "分数类型计划项";
 		String timesItem = "次数类型计划项";

@@ -1,33 +1,50 @@
 $(function () {
-
+    //DONE
     openNoteBooksContainer();
+    //DONE
     hideClosedBooksContainer();
-    loadBooks();
+    //DONE
+    $("#notes_create_note_book_btn,.notes_create_note_book_btn_in_hint").click(openCreateBookDialog);
+    //DONE
+    $("#notes_commit_create_note_book_button").click(createNoteBook);
+    //DONE
     initCreateNoteBookUI();
-
+    //DONE
+    $(".notes_leran_to_use_notes_btn").click(()=>$("#notes_getting_start_dialog").modal("show"));
+    //DONE
     initClosedBooksDataTable();
-
+    //DONE
+    $(".notes_create_note_book_entity [name='name']").blur(function () {
+        testCreateBookFormat(this, (text) => checkNoteBookName(text), "1-20个字符");
+    });
+    //DONE
+    $("#note_book_cards_sub_container")
+        //DONE
+        .on("dblclick",".one_note_book_unit_pattern",onlySeeBookContent)
+        //DONE
+        .on("click",".one_note_book_unit_pattern",switchToSelectBookUnit)
+        //DONE
+        .on("click",".one_note_close_book_btn",closeBookByBtn)
+        //DONE
+        .on("click",".one_note_open_book_btn",openBookByBtn)
+        //DONE
+        .on("click",".one_note_see_book_content_btn",onlySeeBookContent);
+    //DONE
     $("#notes_show_closed_books_container_btn").click(showClosedBooksContainer);
+    //DONE
     $("#notes_hide_closed_books_container_btn").click(hideClosedBooksContainer);
+
+    //DONE
+    loadBooks();
+
+
+
 
 
     $(".note_books_switch_to_show_note_books_content_container").click(switchToShowNoteBooksContainer);
 
 
-    $("#notes_create_note_book_btn,.notes_create_note_book_btn_in_hint").click(openCreateBookDialog);
 
-    $(".notes_create_note_book_entity [name='name']").blur(function () {
-        testCreateBookFormat(this, (text) => checkNoteBookName(text), "1-20个字符");
-    });
-
-    $("#notes_commit_create_note_book_button").click(createNoteBook);
-
-    $("#note_book_cards_sub_container")
-        .on("dblclick",".one_note_book_unit_pattern",onlySeeBookContent)
-        .on("click",".one_note_book_unit_pattern",switchToSelectBookUnit)
-        .on("click",".one_note_close_book_btn",closeBookByBtn)
-        .on("click",".one_note_open_book_btn",openBookByBtn)
-        .on("click",".one_note_see_book_content_btn",onlySeeBookContent);
 
     $("#notes_closed_note_books_container").on("click",".notes_cancel_book_closed_state_btn",cancelBookClosedState)
         .on("click",".notes_delete_closed_book_btn",deletClosedNoteBook)
@@ -40,8 +57,6 @@ $(function () {
             closeMemoDialogEditMode();
         })
     })
-
-    $(".notes_leran_to_use_notes_btn").click(()=>$("#notes_getting_start_dialog").modal("show"));
 });
 
 
@@ -161,7 +176,7 @@ function closeBookByBtn(){
 
 
 
-
+//DONE
 function switchToSelectBookUnit(){
     let $container = $(this).parents(".one_note_book_unit_pattern_and_btns_container");
     let selected = parseToBool($container.attr("select"));
@@ -216,9 +231,10 @@ function loadBooks(){
         $loadingInfo.hide();
         $("#note_books_mes_when_zero_plan").toggle(data.length == 0);
         const NUM_FOR_ONE_ROW = 6;
-
+        //DONE
         $(data.filter(e=>!e.book.closed).sort((a,b)=>{
             /*根据seqWeight 决定瞬息*/
+            //DONE 在后台 处理过了啦
             return b.book.seqWeight-a.book.seqWeight;
         })).each((i,book)=>{
             let $book = $("#note_book_content_pattern_container").find(".one_note_book_unit_pattern_and_btns_container").clone();
@@ -230,7 +246,7 @@ function loadBooks(){
 
             $content.append($book);
         });
-
+        //DONE
         let linesDate = [];
         data.filter(e=>e.book.closed).sort((a,b)=>{
             /*根据seqWeight 决定瞬息*/

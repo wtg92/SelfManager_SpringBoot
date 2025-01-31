@@ -20,6 +20,10 @@ hibernate:
 solr:
   url: http://localhost:8983/solr/
   instanceDir: configsets/_default/conf
+  cores:
+    sharingBook: E:\solr\solr-9.6.1\server\solr\configsets\sharingbook_v6
+    bookPage: E:\solr\solr-9.6.1\server\solr\configsets\bookPage_v6
+
   config:
     default: D:\Life\solr\9.6
   createCollections:

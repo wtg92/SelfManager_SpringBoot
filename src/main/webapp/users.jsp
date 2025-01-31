@@ -1,7 +1,7 @@
 <%@page import="java.util.List"%>
 <%@page import="java.util.Map"%>
 <%@page import="manager.system.SMPerm"%>
-<%@page import="manager.system.SMDB"%>
+<%@page import="manager.system.DBConstants"%>
 <%@page import="manager.system.Gender"%>
 <%@page import="manager.system.VerifyUserMethod"%>
 <%@page import="manager.system.SM"%>
@@ -31,7 +31,7 @@
 						<button type="button" class="btn btn-primary" id="users_open_group_summary_dialog">查看分析</button>
 					</div>
 					<div id="users_group_datatable_container">
-						<span>最多显示<em><%=SMDB.MAX_NUM_IN_ONE_SELECT %></em>条</span>
+						<span>最多显示<em><%=SM.MAX_DB_LINES_IN_ONE_SELECTS %></em>条</span>
 					</div>
 					<div id="users_datatable_container">
 						<table></table>

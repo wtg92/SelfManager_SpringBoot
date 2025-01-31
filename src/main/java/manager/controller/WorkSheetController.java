@@ -1,13 +1,13 @@
 package manager.controller;
 
 import com.alibaba.fastjson2.JSONObject;
-import manager.data.career.StatisticsList;
+import manager.data.career.MultipleItemsResult;
 import manager.data.proxy.career.PlanBalanceProxy;
 import manager.data.proxy.career.PlanProxy;
 import manager.data.proxy.career.WorkSheetProxy;
 import manager.entity.general.career.Plan;
 import manager.entity.general.career.WorkSheet;
-import manager.service.work.WorkLogic;
+import manager.service.work.WorkService;
 import manager.servlet.ServletAdapter;
 import manager.system.career.PlanItemType;
 import manager.system.career.PlanSetting;
@@ -27,7 +27,13 @@ import static manager.util.UIUtil.*;
 public class WorkSheetController {
 
     @Resource
-    private WorkLogic wL;
+    private WorkService wL;
+
+    private static final String PLAN_PATH = "/plan";
+
+    private static final String WORK_SHEET_PATH = "/ws";
+
+    private static final String BALANCE_PATH = "/balance";
 
     @GetMapping("/worksheetRecently")
     public List<WorkSheet> loadWorkSheetInfosRecently(
@@ -232,13 +238,6 @@ public class WorkSheetController {
         wL.calculateWorksheetStatesRoutinely(loginId);
     }
 
-    @PostMapping("/loadActivePlans")
-    public List<Plan> loadActivePlans(
-            @RequestHeader("Authorization") String authorizationHeader) {
-        long loginId = UIUtil.getLoginId(authorizationHeader);
-        return wL.loadActivePlans(loginId);
-    }
-
     @PostMapping("/abandonPlan")
     public void abandonPlan(
             @RequestHeader("Authorization") String authorizationHeader
@@ -257,11 +256,7 @@ public class WorkSheetController {
         wL.finishPlan(loginId, planId);
     }
 
-    private static final String PLAN_PATH = "/plan";
 
-    private static final String WORK_SHEET_PATH = "/ws";
-
-    private static final String BALANCE_PATH = "/balance";
 
     @GetMapping(PLAN_PATH)
     public PlanProxy getPlan(
@@ -304,15 +299,15 @@ public class WorkSheetController {
     }
 
     @GetMapping(PLAN_PATH+"/statistics")
-    public StatisticsList<Plan> loadPlansByTerms(
+    public MultipleItemsResult<Plan> loadPlansByTerms(
             @RequestHeader("Authorization") String authorizationHeader,
             @RequestParam(STATE)Integer state,
-            @RequestParam(NAME)String name,
-            @RequestParam(START_UTC_FOR_CREATE)Long startUtcForCreate,
-            @RequestParam(END_UTC_FOR_CREATE)Long endUtcForCreate,
-            @RequestParam(START_UTC_FOR_UPDATE)Long startUtcForUpdate,
-            @RequestParam(END_UTC_FOR_UPDATE)Long endUtcForUpdate,
-            @RequestParam(TIMEZONE)String timezone
+            @RequestParam(value = NAME,required = false)String name,
+            @RequestParam(value = START_UTC_FOR_CREATE,required = false)Long startUtcForCreate,
+            @RequestParam(value = END_UTC_FOR_CREATE,required = false)Long endUtcForCreate,
+            @RequestParam(value = START_UTC_FOR_UPDATE,required = false)Long startUtcForUpdate,
+            @RequestParam(value = END_UTC_FOR_UPDATE,required = false)Long endUtcForUpdate,
+            @RequestParam(value = TIMEZONE,required = false)String timezone
             ) {
 
         long loginId = UIUtil.getLoginId(authorizationHeader);
@@ -321,7 +316,7 @@ public class WorkSheetController {
     }
 
     @GetMapping(WORK_SHEET_PATH+"/statistics")
-    public StatisticsList<WorkSheetProxy> loadWorksheetsByTerms(
+    public MultipleItemsResult<WorkSheetProxy> loadWorksheetsByTerms(
             @RequestHeader("Authorization") String authorizationHeader,
             @RequestParam(STATE)Integer state,
             @RequestParam(START_UTC_FOR_DATE)Long startUtcForDate,

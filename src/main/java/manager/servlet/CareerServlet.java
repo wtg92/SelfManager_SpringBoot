@@ -73,7 +73,7 @@ import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.SMException;
 import manager.service.books.NoteLogic;
-import manager.service.work.WorkLogic;
+import manager.service.work.WorkService;
 import manager.system.SMError;
 import manager.system.SMOP;
 import manager.system.career.BookStyle;
@@ -87,7 +87,7 @@ import manager.system.career.WorkSheetState;
 public class CareerServlet extends SMServlet{
 	private static final long serialVersionUID = -566721941701587967L;
 	
-	private WorkLogic wL = WorkLogic.getInstance();
+	private WorkService wL = WorkService.getInstance();
 	private NoteLogic nL = NoteLogic.getInstance();
 	
 
@@ -96,10 +96,6 @@ public class CareerServlet extends SMServlet{
 	public String process(HttpServletRequest request) throws SMException, IOException {
 		SMOP op = SMOP.valueOfName(getNonNullParam(request,OP));
 		switch (op) {
-		case C_LOAD_ACTIVE_PLANS:
-			return loadActivePlans(request);
-		case C_CREATE_PLAN:
-			return createPlan(request);
 		case C_ADD_ITEM_TO_PLAN:
 			return addItemToPlan(request);
 		case C_REMOVE_ITEM_FROM_PLAN:
@@ -110,8 +106,6 @@ public class CareerServlet extends SMServlet{
 			return loadAllPlanTags(request);
 		case C_LOAD_ALL_WORKSHEET_TAGS:
 			return loadAllWorkSheetTags(request);
-		case C_SAVE_PLAN:
-			return savePlan(request);
 		case C_SAVE_PLAN_ITEM:
 			return savePlanItem(request);
 		case C_SAVE_PLAN_ITEM_FOLD:
@@ -128,8 +122,6 @@ public class CareerServlet extends SMServlet{
 			return loadPlanStatesStatistics(request);
 		case C_LOAD_WS_STATE_STATISITCS:
 			return loadWSStateStatistics(request);
-		case C_LOAD_PLANS_BY_STATE:
-			return loadPlansByState(request);
 		case C_LOAD_WS_BY_STATE:
 			return loadWSByState(request);
 		case C_OPEN_WORK_SHEET_TODAY:
@@ -146,8 +138,6 @@ public class CareerServlet extends SMServlet{
 			return loadWorkSheetInfosRecently(request);
 		case C_LOAD_WORK_SHEET:
 			return loadWorkSheet(request);
-		case C_LOAD_WORK_SHEET_COUNT:
-			return loadTodaySheetCount(request);
 		case C_ADD_ITEM_TO_WS_PLAN:
 			return addItemToWSPlan(request);
 		case C_SAVE_WS_PLAN_ITEM:
@@ -158,10 +148,6 @@ public class CareerServlet extends SMServlet{
 			return removeItemFromWSPlan(request);
 		case C_REMOVE_ITEM_FROM_WORK_SHEET:
 			return removeItemFromWorkSheet(request);
-//		case C_ADD_ITEM_TO_WS:
-//			return addItemToWS(request);
-		case C_SAVE_WORK_ITEMS:
-			return saveWorkItems(request);
 		case C_SAVE_WORK_ITEM_PLAN_ITEM_ID:
 			return saveWorkItemPlanItemId(request);
 		case C_SYNC_PLAN_TAGS_TO_WORKSHEET:
@@ -226,8 +212,6 @@ public class CareerServlet extends SMServlet{
 			return saveMemoItemsSeq(request);
 		case C_SAVE_MEMO_ITEM_LABEL:
 			return saveMemoItemLabel(request);
-		case C_LOAD_WORK_SHEETS_BY_DATE_SCOPE:
-			return loadWorkSheetsByDateScope(request);
 		case C_SAVE_WORK_SHEET_PLAN_ID:
 			return saveWorkSheetPlanId(request);
 		default:
@@ -255,12 +239,6 @@ public class CareerServlet extends SMServlet{
 		return JSON.toJSONString(tags);
 	}
 
-	private String loadWorkSheetsByDateScope(HttpServletRequest request) throws SMException {
-		long loginerId = getLoginId(request);
-		Calendar startDate = getNonNullParamInDate(request, START_DATE);
-		Calendar endDate = getNonNullParamInDate(request, END_DATE);
-		return JSON.toJSONString(wL.loadWorkSheetsByDateScope(loginerId, startDate, endDate));
-	}
 
 	private String saveMemoItemLabel(HttpServletRequest request) throws DBException, LogicException {
 		long loginerId = getLoginId(request);
@@ -508,16 +486,6 @@ public class CareerServlet extends SMServlet{
 		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId));
 	}
 
-	private String saveWorkItems(HttpServletRequest request) throws SMException {
-		long loginerId = getLoginId(request);
-		int wsId = getNonNullParamInInt(request, WS_ID);
-		List<WorkItem> workItems = getJSONArrayParam(request, DATA,WorkItem.class);
-		
-		wL.saveWorkItems(loginerId, wsId,workItems);
-		
-		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId));
-	}
-	
 	private String saveWorkSheetPlanId(HttpServletRequest request) throws SMException {
 		long loginerId = getLoginId(request);
 		int planId = (int)ServletAdapter.getCommonId(getNonNullParam(request, PLAN_ID));
@@ -592,12 +560,7 @@ public class CareerServlet extends SMServlet{
 		return JSON.toJSONString(wL.loadWorkSheet(loginerId, wsId));
 	}
 
-	private String loadTodaySheetCount(HttpServletRequest request) throws SMException {
-		long loginerId = getLoginId(request);
-		Calendar date = getNonNullParamInDate(request, DATE);
-		return getParamJSON(wL.loadWorkSheetCount(loginerId,date));
-	}
-	
+
 	private String loadWorkSheet(HttpServletRequest request) throws LogicException, DBException {
 		long loginerId = getLoginId(request);
 		int wsId = getNonNullParamInInt(request, WS_ID);
@@ -646,11 +609,6 @@ public class CareerServlet extends SMServlet{
 		return JSON.toJSONString(wL.loadWorkSheetInfosRecently(loginerId, 0)) ;
 	}
 
-	private String loadPlansByState(HttpServletRequest request) throws LogicException, DBException {
-		long loginerId = getLoginId(request);
-		PlanState stateZT = PlanState.valueOfDBCode(getParamIntegerOrZeroDefault(request, STATE));
-		return JSON.toJSONString(wL.loadPlansByState(loginerId,stateZT,0,0));
-	}
 
 	private String loadPlanStatesStatistics(HttpServletRequest request) throws LogicException, DBException {
 		long loginerId = getLoginId(request);
@@ -713,22 +671,6 @@ public class CareerServlet extends SMServlet{
 	}
 
 
-	
-	private String savePlan(HttpServletRequest request) throws LogicException, DBException {
-		long loginerId = getLoginId(request);
-		String name = getNonNullParam(request, NAME);
-		Calendar startDate =  getNonNullParamInDate(request, START_DATE);
-		Calendar endDate = getNonNullParamInDate(request, END_DATE);
-		String note = getParamOrBlankDefault(request, NOTE);
-		boolean recalculateState = getParamOrFalseDefault(request, RECALCULATE_STATE);
-		int planId = getNonNullParamInInt(request, PLAN_ID);
-		int seqWeight = getParamOrZeroDefaultInInt(request, SEQ_WEIGHT);
-		List<PlanSetting> settings = getParamsInIntOrZeroDefault(request, PLAN_SETTING).stream().map(PlanSetting::valueOfDBCode).collect(toList());
-		
-		wL.savePlan(loginerId,planId,name,startDate,endDate,note,recalculateState,settings,seqWeight);
-		return JSON.toJSONString(ServletAdapter.process(wL.loadPlan(loginerId, planId)));
-	}
-
 	private String loadPlan(HttpServletRequest request) throws LogicException, DBException {
 		long loginId = getLoginId(request);
 		int planId = getNonNullParamInInt(request, PLAN_ID);
@@ -743,18 +685,6 @@ public class CareerServlet extends SMServlet{
 		return JSON.toJSONString(ServletAdapter.process(wL.loadPlan(loginerId, planId)));
 	}
 
-	/**
-	 * @return plan 让UI 能直接进入编辑页面
-	 */
-	private String createPlan(HttpServletRequest request) throws LogicException, DBException {
-		long loginerId = getLoginId(request);
-		String name = getNonNullParam(request, NAME);
-		Calendar startDate = getNonNullParamInDate(request, START_DATE);
-		Calendar endDate = getParamOrBlankDefaultInDate(request, END_DATE);
-		String note = getParamOrBlankDefault(request, NOTE);
-		long id = wL.createPlan(loginerId, name, startDate, endDate, note);
-		return JSON.toJSONString(ServletAdapter.process(wL.loadPlan(loginerId, id)));
-	}
 
 	private String addItemToPlan(HttpServletRequest request) throws LogicException, DBException {
 		long loginerId = getLoginId(request);
@@ -769,9 +699,4 @@ public class CareerServlet extends SMServlet{
 		return JSON.toJSONString(ServletAdapter.process(wL.loadPlan(loginerId, planId)));
 	}
 
-	private String loadActivePlans(HttpServletRequest request) throws LogicException, DBException {
-		long loginerId = getLoginId(request);
-		return JSON.toJSONString(wL.loadActivePlans(loginerId));
-	}
-	
 }

@@ -2,6 +2,7 @@ package manager.cache;
 
 import com.alibaba.fastjson2.JSON;
 import manager.entity.SMEntity;
+import manager.entity.general.books.SharingBook;
 import manager.entity.general.career.WorkSheet;
 import manager.exception.DBException;
 import manager.exception.LogicException;
@@ -18,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static java.util.stream.Collectors.toList;
@@ -136,10 +138,10 @@ public class CacheOperator {
 	 * 必须要delete的原因是
 	 * hbVersion
 	 */
-	public <T extends SMEntity> void saveEntity(T one,ThrowableConsumer<T, DBException> updator) throws DBException, LogicException {
+	public <T extends SMEntity> void saveEntity(T one,ThrowableConsumer<T, DBException> updater) throws DBException, LogicException {
 		String key = createEntityKey(CacheMode.E_ID,one.getId(),getEntityTableName(one.getClass()));
 		try {
-			updator.accept(one);
+			updater.accept(one);
 		}catch(DBException e) {
 			if(e.type == SMError.DB_SYNC_ERROR) {
 				deleteFromKey(key);
@@ -149,23 +151,41 @@ public class CacheOperator {
 		deleteFromKey(key);
 	}
 
-
+	public void removeBook(String id){
+		caches.Books_Cache.invalidate(id);
+	}
 	public void removeWorksheet(long id){
 		caches.Worksheet_Cache.invalidate(id);
 	}
 
 
-	public void saveWorksheet(WorkSheet one,ThrowableConsumer<WorkSheet, DBException> updator) throws DBException, LogicException {
+	public void saveWorksheet(WorkSheet one,ThrowableConsumer<WorkSheet, DBException> updater) throws DBException, LogicException {
 		long key = one.getId();
 		try {
-			updator.accept(one);
+			updater.accept(one);
 		}catch(DBException e) {
 			if(e.type == SMError.DB_SYNC_ERROR) {
 				removeWorksheet(key);
 			}
 			throw e;
 		}
-		caches.Worksheet_Cache.invalidate(key);
+		removeWorksheet(key);
+	}
+	public SharingBook getBook(long loginId, String bookId, Supplier<SharingBook> generator) {
+		String cacheId = generateBookCacheId(loginId,bookId);
+		return caches.Books_Cache.get(cacheId,(k)->generator.get()).clone();
+	}
+	private static String generateBookCacheId(long loginId, String bookId){
+		return loginId+"__"+bookId;
+	}
+
+	public void saveBook(long loginId, String bookId, Runnable saving ) {
+		String cacheId = generateBookCacheId(loginId,bookId);
+		try{
+			saving.run();
+		}finally {
+			removeBook(cacheId);
+		}
 	}
 
 	public<T extends SMEntity> long countAllEntities(Class<T> cla) {
@@ -254,6 +274,7 @@ public class CacheOperator {
 	public void removeTempUser(String uuId) {
 		caches.Temp_Users_Cache.invalidate(uuId);
 	}
+
 
 
 }

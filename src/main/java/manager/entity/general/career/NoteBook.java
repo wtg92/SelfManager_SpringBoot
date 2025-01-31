@@ -10,7 +10,7 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import manager.entity.general.SMGeneralEntity;
-import manager.system.SMDB;
+import manager.system.DBConstants;
 import manager.system.career.BookStyle;
 import manager.system.career.converter.BookStyleConverter;
 
@@ -18,7 +18,7 @@ import java.util.Calendar;
 
 
 @Entity
-@Table(name = SMDB.T_NOTE_BOOK)
+@Table(name = DBConstants.T_NOTE_BOOK)
 @DynamicInsert
 @DynamicUpdate
 public class NoteBook extends SMGeneralEntity {

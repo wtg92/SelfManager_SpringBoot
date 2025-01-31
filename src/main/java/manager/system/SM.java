@@ -43,5 +43,5 @@ public class SM {
 	
 	public final static String ARRAY_SPLIT_MARK=";;;";
 
-	public final static int MAX_LINES = 200;
+	public final static int MAX_DB_LINES_IN_ONE_SELECTS = 500;
 }

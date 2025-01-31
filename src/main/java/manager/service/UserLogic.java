@@ -2,6 +2,7 @@ package manager.service;
 
 import java.util.List;
 
+import manager.data.UserBasicInfo;
 import manager.data.UserSummary;
 import manager.data.proxy.UserGroupProxy;
 import manager.data.proxy.UserProxy;
@@ -191,5 +192,6 @@ public abstract class UserLogic {
 
 	public abstract void resetPWD(String account, String val, VerifyUserMethod method, String verifyCode,
 			String resetPWD) throws LogicException, DBException;
-	
+
+    public abstract UserBasicInfo getBasicInfo(Long decodedId);
 }

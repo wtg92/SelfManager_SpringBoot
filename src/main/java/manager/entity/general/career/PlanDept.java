@@ -9,12 +9,12 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import manager.entity.general.SMGeneralEntity;
-import manager.system.SMDB;
+import manager.system.DBConstants;
 
 import java.util.Calendar;
 
 @Entity
-@Table(name = SMDB.T_PLAN_DEPT)
+@Table(name = DBConstants.T_PLAN_DEPT)
 @DynamicInsert
 @DynamicUpdate
 public class PlanDept extends SMGeneralEntity {

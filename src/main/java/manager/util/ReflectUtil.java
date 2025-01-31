@@ -1,5 +1,7 @@
 package manager.util;
 
+import java.lang.reflect.Field;
+
 public abstract class ReflectUtil {
 
     /**
@@ -15,5 +17,32 @@ public abstract class ReflectUtil {
     public static String getInvokerClassName() {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         return stackTrace[3].getClassName();
+    }
+
+    public static <V,M> V setFiledValue(V obj,String fieldName,M value){
+        if (obj == null || fieldName == null || fieldName.isEmpty()) {
+            throw new IllegalArgumentException("Object or field name cannot be null/empty");
+        }
+
+        try {
+            // 获取类对象
+            Class<?> clazz = obj.getClass();
+
+            // 获取字段对象，包括私有字段
+            Field field = clazz.getDeclaredField(fieldName);
+
+            // 设置字段可访问
+            field.setAccessible(true);
+
+            // 设置字段值
+            field.set(obj, value);
+
+            // 返回修改后的对象
+            return obj;
+        } catch (NoSuchFieldException e) {
+            throw new IllegalArgumentException("Field '" + fieldName + "' not found in class " + obj.getClass().getName(), e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Failed to access field '" + fieldName + "'", e);
+        }
     }
 }

@@ -32,6 +32,8 @@ public abstract class SMParm {
 	public final static String FOLD = "fold";
 	public final static String TARGET_PLAN_ID = "target_plan_id";
 	public final static String TEMPLATE_ID = "template_id";
+
+	public final static String JSON_OBJ = "json_obj";
 	public final static String ID = "id";
 	public final static String IDS = "ids";
 	public final static String BOOK_ID = "book_id";
@@ -46,6 +48,8 @@ public abstract class SMParm {
 	public final static String NOTES_SEQ = "notes_seq";
 	public final static String CAT_NAME= "cat_name";
 	public final static String NOTE = "note";
+
+	public final static String COMMENT = "comment";
 	public final static String SRC_NOTE_ID = "src_note_id";
 	public final static String LABEL = "label";
 	public final static String CAT_TYPE = "cat_type";
@@ -53,6 +57,18 @@ public abstract class SMParm {
 	public final static String MAPPING_VAL = "mapping_val";
 	public final static String ITEM_ID = "item_id";
 	public final static String START_DATE = "start_date";
+
+	public final static String DEFAULT_LANGUAGE = "default_language";
+
+	public final static String LANGUAGE = "language";
+
+	public final static String PARENT_ID = "parent_id";
+
+	public final static String INDEX = "index";
+
+	public final static String IS_PREPENDED = "is_prepended";
+
+	public final static String IS_ROOT = "is_root";
 
 	public final static String START_UTC_FOR_CREATE = "start_utc_for_create";
 	public final static String END_UTC_FOR_CREATE = "end_utc_for_create";

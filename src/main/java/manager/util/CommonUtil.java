@@ -15,6 +15,7 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,6 +37,9 @@ public abstract class CommonUtil {
 			throw new RuntimeException("read file error "+e.getMessage());
 		}
 
+	}
+	public static <T>  boolean emptyJudge(T t, Predicate<T> emptyPredicate){
+		return t == null || emptyPredicate.test(t);
 	}
 	public static boolean getBoolValFromPropertiesFileInResource(String key) {
 		return Boolean.parseBoolean(getValFromPropertiesFileInResource(key, SM.PROPERTIES_FILE_NAME));

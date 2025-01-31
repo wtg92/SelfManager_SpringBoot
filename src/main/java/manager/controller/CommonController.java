@@ -4,7 +4,7 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import manager.service.work.WorkLogic;
+import manager.service.work.WorkService;
 import manager.system.Gender;
 import manager.system.Language;
 import manager.system.VerifyUserMethod;
@@ -71,12 +71,15 @@ public class CommonController {
 
     @GetMapping("/languages")
     public List<String> getLanguages() {
-        return Arrays.stream(Language.values()).map(one->one.name).toList();
+        return Arrays.stream(Language.values()).
+                filter(one->one != Language.UNKNOWN).map(one->one.name).toList();
     }
 
 
     @GetMapping("/getWorksheetNumOfOnePage")
     public int getWorksheetNumOfOnePage() {
-        return WorkLogic.DEFAULT_WS_LIMIT_OF_ONE_PAGE;
+        return WorkService.DEFAULT_WS_LIMIT_OF_ONE_PAGE;
     }
+
+
 }

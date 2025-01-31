@@ -9,7 +9,7 @@ import manager.service.UserLogicTest;
 import manager.service.books.NoteLogicStaticTest;
 import manager.service.books.NoteLogicTest;
 import manager.service.books.WorkContentConverterTest;
-import manager.service.books.WorkLogicTest;
+import manager.service.books.WorkServiceTest;
 import manager.service.tool.ToolLogicTest;
 import manager.system.EnumTest;
 import manager.util.TimeUtilTest;
@@ -19,7 +19,7 @@ import manager.util.TimeUtilTest;
 	UserLogicTest.class,
 	UserDAOTest.class,
 	WorkDAOTest.class,
-	WorkLogicTest.class,
+	WorkServiceTest.class,
 	WorkContentConverterTest.class,
 	EnumTest.class,
 	NoteLogicTest.class,

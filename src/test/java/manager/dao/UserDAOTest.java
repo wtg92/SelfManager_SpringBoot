@@ -14,15 +14,13 @@ import manager.exception.DBException;
 import manager.system.SMError;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.junit.Before;
 import org.junit.Test;
 
 import manager.entity.general.User;
 import manager.entity.general.UserGroup;
 import manager.exception.NoSuchElement;
-import manager.system.SMDB;
+import manager.system.DBConstants;
 import manager.system.SMPerm;
-import manager.util.DBUtil;
 import manager.util.SecurityUtil;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -50,15 +48,15 @@ public class UserDAOTest {
 			uDAO.selectUser(5);
 			fail();
 		}catch(NoSuchElement e) {}
-		assertTrue(uDAO.includeUniqueUserByField(SMDB.F_NICK_NAME, "hh"));
-		assertFalse(uDAO.includeUniqueUserByField(SMDB.F_EMAIL, "55"));
+		assertTrue(uDAO.includeUniqueUserByField(DBConstants.F_NICK_NAME, "hh"));
+		assertFalse(uDAO.includeUniqueUserByField(DBConstants.F_EMAIL, "55"));
 		user.setNickName("changed!");
 		user = user.clone();
 		uDAO.updateExistedUser(user);
 		
 		user.setNickName("realChanged");
 		
-		assertTrue(1==uDAO.selectUniqueExistedUserByField(SMDB.F_ACCOUNT, "aa").getId());;
+		assertTrue(1==uDAO.selectUniqueExistedUserByField(DBConstants.F_ACCOUNT, "aa").getId());;
 	}
 	
 	@Test

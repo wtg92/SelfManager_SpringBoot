@@ -229,13 +229,13 @@ public abstract class CacheScheduler_Old {
 		return JSON.parseObject(jsonStr, cla);
 	}
 
-	public static<T extends SMEntity> void saveEntityAndDeleteCache(T one,ThrowableConsumer<T, DBException> updator) {
+	public static<T extends SMEntity> void saveEntityAndDeleteCache(T one,ThrowableConsumer<T, DBException> updater) {
 		if(!USING_REDIS_CACHE) {
-			updator.accept(one);
+			updater.accept(one);
 			return;
 		}
 
-		updator.accept(one);
+		updater.accept(one);
 
 		String key = createEntityKey(CacheMode.E_ID,one.getId(),getEntityTableName(one.getClass()));
 		CacheUtil_OLD.deleteOne(key);
@@ -250,15 +250,15 @@ public abstract class CacheScheduler_Old {
 	 * 单个的更新 我暂且忍受他是更新缓存 而非删除的？  -- 2024.1.15
 	 * @throws LogicException 
 	 */
-	public static<T extends SMEntity> void saveEntity(T one,ThrowableConsumer<T, DBException> updator) throws DBException, LogicException {
+	public static<T extends SMEntity> void saveEntity(T one,ThrowableConsumer<T, DBException> updater) throws DBException, LogicException {
 		if(!USING_REDIS_CACHE) {
-			updator.accept(one);
+			updater.accept(one);
 			return;
 		}
 		
 		String key = createEntityKey(CacheMode.E_ID,one.getId(),getEntityTableName(one.getClass()));
 		try {
-			updator.accept(one);
+			updater.accept(one);
 		}catch(DBException e) {
 			if(e.type == SMError.DB_SYNC_ERROR) {
 				CacheUtil_OLD.deleteOne(key);
@@ -274,22 +274,22 @@ public abstract class CacheScheduler_Old {
 	 * 缓存原则上不该有更新缓存的逻辑
 	 * 如果有 通常是上层逻辑耦合导致
 	 * @param ones
-	 * @param updator
+	 * @param updater
 	 * @param <T>
 	 * @throws DBException
 	 * @throws LogicException
 	 */
-	public static<T extends SMEntity> void saveInDBAndDeleteAllInCache(List<T> ones, ThrowableConsumer<T, DBException> updator) throws DBException, LogicException {
+	public static<T extends SMEntity> void saveInDBAndDeleteAllInCache(List<T> ones, ThrowableConsumer<T, DBException> updater) throws DBException, LogicException {
 		if(!USING_REDIS_CACHE) {
 			for(T one: ones) {
-				updator.accept(one);	
+				updater.accept(one);	
 			}
 			return;
 		}
 		
 		try {
 			for(T one: ones) {
-				updator.accept(one);	
+				updater.accept(one);	
 			}
 		}finally {
 			if(ones.size() > 0) {

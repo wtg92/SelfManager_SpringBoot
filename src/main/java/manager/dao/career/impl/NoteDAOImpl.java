@@ -27,7 +27,7 @@ import manager.entity.general.career.Note;
 import manager.entity.general.career.NoteBook;
 import manager.exception.DBException;
 import manager.exception.NoSuchElement;
-import manager.system.SMDB;
+import manager.system.DBConstants;
 import manager.util.TimeUtil;
 import org.springframework.stereotype.Repository;
 
@@ -66,7 +66,7 @@ public class NoteDAOImpl implements NoteDAO {
 
 	@Override
 	public Memo selectMemoByOwner(long ownerId) throws NoSuchElement, DBException {
-		return selectUniqueEntityByField(Memo.class, SMDB.F_OWNER_ID, ownerId, sessionFactory);
+		return selectUniqueEntityByField(Memo.class, DBConstants.F_OWNER_ID, ownerId, sessionFactory);
 	}
 	
 	@Override
@@ -95,7 +95,7 @@ public class NoteDAOImpl implements NoteDAO {
 			trans = session.beginTransaction();
 			session.doWork(conn -> {
 				String sql = String.format("UPDATE %s SET %s=? ,%s=?, %s=? , %s=? WHERE %s=?",
-						SMDB.T_NOTE,SMDB.F_NAME,SMDB.F_CONTENT,SMDB.F_WITH_TODOS,SMDB.F_UPDATE_TIME,SMDB.F_ID);
+						DBConstants.T_NOTE, DBConstants.F_NAME, DBConstants.F_CONTENT, DBConstants.F_WITH_TODOS, DBConstants.F_UPDATE_TIME, DBConstants.F_ID);
 				try (PreparedStatement ps = conn.prepareStatement(sql)) {
 					ps.setString(1, note.getName());
 					ps.setString(2, note.getContent());
@@ -115,7 +115,7 @@ public class NoteDAOImpl implements NoteDAO {
 	
 	@Override
 	public List<NoteBook> selectBooksByOwner(long ownerId) throws DBException {
-		return selectEntitiesByField(NoteBook.class, SMDB.F_OWNER_ID, ownerId, sessionFactory);
+		return selectEntitiesByField(NoteBook.class, DBConstants.F_OWNER_ID, ownerId, sessionFactory);
 	}
 
 	@Override
@@ -139,7 +139,7 @@ public class NoteDAOImpl implements NoteDAO {
 			trans = session.beginTransaction();
 			session.doWork(conn -> {
 				String sql = String.format("SELECT %s,%s,%s FROM %s WHERE %s=? and %s=?",
-						SMDB.F_ID,SMDB.F_NAME,SMDB.F_WITH_TODOS,SMDB.T_NOTE,SMDB.F_NOTE_BOOK_ID,SMDB.F_IMPORTANT);
+						DBConstants.F_ID, DBConstants.F_NAME, DBConstants.F_WITH_TODOS, DBConstants.T_NOTE, DBConstants.F_NOTE_BOOK_ID, DBConstants.F_IMPORTANT);
 				try (PreparedStatement ps = conn.prepareStatement(sql)) {
 					ps.setLong(1, noteBookId);
 					ps.setBoolean(2, important);
@@ -173,7 +173,7 @@ public class NoteDAOImpl implements NoteDAO {
 			trans = session.beginTransaction();
 			session.doWork(conn -> {
 				String sql = String.format("SELECT %s,%s,%s,%s,%s,%s FROM %s WHERE %s=?",
-						SMDB.F_ID,SMDB.F_NAME,SMDB.F_WITH_TODOS,SMDB.F_IMPORTANT,SMDB.F_HIDDEN ,SMDB.F_UPDATE_UTC,SMDB.T_NOTE,SMDB.F_NOTE_BOOK_ID);
+						DBConstants.F_ID, DBConstants.F_NAME, DBConstants.F_WITH_TODOS, DBConstants.F_IMPORTANT, DBConstants.F_HIDDEN , DBConstants.F_UPDATE_UTC, DBConstants.T_NOTE, DBConstants.F_NOTE_BOOK_ID);
 				try (PreparedStatement ps = conn.prepareStatement(sql)) {
 					ps.setLong(1, noteBookId);
 					
@@ -185,7 +185,7 @@ public class NoteDAOImpl implements NoteDAO {
 						note.setWithTodos(rs.getBoolean(3));
 						note.setImportant(rs.getBoolean(4));
 						note.setHidden(rs.getBoolean(5));
-						note.setUpdateUtc(rs.getLong(SMDB.F_UPDATE_UTC));
+						note.setUpdateUtc(rs.getLong(DBConstants.F_UPDATE_UTC));
 						note.setNoteBookId(noteBookId);
 						rlt.add(note);
 					}
@@ -200,17 +200,17 @@ public class NoteDAOImpl implements NoteDAO {
 
 	@Override
 	public Long countNotesByBook(long noteBookId) throws DBException {
-		return countEntitiesByField(Note.class, SMDB.F_NOTE_BOOK_ID, noteBookId, sessionFactory);
+		return countEntitiesByField(Note.class, DBConstants.F_NOTE_BOOK_ID, noteBookId, sessionFactory);
 	}
 
 	@Override
 	public boolean includeNotesByBook(long noteBookId) throws DBException {
-		return includeEntitiesByField(Note.class, SMDB.F_NOTE_BOOK_ID, noteBookId, sessionFactory);
+		return includeEntitiesByField(Note.class, DBConstants.F_NOTE_BOOK_ID, noteBookId, sessionFactory);
 	}
 
 	@Override
 	public void deleteNotesByBook(long bookId) throws DBException {
-		deleteEntitiesByField(Note.class, SMDB.F_NOTE_BOOK_ID, bookId, sessionFactory);
+		deleteEntitiesByField(Note.class, DBConstants.F_NOTE_BOOK_ID, bookId, sessionFactory);
 	}
 
 	@Override
@@ -228,8 +228,8 @@ public class NoteDAOImpl implements NoteDAO {
 			session.doWork(conn -> {
 				String theManySql = ids.stream().map(val -> val.toString()).collect(Collectors.joining(","));
 				String sql = String.format("SELECT %s,%s FROM %s WHERE (%s in (%s))",
-						SMDB.F_ID,SMDB.F_NAME,
-						SMDB.T_NOTE,SMDB.F_ID,theManySql);
+						DBConstants.F_ID, DBConstants.F_NAME,
+						DBConstants.T_NOTE, DBConstants.F_ID,theManySql);
 				try (PreparedStatement ps = conn.prepareStatement(sql)) {
 					ResultSet rs = ps.executeQuery();
 					while(rs.next()) {
@@ -262,8 +262,8 @@ public class NoteDAOImpl implements NoteDAO {
 			session.doWork(conn -> {
 				String theManySql = ids.stream().map(val -> val.toString()).collect(Collectors.joining(","));
 				String sql = String.format("SELECT %s,%s FROM %s WHERE (%s in (%s))",
-						SMDB.F_ID,SMDB.F_NAME,
-						SMDB.T_NOTE_BOOK,SMDB.F_ID,theManySql);
+						DBConstants.F_ID, DBConstants.F_NAME,
+						DBConstants.T_NOTE_BOOK, DBConstants.F_ID,theManySql);
 				try (PreparedStatement ps = conn.prepareStatement(sql)) {
 					ResultSet rs = ps.executeQuery();
 					while(rs.next()) {

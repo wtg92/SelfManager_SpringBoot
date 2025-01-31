@@ -126,7 +126,7 @@ public abstract class WorkContentConverter {
 
 	private final static String A_END_TIME_UTC ="e_time_utc";
 	
-	private final static String PARAM_SPLITOR = "_";
+	private final static String PARAM_DELIMITER = "_";
 	
 	private final static int PRIMARY_KEY_INITIAL_VAL = 1;
 	
@@ -181,7 +181,7 @@ public abstract class WorkContentConverter {
 			CareerLog log = new CareerLog(action,creatorId);
 			log.setId(Integer.parseInt(element.attributeValue(A_ID)));
 			log.setCreateUTC(Long.parseLong(element.attributeValue(A_CREATE_TIME_UTC)));
-			String[] params = element.attributeValue(A_PARAMS).split(PARAM_SPLITOR);
+			String[] params = element.attributeValue(A_PARAMS).split(PARAM_DELIMITER);
 			log.setParams(new LinkedList<>(Arrays.asList(params)));
 			return log;
 		}catch (Exception e){
@@ -478,8 +478,8 @@ public abstract class WorkContentConverter {
 		cur.addAttribute(A_CREATE_TIME_UTC, String.valueOf(System.currentTimeMillis()));
 		cur.addAttribute(A_ACTION, String.valueOf(log.getAction().getDbCode()));
 		cur.addAttribute(A_CREATOR_ID, log.getCreatorId().toString());
-		assert log.getParams().stream().noneMatch(param-> param.contains(PARAM_SPLITOR)) : "Log参数不允许包含param splitor 否则会引发错误";
-		cur.addAttribute(A_PARAMS, String.join(PARAM_SPLITOR, log.getParams()));
+		assert log.getParams().stream().noneMatch(param-> param.contains(PARAM_DELIMITER)) : "Log参数不允许包含param splitor 否则会引发错误";
+		cur.addAttribute(A_PARAMS, String.join(PARAM_DELIMITER, log.getParams()));
 		log.setId(pId);
 		return log;	
 	}

@@ -2,6 +2,7 @@ package manager.controller;
 
 import com.alibaba.fastjson2.JSONObject;
 import manager.data.LoginInfo;
+import manager.data.UserBasicInfo;
 import manager.data.proxy.UserProxy;
 import manager.exception.LogicException;
 import manager.service.UserLogic;
@@ -139,21 +140,20 @@ public class UserController {
     }
 
     @PostMapping("/confirmTempUser")
-    private boolean confirmTempUser(@RequestBody JSONObject param) throws LogicException {
+    private boolean confirmTempUser(@RequestBody JSONObject param)  {
         String tempUserId = param.getString(TEMP_USER_ID);
         return uL.confirmTempUser(tempUserId);
     }
 
     @PostMapping("/getTempUser")
-    private String getTempUser() throws LogicException {
-        String tempUserId = uL.createTempUser();
-        return tempUserId;
+    private String getTempUser()  {
+        return uL.createTempUser();
     }
 
 
 
     @PostMapping("/checkYZM")
-    private YZMUtil.YZMInfo checkYZM(@RequestBody JSONObject param) throws LogicException {
+    private YZMUtil.YZMInfo checkYZM(@RequestBody JSONObject param)  {
         String tempUserId = param.getString(TEMP_USER_ID);
         boolean forEmail = param.getBooleanValue(FOR_EMAIL);
         int x = param.getInteger(X);
@@ -163,5 +163,12 @@ public class UserController {
         }else {
             return ServletAdapter.process(uL.checkTelYZMAndRefreshIfFailed(tempUserId,x, imgSrc));
         }
+    }
+
+
+    @GetMapping("/getBasicInfo")
+    private UserBasicInfo getBasicInfo(@RequestParam(ID)String id)  {
+        Long decodedId = ServletAdapter.getCommonId(id);
+        return uL.getBasicInfo(decodedId);
     }
 }

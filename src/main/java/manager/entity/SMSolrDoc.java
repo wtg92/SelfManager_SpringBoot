@@ -6,7 +6,7 @@ import org.apache.solr.client.solrj.beans.Field;
 
 import java.io.Serializable;
 
-public abstract class SMSolrDoc implements Serializable {
+public abstract class SMSolrDoc implements Serializable,Cloneable {
 
     @Field
     @Id
@@ -26,6 +26,9 @@ public abstract class SMSolrDoc implements Serializable {
      */
     @Field
     private Long _version_;
+
+    @Field
+    private Long updaterId;
 
     public String getId() {
         return id;
@@ -57,5 +60,22 @@ public abstract class SMSolrDoc implements Serializable {
 
     public void set_version_(Long _version_) {
         this._version_ = _version_;
+    }
+
+    public Long getUpdaterId() {
+        return updaterId;
+    }
+
+    public void setUpdaterId(Long updaterId) {
+        this.updaterId = updaterId;
+    }
+
+    @Override
+    public SMSolrDoc clone() {
+        try {
+            return (SMSolrDoc) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }

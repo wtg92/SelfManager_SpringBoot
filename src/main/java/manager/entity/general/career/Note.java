@@ -5,18 +5,16 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import manager.annotation.SolrEntity;
 import manager.annotation.SolrField;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
 
 import manager.entity.general.SMGeneralEntity;
-import manager.system.SMDB;
+import manager.system.DBConstants;
 
 import java.util.Calendar;
 
 
 @Entity
-@Table(name = SMDB.T_NOTE)
-@SolrEntity(name = SMDB.T_NOTE)
+@Table(name = DBConstants.T_NOTE)
+@SolrEntity(name = DBConstants.T_NOTE)
 public class Note extends SMGeneralEntity {
 
 	private static final long serialVersionUID = 6913789086585365898L;

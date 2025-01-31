@@ -8,13 +8,13 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import manager.entity.general.SMGeneralEntity;
-import manager.system.SMDB;
+import manager.system.DBConstants;
 
 import java.util.Calendar;
 
 
 @Entity
-@Table(name = SMDB.T_MEMO)
+@Table(name = DBConstants.T_MEMO)
 @DynamicInsert
 @DynamicUpdate
 public class Memo extends SMGeneralEntity {

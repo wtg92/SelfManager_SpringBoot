@@ -13,7 +13,7 @@ import manager.entity.general.career.PlanDept;
 import manager.entity.general.career.WorkSheet;
 import manager.exception.DBException;
 import manager.exception.NoSuchElement;
-import manager.system.SMDB;
+import manager.system.DBConstants;
 import manager.system.career.PlanState;
 import manager.system.career.WorkSheetState;
 import manager.util.TimeUtil;
@@ -59,7 +59,7 @@ public class WorkDAOImpl implements WorkDAO {
 
 	@Override
 	public List<Plan> selectPlansByOwnerAndStates(long ownerId,List<PlanState> states) throws DBException {
-		return selectEntitiesByFieldAndManyField(Plan.class,SMDB.F_OWNER_ID,ownerId, SMDB.F_STATE, states,PlanState::getDbCode, sessionFactory);
+		return selectEntitiesByFieldAndManyField(Plan.class, DBConstants.F_OWNER_ID,ownerId, DBConstants.F_STATE, states,PlanState::getDbCode, sessionFactory);
 	}
 
 	@Override
@@ -69,13 +69,13 @@ public class WorkDAOImpl implements WorkDAO {
 
 	@Override
 	public long countPlansByOwnerAndState(long ownerId, PlanState state) throws DBException {
-		return countEntitiesByBiFields(Plan.class,SMDB.F_OWNER_ID,ownerId, SMDB.F_STATE,state.getDbCode(), sessionFactory);
+		return countEntitiesByBiFields(Plan.class, DBConstants.F_OWNER_ID,ownerId, DBConstants.F_STATE,state.getDbCode(), sessionFactory);
 	}
 
 	@Deprecated
 	@Override
 	public long countWorkSheetByOwnerAndState(long ownerId, WorkSheetState state) throws DBException {
-		return countEntitiesByBiFields(WorkSheet.class,SMDB.F_OWNER_ID,ownerId, SMDB.F_STATE,state.getDbCode(), sessionFactory);
+		return countEntitiesByBiFields(WorkSheet.class, DBConstants.F_OWNER_ID,ownerId, DBConstants.F_STATE,state.getDbCode(), sessionFactory);
 	}
 
 	@Override
@@ -86,9 +86,9 @@ public class WorkDAOImpl implements WorkDAO {
 	@Override
 	public boolean includeUniqueWorkSheetByOwnerAndDateAndTimezone(long ownerId,long date,String timezone) throws DBException {
 		return includeUniqueEntityByTriFields(WorkSheet.class
-				,SMDB.F_OWNER_ID,ownerId
-				,SMDB.F_DATE_UTC,date
-				,SMDB.F_TIMEZONE,timezone
+				, DBConstants.F_OWNER_ID,ownerId
+				, DBConstants.F_DATE_UTC,date
+				, DBConstants.F_TIMEZONE,timezone
 				, sessionFactory);
 	}
 
@@ -108,8 +108,8 @@ public class WorkDAOImpl implements WorkDAO {
 		sessionFactory.inStatelessSession(session->{
 			session.doWork(conn -> {
 				String sql = String.format("SELECT %s,%s,%s,%s FROM %s WHERE %s=? ORDER BY %s DESC LIMIT %s,%s",
-						SMDB.F_ID,SMDB.F_DATE_UTC,SMDB.F_STATE,SMDB.F_TIMEZONE,
-						SMDB.T_WORK_SHEET, SMDB.F_OWNER_ID,SMDB.F_DATE_UTC,(page*limit),limit);
+						DBConstants.F_ID, DBConstants.F_DATE_UTC, DBConstants.F_STATE, DBConstants.F_TIMEZONE,
+						DBConstants.T_WORK_SHEET, DBConstants.F_OWNER_ID, DBConstants.F_DATE_UTC,(page*limit),limit);
 				try (PreparedStatement ps = conn.prepareStatement(sql)) {
 					ps.setLong(1, ownerId);
 
@@ -130,23 +130,23 @@ public class WorkDAOImpl implements WorkDAO {
 
 	@Override
 	public long countWorkSheetByDate(Calendar date) throws DBException {
-		return countEntitiesByRange(WorkSheet.class, SMDB.F_DATE, TimeUtil.getMinTimeOfDay(date), TimeUtil.getMaxTimeOfDay(date), sessionFactory);
+		return countEntitiesByRange(WorkSheet.class, DBConstants.F_DATE, TimeUtil.getMinTimeOfDay(date), TimeUtil.getMaxTimeOfDay(date), sessionFactory);
 	}
 
 	@Override
 	public long countWorkSheetByDateAndTimezone(Long date, String timezone) {
-		return countEntitiesByBiFields(WorkSheet.class,SMDB.F_DATE_UTC,date
-				,SMDB.F_TIMEZONE,timezone,sessionFactory);
+		return countEntitiesByBiFields(WorkSheet.class, DBConstants.F_DATE_UTC,date
+				, DBConstants.F_TIMEZONE,timezone,sessionFactory);
 	}
 
 	@Override
 	public boolean includeWorkSheetByPlanId(long planId) throws DBException {
-		return includeEntitiesByField(WorkSheet.class, SMDB.F_PLAN_ID, planId, sessionFactory);
+		return includeEntitiesByField(WorkSheet.class, DBConstants.F_PLAN_ID, planId, sessionFactory);
 	}
 
 	@Override
 	public PlanDept selectBalanceByOwner(long ownerId) throws NoSuchElement, DBException {
-		return selectUniqueEntityByField(PlanDept.class, SMDB.F_OWNER_ID, ownerId, sessionFactory);
+		return selectUniqueEntityByField(PlanDept.class, DBConstants.F_OWNER_ID, ownerId, sessionFactory);
 	}
 
 	@Override
@@ -162,7 +162,7 @@ public class WorkDAOImpl implements WorkDAO {
 	@Override
 	public List<WorkSheet> selectWorkSheetByOwnerAndStates(long ownerId, List<WorkSheetState> states)
 			throws DBException {
-		return selectEntitiesByFieldAndManyField(WorkSheet.class,SMDB.F_OWNER_ID,ownerId, SMDB.F_STATE, states,WorkSheetState::getDbCode, sessionFactory);
+		return selectEntitiesByFieldAndManyField(WorkSheet.class, DBConstants.F_OWNER_ID,ownerId, DBConstants.F_STATE, states,WorkSheetState::getDbCode, sessionFactory);
 	}
 	
 	@Override
@@ -172,8 +172,8 @@ public class WorkDAOImpl implements WorkDAO {
 			try {
 				session.doWork(conn -> {
 					String sql = String.format("select %s From %s where %s=? and %s is not null and trim(%s) != ''",
-							SMDB.F_TAGS,SMDB.T_PLAN,
-							SMDB.F_OWNER_ID,SMDB.F_TAGS,SMDB.F_TAGS);
+							DBConstants.F_TAGS, DBConstants.T_PLAN,
+							DBConstants.F_OWNER_ID, DBConstants.F_TAGS, DBConstants.F_TAGS);
 					try (PreparedStatement ps = conn.prepareStatement(sql)) {
 						ps.setLong(1, loginerId);
 						ResultSet rs = ps.executeQuery();
@@ -196,8 +196,8 @@ public class WorkDAOImpl implements WorkDAO {
 			session.doWork(conn -> {
 				try {
 					String sql = String.format("select %s From %s where %s=? and %s is not null and trim(%s) != ''",
-							SMDB.F_TAGS,SMDB.T_WORK_SHEET,
-							SMDB.F_OWNER_ID,SMDB.F_TAGS,SMDB.F_TAGS);
+							DBConstants.F_TAGS, DBConstants.T_WORK_SHEET,
+							DBConstants.F_OWNER_ID, DBConstants.F_TAGS, DBConstants.F_TAGS);
 					try (PreparedStatement ps = conn.prepareStatement(sql)) {
 						ps.setLong(1, loginerId);
 						ResultSet rs = ps.executeQuery();
@@ -220,8 +220,8 @@ public class WorkDAOImpl implements WorkDAO {
 			session.doWork(conn -> {
 				try {
 					String sql = String.format("select distinct %s From %s where %s=?",
-							SMDB.F_TIMEZONE,SMDB.T_WORK_SHEET,
-							SMDB.F_OWNER_ID);
+							DBConstants.F_TIMEZONE, DBConstants.T_WORK_SHEET,
+							DBConstants.F_OWNER_ID);
 					try (PreparedStatement ps = conn.prepareStatement(sql)) {
 						ps.setLong(1, loginId);
 						ResultSet rs = ps.executeQuery();
@@ -251,8 +251,8 @@ public class WorkDAOImpl implements WorkDAO {
 				try {
 					String theManySql = planIds.stream().map(val -> val.toString()).collect(Collectors.joining(","));
 					String sql = String.format("SELECT %s,%s FROM %s WHERE (%s in (%s))",
-							SMDB.F_ID,SMDB.F_NAME,
-							SMDB.T_PLAN,SMDB.F_ID,theManySql);
+							DBConstants.F_ID, DBConstants.F_NAME,
+							DBConstants.T_PLAN, DBConstants.F_ID,theManySql);
 					try (PreparedStatement ps = conn.prepareStatement(sql)) {
 						ResultSet rs = ps.executeQuery();
 						while(rs.next()) {
@@ -272,27 +272,27 @@ public class WorkDAOImpl implements WorkDAO {
 
 	@Override
 	public long countWorkSheetByOwnerAndPlanId(long ownerId, long planId) throws DBException {
-		return countEntitiesByBiFields(WorkSheet.class,SMDB.F_OWNER_ID,ownerId, SMDB.F_PLAN_ID,planId, sessionFactory);
+		return countEntitiesByBiFields(WorkSheet.class, DBConstants.F_OWNER_ID,ownerId, DBConstants.F_PLAN_ID,planId, sessionFactory);
 	}
 
 	@Override
 	public List<WorkSheet> selectWorkSheetsByOwnerAndDateScope(long ownerId, Calendar startDate, Calendar endDate) throws DBException {
-		return selectEntitiesByDateScopeAndField(WorkSheet.class, SMDB.F_DATE, startDate, endDate, SMDB.F_OWNER_ID, ownerId, sessionFactory);
+		return selectEntitiesByDateScopeAndField(WorkSheet.class, DBConstants.F_DATE, startDate, endDate, DBConstants.F_OWNER_ID, ownerId, sessionFactory);
 	}
 
 	@Override
 	public List<WorkSheet> selectWorkSheetsByOwnerAndDateScopeAndTimezone(long loginId, long startDate, long endDate, String timezone) {
 		Map<String,Object> params = new HashMap<>();
-		params.put(SMDB.F_OWNER_ID,loginId);
-		params.put(SMDB.F_TIMEZONE,timezone);
-		return selectEntitiesByRange(WorkSheet.class,SMDB.F_DATE_UTC,startDate,endDate,params,sessionFactory);
+		params.put(DBConstants.F_OWNER_ID,loginId);
+		params.put(DBConstants.F_TIMEZONE,timezone);
+		return selectEntitiesByRange(WorkSheet.class, DBConstants.F_DATE_UTC,startDate,endDate,params,sessionFactory);
 	}
 
 	@Override
 	public List<WorkSheet> selectWorkSheetsByOwnerAndDateScope(long loginId, long startDate, long endDate) {
 		Map<String,Object> params = new HashMap<>();
-		params.put(SMDB.F_OWNER_ID,loginId);
-		return selectEntitiesByRange(WorkSheet.class,SMDB.F_DATE_UTC,startDate,endDate,params,sessionFactory);
+		params.put(DBConstants.F_OWNER_ID,loginId);
+		return selectEntitiesByRange(WorkSheet.class, DBConstants.F_DATE_UTC,startDate,endDate,params,sessionFactory);
 	}
 
 	@Override

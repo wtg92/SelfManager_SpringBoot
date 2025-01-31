@@ -16,7 +16,7 @@ import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import manager.data.career.StatisticsList;
+import manager.data.career.MultipleItemsResult;
 import manager.data.career.WorkSheetContent;
 import manager.data.career.WorkSheetContent.PlanItemNode;
 import manager.data.proxy.career.CareerLogProxy;
@@ -45,25 +45,15 @@ import manager.util.ZonedTimeUtils;
 
 import javax.annotation.Resource;
 
-public abstract class WorkLogic{
+public abstract class WorkService {
 
 	@Resource
 	protected UserLogic uL;
-	final private static Logger logger = Logger.getLogger(WorkLogic.class.getName());
+	final private static Logger logger = Logger.getLogger(WorkService.class.getName());
 
-	private static WorkLogic instance = null;
+	private static WorkService instance = null;
 
 	public static int DEFAULT_WS_LIMIT_OF_ONE_PAGE = 20;
-
-	/**
-	 * 检验权限
-	 * 需要有Log
-	 * endDate isNull means continue to today
-	 * @throws DBException 
-	 * @throws LogicException 
-	 */
-	@Deprecated
-	public abstract long createPlan(long ownerId,String name,Calendar startDate,Calendar endDate,String note) throws LogicException, DBException;
 
 	public abstract long createPlan(long ownerId,String name,Long startDate,Long endDate,String timezone,String note) throws LogicException, DBException;
 
@@ -86,13 +76,6 @@ public abstract class WorkLogic{
 	public abstract void removeItemFromPlan(long removerId,long planId,int itemId) throws LogicException, DBException;
 	public abstract void removeItemFromWSPlan(long removerId,long wsId,int itemId) throws LogicException, DBException;
 	public abstract void removeItemFromWorkSheet(long removerId, long wsId, int itemId) throws LogicException, DBException;
-	/**
-	 *  加载出state 为 active和prepared 的plan  
-	 *   从数据库取出后，会进行refreshStateByTime 这时如果更新为Finished 则会更新且不会返回 更新为Active会返回
-	 * 取出后 如果不在缓存里，就放到缓存里（认为用户很快会使用） 
-	 *  
-	 */
-	public abstract List<Plan> loadActivePlans(long loginId) throws LogicException, DBException;
 	public abstract void calculatePlanStatesRoutinely(long loginId);
 
 	public abstract void calculateWorksheetStatesRoutinely(long loginId);
@@ -103,12 +86,9 @@ public abstract class WorkLogic{
 	 */
 	public abstract Map<String,Long> loadPlanStateStatistics(long ownerId) throws LogicException, DBException;
 	public abstract Map<String,Long> loadWSStateStatistics(long loginId) throws LogicException, DBException;
-	/*ZT means ZoerTerm 当是0时，代表不设限*/
-	@Deprecated
-	public abstract List<Plan> loadPlansByState(long ownerId,PlanState stateZT,int pageNum,int pageSize);
 
-	public abstract StatisticsList<Plan> loadPlansByTerms(long loginId, Integer state, String name, Long startUtcForCreate, Long endUtcForCreate, Long startUtcForUpdate, Long endUtcForUpdate, String timezone);
-	public abstract StatisticsList<WorkSheetProxy> loadWorksheetsByTerms(long loginId, Integer state, Long startUtcForDate, Long endUtcForDate, Long startUtcForUpdate, Long endUtcForUpdate, String timezone, long planId);
+	public abstract MultipleItemsResult<Plan> loadPlansByTerms(long loginId, Integer state, String name, Long startUtcForCreate, Long endUtcForCreate, Long startUtcForUpdate, Long endUtcForUpdate, String timezone);
+	public abstract MultipleItemsResult<WorkSheetProxy> loadWorksheetsByTerms(long loginId, Integer state, Long startUtcForDate, Long endUtcForDate, Long startUtcForUpdate, Long endUtcForUpdate, String timezone, long planId);
 
 
 	public abstract List<WorkSheetProxy> loadWorkSheetByState(long loginId, WorkSheetState stateZT) ;
@@ -128,15 +108,6 @@ public abstract class WorkLogic{
 	public abstract WorkSheetProxy loadWorkSheet(long loginId,long wsId) throws DBException, LogicException;
 	public abstract WorkSheet getWorksheet(long loginId,long wsId);
 	
-	/**
-	 *   闭区间
-	 *
-	 */
-	@Deprecated
-	public abstract List<WorkSheetProxy> loadWorkSheetsByDateScope(long loginId,Calendar startDate,Calendar endDate) throws SMException;
-	
-	@Deprecated
-	public abstract long loadWorkSheetCount(long loginId,Calendar date) throws SMException;
 
 	public abstract long getWorkSheetCount(long loginId,Long date,String timezone);
 
@@ -159,8 +130,6 @@ public abstract class WorkLogic{
 	
 	public abstract void saveWorkItemPlanItemId(long updaterId,long wsId,int workItemId, int planItemId) throws LogicException, DBException;
 
-	@Deprecated
-	public abstract void saveWorkItems(long loginId, long wsId, List<WorkItem> workItems) throws SMException;
 
 	public abstract void saveWorkItem(long loginId, int wsId,int itemId, double val, String note, int mood, boolean forAdd, Long startUtc, Long endUtc);
 
@@ -176,10 +145,7 @@ public abstract class WorkLogic{
 								  String note,List<PlanSetting> settings,int seqWeight, boolean recalculateState);
 	public abstract void recalculatePlanState(long loginId, long planId);
 
-	@Deprecated
-	public abstract void savePlan(long loginId, long planId, String name, Calendar startDate, Calendar endDate,
-			String note, boolean recalculateState, List<PlanSetting> settings,int seqWeight) throws LogicException, DBException;
-	public abstract void saveWorkSheet(long updaterId,long wsId,String note) throws LogicException, DBException;	
+	public abstract void saveWorkSheet(long updaterId,long wsId,String note) throws LogicException, DBException;
 	public abstract void patchBalanceItem(long updaterId, int itemId, String name, double val) throws LogicException, DBException;
 	public abstract void saveWorkSheetPlanId(long updaterId,long wsId,long planId) throws SMException;	
 
@@ -215,17 +181,14 @@ public abstract class WorkLogic{
 	/*=================================================NOT ABSTRACT ==============================================================*/
 	
 
-
-	public static synchronized WorkLogic getInstance() {
-		if(instance == null) {
-			instance = new WorkLogicImpl_Legacy();
-		}
+	@Deprecated
+	public static synchronized WorkService getInstance() {
 		return instance;
 	}
 
 	
 	protected static List<WorkSheetProxy> clearUnnecessaryInfo(List<WorkSheetProxy> base){
-		base.forEach(WorkLogic::clearUnnecessaryInfo);
+		base.forEach(WorkService::clearUnnecessaryInfo);
 		return base;
 	}
 	

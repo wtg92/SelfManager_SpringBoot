@@ -20,12 +20,13 @@ public enum SMPerm {
 	CREATE_WORKSHEET_PLAN(6,"可以创建工作表计划"),
 	SEE_SELF_PLANS(7,"看到自己的计划"),
 	SEE_TODAY_WS_COUNT(8,"可以看到今日工作表统计"),
-	SEE_NOTES_MODULE(9,"看到笔记模块"),
+	SEE_BOOKS_MODULE(9,"看到书库模块"),
 	CREATE_NOTE_BOOK_AND_NOTE(10,"创建笔记本和笔记"),
 	SEE_WORKSHEET_MODULE(11,"看到工作表模块"),
 	SEE_TOOLS_MODULE(12,"看到工具模块"),
 
-	DO_MIGRATION_OF_VER1(13,"可以触发数据迁移")
+	DO_MIGRATION_OF_VER1(13,"可以触发数据迁移"),
+
 
 	;
     private final int dbCode;
@@ -54,7 +55,7 @@ public enum SMPerm {
     public static Map<String,List<SMPerm>> getPermsByGroup(){
     	Map<String,List<SMPerm>> rlt = new HashMap<>();
 		//SEE_USERS_MODULE 用户管理模块不允许配置
-    	rlt.put("模块可见性",Arrays.asList(SEE_NOTES_MODULE,SEE_TOOLS_MODULE,SEE_WORKSHEET_MODULE));
+    	rlt.put("模块可见性",Arrays.asList(SEE_BOOKS_MODULE,SEE_TOOLS_MODULE,SEE_WORKSHEET_MODULE));
     	rlt.put("用户相关", Arrays.asList(ADD_USERS_TO_PERM,EDIT_PERMS_TO_GROUP,CREATE_USER_GROUP, SEE_USERS_AND_USER_GROUPS_DATA));
     	rlt.put("工作表相关",Arrays.asList(CREATE_WORKSHEET_PLAN,SEE_SELF_PLANS,SEE_TODAY_WS_COUNT));
     	rlt.put("笔记相关",Arrays.asList(CREATE_NOTE_BOOK_AND_NOTE));

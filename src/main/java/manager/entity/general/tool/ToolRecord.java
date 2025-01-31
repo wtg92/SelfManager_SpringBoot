@@ -9,12 +9,12 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import manager.entity.general.SMGeneralEntity;
-import manager.system.SMDB;
+import manager.system.DBConstants;
 import manager.system.tool.Tool;
 import manager.system.tool.converter.ToolConverter;
 
 @Entity
-@Table(name = SMDB.T_TOOL_RECORD)
+@Table(name = DBConstants.T_TOOL_RECORD)
 @DynamicInsert
 @DynamicUpdate
 public class ToolRecord extends SMGeneralEntity{

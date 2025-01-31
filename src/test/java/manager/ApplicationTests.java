@@ -5,8 +5,9 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import manager.dao.UserDAO;
 import manager.dao.career.WorkDAO;
 import manager.data.proxy.career.PlanProxy;
+import manager.entity.general.career.Plan;
 import manager.service.UserLogic;
-import manager.service.work.WorkLogic;
+import manager.service.work.WorkService;
 import manager.system.SMPerm;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -34,7 +35,16 @@ class ApplicationTests {
 
 
 	@Resource
-	WorkLogic workLogic;
+	WorkService workService;
+
+	@Test
+	public void	testGetPlan(){
+		Plan plan = workDAO.selectPlan(47);
+		System.out.println(plan.getState());
+	}
+
+
+
 	@Test
 	void contextLoads() {
 		System.out.println("say Hello");
@@ -53,7 +63,7 @@ class ApplicationTests {
 	}
 
 	@Resource
-	WorkLogic wl;
+	WorkService wl;
 
 	@Test
 	public void test2(){
@@ -88,11 +98,11 @@ class ApplicationTests {
 	public  void testWorkLogic(){
 		long id = 39;
 		int loginId = 1;
-		PlanProxy planProxy = workLogic.loadPlan(loginId, id);
+		PlanProxy planProxy = workService.loadPlan(loginId, id);
 		System.out.println(JSON.toJSONString(planProxy));
 		System.out.println(JSON.toJSONString(planProxy.plan.getTags()));
-		workLogic.resetPlanTags(id,loginId,Arrays.asList("哈哈"));
-		planProxy = workLogic.loadPlan(loginId, id);
+		workService.resetPlanTags(id,loginId,Arrays.asList("哈哈"));
+		planProxy = workService.loadPlan(loginId, id);
 		System.out.println(JSON.toJSONString(planProxy.plan.getTags()));
 	}
 
@@ -100,6 +110,6 @@ class ApplicationTests {
 	public  void testWorkLogic2(){
 		long id = 39;
 		int loginId = 1;
-		workLogic.resetPlanTags(loginId,id,Arrays.asList(""));
+		workService.resetPlanTags(loginId,id,Arrays.asList(""));
 	}
 }
