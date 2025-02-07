@@ -42,6 +42,10 @@ $(function(){
 
 
     $("#note_book_content_main_body_container")
+        //TODO
+        .on("click",".note_book_create_note_btn",createNoteByClick)
+
+
         .on("click",".note_book_baisc_info_switch_container_visibility",switchToShowBookBasicInfoContainer)
         .on("click",".note_book_baisc_info_infos_list_main_container",switchToShowBookNoteListContainer)
         .on("click",".note_book_content_style_sample",chooseStyleTypeByClickForSaveBook)
@@ -67,7 +71,7 @@ $(function(){
         })
         .on("click",".note_book_content_save_basic_info_button",commitSaveNoteBookBasicInfo)
         .on("input","[name='seq_weight']",inputOnlyAllowInt)
-        .on("click",".note_book_create_note_btn",createNoteByClick)
+
         .on("click",".note_book_list_item_delete_mark",deleteNoteByClick)
         .on("click",".note_book_title_item_cotnainer",switchNotePageByClick)
         .on("click",".one_note_book_content_unit_delete_mark",closeNotePageByDeleteMark)

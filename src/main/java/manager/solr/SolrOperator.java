@@ -5,11 +5,12 @@ import manager.booster.UserIsolator;
 import manager.data.career.MultipleItemsResult;
 import manager.entity.SMSolrDoc;
 import manager.solr.constants.SolrRequestParam;
-import manager.system.DBConstants;
+import manager.solr.data.StatsResult;
 import manager.system.SolrFields;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrInputDocument;
-import org.apache.solr.common.params.MapSolrParams;
+import org.apache.solr.common.params.MultiMapSolrParams;
+import org.apache.solr.common.params.SolrParams;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -76,11 +77,18 @@ public class SolrOperator {
         return JSON.parseObject(invoker.getDocument(coreName,id).jsonStr(),cls);
     }
 
-    public void deleteById(String id) {
-        invoker.deleteById(DBConstants.E_SHARING_BOOK,id);
+    public void deleteById(String core,long userId, String id) {
+        String coreName = UserIsolator.calculateCoreNamByUser(core,userId) ;
+        invoker.deleteById(coreName,id);
     }
 
-    public <T> MultipleItemsResult<T> query(String core,Long userId,MapSolrParams queryParamMap, String configDir,Class<T> cls) {
+    public void deleteByFields(String core, long userId, Map<String, Object> params) {
+        String coreName = UserIsolator.calculateCoreNamByUser(core,userId) ;
+        invoker.deleteByFields(coreName,params);
+    }
+
+
+    public <T> MultipleItemsResult<T> query(String core, Long userId, SolrParams queryParamMap, String configDir, Class<T> cls) {
         String coreName = UserIsolator.calculateCoreNamByUser(core,userId) ;
         initCoreIfNotExist(coreName,configDir);
         QueryResponse queryResponse = invoker.query(coreName, queryParamMap);
@@ -90,6 +98,30 @@ public class SolrOperator {
         return rlt;
     }
 
+    /**
+     * TODO 将来扩展 还有一个stats.field 可以设置
+     * 假设数值 还可以求出最大值 最小值
+     * @param core
+     * @param userId
+     * @param queryParamMap
+     * @param configDir
+     * @return
+     */
+    public StatsResult queryStatus(String core, Long userId, Map<String, String[]> queryParamMap, String configDir) {
+        String coreName = UserIsolator.calculateCoreNamByUser(core,userId) ;
+        initCoreIfNotExist(coreName,configDir);
+        queryParamMap.put(SolrRequestParam.STATS, new String[]{SolrRequestParam.TRUE});;
+        queryParamMap.put(SolrRequestParam.QUERY_LIMIT, new String[]{String.valueOf(0)});
+        MultiMapSolrParams queryParams = new MultiMapSolrParams(queryParamMap);
+        QueryResponse queryResponse = invoker.query(coreName, queryParams);
+        return transfer(queryResponse);
+    }
+
+    private StatsResult transfer(QueryResponse queryResponse) {
+        StatsResult rlt = new StatsResult();
+        rlt.count = queryResponse.getResults().getNumFound();
+        return rlt;
+    }
 
 
 }

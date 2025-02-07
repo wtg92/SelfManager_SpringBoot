@@ -24,7 +24,7 @@ public abstract class SMEntity implements Serializable{
 
 	private static final long serialVersionUID = -5640352156603901321L;
 
-	@SolrField
+
 	@Id
 	@GeneratedValue(generator = "idGenerator", strategy = GenerationType.IDENTITY)
 	@GenericGenerator(name = "idGenerator", strategy = "identity")

@@ -11,7 +11,7 @@ public abstract class DBConstants {
 	public static final String T_MEMO = "memo";
 	public static final String T_NOTE_BOOK = "note_book";
 
-
+	public static final String T_SYSTEM_MAPPING = "system_mapping";
 	public static final String T_NOTE = "note";
 	public static final String T_TOOL_RECORD = "tool_record";
 

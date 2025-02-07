@@ -18,11 +18,11 @@ import manager.entity.SMEntity;
 public abstract class SMGeneralEntity extends SMEntity implements Cloneable{
 	
 	private static final long serialVersionUID = 6178314886295205584L;
-	@SolrField
+
 	@Field
 	@Column
 	private Long createUtc;
-	@SolrField
+
 	@Column
 	private Long updateUtc;
 

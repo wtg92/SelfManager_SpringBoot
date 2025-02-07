@@ -2,6 +2,7 @@ package manager.cache;
 
 import com.alibaba.fastjson2.JSON;
 import manager.entity.SMEntity;
+import manager.entity.general.books.PageNode;
 import manager.entity.general.books.SharingBook;
 import manager.entity.general.career.WorkSheet;
 import manager.exception.DBException;
@@ -19,7 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static java.util.stream.Collectors.toList;
@@ -154,6 +154,12 @@ public class CacheOperator {
 	public void removeBook(String id){
 		caches.Books_Cache.invalidate(id);
 	}
+
+	public void removePageNode(String id){
+		caches.Page_Nodes_Cache.invalidate(id);
+	}
+
+
 	public void removeWorksheet(long id){
 		caches.Worksheet_Cache.invalidate(id);
 	}
@@ -172,19 +178,34 @@ public class CacheOperator {
 		removeWorksheet(key);
 	}
 	public SharingBook getBook(long loginId, String bookId, Supplier<SharingBook> generator) {
-		String cacheId = generateBookCacheId(loginId,bookId);
+		String cacheId = generateCacheIdInUserIsolation(loginId,bookId);
 		return caches.Books_Cache.get(cacheId,(k)->generator.get()).clone();
 	}
-	private static String generateBookCacheId(long loginId, String bookId){
-		return loginId+"__"+bookId;
+
+	public PageNode getPageNode(long loginId, String pageId, Supplier<PageNode> generator) {
+		String cacheId = generateCacheIdInUserIsolation(loginId,pageId);
+		return caches.Page_Nodes_Cache.get(cacheId,(k)->generator.get()).clone();
+	}
+
+	private static String generateCacheIdInUserIsolation(long loginId, String id){
+		return loginId+"__"+id;
 	}
 
 	public void saveBook(long loginId, String bookId, Runnable saving ) {
-		String cacheId = generateBookCacheId(loginId,bookId);
+		String cacheId = generateCacheIdInUserIsolation(loginId,bookId);
 		try{
 			saving.run();
 		}finally {
 			removeBook(cacheId);
+		}
+	}
+
+	public void savePageNode(long loginId, String nodeId, Runnable saving ) {
+		String cacheId = generateCacheIdInUserIsolation(loginId,nodeId);
+		try{
+			saving.run();
+		}finally {
+			removePageNode(cacheId);
 		}
 	}
 

@@ -3,7 +3,7 @@ package manager.controller;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import manager.data.career.MultipleItemsResult;
-import manager.entity.general.books.BookPage;
+import manager.entity.general.books.PageNode;
 import manager.entity.general.books.SharingBook;
 import manager.service.books.BooksService;
 import manager.util.UIUtil;
@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static manager.system.SMParm.*;
@@ -26,7 +24,7 @@ public class BooksController {
 
     private static final String BOOKS_PATH = "/books";
 
-    private static final String PAGES_PATH = "/pages";
+    private static final String PAGES_PATH = "/pageNodes";
 
     @PostMapping(BOOKS_PATH)
     private void postBook( @RequestHeader("Authorization") String authorizationHeader
@@ -45,26 +43,46 @@ public class BooksController {
         String name = param.getString(NAME);
         String lang = param.getString(LANGUAGE);
         String parentId = param.getString(PARENT_ID);
-        Integer index = param.getIntValue(INDEX);
+        Double index = param.getDouble(INDEX);
         String bookId = param.getString(BOOK_ID);
         Boolean isRoot = param.getBoolean(IS_ROOT);
         service.createPage(loginId,bookId,name,lang,parentId,isRoot,index);
     }
 
     @GetMapping(PAGES_PATH+"/list")
-    private MultipleItemsResult<BookPage> getPages(@RequestHeader("Authorization") String authorizationHeader
+    private MultipleItemsResult<PageNode> getPages(@RequestHeader("Authorization") String authorizationHeader
             , @RequestParam(PARENT_ID)String parentId
             , @RequestParam(IS_ROOT)Boolean isRoot
+            , @RequestParam(BOOK_ID)String bookId
             ){
         long loginId = UIUtil.getLoginId(authorizationHeader);
-        return service.getPages(loginId,parentId,isRoot);
+        return service.getPages(loginId,bookId,parentId,isRoot);
     }
 
     @GetMapping(PAGES_PATH)
-    private BookPage getPage(@RequestHeader("Authorization") String authorizationHeader
-            ,@RequestParam(ID)String id){
+    private PageNode getPageNode(@RequestHeader("Authorization") String authorizationHeader
+            , @RequestParam(ID)String id){
         long loginId = UIUtil.getLoginId(authorizationHeader);
-        return service.getPage(loginId,id);
+        return service.getPageNode(loginId,id);
+    }
+
+    @DeleteMapping(PAGES_PATH)
+    private void deletePageNode(@RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody JSONObject param ){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        String id = param.getString(ID);
+        String parentId = param.getString(PARENT_ID);
+        String bookId = param.getString(BOOK_ID);
+        Boolean isRoot = param.getBoolean(IS_ROOT);
+        service.deletePageNode(loginId,bookId,parentId,isRoot,id);
+    }
+
+    @DeleteMapping(BOOKS_PATH)
+    private void deleteBook(@RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody JSONObject param ){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        String id = param.getString(ID);
+        service.deleteBook(loginId,id);
     }
 
     @GetMapping(BOOKS_PATH+"/list")
@@ -89,7 +107,16 @@ public class BooksController {
         long loginId = UIUtil.getLoginId(authorizationHeader);
         String id = param.getString(ID);
         Map<String,Object> updatingProps = JSON.parseObject(param.getString(JSON_OBJ));
-        service.updateBookProps(loginId,id,updatingProps);
+        service.updateBookPropsSyncly(loginId,id,updatingProps);
+    }
+
+    @PatchMapping(PAGES_PATH)
+    private void patchPageNode( @RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody JSONObject param ){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        String id = param.getString(ID);
+        Map<String,Object> updatingProps = JSON.parseObject(param.getString(JSON_OBJ));
+        service.updatePageNodePropsSyncly(loginId,id,updatingProps);
     }
     @PatchMapping(BOOKS_PATH+"/close")
     private void closeBook( @RequestHeader("Authorization") String authorizationHeader

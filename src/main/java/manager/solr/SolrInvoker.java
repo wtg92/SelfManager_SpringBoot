@@ -15,6 +15,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.CoreAdminParams;
 import org.apache.solr.common.params.MapSolrParams;
+import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.common.util.NamedList;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -103,6 +104,17 @@ public class SolrInvoker{
     public void deleteById(String coreName, String id) {
         try (SolrClient solrClient = generateSpecificClient(coreName)) {
             solrClient.deleteById(id);
+            solrClient.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void deleteByFields(String coreName, Map<String,Object> fieldsFilter ) {
+        try (SolrClient solrClient = generateSpecificClient(coreName)) {
+            solrClient.deleteByQuery(SolrUtil.buildQueryString(fieldsFilter));
+            solrClient.commit();
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -141,7 +153,7 @@ public class SolrInvoker{
         }
     }
 
-    public QueryResponse query(String coreName, MapSolrParams queryParamMap) {
+    public QueryResponse query(String coreName, SolrParams queryParamMap) {
         try (SolrClient solrClient = generateSpecificClient(coreName)) {
             return solrClient.query(queryParamMap);
         } catch (Exception e) {
@@ -149,4 +161,7 @@ public class SolrInvoker{
             throw new RuntimeException(e);
         }
     }
+
+
+
 }

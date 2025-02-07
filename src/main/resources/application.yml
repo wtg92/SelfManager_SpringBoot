@@ -36,6 +36,8 @@ cache:
   books:
     max-num: 50000
 
+  page-nodes:
+    max-num: 5000
 
 lock:
   expirationCheckCron: 0/30 * * * * ?

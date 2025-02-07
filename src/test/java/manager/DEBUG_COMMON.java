@@ -31,7 +31,6 @@ public class DEBUG_COMMON {
     public void testReflect(){
         SharingBook book = new SharingBook();
         book = ReflectUtil.setFiledValue(book,"comment_ch","Unbeliable");
-        System.out.println(book.getComment_ch());
     }
     @Test
     public void testTime(){

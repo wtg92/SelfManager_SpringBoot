@@ -5,7 +5,10 @@ import org.apache.solr.client.solrj.beans.Field;
 
 import java.util.List;
 
-public class BookPage extends SMSolrDoc {
+public class PageNode extends SMSolrDoc {
+
+    @Field
+    private String type;
 
     @Field
     private String bookId;
@@ -14,7 +17,13 @@ public class BookPage extends SMSolrDoc {
     private List<String> parentIds;
 
     @Field
-    private List<Integer> indexes;
+    private List<Double> indexes;
+
+    @Field
+    private Boolean withTODOs;
+
+    @Field
+    private Integer childrenNum;
 
     /**
      * 变量还是需要有一个类型的
@@ -135,8 +144,32 @@ public class BookPage extends SMSolrDoc {
     @Field private String content_ukrainian;
 
     @Override
-    public BookPage clone(){
-        return (BookPage) super.clone();
+    public PageNode clone(){
+        return (PageNode) super.clone();
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public Boolean getWithTODOs() {
+        return withTODOs;
+    }
+
+    public void setWithTODOs(Boolean withTODOs) {
+        this.withTODOs = withTODOs;
+    }
+
+    public Integer getChildrenNum() {
+        return childrenNum;
+    }
+
+    public void setChildrenNum(Integer childrenNum) {
+        this.childrenNum = childrenNum;
     }
 
     public List<String> getVariables() {
@@ -747,11 +780,11 @@ public class BookPage extends SMSolrDoc {
         this.parentIds = parentIds;
     }
 
-    public List<Integer> getIndexes() {
+    public List<Double> getIndexes() {
         return indexes;
     }
 
-    public void setIndexes(List<Integer> indexes) {
+    public void setIndexes(List<Double> indexes) {
         this.indexes = indexes;
     }
 

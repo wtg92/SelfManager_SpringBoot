@@ -2,7 +2,7 @@ package manager.peace;
 
 import com.alibaba.fastjson2.JSON;
 import manager.SelfManagerSpringbootApplication;
-import manager.entity.general.books.BookPage;
+import manager.entity.general.books.PageNode;
 import manager.entity.general.books.SharingBook;
 import manager.service.UserLogicImpl;
 import manager.service.books.BooksService;
@@ -11,7 +11,6 @@ import manager.solr.SolrInvoker;
 import manager.solr.SolrOperator;
 import manager.system.Language;
 import manager.system.DBConstants;
-import org.checkerframework.checker.index.qual.PolyUpperBound;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,7 +91,6 @@ public class DEBUG_Solr{
 
     @Test
     public void testDelete(){
-        operator.deleteById("lovely");
     }
 
 
@@ -103,14 +101,12 @@ public class DEBUG_Solr{
 
     @Test
     public void testBook(){
-        BookPage book = new BookPage();
-        book.setName_ch("ChineseName");
+        PageNode book = new PageNode();
         book.setCreateUtc(System.currentTimeMillis());
         book.set_version_((long)-1);
         List<String> vars = Arrays.asList("TestV1;;;V2","Oh my God");
-        book.setVariables_en(vars);
         book.setParentIds(Arrays.asList("1184ec93-fbf2-48dc-b506-d9dfa3fd1352","82e7ce4b-6551-4cc5-af8a-7d2e01c62cd4") );
-        book.setIndexes(Arrays.asList(5));
+        book.setIndexes(Arrays.asList(5.0));
         book.setBookId("ohmygod");
         long userId = 666;
         booksSolrOperator.insertPage(book,userId);
@@ -118,12 +114,8 @@ public class DEBUG_Solr{
 
     @Test
     public void testQueryBook(){
-        String parentId  = "";
-        long userId = 12354;
-        boolean isRoot = false;
-        boolean isMax = false;
-        Integer rlt =  booksSolrOperator.queryPageIndex(parentId,userId,isRoot,isMax);
-        System.out.println(rlt);
+        String id = "PAGE_NODE__v1_f864834b-1ef0-4070-9d2a-cfcc369988fb";
+        booksSolrOperator.countPagesForSpecificParentId(id,"c33221a7-cc2d-4139-9a01-d34b7fbc1435",1);
     }
 
 }

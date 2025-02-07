@@ -11,7 +11,7 @@ public class SolrRequestParam {
      * QUERY Params
      */
     public static String RELEVANT_QUERY = "q";
-    public static String PURE_QUERY = "fq";
+    public static String FILTER_QUERY_SEPERATELY = "fq";
     public static String QUERY_ASC = "asc";
 
     public static String QUERY_DESC = "desc";
@@ -30,4 +30,10 @@ public class SolrRequestParam {
 
     public static String SET = "set";
 
+
+    public static String STATS = "stats";
+
+    public static String TRUE = "true";
+
+    public static String statsField = "stats.field";
 }

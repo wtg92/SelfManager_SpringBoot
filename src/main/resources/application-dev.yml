@@ -22,7 +22,7 @@ solr:
   instanceDir: configsets/_default/conf
   cores:
     sharingBook: E:\solr\solr-9.6.1\server\solr\configsets\sharingbook_v6
-    bookPage: E:\solr\solr-9.6.1\server\solr\configsets\bookPage_v6
+    pageNode: E:\solr\solr-9.6.1\server\solr\configsets\pageNode_v1
 
   config:
     default: D:\Life\solr\9.6
