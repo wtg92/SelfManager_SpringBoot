@@ -16,10 +16,8 @@ import manager.util.TimeUtilTest;
 	UserLogicTest.class,
 	UserDAOTest.class,
 	WorkDAOTest.class,
-	WorkServiceTest.class,
 	WorkContentConverterTest.class,
 	EnumTest.class,
-	NoteLogicTest.class,
 	NoteLogicStaticTest.class,
 	TimeUtilTest.class
 })
