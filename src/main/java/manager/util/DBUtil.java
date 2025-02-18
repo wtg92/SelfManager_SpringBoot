@@ -14,6 +14,7 @@ import jakarta.persistence.OptimisticLockException;
 import jakarta.persistence.TypedQuery;
 import manager.data.general.FinalHandler;
 import manager.data.general.FinalIntegerTempStorageCalculator;
+import manager.entity.general.User;
 import manager.system.SM;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -25,6 +26,7 @@ import manager.exception.DBException;
 import manager.exception.NoSuchElement;
 import manager.system.DBConstants;
 import manager.system.SMError;
+import org.hibernate.query.NativeQuery;
 import org.hibernate.query.Query;
 
 /**
@@ -452,12 +454,18 @@ public abstract class DBUtil {
 		}
 		return one.getId();
 	}
-
+	public static<T extends SMGeneralEntity> T selectExistedEntity(long id,Class<T> cla,SessionFactory hbFactory) throws DBException {
+		try {
+			return selectEntity(id,cla,hbFactory);
+		}catch (NoSuchElement e) {
+			throw new DBException(SMError.INCONSISTENT_DB_ERROR,id);
+		}
+	}
 	public static<T extends SMGeneralEntity> T selectEntity(long id,Class<T> cla,SessionFactory hbFactory) throws NoSuchElement {
 		try {
-			T rlt = hbFactory.fromStatelessSession((session)-> {
-					return session.get(cla, id);
-			});
+			T rlt = hbFactory.fromStatelessSession((session)->
+					 session.get(cla, id)
+			);
 			if (rlt == null)
 				throw new NoSuchElement();
 			return rlt;
@@ -467,7 +475,17 @@ public abstract class DBUtil {
 
 	}
 
-
+	public static<T> T executeSqlAndGetUniqueResult(SessionFactory sessionFactory, String sql,Class<T> cla) {
+		T result = null;
+		try (Session session = sessionFactory.openSession()) {
+			// 创建原生SQL查询
+			NativeQuery<T> query = session.createNativeQuery(sql, cla);
+			// 执行查询并获取唯一结果
+			return query.uniqueResult();
+		} catch (Exception e) {
+			throw processDBException(e);
+		}
+	}
 	public static<T extends SMGeneralEntity> void updateExistedEntity(T one,SessionFactory hbFactory) throws DBException {
 		one.setUpdateUtc(System.currentTimeMillis());
 		assert one.getId() != 0;

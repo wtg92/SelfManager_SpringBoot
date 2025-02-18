@@ -72,10 +72,7 @@ public abstract class UserLogic {
 		return instance;
 	}
 	
-	protected boolean isAdmin(long userId) throws LogicException, DBException {
-		return getUser(userId).getAccount().equals(SM.ADMIN_ACCOUNT);
-	}
-	
+
 	protected abstract boolean hasPerm(long userId,SMPerm perm) throws LogicException, DBException;
 	
 	public void checkPerm(long userId,SMPerm perm) throws LogicException, DBException {
@@ -83,9 +80,8 @@ public abstract class UserLogic {
 			throw new LogicException(SMError.MISSING_PERM,perm.getDbCode());
 	}
 	
-	public abstract User getUser(long userId) throws LogicException, DBException;
 	public abstract List<User> getUsers(List<Long> usersId) throws LogicException, DBException;
-	public abstract UserProxy loadUser(long userId,long loginerId) throws LogicException, DBException;
+	public abstract UserProxy loadUser(long userId,long loginId) throws LogicException, DBException;
 	/**
 	 * @return 临时用户的唯一标识 UUID
 	 */
@@ -159,20 +155,20 @@ public abstract class UserLogic {
 	 * 
 	 * @author 王天戈
 	 */
-	public abstract void addUsersToGroup(List<Long> usersId,long groupId,long loginerId) throws LogicException,DBException;
+	public abstract void addUsersToGroup(List<Long> usersId,long groupId,long loginId) throws LogicException,DBException;
 	/**
 	 *   要求权限 EDIT_PERMS_TO_GROUP ，没有，抛LACK_PERM
 	 * groupId必须存在，不存在，抛INCONSTSTANT_ARGS_BETWEEN_DATA 
 	 * 增添已有的 删除没有的
 	 * @author 王天戈
 	 */
-	public abstract void overrideGroupPerms(List<SMPerm> perms,long groupId,long loginerId) throws LogicException,DBException;
+	public abstract void overrideGroupPerms(List<SMPerm> perms,long groupId,long loginId) throws LogicException,DBException;
 	/**
 	  *  要求权限CREATE_USER_GROUP
 	 *   用户组不能重名，重名，抛DUP_USER_GROUP_NAME
 	 *  这反正不是用户用的功能 不用缓存了 麻烦
 	 */
-	public abstract long createUserGroup(String name,long loginerId) throws LogicException,DBException;
+	public abstract long createUserGroup(String name,long loginId) throws LogicException,DBException;
 	
 	/**
 	 * 检验UUID是否还存在在缓存中，若存在，则重置一下存活时间
@@ -184,14 +180,16 @@ public abstract class UserLogic {
 	 * 用户管理相关都是管理人员做的，不用缓存
 	 * @throws LogicException 
 	 */
-	public abstract List<UserGroupProxy> loadAllUserGroups(long loginerId) throws DBException, LogicException;
-	public abstract List<SMPerm> loadPermsOfGroup(long groupId,long loginerId) throws DBException, LogicException;
-	public abstract UserSummary loadUserSummary(long loginerId) throws LogicException, DBException;
+	public abstract List<UserGroupProxy> loadAllUserGroups(long loginId) throws DBException, LogicException;
+	public abstract List<SMPerm> loadPermsOfGroup(long groupId,long loginId) throws DBException, LogicException;
+	public abstract UserSummary loadUserSummary(long loginId) throws LogicException, DBException;
 	/*最多显示500条*/
-	public abstract List<UserProxy> loadUsersOfGroup(long groupId, long loginerId) throws LogicException, DBException;
+	public abstract List<UserProxy> loadUsersOfGroup(long groupId, long loginId) throws LogicException, DBException;
 
 	public abstract void resetPWD(String account, String val, VerifyUserMethod method, String verifyCode,
 			String resetPWD) throws LogicException, DBException;
 
-    public abstract UserBasicInfo getBasicInfo(Long decodedId);
+    public abstract UserBasicInfo getUserBasicInfo(Long loginId, Long decodedId);
+
+    public abstract void updateUser(long loginId, String nickName, Gender gender, String motto, Long portraitId);
 }

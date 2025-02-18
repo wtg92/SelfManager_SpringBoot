@@ -43,7 +43,7 @@ public class HibernateConfig {
                     .addAnnotatedClass(UserGroup.class)
                     .addAnnotatedClass(Plan.class)
                     .addAnnotatedClass(WorkSheet.class)
-                    .addAnnotatedClass(PlanDept.class)
+                    .addAnnotatedClass(PlanBalance.class)
                     .addAnnotatedClass(NoteBook.class)
                     .addAnnotatedClass(Note.class)
                     .addAnnotatedClass(Memo.class)

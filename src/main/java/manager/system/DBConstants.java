@@ -6,10 +6,12 @@ public abstract class DBConstants {
 	public static final String T_R_USER_GROUP = "r_user_group";
 	public static final String T_R_GROUP_PERM = "r_group_perm";
 	public static final String T_PLAN = "plan";
-	public static final String T_PLAN_DEPT = "plan_dept";
+	public static final String T_PLAN_BALANCE = "plan_balance";
 	public static final String T_WORK_SHEET = "work_sheet";
 	public static final String T_MEMO = "memo";
 	public static final String T_NOTE_BOOK = "note_book";
+
+	public static final String T_FILE_RECORD = "file_record";
 
 	public static final String T_SYSTEM_MAPPING = "system_mapping";
 	public static final String T_NOTE = "note";
@@ -25,7 +27,7 @@ public abstract class DBConstants {
 			T_R_USER_GROUP,
 			T_PLAN,
 			T_WORK_SHEET,
-			T_PLAN_DEPT,
+			T_PLAN_BALANCE,
 			T_MEMO,
 			T_NOTE_BOOK,
 			T_NOTE,
@@ -58,6 +60,9 @@ public abstract class DBConstants {
 	public static final String F_STATE = "state";
 	public static final String F_TAGS = "tags";
 	public static final String F_OWNER_ID = "owner_id";
+	public static final String F_FILE_NAME = "file_name";
+
+	public static final String F_BUCKET_NAME = "bucket_name";
 	public static final String F_DATE = "date";
 	public static final String F_DATE_UTC = "date_utc";
 

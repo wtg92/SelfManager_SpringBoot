@@ -31,10 +31,6 @@ $(function(){
 
     //TODO 标签管理器  我突然记起来 这还是工作表 未做完的一件事 这个的核心是 可移动窗口
     initNoteLabelsManager();
-
-
-
-
     loadNoteLabelsAndFillUI();
 
     $("body").on("keydown",monitorHotKeys);
@@ -42,36 +38,48 @@ $(function(){
 
 
     $("#note_book_content_main_body_container")
-        //TODO
+        //DONE
         .on("click",".note_book_create_note_btn",createNoteByClick)
-
-
+        //DONE
         .on("click",".note_book_baisc_info_switch_container_visibility",switchToShowBookBasicInfoContainer)
+        //DONE
         .on("click",".note_book_baisc_info_infos_list_main_container",switchToShowBookNoteListContainer)
+        //DONE
         .on("click",".note_book_content_style_sample",chooseStyleTypeByClickForSaveBook)
+        //DONE
         .on("input","[name='name']",syncNoteBookNameToSampleForSaveBook)
+        //DONE
         .on("click",".note_book_baisc_info_open_edit_mode",openNoteBookBasicInfoEditModeByClick)
+        //DONE
         .on("click",".note_book_baisc_info_close_edit_mode",closeNoteBookBasicInfoEditModeByClick)
+        //DONE
         .on("click",".note_book_main_info_open_note_page_edit_mode",openNotePageEditModeByClick)
+        //DONE
         .on("click",".note_book_main_info_close_note_page_edit_mode",closeNotePageEditModeByClick)
         .on("click",".note_book_main_info_swtich_merging_page_mode",switchNotePageMergingModeByClick)
         .on("click",".note_book_main_info_swtich_spliting_page_mode",switchNotePageSplitingModeByClick)
 
-
+        //DONE
         .on("click",".note_book_main_info_show_hidden_notes",showHiddenNotesByClick)
+        //DONE
         .on("click",".note_book_main_info_close_show_hidden_notes",closeShowHiddenNotesByClick)
 
 
         .on("click",".note_book_main_info_show_page_title_btn",showNotePageTitleByClick)
         .on("click",".note_book_main_info_hide_page_title_btn",hideNotePageTitleByClick)
+        //DONE
         .on("click",".note_book_main_info_open_note_list_edit_mode",openNoteListEditModeByClick)
+        //DONE
         .on("click",".note_book_main_info_close_note_list_edit_mode",closeNoteListEditModeByClick)
+        //DONE
         .on("blur","[name='name']",function(){
             testSaveBookFormat(this, (text) => checkNoteBookName(text), "1-20个字符");
         })
+        //DONE
         .on("click",".note_book_content_save_basic_info_button",commitSaveNoteBookBasicInfo)
+        //DONE
         .on("input","[name='seq_weight']",inputOnlyAllowInt)
-
+        //DONE
         .on("click",".note_book_list_item_delete_mark",deleteNoteByClick)
         .on("click",".note_book_title_item_cotnainer",switchNotePageByClick)
         .on("click",".one_note_book_content_unit_delete_mark",closeNotePageByDeleteMark)
@@ -810,7 +818,9 @@ function refreshMemoCacheAndApplyToUI(data){
     applyCacheToMemoDialog();
 }
 
-
+/**
+ * EM
+ */
 function loadNoteLabelsAndFillUI(){
     sendAjax("CareerServlet", "c_load_note_labels", {}, (data) => {
         NOTE_BOOK_NAMESPACE.LABELS = data;
@@ -1031,6 +1041,7 @@ function initEditor($page,noteId){
 }
 
 /*这里要第一下点击加载 第二下点击将对应容器 放到首页*/
+//TODO
 function switchNotePageByClick(){
     let $container = $(this).parents(".note_book_for_unit_body_container");
     let noteId = $(this).attr("note_id");
@@ -1539,7 +1550,7 @@ function deleteNoteByClick(e){
     })
 }
 
-
+//DONE
 function createNoteByClick(){
 
     $(this).addClass("common_prevent_double_click");

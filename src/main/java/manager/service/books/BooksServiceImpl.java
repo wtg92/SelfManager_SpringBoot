@@ -160,6 +160,7 @@ public class BooksServiceImpl implements BooksService{
             page.setIndexes(Collections.singletonList(index));
             page = MultipleLangHelper.setFiledValue(page, BooksMultipleFields.NAME,lang,name);
             page.setWithTODOs(false);
+            page.setIsHidden(false);
             page.setChildrenNum(0);
             page.setType(PageNodeType.PAGE);
             operator.insertPage(page,loginId);

@@ -41,7 +41,7 @@ public class DataMigrationService {
 
         doGeneralMigration(Memo.class,Memo::getCreateTime);
         doGeneralMigration(Plan.class,Plan::getCreateTime);
-        doGeneralMigration(PlanDept.class,PlanDept::getCreateTime);
+        doGeneralMigration(PlanBalance.class, PlanBalance::getCreateTime);
         doGeneralMigration(User.class,User::getCreateTime);
         doGeneralMigration(UserGroup.class,UserGroup::getCreateTime);
         doGeneralMigration(WorkSheet.class,WorkSheet::getCreateTime);

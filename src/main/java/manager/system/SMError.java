@@ -96,9 +96,10 @@ public enum SMError {
 	COMMON(79),
 
 
+	MAX_UPLOAD_FILE_FOR_ONE_USER(80),
+	UPLOAD_MAX_SIZE_OF_MB(81),
 
-
-
+	SEE_PRIVATE_IMG(82),
 
 
 	;

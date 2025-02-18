@@ -14,10 +14,10 @@ import manager.system.DBConstants;
 import java.util.Calendar;
 
 @Entity
-@Table(name = DBConstants.T_PLAN_DEPT)
+@Table(name = DBConstants.T_PLAN_BALANCE)
 @DynamicInsert
 @DynamicUpdate
-public class PlanDept extends SMGeneralEntity {
+public class PlanBalance extends SMGeneralEntity {
 	
 	private static final long serialVersionUID = -3632012117826858197L;
 
@@ -34,14 +34,14 @@ public class PlanDept extends SMGeneralEntity {
 	@Column
 	private Long ownerId;
 	@Override
-	public PlanDept clone(){
+	public PlanBalance clone(){
 		try {
-			return (PlanDept) super.clone();
+			return (PlanBalance) super.clone();
 		} catch (CloneNotSupportedException e) {
 			throw new RuntimeException(e);
 		}
 	}
-	public PlanDept() {}
+	public PlanBalance() {}
 
 	public Calendar getCreateTime() {
 		return createTime;

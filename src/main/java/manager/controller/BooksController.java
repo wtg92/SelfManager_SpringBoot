@@ -13,7 +13,7 @@ import javax.annotation.Resource;
 
 import java.util.Map;
 
-import static manager.system.SMParm.*;
+import static manager.system.SMParams.*;
 
 @RestController
 @RequestMapping("/books")
@@ -111,12 +111,13 @@ public class BooksController {
     }
 
     @PatchMapping(PAGES_PATH)
-    private void patchPageNode( @RequestHeader("Authorization") String authorizationHeader
+    private PageNode patchPageNode( @RequestHeader("Authorization") String authorizationHeader
             , @RequestBody JSONObject param ){
         long loginId = UIUtil.getLoginId(authorizationHeader);
         String id = param.getString(ID);
         Map<String,Object> updatingProps = JSON.parseObject(param.getString(JSON_OBJ));
         service.updatePageNodePropsSyncly(loginId,id,updatingProps);
+        return service.getPageNode(loginId,id);
     }
     @PatchMapping(BOOKS_PATH+"/close")
     private void closeBook( @RequestHeader("Authorization") String authorizationHeader

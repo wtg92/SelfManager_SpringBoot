@@ -29,12 +29,8 @@ public class UserLockManager {
 
     @Scheduled(cron = "${lock.expirationCheckCron}")
     public void clearExpiredLockAutomatically(){
-        boolean someRemoved = userLocks.entrySet()
+        userLocks.entrySet()
                 .removeIf(entry -> (System.currentTimeMillis() - entry.getValue().activatedMills) > expirationSeconds);
-
-        if(someRemoved){
-            log.info("Some User Locker Cleaned Automatically,which means it works!");
-        }
     }
 
     public void lockByUserAndEvent(long userId, String event, Runnable run) {
@@ -59,7 +55,10 @@ public class UserLockManager {
         String eventName = ReflectUtil.getInvokerClassName();
         lockByUserAndEvent(userId,eventName,run);
     }
-
+    public void lockByClass(Runnable run) {
+        String eventName = ReflectUtil.getInvokerClassName();
+        lockByUserAndEvent(0,eventName,run);
+    }
     public void lockByUserAndMethod(long userId, Runnable run) {
         String eventName = ReflectUtil.getInvokerMethodName();
         lockByUserAndEvent(userId,eventName,run);

@@ -121,4 +121,43 @@ public class FileUtil {
 		result[3] = (byte) (i & 0xFF);
 		return result;
 	}
+
+
+	private static final long KB_IN_MB = 1024; // 1MB = 1024KB
+	private static final long KB_IN_GB = 1024 * 1024; // 1GB = 1024 * 1024 KB
+
+	// ==================== MB <-> KB ====================
+
+	/** MB 转 KB */
+	public static long mbToKb(long mb) {
+		return mb * KB_IN_MB;
+	}
+
+	/** KB 转 MB（取整） */
+	public static long kbToMb(long kb) {
+		return kb / KB_IN_MB;
+	}
+
+	/** KB 转 MB（保留小数） */
+	public static double kbToMbDouble(long kb) {
+		return (double) kb / KB_IN_MB;
+	}
+
+	// ==================== KB <-> GB ====================
+
+	/** KB 转 GB（取整） */
+	public static long kbToGb(long kb) {
+		return kb / KB_IN_GB;
+	}
+
+	/** KB 转 GB（保留小数） */
+	public static double kbToGbDouble(long kb) {
+		return (double) kb / KB_IN_GB;
+	}
+
+	/** GB 转 KB */
+	public static long gbToKb(long gb) {
+		return gb * KB_IN_GB;
+	}
+
 }

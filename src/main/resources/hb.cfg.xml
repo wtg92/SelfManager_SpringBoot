@@ -35,10 +35,12 @@
   <mapping class="manager.entity.general.UserGroup"/>
   <mapping class="manager.entity.general.career.Plan"/>
   <mapping class="manager.entity.general.career.WorkSheet"/>
-  <mapping class="manager.entity.general.career.PlanDept"/>
+  <mapping class="manager.entity.general.career.PlanBalance"/>
   <mapping class="manager.entity.general.career.NoteBook"/>
   <mapping class="manager.entity.general.career.Note"/>
   <mapping class="manager.entity.general.career.Memo"/>
   <mapping class="manager.entity.general.tool.ToolRecord"/>
+  <mapping class="manager.entity.general.SystemMapping"/>
+  <mapping class="manager.entity.general.FileRecord"/>
  </session-factory>
 </hibernate-configuration>

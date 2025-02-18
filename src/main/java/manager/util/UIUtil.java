@@ -1,7 +1,7 @@
 package manager.util;
 
 import static java.util.stream.Collectors.toList;
-import static manager.system.SMParm.USER_TOKEN;
+import static manager.system.SMParams.USER_TOKEN;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,16 +15,10 @@ import java.util.Map;
 
 import com.alibaba.fastjson2.JSONObject;
 import jakarta.servlet.http.HttpServletRequest;
-import manager.exception.SMException;
-import org.apache.tomcat.util.http.fileupload.FileItem;
-import org.apache.tomcat.util.http.fileupload.FileUploadException;
-import org.apache.tomcat.util.http.fileupload.disk.DiskFileItemFactory;
-import org.apache.tomcat.util.http.fileupload.servlet.ServletRequestContext;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 
-import manager.data.SingleFileUnit;
 import manager.exception.LogicException;
 import manager.exception.NoSuchElement;
 import manager.servlet.ServletAdapter;

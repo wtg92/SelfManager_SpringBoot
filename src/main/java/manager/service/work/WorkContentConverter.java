@@ -4,15 +4,10 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static manager.util.XMLUtil.findAllByTagWithFather;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import manager.booster.LogParser;
 import manager.util.ZonedTimeUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -26,7 +21,7 @@ import manager.data.proxy.career.CareerLogProxy;
 import manager.data.proxy.career.PlanItemProxy;
 import manager.data.proxy.career.WorkItemProxy;
 import manager.entity.general.career.Plan;
-import manager.entity.general.career.PlanDept;
+import manager.entity.general.career.PlanBalance;
 import manager.entity.general.career.WorkSheet;
 import manager.entity.virtual.career.CareerLog;
 import manager.entity.virtual.career.BalanceItem;
@@ -185,6 +180,7 @@ public abstract class WorkContentConverter {
 			log.setParams(new LinkedList<>(Arrays.asList(params)));
 			return log;
 		}catch (Exception e){
+			e.printStackTrace();
 			return new CareerLog(CareerLogAction.UNKNOWN_ERROR,creatorId);
 		}
 	}
@@ -346,11 +342,12 @@ public abstract class WorkContentConverter {
 	
 	private static List<CareerLog> getLogs(Document doc){
 		Element logsElement= doc.getRootElement().element(T_LOGS);
-		return findAllByTag(logsElement, T_LOG).stream().map(WorkContentConverter::parseLog).collect(toList());
+		return findAllByTag(logsElement, T_LOG).reversed().stream()
+				.map(WorkContentConverter::parseLog).toList();
 	}
 	
-	private static Document getDocumentOrInitIfNotExists(PlanDept one) throws LogicException {
-		if(one.getContent() == null || one.getContent().length() == 0) {
+	private static Document getDocumentOrInitIfNotExists(PlanBalance one) throws LogicException {
+		if(one.getContent() == null || one.getContent().isEmpty()) {
 			return initPlanDept();
 		}
 		try {
@@ -425,7 +422,7 @@ public abstract class WorkContentConverter {
 		}
 	}
 	
-	private static Document getDefinateDocument(PlanDept one) throws LogicException {
+	private static Document getDefinateDocument(PlanBalance one) throws LogicException {
 		if (one.getContent() == null) {
 			throw new LogicException(SMError.ILLEGAL_WL_ENTITY_CONTENT, "使用没有init过的plan dept");
 		}
@@ -668,16 +665,16 @@ public abstract class WorkContentConverter {
 		root.setContent(doc.asXML());
 	}
 	
-	public static void addLog(PlanDept root, CareerLogAction action, long creatorId, Object ...parms) throws LogicException {
+	public static void addLog(PlanBalance root, CareerLogAction action, long creatorId, Object ...parms) throws LogicException {
 		Document doc = getDocumentOrInitIfNotExists(root);
-		addPlanDpetLog(doc, action, creatorId, parms);
+		addPlanBalanceLog(doc, action, creatorId, parms);
 		root.setContent(doc.asXML());
 	}
 	
 	/**
 	 * planDept这里有点特殊 假如Log到了上限 需要先清空较早的一定数量Log 再添加Log
 	 */
-	private static void addPlanDpetLog(Document deptDoc,CareerLogAction action,long creatorId,Object ...parms) {
+	private static void addPlanBalanceLog(Document deptDoc, CareerLogAction action, long creatorId, Object ...parms) {
 		Element logsElement= deptDoc.getRootElement().element(T_LOGS);
 		if(logsElement.elements().size()<= MAX_NUM_OF_PLAN_DEPT_LOG) {
 			addLog(deptDoc,action,creatorId,parms);
@@ -689,13 +686,10 @@ public abstract class WorkContentConverter {
 		for(int i=0;i<NUM_OF_CLEAR_PLAN_DEPT_LOG;i++) {
 			logsElement.remove(allLogs.get(i));
 		}
-		
-		List<BalanceItem> items = getPlanDeptItems(deptDoc);
-		String snapShot = items.stream().map(item-> LogParser.getSnapshot(item)).collect(joining(","));
+
 		addLog(deptDoc, CareerLogAction.CLEAR_DEPT_LOGS_WHEN_TOO_MUCH, SM.SYSTEM_ID,
 				MAX_NUM_OF_PLAN_DEPT_LOG,
-				NUM_OF_CLEAR_PLAN_DEPT_LOG,
-				snapShot);
+				NUM_OF_CLEAR_PLAN_DEPT_LOG);
 		
 		addLog(deptDoc,action,creatorId,parms);
 	}
@@ -892,13 +886,13 @@ public abstract class WorkContentConverter {
 	 * 	假如存在同名项 则合并 假如最后为0 则删除。
 	 * 
 	 */
-	public static void updatePlanDeptItem(PlanDept one, long updaterId, int itemId, String name, double val) throws LogicException{
+	public static void updatePlanDeptItem(PlanBalance one, long updaterId, int itemId, String name, double val) throws LogicException{
 		Document deptDoc = getDefinateDocument(one);
 		Element deptItemEle = getPlanDeptItemById(deptDoc, itemId);
 		BalanceItem item = parsePlanDeptItem(deptItemEle);
 		if(item.getName().equals(name)) {
 			/*说明没改名 那么不存在合并的问题 只用考虑是否为0既可*/
-			addPlanDpetLog(deptDoc, CareerLogAction.MODIFY_DEPT_ITEM_VAL, updaterId,
+			addPlanBalanceLog(deptDoc, CareerLogAction.MODIFY_DEPT_ITEM_VAL, updaterId,
 					item.getType().getDbCode(),
 					item.getName(),
 					CommonUtil.fixDouble(item.getValue()),
@@ -926,7 +920,7 @@ public abstract class WorkContentConverter {
 			
 			double after = CommonUtil.fixDouble(theItemToMerge.getValue()+val);
 			
-			addPlanDpetLog(deptDoc, CareerLogAction.MODIFY_DEPT_ITEM_NAME_CAUSE_MERGE, updaterId,
+			addPlanBalanceLog(deptDoc, CareerLogAction.MODIFY_DEPT_ITEM_NAME_CAUSE_MERGE, updaterId,
 					item.getType().getDbCode(),
 					item.getName(),
 					CommonUtil.fixDouble(item.getValue()),
@@ -943,7 +937,7 @@ public abstract class WorkContentConverter {
 			
 		} catch (NoSuchElement e) {
 			
-			addPlanDpetLog(deptDoc, CareerLogAction.MODIFY_DEPT_ITEM_VAL_AND_NAME, updaterId,
+			addPlanBalanceLog(deptDoc, CareerLogAction.MODIFY_DEPT_ITEM_VAL_AND_NAME, updaterId,
 					item.getType().getDbCode(),
 					item.getName(),
 					CommonUtil.fixDouble(item.getValue()),
@@ -1036,7 +1030,7 @@ public abstract class WorkContentConverter {
 		return rlt;
 	}
 	
-	public static BalanceContent convertPlanDept(PlanDept dept) throws LogicException {
+	public static BalanceContent convertPlanDept(PlanBalance dept) throws LogicException {
 		Document doc = getDocumentOrInitIfNotExists(dept);
 		BalanceContent rlt = new BalanceContent();
 		rlt.items = getPlanDeptItems(doc);
@@ -1114,7 +1108,7 @@ public abstract class WorkContentConverter {
 	 *  对dept 加Log 来自某一天的工作表的某一项
 	 *  假设sync为0，则销毁掉这条DeptItem 同时加Log
 	*/
-	public static void syncToPlanDept(WorkSheet ws, PlanDept dept, PlanItemProxy planItem, long opreatorId) throws LogicException {
+	public static void syncToPlanDept(WorkSheet ws, PlanBalance dept, PlanItemProxy planItem, long opreatorId) throws LogicException {
 		assert planItem.remainingValForCur != 0;
 
 		Document deptDoc = getDefinateDocument(dept);
@@ -1129,8 +1123,9 @@ public abstract class WorkContentConverter {
 			
 			double after = CommonUtil.fixDouble(planItem.remainingValForCur+deptItem.getValue());
 			
-			addPlanDpetLog(deptDoc, CareerLogAction.SYNC_ITEM_FOR_DEPT, opreatorId,
+			addPlanBalanceLog(deptDoc, CareerLogAction.SYNC_ITEM_FOR_DEPT, opreatorId,
 					ws.getDateUtc(),
+					ws.getTimezone(),
 					deptItemName,
 					deptItem.getValue(),
 					after,
@@ -1146,8 +1141,9 @@ public abstract class WorkContentConverter {
 			deptItem.setName(deptItemName);
 			append(deptItem, itemsElement);
 			
-			addPlanDpetLog(deptDoc, CareerLogAction.ADD_DEPT_ITEM, opreatorId,
+			addPlanBalanceLog(deptDoc, CareerLogAction.ADD_DEPT_ITEM, opreatorId,
 					ws.getDateUtc(),
+					ws.getTimezone(),
 					deptItemName,
 					deptItem.getValue(),
 					type.getDbCode());
@@ -1182,7 +1178,7 @@ public abstract class WorkContentConverter {
 			if(!deleteSuccess) {
 				throw new LogicException(SMError.SYNC_ITEM_WITH_DEPT_ERROR,"删除欠账项失败 "+deptItemForOverride.getName());
 			}
-			addPlanDpetLog(deptDoc, CareerLogAction.REMOVE_DEPT_ITEM_DUE_TO_ZERO_VAL, SM.SYSTEM_ID,
+			addPlanBalanceLog(deptDoc, CareerLogAction.REMOVE_DEPT_ITEM_DUE_TO_ZERO_VAL, SM.SYSTEM_ID,
 					deptItemForOverride.getName());
 		}
 	}

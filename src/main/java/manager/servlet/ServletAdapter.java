@@ -47,14 +47,14 @@ public class ServletAdapter {
 	 * 现在确定userToken标准：读取出user_id 且能被解密
 	 * @throws LogicException 
 	 */
-	public static int getUserId(String token) throws LogicException {
+	public static long getUserId(String token) throws LogicException {
 		Claim rlt = getData(token, USER_ID);
 		if (rlt.asString() == null) {
 			logger.log(Level.SEVERE,"token 无 user_id\n" + token);
 			throw new LogicException(SMError.ILLEGAL_USER_TOKEN, "无user id");
 		}
 		try {
-			return Integer.parseInt(SecurityUtil.decodeInfo(rlt.asString()));
+			return Long.parseLong(SecurityUtil.decodeInfo(rlt.asString()));
 		} catch (NumberFormatException e) {
 			throw new LogicException(SMError.ILLEGAL_USER_TOKEN,
 					"format exception" + SecurityUtil.decodeInfo(rlt.asString()));

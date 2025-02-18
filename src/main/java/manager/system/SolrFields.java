@@ -13,7 +13,7 @@ public abstract class SolrFields {
     public static final String UPDATE_UTC = "updateUtc";
 
     public static final String UPDATER_ID = "updaterId";
-
+    public static final String IS_HIDDEN = "isHidden";
     public static final String INDEXES = "indexes";
 
     public static final String PARENT_IDS = "parentIds";

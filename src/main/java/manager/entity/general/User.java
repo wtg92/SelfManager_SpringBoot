@@ -70,7 +70,10 @@ public class User extends SMGeneralEntity{
 	
 	@Column
 	private String pwdSalt;
-	
+
+	@Column
+	private Long portraitId;
+
 	@Override
 	public User clone() {
 		try {
@@ -83,7 +86,13 @@ public class User extends SMGeneralEntity{
 	
 	/*======================== Auto-Genrated Code==================================*/
 
+	public Long getPortraitId() {
+		return portraitId;
+	}
 
+	public void setPortraitId(Long portraitId) {
+		this.portraitId = portraitId;
+	}
 
 	public Calendar getCreateTime() {
 		return createTime;

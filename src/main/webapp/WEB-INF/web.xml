@@ -22,40 +22,12 @@
 		<url-pattern>/UserServlet</url-pattern>
 	</servlet-mapping>
 
-	<servlet>
-		<servlet-name>CareerServlet</servlet-name>
-		<servlet-class>manager.servlet.CareerServlet</servlet-class>
-	</servlet>
 	<servlet-mapping>
 		<servlet-name>CareerServlet</servlet-name>
 		<url-pattern>/CareerServlet</url-pattern>
 	</servlet-mapping>
 
-	<servlet>
-		<servlet-name>ToolServlet</servlet-name>
-		<servlet-class>manager.servlet.ToolServlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>ToolServlet</servlet-name>
-		<url-pattern>/ToolServlet</url-pattern>
-	</servlet-mapping>
 
 
-	<servlet>
-		<servlet-name>DownloadServlet</servlet-name>
-		<servlet-class>manager.servlet.DownloadServlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>DownloadServlet</servlet-name>
-		<url-pattern>/DownloadServlet</url-pattern>
-	</servlet-mapping>
 
-	<servlet>
-		<servlet-name>PDFServlet</servlet-name>
-		<servlet-class>manager.servlet.PDFServlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>PDFServlet</servlet-name>
-		<url-pattern>/PDFServlet</url-pattern>
-	</servlet-mapping>
 </web-app>

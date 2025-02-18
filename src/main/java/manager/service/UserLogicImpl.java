@@ -26,6 +26,7 @@ import manager.entity.general.UserGroup;
 import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.NoSuchElement;
+import manager.servlet.ServletAdapter;
 import manager.system.Gender;
 import manager.system.NoSuchElementType;
 import manager.system.SM;
@@ -64,14 +65,16 @@ public class UserLogicImpl extends UserLogic {
 	CacheOperator cache;
 
 
-	@Override
+
 	public User getUser(long userId){
 		ThrowableSupplier<User, DBException> generator = ()-> uDAO.selectExistedUser(userId);
 		return cache.getEntity(CacheMode.E_ID,userId,User.class,generator);
 	}
 
 
-
+	private boolean isAdmin(long userId) throws LogicException, DBException {
+		return getUser(userId).getAccount().equals(SM.ADMIN_ACCOUNT);
+	}
 	@Override
 	public boolean hasPerm(long userId, SMPerm perm) {
 		/*admin owning all perms*/
@@ -245,9 +248,9 @@ public class UserLogicImpl extends UserLogic {
 	}
 	
 	@Override
-	public synchronized void addUsersToGroup(List<Long> usersId, long groupId,long loginerId) throws LogicException, DBException {
+	public synchronized void addUsersToGroup(List<Long> usersId, long groupId,long loginId) throws LogicException, DBException {
 		
-		checkPerm(loginerId, SMPerm.ADD_USERS_TO_PERM);
+		checkPerm(loginId, SMPerm.ADD_USERS_TO_PERM);
 		
 		List<User> users = getUsers(usersId);
 		
@@ -294,9 +297,9 @@ public class UserLogicImpl extends UserLogic {
 	}
 
 	@Override
-	public synchronized long createUserGroup(String name, long loginerId) throws LogicException, DBException {
+	public synchronized long createUserGroup(String name, long loginId) throws LogicException, DBException {
 		
-		checkPerm(loginerId, SMPerm.CREATE_USER_GROUP);
+		checkPerm(loginId, SMPerm.CREATE_USER_GROUP);
 		
 		if(uDAO.includeUniqueUserGroupByField(DBConstants.F_NAME, name)) {
 			throw new LogicException(SMError.DUP_USER_GROUP_NAME);
@@ -510,8 +513,8 @@ public class UserLogicImpl extends UserLogic {
 
 	
 	@Override
-	public List<UserGroupProxy> loadAllUserGroups(long loginerId) throws DBException, LogicException {
-		checkPerm(loginerId, SMPerm.SEE_USERS_AND_USER_GROUPS_DATA);
+	public List<UserGroupProxy> loadAllUserGroups(long loginId) throws DBException, LogicException {
+		checkPerm(loginId, SMPerm.SEE_USERS_AND_USER_GROUPS_DATA);
 		
 		List<UserGroupProxy> rlt = new ArrayList<>(); 
 		for(UserGroup group : uDAO.selectAllUserGroup()) {
@@ -524,15 +527,15 @@ public class UserLogicImpl extends UserLogic {
 	}
 
 	@Override
-	public List<SMPerm> loadPermsOfGroup(long groupId, long loginerId) throws DBException, LogicException {
-		checkPerm(loginerId, SMPerm.SEE_USERS_AND_USER_GROUPS_DATA);
+	public List<SMPerm> loadPermsOfGroup(long groupId, long loginId) throws DBException, LogicException {
+		checkPerm(loginId, SMPerm.SEE_USERS_AND_USER_GROUPS_DATA);
 		
 		return uDAO.selectPermsByGroup(groupId).stream().map(SMPerm::valueOfDBCode).collect(toList());
 	}
 
 	@Override
-	public UserSummary loadUserSummary(long loginerId) throws LogicException, DBException {
-		checkPerm(loginerId, SMPerm.SEE_USERS_AND_USER_GROUPS_DATA);
+	public UserSummary loadUserSummary(long loginId) throws LogicException, DBException {
+		checkPerm(loginId, SMPerm.SEE_USERS_AND_USER_GROUPS_DATA);
 		UserSummary summary = new UserSummary();
 		summary.countUsers = uDAO.countAllUsers();
 		/**
@@ -633,11 +636,28 @@ public class UserLogicImpl extends UserLogic {
 	}
 
 	@Override
-	public UserBasicInfo getBasicInfo(Long decodedId) {
+	public UserBasicInfo getUserBasicInfo(Long loginId,Long targetId) {
+		boolean isSameUser = loginId.equals(targetId);
 		UserBasicInfo info = new UserBasicInfo();
-		User user = getUser(decodedId);
-		info.name = user.getNickName();
+		User user = getUser(targetId);
+		info.nickName = user.getNickName();
+		info.motto = user.getMotto();
+		info.gender = user.getGender().getDbCode();
+		info.isSelf = isSameUser;
+		info.portraitId = SecurityUtil.encodeInfo(user.getPortraitId());
 		return info;
+	}
+
+	@Override
+	public void updateUser(long loginId, String nickName, Gender gender, String motto, Long portraitId) {
+		locker.lockByUserAndClass(loginId,()->{
+			User user = uDAO.selectUser(loginId);
+			user.setNickName(nickName);
+			user.setGender(gender);
+			user.setMotto(motto);
+			user.setPortraitId(portraitId);
+			cache.saveEntity(user, one -> uDAO.updateExistedUser(user));
+		});
 	}
 
 }

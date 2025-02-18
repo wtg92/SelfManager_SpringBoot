@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import manager.entity.general.career.Plan;
-import manager.entity.general.career.PlanDept;
+import manager.entity.general.career.PlanBalance;
 import manager.entity.general.career.WorkSheet;
 import manager.exception.DBException;
 import manager.exception.NoSuchElement;
@@ -18,7 +18,7 @@ public interface WorkDAO {
 	
 	long insertPlan(Plan plan) throws DBException;
 	long insertWorkSheet(WorkSheet sheet) throws DBException;
-	long insertBalance(PlanDept balance) throws DBException;
+	long insertBalance(PlanBalance balance) throws DBException;
 	
 	Plan selectPlan(long id) throws NoSuchElement, DBException;
 	List<Plan> selectPlansByOwnerAndStates(long ownerId,List<PlanState> states);
@@ -40,8 +40,8 @@ public interface WorkDAO {
 	}
 	
 	WorkSheet selectWorkSheet(long id) throws NoSuchElement, DBException;
-	PlanDept selectBalanceByOwner(long ownerId) throws NoSuchElement, DBException;
-	default PlanDept selectExistedBalanceByOwner(long ownerId) throws DBException{
+	PlanBalance selectBalanceByOwner(long ownerId) throws NoSuchElement, DBException;
+	default PlanBalance selectExistedBalanceByOwner(long ownerId) throws DBException{
 		try {
 			return selectBalanceByOwner(ownerId);
 		}catch (NoSuchElement e) {
@@ -60,7 +60,7 @@ public interface WorkDAO {
 
 	void updateExistedPlan(Plan existed) throws DBException;
 	void updateExistedWorkSheet(WorkSheet ws) throws DBException;
-	void updateExistedBalance(PlanDept dept) throws DBException;
+	void updateExistedBalance(PlanBalance dept) throws DBException;
 	
 	List<Plan> selectPlansByField(String field, Object val) throws DBException;
 	List<WorkSheet> selectWorkSheetByField(String field, Object val) throws DBException;

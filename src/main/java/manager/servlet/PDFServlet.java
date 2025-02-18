@@ -1,7 +1,7 @@
 package manager.servlet;
 
-import static manager.system.SMParm.OP;
-import static manager.system.SMParm.PDF;
+import static manager.system.SMParams.OP;
+import static manager.system.SMParams.PDF;
 import static manager.util.UIUtil.getNonNullParam;
 
 import java.io.BufferedOutputStream;

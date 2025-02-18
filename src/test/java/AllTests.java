@@ -7,10 +7,7 @@ import manager.dao.UserDAOTest;
 import manager.dao.WorkDAOTest;
 import manager.service.UserLogicTest;
 import manager.service.books.NoteLogicStaticTest;
-import manager.service.books.NoteLogicTest;
 import manager.service.books.WorkContentConverterTest;
-import manager.service.books.WorkServiceTest;
-import manager.service.tool.ToolLogicTest;
 import manager.system.EnumTest;
 import manager.util.TimeUtilTest;
 
@@ -24,7 +21,6 @@ import manager.util.TimeUtilTest;
 	EnumTest.class,
 	NoteLogicTest.class,
 	NoteLogicStaticTest.class,
-	ToolLogicTest.class,
 	TimeUtilTest.class
 })
 public class AllTests {

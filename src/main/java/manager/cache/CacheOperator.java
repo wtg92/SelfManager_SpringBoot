@@ -2,6 +2,7 @@ package manager.cache;
 
 import com.alibaba.fastjson2.JSON;
 import manager.entity.SMEntity;
+import manager.entity.general.FileRecord;
 import manager.entity.general.books.PageNode;
 import manager.entity.general.books.SharingBook;
 import manager.entity.general.career.WorkSheet;
@@ -163,7 +164,9 @@ public class CacheOperator {
 	public void removeWorksheet(long id){
 		caches.Worksheet_Cache.invalidate(id);
 	}
-
+	public void removeFileRecord(long id){
+		caches.File_Records_Cache.invalidate(id);
+	}
 
 	public void saveWorksheet(WorkSheet one,ThrowableConsumer<WorkSheet, DBException> updater) throws DBException, LogicException {
 		long key = one.getId();
@@ -177,6 +180,22 @@ public class CacheOperator {
 		}
 		removeWorksheet(key);
 	}
+	public FileRecord getFileRecord(Long wsId,ThrowableSupplier<FileRecord, DBException> generator) throws LogicException, DBException {
+		return caches.File_Records_Cache.get(wsId,(k)->generator.get()).clone();
+	}
+	public void saveFileRecord(FileRecord one, ThrowableConsumer<FileRecord, DBException> updater) throws DBException, LogicException {
+		long key = one.getId();
+		try {
+			updater.accept(one);
+		}catch(DBException e) {
+			if(e.type == SMError.DB_SYNC_ERROR) {
+				removeFileRecord(key);
+			}
+			throw e;
+		}
+		removeFileRecord(key);
+	}
+
 	public SharingBook getBook(long loginId, String bookId, Supplier<SharingBook> generator) {
 		String cacheId = generateCacheIdInUserIsolation(loginId,bookId);
 		return caches.Books_Cache.get(cacheId,(k)->generator.get()).clone();

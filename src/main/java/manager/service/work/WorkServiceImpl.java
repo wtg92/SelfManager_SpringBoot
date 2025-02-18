@@ -5,7 +5,6 @@ import static java.util.stream.Collectors.toMap;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +13,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import com.alibaba.fastjson2.JSON;
 import manager.cache.CacheOperator;
 import manager.dao.career.WorkDAO;
 import manager.data.EntityTag;
@@ -28,10 +26,9 @@ import manager.data.proxy.career.PlanProxy;
 import manager.data.proxy.career.WorkItemProxy;
 import manager.data.proxy.career.WorkSheetProxy;
 import manager.entity.general.career.Plan;
-import manager.entity.general.career.PlanDept;
+import manager.entity.general.career.PlanBalance;
 import manager.entity.general.career.WorkSheet;
 import manager.entity.virtual.career.BalanceItem;
-import manager.entity.virtual.career.WorkItem;
 import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.SMException;
@@ -72,7 +69,6 @@ public class WorkServiceImpl extends WorkService {
 	@Resource
 	private UserLockManager locker;
 
-
 	@Resource
 	CacheOperator cache;
 
@@ -88,8 +84,8 @@ public class WorkServiceImpl extends WorkService {
 		return cache.getWorksheet(wsId, ()->wDAO.selectExistedWorkSheet(wsId));
 	}
 
-	private PlanDept getPlanDept(long loginId){
-		return cache.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginId, PlanDept.class,
+	private PlanBalance getPlanBalance(long loginId){
+		return cache.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginId, PlanBalance.class,
 				()->wDAO.selectBalanceByOwner(loginId), ()->initPlanDept(loginId));
 	}
 
@@ -99,7 +95,7 @@ public class WorkServiceImpl extends WorkService {
 		});
 	}
 
-	private void updatePlanDeptSynchronously(PlanDept dept, long loginId){
+	private void updatePlanDeptSynchronously(PlanBalance dept, long loginId){
 		locker.lockByUserAndClass(loginId,()->{
 			cache.saveEntity(dept, d->wDAO.updateExistedBalance(d));
 		});
@@ -395,7 +391,7 @@ public class WorkServiceImpl extends WorkService {
 
 	@Override
 	public void patchBalanceItem(long loginId, int itemId, String name, double val){
-		PlanDept dept = getPlanDept(loginId);
+		PlanBalance dept = getPlanBalance(loginId);
 		WorkContentConverter.updatePlanDeptItem(dept, loginId, itemId, name, val);
 		updatePlanDeptSynchronously(dept,loginId);
 	}
@@ -754,11 +750,11 @@ public class WorkServiceImpl extends WorkService {
 
 	@Override
 	public PlanBalanceProxy getBalance(long loginId){
-		PlanDept dept = getPlanDept(loginId);
+		PlanBalance balance = getPlanBalance(loginId);
 		
-		PlanBalanceProxy proxy = new PlanBalanceProxy(dept);
+		PlanBalanceProxy proxy = new PlanBalanceProxy(balance);
 		
-		proxy.content = WorkContentConverter.convertPlanDept(dept);
+		proxy.content = WorkContentConverter.convertPlanDept(balance);
 		
 		fill(proxy.content.logs); 
 		
@@ -775,7 +771,7 @@ public class WorkServiceImpl extends WorkService {
 	
 	@Override
 	public List<String> getPlanBalanceItemNames(long loginId){
-		PlanDept dept = cache.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginId, PlanDept.class,
+		PlanBalance dept = cache.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginId, PlanBalance.class,
 				 ()->wDAO.selectBalanceByOwner(loginId), ()->initPlanDept(loginId));
 		BalanceContent content = WorkContentConverter.convertPlanDept(dept);
 		return content.items.stream().map(BalanceItem::getName).collect(toList());
@@ -922,7 +918,7 @@ public class WorkServiceImpl extends WorkService {
 	}
 	
 	private long initPlanDept(long ownerId) throws DBException {
-		PlanDept dept = new PlanDept();
+		PlanBalance dept = new PlanBalance();
 		dept.setOwnerId(ownerId);
 		try {
 			WorkContentConverter.addLog(dept, CareerLogAction.CREATE_PLAN_DEPT, SM.SYSTEM_ID);
@@ -957,7 +953,7 @@ public class WorkServiceImpl extends WorkService {
 				throw new LogicException(SMError.NO_SYNC_ZERO_WS_PLAN_ITEM,planItem.item.getName());
 			}
 
-			PlanDept dept = getPlanDept(loginId);
+			PlanBalance dept = getPlanBalance(loginId);
 			WorkContentConverter.syncToPlanDept(ws,dept,planItem,loginId);
 			refreshStateAfterItemModified(ws);
 
@@ -986,7 +982,7 @@ public class WorkServiceImpl extends WorkService {
 				logger.log(Level.WARNING,"同步所有却没有需要同步的，前台出现问题了？"+wsId);
 			}
 
-			PlanDept dept = getPlanDept(loginId);
+			PlanBalance dept = getPlanBalance(loginId);
 
 			for(PlanItemProxy planItem :needingToSync) {
 				WorkContentConverter.syncToPlanDept(ws,dept,planItem,loginId);

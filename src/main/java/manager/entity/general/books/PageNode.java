@@ -21,6 +21,8 @@ public class PageNode extends SMSolrDoc {
 
     @Field
     private Boolean withTODOs;
+    @Field
+    private Boolean isHidden;
 
     @Field
     private Integer childrenNum;
@@ -32,6 +34,15 @@ public class PageNode extends SMSolrDoc {
      */
     @Field
     private List<String> variables;
+
+    public Boolean getIsHidden() {
+        return isHidden;
+    }
+
+    public void setIsHidden(Boolean hidden) {
+        isHidden = hidden;
+    }
+
     @Field private String name_arabic;
     @Field private String content_arabic;
 

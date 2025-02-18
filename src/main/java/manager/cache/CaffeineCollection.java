@@ -3,6 +3,7 @@ package manager.cache;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import manager.entity.general.FileRecord;
 import manager.entity.general.books.PageNode;
 import manager.entity.general.books.SharingBook;
 import manager.entity.general.career.WorkSheet;
@@ -44,8 +45,9 @@ public class CaffeineCollection {
     private Integer BOOKS_MAX_NUM;
 
     @Value("${cache.page-nodes.max-num}")
-    private Integer BOOK_NODES_MAX_NUM;
-
+    private Integer PAGE_NODES_MAX_NUM;
+    @Value("${cache.file-records.max-num}")
+    private Integer FILE_RECORDS_MAX_NUM;
     @PostConstruct
     public void init() {
         Common_Cache = generateCommonCache();
@@ -55,7 +57,8 @@ public class CaffeineCollection {
         Worksheet_Cache = generateSpecificEntityCache(WORKSHEETS_MAX_NUM,COMMON_EXPIRATION_OF_MIN);
         Temp_Users_Cache = generateSpecificEntityCache(TEMP_USERS_MAX_NUM, TEMP_EXPIRATION_OF_MIN);
         Books_Cache = generateSpecificEntityCache(BOOKS_MAX_NUM,COMMON_EXPIRATION_OF_MIN);
-        Page_Nodes_Cache = generateSpecificEntityCache(BOOK_NODES_MAX_NUM,COMMON_EXPIRATION_OF_MIN);
+        Page_Nodes_Cache = generateSpecificEntityCache(PAGE_NODES_MAX_NUM,COMMON_EXPIRATION_OF_MIN);
+        File_Records_Cache = generateSpecificEntityCache(FILE_RECORDS_MAX_NUM,COMMON_EXPIRATION_OF_MIN);
     }
 
     private Cache<String, String> generateCommonTempCache() {
@@ -79,7 +82,7 @@ public class CaffeineCollection {
     public Cache<String, Map<String,String>> Temp_Users_Cache;
 
     public Cache<Long, WorkSheet> Worksheet_Cache;
-
+    public Cache<Long, FileRecord> File_Records_Cache;
     public Cache<String, SharingBook> Books_Cache;
 
     public Cache<String, PageNode> Page_Nodes_Cache;

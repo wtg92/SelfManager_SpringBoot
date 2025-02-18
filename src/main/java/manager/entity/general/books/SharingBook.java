@@ -29,7 +29,8 @@ public class SharingBook extends SMSolrDoc {
     /**
      * 变量还是需要有一个类型的
      * 这样为未来的扩展比较好
-     * 并且设置语言
+     * 并且设置语言 -- 因为是String 所以可以设置语言
+     * 还可以设置 是否区分通用
      */
     @Field
     private List<String> variables;

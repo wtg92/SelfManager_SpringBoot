@@ -118,4 +118,9 @@ public class DEBUG_Solr{
         booksSolrOperator.countPagesForSpecificParentId(id,"c33221a7-cc2d-4139-9a01-d34b7fbc1435",1);
     }
 
+
+    @Test
+    public void testS3(){
+
+    }
 }

@@ -2,6 +2,12 @@ package manager.data;
 
 public class UserBasicInfo {
 
-    public String name;
+    public String nickName;
+    public String motto = "";
 
+    public Integer gender;
+
+    public boolean isSelf;
+
+    public String portraitId;
 }

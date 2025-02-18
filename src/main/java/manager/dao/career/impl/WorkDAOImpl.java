@@ -9,7 +9,7 @@ import org.hibernate.SessionFactory;
 
 import manager.dao.career.WorkDAO;
 import manager.entity.general.career.Plan;
-import manager.entity.general.career.PlanDept;
+import manager.entity.general.career.PlanBalance;
 import manager.entity.general.career.WorkSheet;
 import manager.exception.DBException;
 import manager.exception.NoSuchElement;
@@ -38,7 +38,7 @@ public class WorkDAOImpl implements WorkDAO {
 	}
 	
 	@Override
-	public long insertBalance(PlanDept balance) throws DBException {
+	public long insertBalance(PlanBalance balance) throws DBException {
 		return insertEntity(balance, sessionFactory);
 	}
 
@@ -145,12 +145,12 @@ public class WorkDAOImpl implements WorkDAO {
 	}
 
 	@Override
-	public PlanDept selectBalanceByOwner(long ownerId) throws NoSuchElement, DBException {
-		return selectUniqueEntityByField(PlanDept.class, DBConstants.F_OWNER_ID, ownerId, sessionFactory);
+	public PlanBalance selectBalanceByOwner(long ownerId) throws NoSuchElement, DBException {
+		return selectUniqueEntityByField(PlanBalance.class, DBConstants.F_OWNER_ID, ownerId, sessionFactory);
 	}
 
 	@Override
-	public void updateExistedBalance(PlanDept balance) throws DBException {
+	public void updateExistedBalance(PlanBalance balance) throws DBException {
 		updateExistedEntity(balance, sessionFactory);
 	}
 

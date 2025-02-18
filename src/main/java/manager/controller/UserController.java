@@ -4,12 +4,12 @@ import com.alibaba.fastjson2.JSONObject;
 import manager.data.LoginInfo;
 import manager.data.UserBasicInfo;
 import manager.data.proxy.UserProxy;
-import manager.exception.LogicException;
 import manager.service.UserLogic;
 import manager.servlet.ServletAdapter;
 import manager.system.Gender;
 import manager.system.UserUniqueField;
 import manager.system.VerifyUserMethod;
+import manager.util.UIUtil;
 import manager.util.YZMUtil;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
@@ -18,8 +18,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Resource;
 
-import static manager.system.SMParm.*;
-import static manager.system.SMParm.TEMP_USER_ID;
+import static manager.system.SMParams.*;
+import static manager.system.SMParams.TEMP_USER_ID;
 
 @RestController
 @RequestMapping("/user")
@@ -29,6 +29,17 @@ public class UserController {
 
     @Resource
     private UserLogic uL;
+    private static final String USER_PATH = "/user";
+    @PatchMapping(USER_PATH)
+    private void patchUser( @RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody JSONObject param ){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        String nickName = param.getString(NICK_NAME);
+        Gender gender = Gender.valueOfDBCode(param.getInteger(GENDER));
+        String motto = param.getString(MOTTO);
+        Long portraitId = param.getLong(PORTRAIT_ID);
+        uL.updateUser(loginId,nickName,gender,motto,portraitId);
+    }
 
     @PostMapping("/signIn")
     public LoginInfo signIn(@RequestBody JSONObject param) {
@@ -166,9 +177,11 @@ public class UserController {
     }
 
 
-    @GetMapping("/getBasicInfo")
-    private UserBasicInfo getBasicInfo(@RequestParam(ID)String id)  {
+    @GetMapping("/getUserBasicInfo")
+    private UserBasicInfo getUserBasicInfo(@RequestParam(ID)String id,@RequestHeader(value = "Authorization",required = false)
+        String authorizationHeader)  {
+        long loginId = authorizationHeader == null ? 0 : UIUtil.getLoginId(authorizationHeader);
         Long decodedId = ServletAdapter.getCommonId(id);
-        return uL.getBasicInfo(decodedId);
+        return uL.getUserBasicInfo(loginId,decodedId);
     }
 }

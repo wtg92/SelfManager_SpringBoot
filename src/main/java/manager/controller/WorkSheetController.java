@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
-import static manager.system.SMParm.*;
+import static manager.system.SMParams.*;
 import static manager.util.UIUtil.*;
 
 @RestController

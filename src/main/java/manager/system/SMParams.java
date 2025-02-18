@@ -1,8 +1,12 @@
 package manager.system;
 
-public abstract class SMParm {
+public abstract class SMParams {
 	public final static String OP = "op";
 	public final static String NAME = "name";
+
+	public final static String SIZE_KB = "size_kb";
+
+	public final static String SUFFIX = "suffix";
 	public final static String ACCOUNT = "account";
 	public final static String ACCOUNT_PWD = "account_pwd";
 	public final static String EMAIL = "email";
@@ -23,6 +27,9 @@ public abstract class SMParm {
 	public final static String RESET_PWD_VAL = "reset_pwd_val";
 	public final static String FIELD = "field";
 	public final static String NICK_NAME = "nick_name";
+	public final static String MOTTO = "motto";
+	public final static String PORTRAIT_ID = "portrait_id";
+
 	public final static String GENDER = "gender";
 	public final static String EMAIL_VERIFY_CODE ="email_verify_code";
 	public final static String GROUP_ID = "group_id";

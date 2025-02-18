@@ -11,7 +11,10 @@ import manager.system.VerifyUserMethod;
 import manager.system.career.PlanItemType;
 import manager.system.career.PlanSetting;
 import manager.system.career.PlanState;
+import manager.util.SecurityUtil;
+import manager.util.UIUtil;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -81,5 +84,9 @@ public class CommonController {
         return WorkService.DEFAULT_WS_LIMIT_OF_ONE_PAGE;
     }
 
-
+    @GetMapping("/getLoginId")
+    public String getLoginId(@RequestHeader("Authorization") String authorizationHeader){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        return SecurityUtil.encodeInfo(loginId);
+    }
 }

@@ -85,7 +85,8 @@ public class BooksSolrOperator {
         queryParamMap.put(SolrRequestParam.QUERY_FIELDS,new String[]{SolrUtil.getMultipleFieldParam(SolrFields.ID,SolrFields.CREATE_UTC
                 ,SolrFields.UPDATE_UTC,SolrFields.NAME_MULTI,SolrFields.INDEXES,SolrFields.PARENT_IDS
                 ,SolrFields.CHILDREN_NUM
-                ,SolrFields.UPDATER_ID)});
+                ,SolrFields.UPDATER_ID
+                ,SolrFields.IS_HIDDEN)});
         queryParamMap.put(SolrRequestParam.QUERY_LIMIT, new String[]{String.valueOf(SM.MAX_DB_LINES_IN_ONE_SELECTS)});
         MultiMapSolrParams queryParams = new MultiMapSolrParams(queryParamMap);
         return operator.query(SMCores.PAGE_NODE,loginId,queryParams, PAGE_NODE_CONFIG, PageNode.class);
