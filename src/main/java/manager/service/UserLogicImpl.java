@@ -64,6 +64,8 @@ public class UserLogicImpl extends UserLogic {
 	@Resource
 	CacheOperator cache;
 
+	@Resource
+	FilesService filesService;
 
 
 	public User getUser(long userId){
@@ -655,6 +657,10 @@ public class UserLogicImpl extends UserLogic {
 			user.setNickName(nickName);
 			user.setGender(gender);
 			user.setMotto(motto);
+			Long originalPortraitId = user.getPortraitId();
+			if(originalPortraitId != null && !originalPortraitId.equals(portraitId)){
+				filesService.deleteFileRecord(loginId,originalPortraitId);
+			}
 			user.setPortraitId(portraitId);
 			cache.saveEntity(user, one -> uDAO.updateExistedUser(user));
 		});

@@ -2,12 +2,11 @@ package manager.service;
 
 import manager.cache.CacheOperator;
 import manager.dao.FilesDAO;
-import manager.data.general.FinalHandler;
 import manager.entity.general.FileRecord;
-import manager.entity.general.books.SharingBook;
 import manager.exception.LogicException;
 import manager.system.SMError;
 import manager.util.FileUtil;
+import manager.util.SecurityUtil;
 import manager.util.locks.UserLockManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -46,7 +45,7 @@ public class FilesService {
                 throw new LogicException(SMError.UPLOAD_MAX_SIZE_OF_MB,mbForUpload,UPLOAD_MAX_SIZE_OF_MB);
             }
             FileRecord record = new FileRecord();
-            record.setSizeKB(sizeKB);
+            record.setSizeKb(sizeKB);
             record.setDone(false);
             record.setSuffix(suffix);
             final String fileName = UUID.randomUUID().toString()+"."+suffix;
@@ -57,7 +56,7 @@ public class FilesService {
             record.setBucketName(S3Service.BUCKET_NAME);
             long id = dao.insertFileRecord(record);
             rlt.put("url",s3Service.generateUploadURL(fileName));
-            rlt.put("id",id);
+            rlt.put("id", SecurityUtil.encodeInfo(id));
         });
         return rlt;
     }
@@ -74,12 +73,16 @@ public class FilesService {
         return loginId.equals(fileRecord.getOwnerId());
     }
 
-    public String retrieveGetURL(long loginId, Long id) {
+    public Map<String,Object> retrieveGetURL(long loginId, Long id) {
         FileRecord fileRecord = dao.selectFileRecord(id);
         if((!fileRecord.getPublic()) && !isOwner(loginId,fileRecord)){
             throw new LogicException(SMError.SEE_PRIVATE_IMG);
         }
-        return  s3Service.generateGetURL(fileRecord);
+        Map<String,Object> rlt = new HashMap<>();
+        rlt.put("url",s3Service.generateGetURL(fileRecord));
+        rlt.put("suffix",fileRecord.getSuffix());
+        rlt.put("fileName",fileRecord.getFileName());
+        return rlt;
     }
 
 

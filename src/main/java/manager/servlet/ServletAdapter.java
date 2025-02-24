@@ -116,15 +116,18 @@ public class ServletAdapter {
 	public static LoginInfo process(UserProxy proxy) throws LogicException {
 		assert proxy.user.getId() != 0;
 		LoginInfo info = new LoginInfo(proxy);
-		
 		info.success = true;
 		Map<String, String> data = new HashMap<String, String>();
-		data.put(USER_ID, SecurityUtil.encodeInfo(String.valueOf(proxy.user.getId())));
+		String encodedId = SecurityUtil.encodeInfo(proxy.user.getId());
+		data.put(USER_ID, encodedId);
 		data.put(USER_PWD, proxy.user.getPassword());
 		info.token = setData(data);
+		info.userId = encodedId;
+		info.portraitId = SecurityUtil.encodeInfo(proxy.user.getPortraitId());
 		proxy.user.setPassword("");
 		proxy.user.setPwdSalt("");
 		proxy.user.setId((long)0);
+
 		return info;
 	}
 	

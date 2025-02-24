@@ -43,6 +43,44 @@ public class PageNode extends SMSolrDoc {
         isHidden = hidden;
     }
 
+    @Field private String editorState_arabic;
+    @Field private String editorState_bengali;
+    @Field private String editorState_brazilian_portuguese;
+    @Field private String editorState_bulgarian;
+    @Field private String editorState_catalan;
+    @Field private String editorState_chinese;
+    @Field private String editorState_traditional_chinese;
+    @Field private String editorState_czech;
+    @Field private String editorState_danish;
+    @Field private String editorState_dutch;
+    @Field private String editorState_estonian;
+    @Field private String editorState_finnish;
+    @Field private String editorState_french;
+    @Field private String editorState_galician;
+    @Field private String editorState_german;
+    @Field private String editorState_greek;
+    @Field private String editorState_hindi;
+    @Field private String editorState_indonesian;
+    @Field private String editorState_italian;
+    @Field private String editorState_irish;
+    @Field private String editorState_japanese;
+    @Field private String editorState_korean;
+    @Field private String editorState_english;
+    @Field private String editorState_latvian;
+    @Field private String editorState_norwegian;
+    @Field private String editorState_persian;
+    @Field private String editorState_polish;
+    @Field private String editorState_portuguese;
+    @Field private String editorState_romanian;
+    @Field private String editorState_russian;
+    @Field private String editorState_scandinavian;
+    @Field private String editorState_serbian;
+    @Field private String editorState_spanish;
+    @Field private String editorState_swedish;
+    @Field private String editorState_thai;
+    @Field private String editorState_turkish;
+    @Field private String editorState_ukrainian;
+
     @Field private String name_arabic;
     @Field private String content_arabic;
 
@@ -157,6 +195,310 @@ public class PageNode extends SMSolrDoc {
     @Override
     public PageNode clone(){
         return (PageNode) super.clone();
+    }
+
+    public Boolean getHidden() {
+        return isHidden;
+    }
+
+    public void setHidden(Boolean hidden) {
+        isHidden = hidden;
+    }
+
+    public String getEditorState_arabic() {
+        return editorState_arabic;
+    }
+
+    public void setEditorState_arabic(String editorState_arabic) {
+        this.editorState_arabic = editorState_arabic;
+    }
+
+    public String getEditorState_bengali() {
+        return editorState_bengali;
+    }
+
+    public void setEditorState_bengali(String editorState_bengali) {
+        this.editorState_bengali = editorState_bengali;
+    }
+
+    public String getEditorState_brazilian_portuguese() {
+        return editorState_brazilian_portuguese;
+    }
+
+    public void setEditorState_brazilian_portuguese(String editorState_brazilian_portuguese) {
+        this.editorState_brazilian_portuguese = editorState_brazilian_portuguese;
+    }
+
+    public String getEditorState_bulgarian() {
+        return editorState_bulgarian;
+    }
+
+    public void setEditorState_bulgarian(String editorState_bulgarian) {
+        this.editorState_bulgarian = editorState_bulgarian;
+    }
+
+    public String getEditorState_catalan() {
+        return editorState_catalan;
+    }
+
+    public void setEditorState_catalan(String editorState_catalan) {
+        this.editorState_catalan = editorState_catalan;
+    }
+
+    public String getEditorState_chinese() {
+        return editorState_chinese;
+    }
+
+    public void setEditorState_chinese(String editorState_chinese) {
+        this.editorState_chinese = editorState_chinese;
+    }
+
+    public String getEditorState_traditional_chinese() {
+        return editorState_traditional_chinese;
+    }
+
+    public void setEditorState_traditional_chinese(String editorState_traditional_chinese) {
+        this.editorState_traditional_chinese = editorState_traditional_chinese;
+    }
+
+    public String getEditorState_czech() {
+        return editorState_czech;
+    }
+
+    public void setEditorState_czech(String editorState_czech) {
+        this.editorState_czech = editorState_czech;
+    }
+
+    public String getEditorState_danish() {
+        return editorState_danish;
+    }
+
+    public void setEditorState_danish(String editorState_danish) {
+        this.editorState_danish = editorState_danish;
+    }
+
+    public String getEditorState_dutch() {
+        return editorState_dutch;
+    }
+
+    public void setEditorState_dutch(String editorState_dutch) {
+        this.editorState_dutch = editorState_dutch;
+    }
+
+    public String getEditorState_estonian() {
+        return editorState_estonian;
+    }
+
+    public void setEditorState_estonian(String editorState_estonian) {
+        this.editorState_estonian = editorState_estonian;
+    }
+
+    public String getEditorState_finnish() {
+        return editorState_finnish;
+    }
+
+    public void setEditorState_finnish(String editorState_finnish) {
+        this.editorState_finnish = editorState_finnish;
+    }
+
+    public String getEditorState_french() {
+        return editorState_french;
+    }
+
+    public void setEditorState_french(String editorState_french) {
+        this.editorState_french = editorState_french;
+    }
+
+    public String getEditorState_galician() {
+        return editorState_galician;
+    }
+
+    public void setEditorState_galician(String editorState_galician) {
+        this.editorState_galician = editorState_galician;
+    }
+
+    public String getEditorState_german() {
+        return editorState_german;
+    }
+
+    public void setEditorState_german(String editorState_german) {
+        this.editorState_german = editorState_german;
+    }
+
+    public String getEditorState_greek() {
+        return editorState_greek;
+    }
+
+    public void setEditorState_greek(String editorState_greek) {
+        this.editorState_greek = editorState_greek;
+    }
+
+    public String getEditorState_hindi() {
+        return editorState_hindi;
+    }
+
+    public void setEditorState_hindi(String editorState_hindi) {
+        this.editorState_hindi = editorState_hindi;
+    }
+
+    public String getEditorState_indonesian() {
+        return editorState_indonesian;
+    }
+
+    public void setEditorState_indonesian(String editorState_indonesian) {
+        this.editorState_indonesian = editorState_indonesian;
+    }
+
+    public String getEditorState_italian() {
+        return editorState_italian;
+    }
+
+    public void setEditorState_italian(String editorState_italian) {
+        this.editorState_italian = editorState_italian;
+    }
+
+    public String getEditorState_irish() {
+        return editorState_irish;
+    }
+
+    public void setEditorState_irish(String editorState_irish) {
+        this.editorState_irish = editorState_irish;
+    }
+
+    public String getEditorState_japanese() {
+        return editorState_japanese;
+    }
+
+    public void setEditorState_japanese(String editorState_japanese) {
+        this.editorState_japanese = editorState_japanese;
+    }
+
+    public String getEditorState_korean() {
+        return editorState_korean;
+    }
+
+    public void setEditorState_korean(String editorState_korean) {
+        this.editorState_korean = editorState_korean;
+    }
+
+    public String getEditorState_english() {
+        return editorState_english;
+    }
+
+    public void setEditorState_english(String editorState_english) {
+        this.editorState_english = editorState_english;
+    }
+
+    public String getEditorState_latvian() {
+        return editorState_latvian;
+    }
+
+    public void setEditorState_latvian(String editorState_latvian) {
+        this.editorState_latvian = editorState_latvian;
+    }
+
+    public String getEditorState_norwegian() {
+        return editorState_norwegian;
+    }
+
+    public void setEditorState_norwegian(String editorState_norwegian) {
+        this.editorState_norwegian = editorState_norwegian;
+    }
+
+    public String getEditorState_persian() {
+        return editorState_persian;
+    }
+
+    public void setEditorState_persian(String editorState_persian) {
+        this.editorState_persian = editorState_persian;
+    }
+
+    public String getEditorState_polish() {
+        return editorState_polish;
+    }
+
+    public void setEditorState_polish(String editorState_polish) {
+        this.editorState_polish = editorState_polish;
+    }
+
+    public String getEditorState_portuguese() {
+        return editorState_portuguese;
+    }
+
+    public void setEditorState_portuguese(String editorState_portuguese) {
+        this.editorState_portuguese = editorState_portuguese;
+    }
+
+    public String getEditorState_romanian() {
+        return editorState_romanian;
+    }
+
+    public void setEditorState_romanian(String editorState_romanian) {
+        this.editorState_romanian = editorState_romanian;
+    }
+
+    public String getEditorState_russian() {
+        return editorState_russian;
+    }
+
+    public void setEditorState_russian(String editorState_russian) {
+        this.editorState_russian = editorState_russian;
+    }
+
+    public String getEditorState_scandinavian() {
+        return editorState_scandinavian;
+    }
+
+    public void setEditorState_scandinavian(String editorState_scandinavian) {
+        this.editorState_scandinavian = editorState_scandinavian;
+    }
+
+    public String getEditorState_serbian() {
+        return editorState_serbian;
+    }
+
+    public void setEditorState_serbian(String editorState_serbian) {
+        this.editorState_serbian = editorState_serbian;
+    }
+
+    public String getEditorState_spanish() {
+        return editorState_spanish;
+    }
+
+    public void setEditorState_spanish(String editorState_spanish) {
+        this.editorState_spanish = editorState_spanish;
+    }
+
+    public String getEditorState_swedish() {
+        return editorState_swedish;
+    }
+
+    public void setEditorState_swedish(String editorState_swedish) {
+        this.editorState_swedish = editorState_swedish;
+    }
+
+    public String getEditorState_thai() {
+        return editorState_thai;
+    }
+
+    public void setEditorState_thai(String editorState_thai) {
+        this.editorState_thai = editorState_thai;
+    }
+
+    public String getEditorState_turkish() {
+        return editorState_turkish;
+    }
+
+    public void setEditorState_turkish(String editorState_turkish) {
+        this.editorState_turkish = editorState_turkish;
+    }
+
+    public String getEditorState_ukrainian() {
+        return editorState_ukrainian;
+    }
+
+    public void setEditorState_ukrainian(String editorState_ukrainian) {
+        this.editorState_ukrainian = editorState_ukrainian;
     }
 
     public String getType() {

@@ -3,6 +3,7 @@ package manager.dao.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import manager.entity.general.SystemMapping;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -115,6 +116,11 @@ public class UserDAOImpl implements UserDAO {
 						.setParameter(1,userId)
 						.list()
 		);
+	}
+
+	@Override
+	public long insertSystemMapping(SystemMapping mapping) {
+		return insertEntity(mapping, sessionFactory);
 	}
 
 	@Override

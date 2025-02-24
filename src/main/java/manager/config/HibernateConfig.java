@@ -1,5 +1,7 @@
 package manager.config;
 
+import manager.entity.general.FileRecord;
+import manager.entity.general.SystemMapping;
 import manager.entity.general.User;
 import manager.entity.general.UserGroup;
 import manager.entity.general.career.*;
@@ -48,6 +50,8 @@ public class HibernateConfig {
                     .addAnnotatedClass(Note.class)
                     .addAnnotatedClass(Memo.class)
                     .addAnnotatedClass(ToolRecord.class)
+                    .addAnnotatedClass(FileRecord.class)
+                    .addAnnotatedClass(SystemMapping.class)
 
                     .setProperty(JAKARTA_JDBC_URL, url)
                     .setProperty(JAKARTA_JDBC_USER, username)

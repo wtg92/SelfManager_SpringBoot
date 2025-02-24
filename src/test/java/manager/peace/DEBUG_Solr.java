@@ -1,7 +1,12 @@
 package manager.peace;
 
 import com.alibaba.fastjson2.JSON;
-import manager.SelfManagerSpringbootApplication;
+import manager.SelfXManagerSpringbootApplication;
+import manager.dao.FilesDAO;
+import manager.dao.UserDAO;
+import manager.entity.general.FileRecord;
+import manager.entity.general.SystemMapping;
+import manager.entity.general.UserGroup;
 import manager.entity.general.books.PageNode;
 import manager.entity.general.books.SharingBook;
 import manager.service.UserLogicImpl;
@@ -22,7 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes =  SelfManagerSpringbootApplication.class)
+@SpringBootTest(classes =  SelfXManagerSpringbootApplication.class)
 public class DEBUG_Solr{
 
     @Resource
@@ -118,9 +123,24 @@ public class DEBUG_Solr{
         booksSolrOperator.countPagesForSpecificParentId(id,"c33221a7-cc2d-4139-9a01-d34b7fbc1435",1);
     }
 
+    @Resource
+    private UserDAO userDAO;
+    @Resource
+    private FilesDAO filesDAO;
 
     @Test
     public void testS3(){
+        UserGroup group = new UserGroup();
+        group.setName("ss");
+        userDAO.insertUserGroup(group);
+        SystemMapping mapping =new SystemMapping();
+        mapping.setDesc("5");
+        userDAO.insertSystemMapping(mapping);
+
+        FileRecord record = new FileRecord();
+        record.setPublic(false);
+        filesDAO.insertFileRecord(record);
+
 
     }
 }

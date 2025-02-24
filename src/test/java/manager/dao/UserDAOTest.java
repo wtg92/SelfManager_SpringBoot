@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 
 import jakarta.persistence.OptimisticLockException;
-import manager.SelfManagerSpringbootApplication;
+import manager.SelfXManagerSpringbootApplication;
 import manager.exception.DBException;
 import manager.system.SMError;
 import org.hibernate.Session;
@@ -28,7 +28,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.Resource;
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes =  SelfManagerSpringbootApplication.class)
+@SpringBootTest(classes =  SelfXManagerSpringbootApplication.class)
 public class UserDAOTest {
 	
 

@@ -8,7 +8,10 @@ public class LoginInfo {
 	public String errMsg = "";
 	public boolean success = false;
 	public UserProxy user;
-	
+
+	public String userId;
+	public String portraitId;
+
 	public boolean seeUsersModule;
 	public boolean seeBooksModule;
 	public boolean seeToolsModule;

@@ -3,7 +3,6 @@ package manager.entity.general;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import manager.entity.general.career.WorkSheet;
 import manager.system.DBConstants;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -15,7 +14,7 @@ import org.hibernate.annotations.DynamicUpdate;
 public class FileRecord extends SMGeneralEntity{
 
     @Column
-    private Long sizeKB;
+    private Long sizeKb;
 
     @Column
     private Boolean done;
@@ -41,8 +40,8 @@ public class FileRecord extends SMGeneralEntity{
     @Column
     private String bucketName;
 
-    public Long getSizeKB() {
-        return sizeKB;
+    public Long getSizeKb() {
+        return sizeKb;
     }
 
     @Override
@@ -54,8 +53,8 @@ public class FileRecord extends SMGeneralEntity{
         }
     }
 
-    public void setSizeKB(Long sizeKB) {
-        this.sizeKB = sizeKB;
+    public void setSizeKb(Long sizeKb) {
+        this.sizeKb = sizeKb;
     }
 
     public Boolean getDone() {

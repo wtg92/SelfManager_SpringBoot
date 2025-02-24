@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes =  SelfManagerSpringbootApplication.class)
+@SpringBootTest(classes =  SelfXManagerSpringbootApplication.class)
 class ApplicationTests {
 
 	@Autowired

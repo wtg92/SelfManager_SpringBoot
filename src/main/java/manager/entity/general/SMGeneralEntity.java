@@ -19,7 +19,6 @@ public abstract class SMGeneralEntity extends SMEntity implements Cloneable{
 	
 	private static final long serialVersionUID = 6178314886295205584L;
 
-	@Field
 	@Column
 	private Long createUtc;
 

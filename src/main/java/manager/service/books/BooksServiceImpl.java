@@ -2,7 +2,7 @@ package manager.service.books;
 
 
 import com.alibaba.fastjson2.JSON;
-import manager.SelfManagerSpringbootApplication;
+import manager.SelfXManagerSpringbootApplication;
 import manager.booster.MultipleLangHelper;
 import manager.cache.CacheOperator;
 import manager.data.career.MultipleItemsResult;
@@ -35,7 +35,7 @@ public class BooksServiceImpl implements BooksService{
     @Resource
     CacheOperator cache;
 
-    private static final Logger log = LoggerFactory.getLogger(SelfManagerSpringbootApplication.class);
+    private static final Logger log = LoggerFactory.getLogger(SelfXManagerSpringbootApplication.class);
 
 
     private static final Integer BOOK_DEFAULT_STATUS = SharingBookStatus.OPENED;

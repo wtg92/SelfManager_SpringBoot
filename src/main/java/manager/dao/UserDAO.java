@@ -3,6 +3,7 @@ package manager.dao;
 import java.util.List;
 import java.util.Map;
 
+import manager.entity.general.SystemMapping;
 import manager.entity.general.User;
 import manager.entity.general.UserGroup;
 import manager.entity.general.career.Plan;
@@ -66,4 +67,5 @@ public interface  UserDAO {
 
 	List<Integer> selectPermsByUser(long userId);
 
+	long insertSystemMapping(SystemMapping mapping);
 }

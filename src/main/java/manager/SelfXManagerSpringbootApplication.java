@@ -15,13 +15,13 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @ServletComponentScan
 @EnableScheduling
-public class SelfManagerSpringbootApplication {
+public class SelfXManagerSpringbootApplication {
 	
 	
-	private static final Logger log = LoggerFactory.getLogger(SelfManagerSpringbootApplication.class);
+	private static final Logger log = LoggerFactory.getLogger(SelfXManagerSpringbootApplication.class);
 	
 	public static void main(String[] args) throws UnknownHostException {
-		Environment env = SpringApplication.run(SelfManagerSpringbootApplication.class, args).getEnvironment();
+		Environment env = SpringApplication.run(SelfXManagerSpringbootApplication.class, args).getEnvironment();
 		
         String protocol = "http";
         if (env.getProperty("server.ssl.key-store") != null) {
