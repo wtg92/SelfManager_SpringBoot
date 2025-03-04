@@ -69,13 +69,13 @@ public class FilesService {
             cache.saveFileRecord(fileRecord,(one)->dao.updateExistedFileRecord(one));
         });
     }
-    private static boolean isOwner (Long loginId,FileRecord fileRecord){
-        return loginId.equals(fileRecord.getOwnerId());
+    private static boolean isNotOwner(Long loginId, FileRecord fileRecord){
+        return !loginId.equals(fileRecord.getOwnerId());
     }
 
     public Map<String,Object> retrieveGetURL(long loginId, Long id) {
         FileRecord fileRecord = dao.selectFileRecord(id);
-        if((!fileRecord.getPublic()) && !isOwner(loginId,fileRecord)){
+        if((!fileRecord.getPublic()) && isNotOwner(loginId, fileRecord)){
             throw new LogicException(SMError.SEE_PRIVATE_IMG);
         }
         Map<String,Object> rlt = new HashMap<>();
@@ -88,7 +88,7 @@ public class FilesService {
 
     public void deleteFileRecord(long loginId, Long id) {
         FileRecord fileRecord = dao.selectFileRecord(id);
-        if(!isOwner(loginId,fileRecord)){
+        if(isNotOwner(loginId, fileRecord)){
             /**
              * 东西只能本人删
              */

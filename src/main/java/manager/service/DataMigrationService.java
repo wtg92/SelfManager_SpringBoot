@@ -22,7 +22,7 @@ import java.util.function.Function;
 @Service
 public class DataMigrationService {
     @Resource
-    UserLogic uL;
+    UserService uL;
 
     @Resource
     private SessionFactory sessionFactory;
@@ -42,7 +42,6 @@ public class DataMigrationService {
         doGeneralMigration(Memo.class,Memo::getCreateTime);
         doGeneralMigration(Plan.class,Plan::getCreateTime);
         doGeneralMigration(PlanBalance.class, PlanBalance::getCreateTime);
-        doGeneralMigration(User.class,User::getCreateTime);
         doGeneralMigration(UserGroup.class,UserGroup::getCreateTime);
         doGeneralMigration(WorkSheet.class,WorkSheet::getCreateTime);
 

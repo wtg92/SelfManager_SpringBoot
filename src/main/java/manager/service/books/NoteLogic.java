@@ -17,7 +17,7 @@ import manager.entity.general.career.Note;
 import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.SMException;
-import manager.service.UserLogic;
+import manager.service.UserService;
 import manager.system.SM;
 import manager.system.career.BookStyle;
 import manager.system.career.NoteLabel;
@@ -28,7 +28,7 @@ public abstract class NoteLogic{
 	
 	private static NoteLogic instance = null;
 	
-	protected UserLogic uL = UserLogic.getInstance();
+	protected UserService uL = UserService.getInstance();
 	
 	public abstract long createNoteBook(long creatorId,String name,String note,BookStyle style) throws DBException,LogicException;
 	public abstract long createNote(long creatorId,long noteBookId,String name) throws DBException,LogicException;

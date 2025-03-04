@@ -7,7 +7,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -29,11 +28,10 @@ import manager.entity.general.User;
 import manager.entity.general.career.Plan;
 import manager.entity.general.career.WorkSheet;
 import manager.entity.virtual.career.PlanItem;
-import manager.entity.virtual.career.WorkItem;
 import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.SMException;
-import manager.service.UserLogic;
+import manager.service.UserService;
 import manager.system.SM;
 import manager.system.career.CareerLogAction;
 import manager.system.career.PlanItemType;
@@ -48,7 +46,7 @@ import javax.annotation.Resource;
 public abstract class WorkService {
 
 	@Resource
-	protected UserLogic uL;
+	protected UserService uL;
 	final private static Logger logger = Logger.getLogger(WorkService.class.getName());
 
 	private static WorkService instance = null;

@@ -15,6 +15,8 @@ public abstract class SMParams {
 	public final static String TEL = "tel";
 	public final static String TEL_VERIFY_CODE = "tel_verify_code";
 	public final static String USER_TOKEN = "user_token";
+
+	public final static String TOKEN = "token";
 	public final static String TEMP_USER_ID = "temp_user_id";
 	public final static String FOR_EMAIL = "for_email";
 	public final static String OLD_YZM = "old_yzm";

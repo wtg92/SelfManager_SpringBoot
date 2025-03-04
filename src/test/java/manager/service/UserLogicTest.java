@@ -28,7 +28,7 @@ public class UserLogicTest {
 	
 	@Test
 	public void testBasicFlow() throws Exception{
-		UserLogic uL = UserLogic.getInstance();
+		UserService uL = UserService.getInstance();
 		/*登录网站 未登录时会分配uuId*/
 		String uuId = uL.createTempUser();
 		

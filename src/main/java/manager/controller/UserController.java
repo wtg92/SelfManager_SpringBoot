@@ -4,7 +4,7 @@ import com.alibaba.fastjson2.JSONObject;
 import manager.data.LoginInfo;
 import manager.data.UserBasicInfo;
 import manager.data.proxy.UserProxy;
-import manager.service.UserLogic;
+import manager.service.UserService;
 import manager.servlet.ServletAdapter;
 import manager.system.Gender;
 import manager.system.UserUniqueField;
@@ -24,11 +24,14 @@ import static manager.system.SMParams.TEMP_USER_ID;
 @RestController
 @RequestMapping("/user")
 public class UserController {
+    public static LoginInfo generateUnifiedLoginInfo(UserProxy proxy){
+        return ServletAdapter.process(proxy);
+    }
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Resource
-    private UserLogic uL;
+    private UserService userService;
     private static final String USER_PATH = "/user";
     @PatchMapping(USER_PATH)
     private void patchUser( @RequestHeader("Authorization") String authorizationHeader
@@ -38,8 +41,9 @@ public class UserController {
         Gender gender = Gender.valueOfDBCode(param.getInteger(GENDER));
         String motto = param.getString(MOTTO);
         Long portraitId = ServletAdapter.getCommonId(param.getString(PORTRAIT_ID));
-        uL.updateUser(loginId,nickName,gender,motto,portraitId);
+        userService.updateUser(loginId,nickName,gender,motto,portraitId);
     }
+
 
     @PostMapping("/signIn")
     public LoginInfo signIn(@RequestBody JSONObject param) {
@@ -52,20 +56,19 @@ public class UserController {
         String tel = param.getString(TEL);
         String telVerifyCode = param.getString(TEL_VERIFY_CODE);
         String tempUserId = param.getString(TEMP_USER_ID);
-        UserProxy proxy = uL.signIn(tempUserId,method,account,accountPwd,email,emailVerifyCode,tel,telVerifyCode);
-        return ServletAdapter.process(proxy);
+        return generateUnifiedLoginInfo(userService.signIn(tempUserId,method,account,accountPwd,email,emailVerifyCode,tel,telVerifyCode)) ;
     }
 
     @PostMapping("/sendEmailVerifyCodeForSignIn")
     private void sendEmailVerifyCodeForSignIn(@RequestBody JSONObject param){
         String email = param.getString(EMAIL);
-        uL.sendEmailVerifyCodeForSignIn(email);
+        userService.sendEmailVerifyCodeForSignIn(email);
     }
 
     @PostMapping("/sendTelVerifyCodeForSignIn")
     private void sendTelVerifyCodeForSignIn(@RequestBody JSONObject param){
         String email = param.getString(TEL);
-        uL.sendTelVerifyCodeForSignIn(email);
+        userService.sendTelVerifyCodeForSignIn(email);
     }
 
     @PostMapping("/sendVerifyCodeForResetPWD")
@@ -74,7 +77,7 @@ public class UserController {
         VerifyUserMethod method = VerifyUserMethod.valueOfDBCode(
                 param.getInteger(SIGN_IN_METHOD));
         String account = param.getString(ACCOUNT);
-        uL.sendVerifyCodeForResetPWD(account, val, method);
+        userService.sendVerifyCodeForResetPWD(account, val, method);
     }
 
     @PostMapping("/sendVerifyCode")
@@ -84,9 +87,9 @@ public class UserController {
         int x = param.getInteger(X);
         String val =  param.getString(VAL);
         if(forEmail) {
-            uL.sendEmailVerifyCodeForSignUp(val, tempUserId, x);
+            userService.sendEmailVerifyCodeForSignUp(val, tempUserId, x);
         }else {
-            uL.sendTelVerifyCodeForSignUp(val, tempUserId, x);
+            userService.sendTelVerifyCodeForSignUp(val, tempUserId, x);
         }
     }
 
@@ -95,7 +98,7 @@ public class UserController {
         String val = param.getString(VAL);
         VerifyUserMethod method = VerifyUserMethod.valueOfDBCode(
                 param.getInteger(SIGN_IN_METHOD));
-        uL.retrieveAccount(method, val);
+        userService.retrieveAccount(method, val);
     }
 
     @PostMapping("/resetPWD")
@@ -106,14 +109,14 @@ public class UserController {
         String account = param.getString( ACCOUNT);
         String verifyCode = param.getString( VERIFY_CODE);
         String resetPWD = param.getString(RESET_PWD_VAL);
-        uL.resetPWD(account,val, method,verifyCode,resetPWD);
+        userService.resetPWD(account,val, method,verifyCode,resetPWD);
     }
 
     @PostMapping("/existsUserByField")
     private boolean existsUserByField(@RequestBody JSONObject param){
         UserUniqueField field = UserUniqueField.valueOfDBCode(param.getInteger(FIELD));
         String val = param.getString(VAL);
-        return uL.exists(field, val);
+        return userService.exists(field, val);
     }
 
 
@@ -128,7 +131,7 @@ public class UserController {
         String tel = param.getString(TEL);
         String telVerifyCode = param.getString(TEL_VERIFY_CODE);
         String tempUserId = param.getString(TEMP_USER_ID);
-        uL.signUp(tempUserId, account, email, emailVerifyCode, tel, telVerifyCode, pwd, nickName, gender);
+        userService.signUp(tempUserId, account, email, emailVerifyCode, tel, telVerifyCode, pwd, nickName, gender);
     }
 
     @PostMapping("/getYZM")
@@ -136,9 +139,9 @@ public class UserController {
         String tempUserId = param.getString(TEMP_USER_ID);
         boolean forEmail = param.getBooleanValue(FOR_EMAIL);
         if(forEmail) {
-            return ServletAdapter.process(uL.createEmailYZM(tempUserId, ""));
+            return ServletAdapter.process(userService.createEmailYZM(tempUserId, ""));
         }else {
-            return ServletAdapter.process(uL.createTelYZM(tempUserId, ""));
+            return ServletAdapter.process(userService.createTelYZM(tempUserId, ""));
         }
     }
 
@@ -146,19 +149,19 @@ public class UserController {
     private LoginInfo confirmUserToken(@RequestBody JSONObject param){
         String token = param.getString(USER_TOKEN);
         long userId = ServletAdapter.getUserId(token);
-        UserProxy user = uL.loadUser(userId, userId);
+        UserProxy user = userService.loadUser(userId, userId);
         return ServletAdapter.confirmUser(user,token);
     }
 
     @PostMapping("/confirmTempUser")
     private boolean confirmTempUser(@RequestBody JSONObject param)  {
         String tempUserId = param.getString(TEMP_USER_ID);
-        return uL.confirmTempUser(tempUserId);
+        return userService.confirmTempUser(tempUserId);
     }
 
     @PostMapping("/getTempUser")
     private String getTempUser()  {
-        return uL.createTempUser();
+        return userService.createTempUser();
     }
 
 
@@ -170,9 +173,9 @@ public class UserController {
         int x = param.getInteger(X);
         String imgSrc = param.getString(IMG_SRC);
         if(forEmail) {
-            return ServletAdapter.process(uL.checkEmailYZMAndRefreshIfFailed(tempUserId,x,imgSrc));
+            return ServletAdapter.process(userService.checkEmailYZMAndRefreshIfFailed(tempUserId,x,imgSrc));
         }else {
-            return ServletAdapter.process(uL.checkTelYZMAndRefreshIfFailed(tempUserId,x, imgSrc));
+            return ServletAdapter.process(userService.checkTelYZMAndRefreshIfFailed(tempUserId,x, imgSrc));
         }
     }
 
@@ -182,6 +185,6 @@ public class UserController {
         String authorizationHeader)  {
         long loginId = authorizationHeader == null ? 0 : UIUtil.getLoginId(authorizationHeader);
         Long decodedId = ServletAdapter.getCommonId(id);
-        return uL.getUserBasicInfo(loginId,decodedId);
+        return userService.getUserBasicInfo(loginId,decodedId);
     }
 }

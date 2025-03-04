@@ -6,7 +6,7 @@ import manager.dao.UserDAO;
 import manager.dao.career.WorkDAO;
 import manager.data.proxy.career.PlanProxy;
 import manager.entity.general.career.Plan;
-import manager.service.UserLogic;
+import manager.service.UserService;
 import manager.service.work.WorkService;
 import manager.system.SMPerm;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,7 @@ class ApplicationTests {
 	UserDAO userDAO;
 
 	@Autowired
-	UserLogic ul;
+    UserService ul;
 
 	@Autowired
 	WorkDAO workDAO;

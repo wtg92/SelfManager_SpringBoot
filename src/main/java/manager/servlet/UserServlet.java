@@ -45,7 +45,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import manager.data.proxy.UserProxy;
 import manager.exception.DBException;
 import manager.exception.LogicException;
-import manager.service.UserLogic;
+import manager.service.UserService;
 import manager.system.Gender;
 import manager.system.SMError;
 import manager.system.SMOP;
@@ -56,7 +56,7 @@ import manager.system.VerifyUserMethod;
 @WebServlet(name="UserServlet",urlPatterns = "/UserServlet")
 public class UserServlet extends SMServlet{
 	
-	private UserLogic uL = UserLogic.getInstance();
+	private UserService uL = UserService.getInstance();
 	
 	private static final long serialVersionUID = 2441620312018018123L;
 

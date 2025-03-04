@@ -25,14 +25,6 @@ public class User extends SMGeneralEntity{
 	private static final long serialVersionUID = 4205890933324878246L;
 
 	@Column
-	@Deprecated
-	private Calendar createTime;
-	@Column
-	@Deprecated
-	private Calendar updateTime;
-
-
-	@Column
 	private String account;
 	
 	@Column
@@ -41,9 +33,7 @@ public class User extends SMGeneralEntity{
 	@Column
 	private String email;
 	
-	@Column
-	private String weiXinOpenId;
-	
+
 	@Column
 	@Convert(converter = GenderConverter.class)
 	private Gender gender = Gender.UNDECIDED;
@@ -51,19 +41,9 @@ public class User extends SMGeneralEntity{
 	@Column
 	private String nickName;
 	
-	@Column
-	private Double donationAmount;
-	
+
 	@Column
 	private String motto;
-	
-	/*身份证号*/
-	@Column
-	private String idNum;
-	
-	/*真实姓名*/
-	@Column
-	private String name;
 	
 	@Column
 	private String telNum;
@@ -94,33 +74,12 @@ public class User extends SMGeneralEntity{
 		this.portraitId = portraitId;
 	}
 
-	public Calendar getCreateTime() {
-		return createTime;
-	}
-	public void setCreateTime(Calendar createTime) {
-		this.createTime = createTime;
-	}
-	public Calendar getUpdateTime() {
-		return updateTime;
-	}
-	public void setUpdateTime(Calendar updateTime) {
-		this.updateTime = updateTime;
-	}
-
-
-	public Double getDonationAmount() {
-		return donationAmount;
-	}
 	public String getPwdSalt() {
 		return pwdSalt;
 	}
 	public void setPwdSalt(String pwdSalt) {
 		this.pwdSalt = pwdSalt;
 	}
-	public void setDonationAmount(Double donationAmount) {
-		this.donationAmount = donationAmount;
-	}
-
 	public String getAccount() {
 		return account;
 	}
@@ -139,12 +98,6 @@ public class User extends SMGeneralEntity{
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	public String getWeiXinOpenId() {
-		return weiXinOpenId;
-	}
-	public void setWeiXinOpenId(String weiXinOpenId) {
-		this.weiXinOpenId = weiXinOpenId;
-	}
 	public Gender getGender() {
 		return gender;
 	}
@@ -157,25 +110,11 @@ public class User extends SMGeneralEntity{
 	public void setNickName(String nickName) {
 		this.nickName = nickName;
 	}
-
-	
 	public String getMotto() {
 		return motto;
 	}
 	public void setMotto(String motto) {
 		this.motto = motto;
-	}
-	public String getIdNum() {
-		return idNum;
-	}
-	public void setIdNum(String idNum) {
-		this.idNum = idNum;
-	}
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
 	}
 	public String getTelNum() {
 		return telNum;

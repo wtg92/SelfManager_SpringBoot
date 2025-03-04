@@ -101,12 +101,9 @@ public enum SMError {
 
 	SEE_PRIVATE_IMG(82),
 
+	GMAIL_AUTH(83)
 
 	;
-//
-//	CHECK_VERIFY_CODE_FAIL(81,"验证码校验失败"),
-//	CHECK_VERIFY_CODE_FAIL(82,"验证码校验失败"),
-//	CHECK_VERIFY_CODE_FAIL(83"验证码校验失败"),
 
 
 	;

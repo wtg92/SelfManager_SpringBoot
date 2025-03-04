@@ -18,6 +18,8 @@ import manager.system.VerifyUserMethod;
 import manager.util.CommonUtil;
 import manager.util.YZMUtil.YZMInfo;
 
+import javax.annotation.Nullable;
+
 /**
  * temp相关 性能考虑 就不sync了 原因是 sync是为了addPermsToGroup 和 addUsersToGroup 这两个都和temp无关
  * @author 王天戈
@@ -26,9 +28,9 @@ import manager.util.YZMUtil.YZMInfo;
  *  2024.1.26 王天戈
  *
  */
-public abstract class UserLogic {
+public abstract class UserService {
 	
-	private static UserLogic instance = null;
+	private static UserService instance = null;
 	
 	final protected static String EMAIL_YZM_KEY= "email_yzm";
 	final protected static String TEL_YZM_KEY= "tel_yzm";
@@ -65,7 +67,7 @@ public abstract class UserLogic {
 				+ "请尽快完成重置，防止验证码过期失效。如果非本人操作，抱歉打扰，请忽略本邮件。",verifyCode); 
 	}
 	
-	public static synchronized UserLogic getInstance() {
+	public static synchronized UserService getInstance() {
 		if(instance == null) {
 			instance = new UserLogicImpl();
 		}
@@ -94,7 +96,12 @@ public abstract class UserLogic {
 		}
 		return str.toString();
 	}
-	
+
+	@Nullable
+	public abstract UserProxy retrieveAuthUserByUniqueFiledForSignIn(String uuid,String fieldName,String fieldVal);
+
+
+
 	/**
 	 * @return YZMInfo :前台base64编码图片，xForCheck仅仅是给测试用例用的，前台不应该用
 	 * @throws LogicException 
@@ -145,9 +152,12 @@ public abstract class UserLogic {
 	   *清理UUID 
 	   *   
 	 */
-	public abstract long signUp(String uuId,String account,String email,String emailVerifyCode,String tel,
+	public abstract void signUp(String uuId,String account,String email,String emailVerifyCode,String tel,
 			String telVerifyCode,String pwd,String nickName,Gender gender) throws LogicException, DBException;
-	
+
+	public abstract void signUpDirectly(String uuId,String account,String pwd,String nickName,Gender gender
+			,String email,String tel);
+
 	/**
 	 *   要求权限 ADD_USERS_TO_PERM ，没有，抛LACK_PERM
 	 * usersId,groupId必须存在，不存在，抛INCONSTSTANT_ARGS_BETWEEN_DATA 
@@ -192,4 +202,7 @@ public abstract class UserLogic {
     public abstract UserBasicInfo getUserBasicInfo(Long loginId, Long decodedId);
 
     public abstract void updateUser(long loginId, String nickName, Gender gender, String motto, Long portraitId);
+
+
+
 }

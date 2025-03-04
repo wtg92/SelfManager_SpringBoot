@@ -26,7 +26,6 @@ import manager.entity.general.UserGroup;
 import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.NoSuchElement;
-import manager.servlet.ServletAdapter;
 import manager.system.Gender;
 import manager.system.NoSuchElementType;
 import manager.system.SM;
@@ -44,13 +43,14 @@ import manager.util.YZMUtil.YZMInfo;
 import manager.util.locks.UserLockManager;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Nullable;
 import javax.annotation.Resource;
 
 /**
  * 2023.9.19 Review了一次 主要修改的是 在验证验证码时 如果验证失效 应当删除验证码缓存 使其验证码失效
  */
 @Service
-public class UserLogicImpl extends UserLogic {
+public class UserLogicImpl extends UserService {
 	final private static Logger logger = Logger.getLogger(UserLogicImpl.class.getName());
 
 	@Resource
@@ -170,28 +170,17 @@ public class UserLogicImpl extends UserLogic {
 	
 	@Override
 	@Transactional
-	public synchronized long signUp(String uuId,String account,String email,String emailVerifyCode,
+	public void signUp(String uuId,String account,String email,String emailVerifyCode,
 			String tel,String telVerifyCode,String pwd,String nickName,Gender gender) throws LogicException, DBException {
 
-		User user = new User();
-		
 		if(account.isBlank())
 			throw new LogicException(SMError.SIGN_UP_ILLEGAL,"账号不能为空");
-		
-		user.setAccount(account);
 		
 		if(nickName.isBlank())
 			throw new LogicException(SMError.SIGN_UP_ILLEGAL,"昵称不能为空");
 		
-		user.setNickName(nickName);
-		
-		user.setPassword(pwd);
-		SecurityUtil.encodeUserPwd(user);
-		
 		if(gender == Gender.UNDECIDED)
 			throw new LogicException(SMError.SIGN_UP_ILLEGAL,"性别不能为空");
-		
-		user.setGender(gender);
 		
 		if(email.isBlank() && tel.isBlank()) {
 			throw new LogicException(SMError.SIGN_UP_ILLEGAL,"邮箱和手机号必须至少填入一个");
@@ -207,8 +196,6 @@ public class UserLogicImpl extends UserLogic {
 				if(!matchEmail.equals(email)) {
 					throw new LogicException(SMError.INCONSISTENT_AUTHENTICATION_MAIL);
 				}
-				
-				user.setEmail(email);
 			} catch (NoSuchElement e) {
 				throw new LogicException(SMError.EMAIL_VERIFY_TIMEOUT);
 			}
@@ -225,19 +212,29 @@ public class UserLogicImpl extends UserLogic {
 				if(!matchTel.equals(tel)) {
 					throw new LogicException(SMError.INCONSISTENT_AUTHENTICATION_TEL);
 				}
-				user.setTelNum(tel);
 			} catch (NoSuchElement e) {
 				throw new LogicException(SMError.TEL_VERIFY_TIMEOUT);
 			}
 		}
+		signUpDirectly(uuId,account,pwd,nickName,gender,email,tel);
+	}
+
+	@Override
+	public synchronized void signUpDirectly(String uuId,String account,String pwd,String nickName,Gender gender
+			,String email,String tel) {
+		User user = new User();
+		user.setAccount(account);
+		user.setNickName(nickName);
+		user.setPassword(pwd);
+		SecurityUtil.encodeUserPwd(user);
+		user.setGender(gender);
+		user.setEmail(email);
+		user.setTelNum(tel);
 		long uId = uDAO.insertUser(user);
 		UserGroup defaultGroup = uDAO.selectUniqueExistedUserGroupByField(DBConstants.F_NAME, SM.DEFAULT_BASIC_USER_GROUP);
 		/*这里比较特殊 是系统自动添加的 并且相对来说太过频繁 不应该重置缓存 这里选择直接添加进缓存 影响到的是 一个组里有多少用户*/
 		uDAO.insertUsersToGroup(List.of(uId), defaultGroup.getId());
-		
 		cache.deleteGeneralKey(CacheMode.T_USER, uuId);
-		
-		return uId;
 	}
 
 
@@ -329,6 +326,18 @@ public class UserLogicImpl extends UserLogic {
 			}
 		}
 		return uuId;
+	}
+
+	@Nullable
+	@Override
+	public UserProxy retrieveAuthUserByUniqueFiledForSignIn(String uuId, String fieldName, String fieldVal) {
+		try {
+			User user = uDAO.selectUniqueUserByField(fieldName, fieldVal);
+			cache.removeTempUser(uuId);
+			return loadUser(user.getId(), user.getId());
+		} catch (NoSuchElement e) {
+			return null;
+		}
 	}
 
 	@Override

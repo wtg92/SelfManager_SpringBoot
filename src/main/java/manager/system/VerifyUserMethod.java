@@ -11,6 +11,7 @@ public enum VerifyUserMethod {
 	ACCOUNT_PWD(1,"账号"),
 	EMAIL_VERIFY_CODE(2,"邮箱"),
 	TEL_VERIFY_CODE(3,"手机")
+
 	;
 	private int dbCode;
 	private String name;
