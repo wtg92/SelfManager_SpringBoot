@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>SelfX</groupId>
 	<packaging>jar</packaging>
-	<artifactId>selfx</artifactId>
+	<artifactId>selfm</artifactId>
 	<version>1.0</version>
 	<name>SelfX</name>
 	<description>个人的信息管理系统</description>

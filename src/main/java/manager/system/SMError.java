@@ -79,7 +79,7 @@ public enum SMError {
 	EDIT_MEMO_OF_OTHERS_ERROR(68,"修改备忘录错误"),
 
 	NON_EXISTED_ACCOUNT(69),
-
+	GMAIL_AUTH(70),
 
 	PPT_ERROR(71,"PPT 操作异常"),
 	IMG_ERROR(72,"图片操作异常"),
@@ -101,7 +101,6 @@ public enum SMError {
 
 	SEE_PRIVATE_IMG(82),
 
-	GMAIL_AUTH(83)
 
 	;
 

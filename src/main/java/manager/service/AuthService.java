@@ -70,7 +70,7 @@ public class AuthService {
                 ,password
                 ,nickName
                 , Gender.UNKNOWN
-                ,""
+                ,email
                 ,"");
         return userService.retrieveAuthUserByUniqueFiledForSignIn(
                 uuId

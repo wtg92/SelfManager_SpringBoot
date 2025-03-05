@@ -125,8 +125,6 @@ public class UserDAOTest {
 		assertTrue(user.getId() == uId);
 		User user1 = uDAO.selectExistedUser(uId);
 		User user2 = uDAO.selectExistedUser(uId);
-		user1.setName("222");
-		user2.setName("333");
 		try{
 			uDAO.updateExistedUser(user1);
 			uDAO.updateExistedUser(user2);
