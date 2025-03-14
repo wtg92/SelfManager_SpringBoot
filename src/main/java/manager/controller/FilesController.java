@@ -39,9 +39,9 @@ public class FilesController {
     }
 
     @GetMapping("/retrieveGetURL")
-    private Map<String,Object> retrieveGetURL(@RequestHeader("Authorization") String authorizationHeader
+    private Map<String,Object> retrieveGetURL(@RequestHeader(name="Authorization", required = false) String authorizationHeader
             , @RequestParam(ID)String decodedID){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long loginId = authorizationHeader == null ? 0 : UIUtil.getLoginId(authorizationHeader);
         Long id = ServletAdapter.getCommonId(decodedID) ;
         return service.retrieveGetURL(loginId,id);
     }

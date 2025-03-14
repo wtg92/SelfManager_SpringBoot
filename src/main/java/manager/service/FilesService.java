@@ -69,8 +69,11 @@ public class FilesService {
             cache.saveFileRecord(fileRecord,(one)->dao.updateExistedFileRecord(one));
         });
     }
-    private static boolean isNotOwner(Long loginId, FileRecord fileRecord){
-        return !loginId.equals(fileRecord.getOwnerId());
+    private static boolean isNotOwner(long loginId, FileRecord fileRecord){
+        if(loginId == 0){
+            return true;
+        }
+        return loginId != fileRecord.getOwnerId();
     }
 
     public Map<String,Object> retrieveGetURL(long loginId, Long id) {
