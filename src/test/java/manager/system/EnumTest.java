@@ -1,5 +1,6 @@
 package manager.system;
 
+import manager.TestUtil;
 import org.junit.Test;
 
 import manager.system.career.BookStyle;
@@ -18,22 +19,17 @@ public class EnumTest {
 	public void noDupTest() throws Exception {
 		TestUtil.checkEnumNoDup(SelfXPerms.class,"dbCode");
 		TestUtil.checkEnumNoDup(SMOP.class,"name");
-		
 		TestUtil.checkEnumNoDup(CareerLogAction.class,"dbCode");
 		TestUtil.checkEnumNoDup(PlanItemType.class,"dbCode");
 		TestUtil.checkEnumNoDup(PlanState.class,"dbCode");
 		TestUtil.checkEnumNoDup(WorkItemType.class,"dbCode");
 		TestUtil.checkEnumNoDup(WorkSheetState.class,"dbCode");
-		
 		TestUtil.checkEnumNoDup(Gender.class,"dbCode");
 		TestUtil.checkEnumNoDup(VerifyUserMethod.class,"dbCode");
 		TestUtil.checkEnumNoDup(UserUniqueField.class,"dbCode");
-		
 		TestUtil.checkEnumNoDup(BookStyle.class,"dbCode");
 		TestUtil.checkEnumNoDup(NoteLabel.class,"name");
-		
 		TestUtil.checkEnumNoDup(Tool.class,"dbCode");
-		
 	}
 	
 	
