@@ -1,14 +1,14 @@
 <%@page import="manager.system.VerifyUserMethod"%>
-<%@page import="manager.system.SM"%>
+<%@page import="manager.system.SelfX"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 
 <html>
 <head>
 <jsp:include page="including.jsp" flush="false" />
-<link href="${pageContext.request.contextPath}/css/web_info.css?<%= SM.VERSION %>" type="text/css" rel="stylesheet" />
-<script src="${pageContext.request.contextPath}/js/web_info.js?<%= SM.VERSION %>" type="text/javascript"></script>
-<title><%=SM.WEB_TITLE %></title>
+<link href="${pageContext.request.contextPath}/css/web_info.css?<%= SelfX.VERSION %>" type="text/css" rel="stylesheet" />
+<script src="${pageContext.request.contextPath}/js/web_info.js?<%= SelfX.VERSION %>" type="text/javascript"></script>
+<title><%=SelfX.WEB_TITLE %></title>
 </head>
 <body>
 	<jsp:include page="header.jsp" flush="false" />
@@ -16,7 +16,7 @@
 		<div id="web_info_sub_main_container" class="common_sub_main_container">
 			<div id="web_info_main_invagation_container">
 				<div id="web_info_what_project_to_do">
-					<span container_id='web_info_what_sm_to_do'><span><%=SM.BRAND_NAME%></span>能做什么？</span>
+					<span container_id='web_info_what_sm_to_do'><span><%=SelfX.BRAND_NAME%></span>能做什么？</span>
 				</div>
 				<div id="web_info_footer_titles_container"></div>
 			</div>
@@ -36,8 +36,8 @@
 					<p>
 						但当我失业在家后，我担心假如我再这样下去，会有饿死的可能，因此，不得不寻找一种工作方法来尽量规范我工作的时间。
 					</p>
-      				<a href="<%=SM.BASIC_FILES_FOLDER%>ws_example_3.jpg" data-fancybox data-caption="我在2020.10.31 下午一点时的工作情况" >
-    					<img src="<%=SM.BASIC_FILES_FOLDER%>ws_example_3.jpg"  class="right_float_img"/>
+      				<a href="<%=SelfX.BASIC_FILES_FOLDER%>ws_example_3.jpg" data-fancybox data-caption="我在2020.10.31 下午一点时的工作情况" >
+    					<img src="<%=SelfX.BASIC_FILES_FOLDER%>ws_example_3.jpg" class="right_float_img"/>
   					</a>
   					<p>
 						我逐渐采用了一种以分钟为单位而记录工作的工作方法，这让我自觉提高了工作效率。（假如学术界还没有相关著作的话，我觉得我算得上发明了一种工作方法——“天戈工作法”）
@@ -66,11 +66,11 @@
   					<p>
   						在使用了一段时间后，系统对工作表进行了进一步的强化，提供了<em>工作统计</em>功能，<em>云笔记</em>功能。
   					</p>
-      				<a href="<%=SM.BASIC_FILES_FOLDER%>ws_one_day_statistics.jpg" data-fancybox data-caption="我在2021.4.30 下午三点时的工作情况" >
-    					<img src="<%=SM.BASIC_FILES_FOLDER%>ws_one_day_statistics.jpg" />
+      				<a href="<%=SelfX.BASIC_FILES_FOLDER%>ws_one_day_statistics.jpg" data-fancybox data-caption="我在2021.4.30 下午三点时的工作情况" >
+    					<img src="<%=SelfX.BASIC_FILES_FOLDER%>ws_one_day_statistics.jpg" />
   					</a>
-      				<a href="<%=SM.BASIC_FILES_FOLDER%>note_book_example1.jpg" data-fancybox data-caption="我在2021.4.30 下午三点时的工作情况" >
-    					<img src="<%=SM.BASIC_FILES_FOLDER%>note_book_example1.jpg" />
+      				<a href="<%=SelfX.BASIC_FILES_FOLDER%>note_book_example1.jpg" data-fancybox data-caption="我在2021.4.30 下午三点时的工作情况" >
+    					<img src="<%=SelfX.BASIC_FILES_FOLDER%>note_book_example1.jpg" />
   					</a>
   					
 					</div>
@@ -145,8 +145,8 @@
 						<p>
 							这就好像，如果你不相信一件东西，你就没办法真正书写它一样。我裸辞的决定是否受到了创作的影响尚未可知，但在我还工作的那段时间里，创作这个故事确实多有不顺，而在裸辞后，故事的创作就显得水到渠成了。
 						</p>
-						<a href="<%=SM.BASIC_FILES_FOLDER%>plan_in_writing_phase.jpg" data-fancybox data-caption="我在2020.8.2-2020.8.22 期间的工作情况" >
-    						<img src="<%=SM.BASIC_FILES_FOLDER%>plan_in_writing_phase.jpg"  class="right_float_img"/>
+						<a href="<%=SelfX.BASIC_FILES_FOLDER%>plan_in_writing_phase.jpg" data-fancybox data-caption="我在2020.8.2-2020.8.22 期间的工作情况" >
+    						<img src="<%=SelfX.BASIC_FILES_FOLDER%>plan_in_writing_phase.jpg" class="right_float_img"/>
   						</a>
 						<p>
 							总之，8月1号我正式离职，开始了居家创作之路，而我深知我需要找到一种方法，来让自己不至于迷失在完全支配时间的自由里。
@@ -367,8 +367,8 @@
 							现在的支付接口只是我的个人账户，这是由于现如今注册公司虽然已无需注册资本，但仍需办公地点，而我没钱支付租金，因此无法注册公司（短信使用的是本人名字也是由于这个原因，可不是我自恋哦）；当有了一定资金后，我会尽快注册一个公司，从而让网站更加规范。
 						</p>
 						<div class="web_info_zhifu_container">
-							<img src="<%=SM.BASIC_FILES_FOLDER%>zhifubao.png" />
-							<img src="<%=SM.BASIC_FILES_FOLDER%>weixin.png"  />		
+							<img src="<%=SelfX.BASIC_FILES_FOLDER%>zhifubao.png" />
+							<img src="<%=SelfX.BASIC_FILES_FOLDER%>weixin.png"  />
 						</div>
 						
 					</div>

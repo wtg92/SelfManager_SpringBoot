@@ -6,17 +6,22 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import manager.entity.general.books.SharingBook;
 import manager.entity.general.career.WorkSheet;
-import manager.util.RefiningUtil;
-import manager.util.ReflectUtil;
-import manager.util.TimeUtil;
-import manager.util.ZonedTimeUtils;
+import manager.util.*;
 import org.junit.Test;
 
+import javax.crypto.SecretKey;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.util.*;
 
 public class DEBUG_COMMON {
+    @Test
+    public void testSecurity() throws Exception{
+        String rlt =  SecurityBasis.AES.generateKeyAsBase64();
+        System.out.println(rlt);
+    }
+
+
     @Test
     public void testTime3(){
         long m = Long.parseLong("1708441200000");

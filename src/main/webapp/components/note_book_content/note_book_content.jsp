@@ -1,7 +1,7 @@
 <%@page import="manager.system.career.BookStyle"%>
 <%@page import="manager.system.career.PlanItemType"%>
 <%@page import="manager.system.career.PlanState"%>
-<%@page import="manager.system.SM"%>
+<%@page import="manager.system.SelfX"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <head>
@@ -14,8 +14,8 @@
 
 <script src="${pageContext.request.contextPath}/js/dependency/tinymce.min.js"></script>
 
-<script src="${pageContext.request.contextPath}/components/note_book_content/note_book_content.js?<%= SM.VERSION %>" type="text/javascript" ></script>
-<link  href="${pageContext.request.contextPath}/components/note_book_content/note_book_content.css?<%= SM.VERSION %>" type="text/css" rel="stylesheet" />
+<script src="${pageContext.request.contextPath}/components/note_book_content/note_book_content.js?<%= SelfX.VERSION %>" type="text/javascript" ></script>
+<link href="${pageContext.request.contextPath}/components/note_book_content/note_book_content.css?<%= SelfX.VERSION %>" type="text/css" rel="stylesheet" />
 </head>
 
 <body>

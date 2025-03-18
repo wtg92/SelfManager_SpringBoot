@@ -5,13 +5,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import manager.service.work.WorkService;
+import manager.booster.SecurityBooster;
 import manager.system.Gender;
 import manager.system.Language;
 import manager.system.VerifyUserMethod;
 import manager.system.career.PlanItemType;
 import manager.system.career.PlanSetting;
 import manager.system.career.PlanState;
-import manager.util.SecurityUtil;
 import manager.util.UIUtil;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -19,18 +19,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import manager.data.AjaxResult;
-import manager.system.SM;
+import manager.system.SelfX;
+
+import javax.annotation.Resource;
 
 @RestController
 @RequestMapping("/common")
 public class CommonController {
-	
+
+    @Resource
+    SecurityBooster securityBooster;
+
     @GetMapping("/getBasicInfo")
     public AjaxResult getBasicInfo() {
     	Map<String,Object> rlt = new HashMap<>();
-    	rlt.put("version", SM.VERSION);
-    	rlt.put("appStartTime", SM.APP_STARTING_TIME);
-    	rlt.put("appName",SM.BRAND_NAME);
+    	rlt.put("version", SelfX.VERSION);
+    	rlt.put("appStartTime", SelfX.APP_STARTING_TIME);
+    	rlt.put("appName", SelfX.BRAND_NAME);
         return AjaxResult.success(rlt);
     }
 
@@ -84,9 +89,9 @@ public class CommonController {
         return WorkService.DEFAULT_WS_LIMIT_OF_ONE_PAGE;
     }
 
-    @GetMapping("/getLoginId")
+    @GetMapping("/getStableLoginId")
     public String getLoginId(@RequestHeader("Authorization") String authorizationHeader){
         long loginId = UIUtil.getLoginId(authorizationHeader);
-        return SecurityUtil.encodeInfo(loginId);
+        return securityBooster.encodeStableCommonId(loginId);
     }
 }

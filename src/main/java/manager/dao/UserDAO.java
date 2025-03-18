@@ -1,18 +1,14 @@
 package manager.dao;
 
 import java.util.List;
-import java.util.Map;
 
 import manager.entity.general.SystemMapping;
 import manager.entity.general.User;
 import manager.entity.general.UserGroup;
-import manager.entity.general.career.Plan;
 import manager.exception.DBException;
 import manager.exception.NoSuchElement;
-import manager.system.SMError;
-import manager.system.SMPerm;
-
-import static manager.util.DBUtil.selectEntitiesByTerms;
+import manager.system.SelfXErrors;
+import manager.system.SelfXPerms;
 
 public interface  UserDAO {
 	
@@ -41,9 +37,9 @@ public interface  UserDAO {
 	void insertUsersToGroup(List<Long> usersId, long groupId) throws DBException;
 	void deleteUsersFromGroup(List<Long> usersId, long groupId) throws DBException;
 	
-	void insertPermsToGroup(List<SMPerm> perms,long groupId) throws DBException;
+	void insertPermsToGroup(List<SelfXPerms> perms, long groupId) throws DBException;
 	
-	void deletePermsFromGroup(List<SMPerm> perms,long groupId) throws DBException;
+	void deletePermsFromGroup(List<SelfXPerms> perms, long groupId) throws DBException;
 
 	List<User> selectUsersByIds(List<Long> userIds);
 
@@ -51,7 +47,7 @@ public interface  UserDAO {
 		try {
 			return selectUser(id);
 		}catch (NoSuchElement e) {
-			throw new DBException(SMError.INCONSISTENT_DB_ERROR,id);
+			throw new DBException(SelfXErrors.INCONSISTENT_DB_ERROR,id);
 		}
 	}
 	
@@ -59,11 +55,11 @@ public interface  UserDAO {
 		try {
 			return selectUniqueUserByField(field, val);
 		}catch (NoSuchElement e) {
-			throw new DBException(SMError.INCONSISTENT_DB_ERROR,field+" "+val);
+			throw new DBException(SelfXErrors.INCONSISTENT_DB_ERROR,field+" "+val);
 		}
 	}
 
-    boolean hasPerm(long userId, SMPerm perm);
+    boolean hasPerm(long userId, SelfXPerms perm);
 
 	List<Integer> selectPermsByUser(long userId);
 

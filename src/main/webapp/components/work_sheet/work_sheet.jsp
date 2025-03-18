@@ -1,11 +1,11 @@
 <%@page import="manager.system.career.WorkSheetState"%>
 <%@page import="manager.system.career.PlanState"%>
 <%@page import="manager.system.career.PlanItemType"%>
-<%@page import="manager.system.SM"%>
+<%@page import="manager.system.SelfX"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
-<script src="${pageContext.request.contextPath}/components/work_sheet/work_sheet.js?<%= SM.VERSION %>" type="text/javascript" ></script>
-<link  href="${pageContext.request.contextPath}/components/work_sheet/work_sheet.css?<%= SM.VERSION %>" type="text/css" rel="stylesheet" />
+<script src="${pageContext.request.contextPath}/components/work_sheet/work_sheet.js?<%= SelfX.VERSION %>" type="text/javascript" ></script>
+<link href="${pageContext.request.contextPath}/components/work_sheet/work_sheet.css?<%= SelfX.VERSION %>" type="text/css" rel="stylesheet" />
 <div id="work_sheet_main_container">
  	<div id="work_sheet_main_container_header">
  		<div class="work_sheet_main_container_header_date_title"></div>

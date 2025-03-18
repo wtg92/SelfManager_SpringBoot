@@ -3,7 +3,7 @@ package manager.solr;
 import manager.booster.UserIsolator;
 import manager.entity.SMSolrDoc;
 import manager.solr.constants.SolrRequestParam;
-import manager.system.SMCores;
+import manager.system.SelfXCores;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpJdkSolrClient;
 import org.apache.solr.client.solrj.request.CoreAdminRequest;
@@ -14,7 +14,6 @@ import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.CoreAdminParams;
-import org.apache.solr.common.params.MapSolrParams;
 import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.common.util.NamedList;
 import org.springframework.beans.factory.annotation.Value;
@@ -137,7 +136,7 @@ public class SolrInvoker{
     }
 
     public void testSolrClient() {
-        try (SolrClient solrClient = new HttpJdkSolrClient.Builder(baseURL+UserIsolator.calculateCoreNamByUser(SMCores.SHARING_BOOK,(long)1)).build()) {
+        try (SolrClient solrClient = new HttpJdkSolrClient.Builder(baseURL+UserIsolator.calculateCoreNamByUser(SelfXCores.SHARING_BOOK,(long)1)).build()) {
             final Map<String, String> queryParamMap = new HashMap<String, String>();
 
             SolrInputDocument doc = new SolrInputDocument();

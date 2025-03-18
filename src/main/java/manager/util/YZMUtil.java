@@ -2,33 +2,20 @@ package manager.util;
 
 import static java.util.stream.Collectors.toList;
 
-import java.awt.AlphaComposite;
-import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.GradientPaint;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.Shape;
-import java.awt.Transparency;
-import java.awt.geom.Arc2D;
-import java.awt.geom.Area;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.annotation.Resource;
 import javax.imageio.ImageIO;
 
 import com.alibaba.fastjson2.annotation.JSONField;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import manager.exception.LogicException;
-import manager.system.SM;
-import manager.system.SMError;
+import manager.system.SelfXErrors;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -111,7 +98,7 @@ public  class YZMUtil implements Serializable {
 			return rlt;
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new LogicException(SMError.ERROR_CREATE_YZM);
+			throw new LogicException(SelfXErrors.ERROR_CREATE_YZM);
 		}
 	}
 

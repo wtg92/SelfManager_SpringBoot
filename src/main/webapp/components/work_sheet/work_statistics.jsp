@@ -1,7 +1,7 @@
 <%@page import="manager.system.career.WorkSheetState"%>
 <%@page import="manager.system.career.PlanState"%>
 <%@page import="manager.system.career.PlanItemType"%>
-<%@page import="manager.system.SM"%>
+<%@page import="manager.system.SelfX"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <!-- 这个JSP 是由于解决全部工作表 dialog互相重叠 提取出来的，仅仅是为了能让dom结构上 这个dialog 不要被包含在workSheet中 css 和 js 还是先依赖于work_sheet的 -->

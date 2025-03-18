@@ -8,7 +8,7 @@ import manager.data.proxy.career.PlanProxy;
 import manager.entity.general.career.Plan;
 import manager.service.UserService;
 import manager.service.work.WorkService;
-import manager.system.SMPerm;
+import manager.system.SelfXPerms;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +59,7 @@ class ApplicationTests {
 
 	@Test
 	public  void testul(){
-		ul.checkPerm(1, SMPerm.SEE_SELF_PLANS);
+		ul.checkPerm(1, SelfXPerms.SEE_SELF_PLANS);
 	}
 
 	@Resource

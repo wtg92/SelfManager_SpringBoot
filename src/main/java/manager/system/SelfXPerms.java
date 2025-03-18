@@ -9,7 +9,7 @@ import manager.exception.NoSuchElement;
 import manager.util.SystemUtil;
 
 
-public enum SMPerm {
+public enum SelfXPerms {
 	UNDECIDED(0,""),
 	
 	ADD_USERS_TO_PERM(1,"给用户分组"),
@@ -32,16 +32,16 @@ public enum SMPerm {
     private final int dbCode;
 	private final String name;
     
-	public static SMPerm valueOfDBCode(int dbCode) {
+	public static SelfXPerms valueOfDBCode(int dbCode) {
 		try {
-			return SystemUtil.valueOfDBCode(dbCode,e->e.getDbCode(), SMPerm.class);
+			return SystemUtil.valueOfDBCode(dbCode,e->e.getDbCode(), SelfXPerms.class);
 		} catch (NoSuchElement e) {
 			assert false : dbCode;
 			return UNDECIDED;
 		}
 	}
 	
-	private SMPerm(int dbCode,String name) {
+	private SelfXPerms(int dbCode, String name) {
 		this.name = name;
 		this.dbCode = dbCode;
 	}
@@ -52,8 +52,8 @@ public enum SMPerm {
 		return dbCode;
 	}
     
-    public static Map<String,List<SMPerm>> getPermsByGroup(){
-    	Map<String,List<SMPerm>> rlt = new HashMap<>();
+    public static Map<String,List<SelfXPerms>> getPermsByGroup(){
+    	Map<String,List<SelfXPerms>> rlt = new HashMap<>();
 		//SEE_USERS_MODULE 用户管理模块不允许配置
     	rlt.put("模块可见性",Arrays.asList(SEE_BOOKS_MODULE,SEE_TOOLS_MODULE,SEE_WORKSHEET_MODULE));
     	rlt.put("用户相关", Arrays.asList(ADD_USERS_TO_PERM,EDIT_PERMS_TO_GROUP,CREATE_USER_GROUP, SEE_USERS_AND_USER_GROUPS_DATA));

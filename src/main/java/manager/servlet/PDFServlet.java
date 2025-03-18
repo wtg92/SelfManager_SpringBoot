@@ -1,7 +1,7 @@
 package manager.servlet;
 
-import static manager.system.SMParams.OP;
-import static manager.system.SMParams.PDF;
+import static manager.system.SelfXParams.OP;
+import static manager.system.SelfXParams.PDF;
 import static manager.util.UIUtil.getNonNullParam;
 
 import java.io.BufferedOutputStream;
@@ -20,8 +20,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import manager.exception.LogicException;
-import manager.system.SM;
-import manager.system.SMError;
+import manager.system.SelfX;
+import manager.system.SelfXErrors;
 import manager.system.SMOP;
 
 @WebServlet(name="PDFServlet",urlPatterns = "/PDFServlet")
@@ -51,11 +51,11 @@ public class PDFServlet extends HttpServlet{
 			File folder = null;
 			switch(op) {
 			case PDF_GENERAL:
-				folder = SM.PDF_FILES_FOLDER;
+				folder = SelfX.PDF_FILES_FOLDER;
 				break;
 			default:
 				assert false : op.getName();
-				throw new LogicException(SMError.UNKNOWN_OP,getNonNullParam(request,OP));
+				throw new LogicException(SelfXErrors.UNKNOWN_OP,getNonNullParam(request,OP));
 			}
 			
 	        ByteBuffer byteBuffer = ByteBuffer.allocate(buffer);

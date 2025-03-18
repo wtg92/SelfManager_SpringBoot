@@ -10,9 +10,9 @@ import manager.entity.general.User;
 import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.system.Gender;
-import manager.system.SM;
-import manager.system.SMError;
-import manager.system.SMPerm;
+import manager.system.SelfX;
+import manager.system.SelfXErrors;
+import manager.system.SelfXPerms;
 import manager.system.UserUniqueField;
 import manager.system.VerifyUserMethod;
 import manager.util.CommonUtil;
@@ -44,22 +44,22 @@ public abstract class UserService {
 	final protected static String EMAIL_VERIFY_CODE_KEY_FOR_SIGN_UP = "email_verify_code_fsu";
 	final protected static String TEL_VERIFY_CODE_KEY_FOR_SIGN_UP = "tel_verify_code_fsu";
 
-	final protected static String VERIFY_CODE_EMAIL_SUBJECT = SM.BRAND_NAME+"验证码";
+	final protected static String VERIFY_CODE_EMAIL_SUBJECT = SelfX.BRAND_NAME+"验证码";
 
 
 
 	protected static String createSignUpEmailMes(String verifyCode) {
 		return String.format("您好，您正在注册 %s 账号，您的验证码为 %s，"
-				+ "请尽快完成注册，防止验证码过期失效。如果非本人操作，抱歉打扰，请忽略本邮件。",SM.BRAND_NAME,verifyCode); 
+				+ "请尽快完成注册，防止验证码过期失效。如果非本人操作，抱歉打扰，请忽略本邮件。", SelfX.BRAND_NAME,verifyCode);
 	}
 	
 	protected static String createSignInEmailMes(String verifyCode) {
 		return String.format("您好，您正在登录 %s ，您的验证码为 %s，"
-				+ "请尽快完成登录，防止验证码过期失效。如果非本人操作，抱歉打扰，请忽略本邮件。",SM.BRAND_NAME,verifyCode); 
+				+ "请尽快完成登录，防止验证码过期失效。如果非本人操作，抱歉打扰，请忽略本邮件。", SelfX.BRAND_NAME,verifyCode);
 	}
 	
 	protected static String createRetrieveAccountMes(String account) {
-		return String.format("您好，您正在找回%s的账号 ，您的账号为 %s，如果非本人操作，抱歉打扰，请忽略本邮件。",SM.BRAND_NAME,account); 
+		return String.format("您好，您正在找回%s的账号 ，您的账号为 %s，如果非本人操作，抱歉打扰，请忽略本邮件。", SelfX.BRAND_NAME,account);
 	}
 	
 	protected static String createResetPwdMes(String verifyCode) {
@@ -75,11 +75,11 @@ public abstract class UserService {
 	}
 	
 
-	protected abstract boolean hasPerm(long userId,SMPerm perm) throws LogicException, DBException;
+	protected abstract boolean hasPerm(long userId, SelfXPerms perm) throws LogicException, DBException;
 	
-	public void checkPerm(long userId,SMPerm perm) throws LogicException, DBException {
+	public void checkPerm(long userId, SelfXPerms perm) throws LogicException, DBException {
 		if(!hasPerm(userId, perm)) 
-			throw new LogicException(SMError.MISSING_PERM,perm.getDbCode());
+			throw new LogicException(SelfXErrors.MISSING_PERM,perm.getDbCode());
 	}
 	
 	public abstract List<User> getUsers(List<Long> usersId) throws LogicException, DBException;
@@ -172,7 +172,7 @@ public abstract class UserService {
 	 * 增添已有的 删除没有的
 	 * @author 王天戈
 	 */
-	public abstract void overrideGroupPerms(List<SMPerm> perms,long groupId,long loginId) throws LogicException,DBException;
+	public abstract void overrideGroupPerms(List<SelfXPerms> perms, long groupId, long loginId) throws LogicException,DBException;
 	/**
 	  *  要求权限CREATE_USER_GROUP
 	 *   用户组不能重名，重名，抛DUP_USER_GROUP_NAME
@@ -191,7 +191,7 @@ public abstract class UserService {
 	 * @throws LogicException 
 	 */
 	public abstract List<UserGroupProxy> loadAllUserGroups(long loginId) throws DBException, LogicException;
-	public abstract List<SMPerm> loadPermsOfGroup(long groupId,long loginId) throws DBException, LogicException;
+	public abstract List<SelfXPerms> loadPermsOfGroup(long groupId, long loginId) throws DBException, LogicException;
 	public abstract UserSummary loadUserSummary(long loginId) throws LogicException, DBException;
 	/*最多显示500条*/
 	public abstract List<UserProxy> loadUsersOfGroup(long groupId, long loginId) throws LogicException, DBException;

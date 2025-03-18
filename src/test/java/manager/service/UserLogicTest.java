@@ -8,7 +8,6 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 
-import manager.TestUtil;
 import manager.system.Gender;
 import manager.system.UserUniqueField;
 import manager.util.YZMUtil.YZMInfo;

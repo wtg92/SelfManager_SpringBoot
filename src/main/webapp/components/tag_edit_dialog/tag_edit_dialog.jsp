@@ -1,11 +1,11 @@
 <%@page import="manager.system.career.PlanSetting"%>
 <%@page import="manager.system.career.PlanItemType"%>
 <%@page import="manager.system.career.PlanState"%>
-<%@page import="manager.system.SM"%>
+<%@page import="manager.system.SelfX"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
-<script src="${pageContext.request.contextPath}/components/tag_edit_dialog/tag_edit_dialog.js?<%= SM.VERSION %>" type="text/javascript" ></script>
-<link  href="${pageContext.request.contextPath}/components/tag_edit_dialog/tag_edit_dialog.css?<%= SM.VERSION %>" type="text/css" rel="stylesheet" />
+<script src="${pageContext.request.contextPath}/components/tag_edit_dialog/tag_edit_dialog.js?<%= SelfX.VERSION %>" type="text/javascript" ></script>
+<link href="${pageContext.request.contextPath}/components/tag_edit_dialog/tag_edit_dialog.css?<%= SelfX.VERSION %>" type="text/css" rel="stylesheet" />
 <div class="modal fade" id="tag_edit_dialog" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="tag_edit_dialog_label" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">

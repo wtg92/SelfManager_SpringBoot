@@ -7,13 +7,11 @@ import java.util.List;
 import java.util.Properties;
 
 
-import com.sun.mail.smtp.SMTPMessage;
-
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import manager.exception.LogicException;
-import manager.system.SMError;
+import manager.system.SelfXErrors;
 
 public abstract class EmailUtil {
 	
@@ -40,7 +38,7 @@ public abstract class EmailUtil {
 			}
 		}catch (Exception e) {
 			e.printStackTrace();
-			throw new LogicException(SMError.SEND_EMAIL_ERROR);
+			throw new LogicException(SelfXErrors.SEND_EMAIL_ERROR);
 		}
 	}
 

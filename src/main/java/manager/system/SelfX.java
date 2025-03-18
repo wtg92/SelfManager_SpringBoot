@@ -8,7 +8,7 @@ import static manager.util.CommonUtil.getValFromPropertiesFileInResource;
 
 import java.io.File;
 @Resource
-public class SM {
+public class SelfX {
 
 	@Value("${file.external.root}")
 	private String externalDir;

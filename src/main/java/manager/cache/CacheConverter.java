@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import manager.system.SM;
+import manager.system.SelfX;
 import manager.util.CommonUtil;
 import manager.util.ReflectUtil;
 
@@ -31,7 +31,7 @@ public abstract class CacheConverter {
 	private static String TEMP_PREFIX = "tp";
 
 	public static String getPrefixEntity(String tableName){
-		return  SM.DB_NAME + SPLIT_CHAR + tableName;
+		return  SelfX.DB_NAME + SPLIT_CHAR + tableName;
 	}
 
 	public static String createEntityKey(CacheMode mode, long identifier, String tableName) {
@@ -41,9 +41,9 @@ public abstract class CacheConverter {
 			 * 不该再有关系的实体了
 			 */
 			case R_ONE_TO_MANY_FORMER ->
-                    SM.DB_NAME + SPLIT_CHAR + tableName + SPLIT_CHAR + FORMER_ARG_FOR_KEY + SPLIT_CHAR + identifier;
+                    SelfX.DB_NAME + SPLIT_CHAR + tableName + SPLIT_CHAR + FORMER_ARG_FOR_KEY + SPLIT_CHAR + identifier;
             case R_ONE_TO_MANY_LATTER ->
-                    SM.DB_NAME + SPLIT_CHAR + tableName + SPLIT_CHAR + LATTER_ARG_FOR_KEY + SPLIT_CHAR + identifier;
+                    SelfX.DB_NAME + SPLIT_CHAR + tableName + SPLIT_CHAR + LATTER_ARG_FOR_KEY + SPLIT_CHAR + identifier;
             default -> {
                 assert false : mode;
                 throw new RuntimeException("未配置的缓存模型 " + mode);
@@ -95,7 +95,7 @@ public abstract class CacheConverter {
 		switch(mode) {
 			case E_UNIQUE_FIELD_ID:
 			case E_ID:
-				return SM.DB_NAME+SPLIT_CHAR+tableName+SPLIT_CHAR+"*";
+				return SelfX.DB_NAME+SPLIT_CHAR+tableName+SPLIT_CHAR+"*";
 			default:
 				assert false : mode;
 				throw new RuntimeException("未配置的缓存模型 "+mode);

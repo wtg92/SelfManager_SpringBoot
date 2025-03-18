@@ -1,7 +1,7 @@
 package manager.data;
 
 import manager.data.proxy.UserProxy;
-import manager.system.SMPerm;
+import manager.system.SelfXPerms;
 
 public class LoginInfo {
 	public String token = "";
@@ -25,15 +25,15 @@ public class LoginInfo {
 	}
 	
 	private void initPerms() {
-		seeUsersModule = hasPerm(SMPerm.SEE_USERS_MODULE);
-		seeBooksModule = hasPerm(SMPerm.SEE_BOOKS_MODULE);
-		seeToolsModule = hasPerm(SMPerm.SEE_TOOLS_MODULE);
-		seeWorkSheetModule = hasPerm(SMPerm.SEE_WORKSHEET_MODULE);
-		canDoMigrationOfV1 = hasPerm(SMPerm.DO_MIGRATION_OF_VER1);
+		seeUsersModule = hasPerm(SelfXPerms.SEE_USERS_MODULE);
+		seeBooksModule = hasPerm(SelfXPerms.SEE_BOOKS_MODULE);
+		seeToolsModule = hasPerm(SelfXPerms.SEE_TOOLS_MODULE);
+		seeWorkSheetModule = hasPerm(SelfXPerms.SEE_WORKSHEET_MODULE);
+		canDoMigrationOfV1 = hasPerm(SelfXPerms.DO_MIGRATION_OF_VER1);
 	}
 	
 	
-	public boolean hasPerm(SMPerm perm) {
+	public boolean hasPerm(SelfXPerms perm) {
 		return user.perms.contains(perm);
 	}
 }

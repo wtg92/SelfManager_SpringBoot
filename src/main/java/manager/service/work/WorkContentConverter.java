@@ -29,8 +29,8 @@ import manager.entity.virtual.career.PlanItem;
 import manager.entity.virtual.career.WorkItem;
 import manager.exception.LogicException;
 import manager.exception.NoSuchElement;
-import manager.system.SM;
-import manager.system.SMError;
+import manager.system.SelfX;
+import manager.system.SelfXErrors;
 import manager.system.career.CareerLogAction;
 import manager.system.career.PlanItemType;
 import manager.system.career.WorkItemType;
@@ -298,7 +298,7 @@ public abstract class WorkContentConverter {
 			}
 			return item;
 		}
-		throw new LogicException(SMError.CAREER_ACTION_ERROR,"planItem无法匹配id "+itemId+"\n"+root.asXML());
+		throw new LogicException(SelfXErrors.CAREER_ACTION_ERROR,"planItem无法匹配id "+itemId+"\n"+root.asXML());
 	}
 	
 	/**
@@ -313,7 +313,7 @@ public abstract class WorkContentConverter {
 			}
 			return item;
 		}
-		throw new LogicException(SMError.CAREER_ACTION_ERROR,"wsItem无法匹配id "+workItemId+"\n"+wsContentDoc.asXML());
+		throw new LogicException(SelfXErrors.CAREER_ACTION_ERROR,"wsItem无法匹配id "+workItemId+"\n"+wsContentDoc.asXML());
 	}
 	
 	private static Element getPlanDeptItemById(Document deptDoc, int deptItemId) throws LogicException {
@@ -325,7 +325,7 @@ public abstract class WorkContentConverter {
 			}
 			return item;
 		}
-		throw new LogicException(SMError.CAREER_ACTION_ERROR,"planDept无法匹配id "+deptItemId+"\n"+deptDoc.asXML());
+		throw new LogicException(SelfXErrors.CAREER_ACTION_ERROR,"planDept无法匹配id "+deptItemId+"\n"+deptDoc.asXML());
 	}
 	
 	private static Element getPlanDeptItemByNameAndType(Element itemsElement,String name,PlanItemType type) throws NoSuchElement {
@@ -354,7 +354,7 @@ public abstract class WorkContentConverter {
 			return DocumentHelper.parseText(one.getContent());
 		} catch (DocumentException e) {
 			e.printStackTrace();
-			throw new LogicException(SMError.ILLEGAL_WORK_SHEET_CONTENT,"WorkSheet 解析xml 失败 "+one.getId());
+			throw new LogicException(SelfXErrors.ILLEGAL_WORK_SHEET_CONTENT,"WorkSheet 解析xml 失败 "+one.getId());
 		}
 	}
 	
@@ -367,7 +367,7 @@ public abstract class WorkContentConverter {
 			return DocumentHelper.parseText(one.getContent());
 		} catch (DocumentException e) {
 			e.printStackTrace();
-			throw new LogicException(SMError.ILLEGAL_WORK_SHEET_CONTENT,"WorkSheet 解析xml 失败 "+one.getId());
+			throw new LogicException(SelfXErrors.ILLEGAL_WORK_SHEET_CONTENT,"WorkSheet 解析xml 失败 "+one.getId());
 		}
 	}
 	
@@ -379,58 +379,58 @@ public abstract class WorkContentConverter {
 			return DocumentHelper.parseText(one.getContent());
 		} catch (DocumentException e) {
 			e.printStackTrace();
-			throw new LogicException(SMError.ILLEGAL_WL_ENTITY_CONTENT,"Plan 解析xml 失败 "+one.getId());
+			throw new LogicException(SelfXErrors.ILLEGAL_WL_ENTITY_CONTENT,"Plan 解析xml 失败 "+one.getId());
 		}
 	}
 	
 	private static Document getDefinatePlanDocument(WorkSheet one) throws LogicException {
 		Document content = null;
 		if (one.getPlan() == null) {
-			throw new LogicException(SMError.ILLEGAL_WORK_SHEET_CONTENT, "无plan的ws"+one.getId());
+			throw new LogicException(SelfXErrors.ILLEGAL_WORK_SHEET_CONTENT, "无plan的ws"+one.getId());
 		}
 		try {
 			content = DocumentHelper.parseText(one.getPlan());
 		} catch (DocumentException e) {
 			e.printStackTrace();
-			throw new LogicException(SMError.ILLEGAL_WORK_SHEET_CONTENT, "WS 解析 plan 失败 " + one.getId());
+			throw new LogicException(SelfXErrors.ILLEGAL_WORK_SHEET_CONTENT, "WS 解析 plan 失败 " + one.getId());
 		}
 		return content;
 	}
 	
 	private static Document getDefinateDocument(WorkSheet one) throws LogicException {
 		if (one.getContent() == null) {
-			throw new LogicException(SMError.ILLEGAL_WORK_SHEET_CONTENT, "无content的ws"+one.getId());
+			throw new LogicException(SelfXErrors.ILLEGAL_WORK_SHEET_CONTENT, "无content的ws"+one.getId());
 		}
 		try {
 			return DocumentHelper.parseText(one.getContent());
 		} catch (DocumentException e) {
 			e.printStackTrace();
-			throw new LogicException(SMError.ILLEGAL_WORK_SHEET_CONTENT, "WS 解析content 失败 " + one.getId());
+			throw new LogicException(SelfXErrors.ILLEGAL_WORK_SHEET_CONTENT, "WS 解析content 失败 " + one.getId());
 		}
 	}
 	
 	
 	private static Document getDefinateDocument(Plan one) throws LogicException {
 		if (one.getContent() == null) {
-			throw new LogicException(SMError.ILLEGAL_WL_ENTITY_CONTENT, "使用没有init过的plan Item");
+			throw new LogicException(SelfXErrors.ILLEGAL_WL_ENTITY_CONTENT, "使用没有init过的plan Item");
 		}
 		try {
 			return DocumentHelper.parseText(one.getContent());
 		} catch (DocumentException e) {
 			e.printStackTrace();
-			throw new LogicException(SMError.ILLEGAL_WL_ENTITY_CONTENT, "Plan 解析xml 失败 " + one.getId());
+			throw new LogicException(SelfXErrors.ILLEGAL_WL_ENTITY_CONTENT, "Plan 解析xml 失败 " + one.getId());
 		}
 	}
 	
 	private static Document getDefinateDocument(PlanBalance one) throws LogicException {
 		if (one.getContent() == null) {
-			throw new LogicException(SMError.ILLEGAL_WL_ENTITY_CONTENT, "使用没有init过的plan dept");
+			throw new LogicException(SelfXErrors.ILLEGAL_WL_ENTITY_CONTENT, "使用没有init过的plan dept");
 		}
 		try {
 			return DocumentHelper.parseText(one.getContent());
 		} catch (DocumentException e) {
 			e.printStackTrace();
-			throw new LogicException(SMError.ILLEGAL_WL_ENTITY_CONTENT, "PlanDept 解析xml 失败 " + one.getId());
+			throw new LogicException(SelfXErrors.ILLEGAL_WL_ENTITY_CONTENT, "PlanDept 解析xml 失败 " + one.getId());
 		}
 	}
 	
@@ -521,14 +521,14 @@ public abstract class WorkContentConverter {
 		List<PlanItem> items = findAllByTag(itemsElement, T_ITEM).stream().map(WorkContentConverter::parsePlanItem).collect(toList());
 		
 		if(items.stream().anyMatch(item->item.getName().equals(itemName.strip()))) {
-			throw new LogicException(SMError.FORBID_DUP_CAT_IN_PLAN,itemName);
+			throw new LogicException(SelfXErrors.FORBID_DUP_CAT_IN_PLAN,itemName);
 		}
 	}
 	
 	private static void checkPlanItemIdExisted(Document planDoc, int planItemIdForCat) throws LogicException {
 		List<PlanItem> itmes = findAllByTag(planDoc.getRootElement().element(T_ITEMS), T_ITEM).stream().map(WorkContentConverter::parsePlanItem).collect(toList());
 		if(itmes.stream().allMatch(item->item.getId() != planItemIdForCat)) {
-			throw new LogicException(SMError.INCONSISTENT_WS_DATA,"无法找到对应 planItem 的id "+planItemIdForCat);
+			throw new LogicException(SelfXErrors.INCONSISTENT_WS_DATA,"无法找到对应 planItem 的id "+planItemIdForCat);
 		}
 	}
 	
@@ -687,7 +687,7 @@ public abstract class WorkContentConverter {
 			logsElement.remove(allLogs.get(i));
 		}
 
-		addLog(deptDoc, CareerLogAction.CLEAR_DEPT_LOGS_WHEN_TOO_MUCH, SM.SYSTEM_ID,
+		addLog(deptDoc, CareerLogAction.CLEAR_DEPT_LOGS_WHEN_TOO_MUCH, SelfX.SYSTEM_ID,
 				MAX_NUM_OF_PLAN_DEPT_LOG,
 				NUM_OF_CLEAR_PLAN_DEPT_LOG);
 		
@@ -872,12 +872,12 @@ public abstract class WorkContentConverter {
 	private static void checkStartUtcAndEndUtcLegal(WorkItem origin, WorkSheet one) {
 		if(origin.getStartUtc() != 0
 			&& ZonedTimeUtils.isNotSameByDate(one.getTimezone(),one.getDateUtc(),origin.getStartUtc())){
-			throw new LogicException(SMError.UNEXPECTED_ERROR);
+			throw new LogicException(SelfXErrors.UNEXPECTED_ERROR);
 		}
 		if(origin.getEndUtc() != 0
 				&& ZonedTimeUtils.isNotSameByDate(one.getTimezone(),one.getDateUtc(),origin.getEndUtc())
 		){
-			throw new LogicException(SMError.UNEXPECTED_ERROR);
+			throw new LogicException(SelfXErrors.UNEXPECTED_ERROR);
 		}
 	}
 
@@ -913,7 +913,7 @@ public abstract class WorkContentConverter {
 
 			boolean deleteSuccess = itemsElement.remove(deptItemEle);
 			if(!deleteSuccess) {
-				throw new LogicException(SMError.SYNC_ITEM_WITH_DEPT_ERROR,"删除欠账项失败 "+item.getName());
+				throw new LogicException(SelfXErrors.SYNC_ITEM_WITH_DEPT_ERROR,"删除欠账项失败 "+item.getName());
 			}
 
 			BalanceItem theItemToMerge = parsePlanDeptItem(theEleToMerge);
@@ -995,7 +995,7 @@ public abstract class WorkContentConverter {
 		Document plan = getDefinatePlanDocument(one);
 		WorkItem relevant =  getWorkItems(ws).stream().filter(wI->wI.getPlanItemId() == itemId).findAny().orElse(null);
 		if(relevant != null) {
-			throw new LogicException(SMError.CANNOT_DELETE_WS_PLAN_ITEM_WITH_WORK_ITEM,"关联的工作项 "+ TimeUtil.parseTime(relevant.getStartTime()));
+			throw new LogicException(SelfXErrors.CANNOT_DELETE_WS_PLAN_ITEM_WITH_WORK_ITEM,"关联的工作项 "+ TimeUtil.parseTime(relevant.getStartTime()));
 		}
 		
 		removeItemFromPlanDoc(plan, ws, removerId, itemId);
@@ -1011,7 +1011,7 @@ public abstract class WorkContentConverter {
 		
 		boolean success = itemsElement.remove(workElement);
 		if(!success)
-			throw new LogicException(SMError.UNEXPECTED_ERROR,"删除失败");
+			throw new LogicException(SelfXErrors.UNEXPECTED_ERROR,"删除失败");
 		
 		one.setContent(content.asXML());
 	}
@@ -1064,7 +1064,7 @@ public abstract class WorkContentConverter {
 	public static void pushToWorkSheet(Plan plan,WorkSheet ws) throws LogicException {
 		
 		if(ws.getContent()!=null && ws.getContent().length() > 0) {
-			throw new LogicException(SMError.ILLEGAL_WORK_SHEET_CONTENT,"push 时 WorkSheet不该有值 ");
+			throw new LogicException(SelfXErrors.ILLEGAL_WORK_SHEET_CONTENT,"push 时 WorkSheet不该有值 ");
 		}
 		Document planDoc = getDocumentOrInitIfNotExists(plan);
 		ws.setPlan(adpatPlanDocToWS(planDoc).asXML());
@@ -1176,9 +1176,9 @@ public abstract class WorkContentConverter {
 			Element itemsElement= deptDoc.getRootElement().element(T_ITEMS);
 			boolean deleteSuccess = itemsElement.remove(targetDeptItemElement);
 			if(!deleteSuccess) {
-				throw new LogicException(SMError.SYNC_ITEM_WITH_DEPT_ERROR,"删除欠账项失败 "+deptItemForOverride.getName());
+				throw new LogicException(SelfXErrors.SYNC_ITEM_WITH_DEPT_ERROR,"删除欠账项失败 "+deptItemForOverride.getName());
 			}
-			addPlanBalanceLog(deptDoc, CareerLogAction.REMOVE_DEPT_ITEM_DUE_TO_ZERO_VAL, SM.SYSTEM_ID,
+			addPlanBalanceLog(deptDoc, CareerLogAction.REMOVE_DEPT_ITEM_DUE_TO_ZERO_VAL, SelfX.SYSTEM_ID,
 					deptItemForOverride.getName());
 		}
 	}

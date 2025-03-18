@@ -6,7 +6,7 @@ import com.alibaba.fastjson2.annotation.JSONField;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import manager.entity.general.User;
-import manager.system.SMPerm;
+import manager.system.SelfXPerms;
 /**
   *  这个类内部处理前台需要的权限的事，虽然耦合了，但是放在这里似乎最方便
  * @author 王天戈
@@ -17,7 +17,7 @@ public class UserProxy{
 	
 	@JSONField(serialize = false)
 	@JsonIgnore
-	public Set<SMPerm> perms;
+	public Set<SelfXPerms> perms;
 	
 	public String genderInfo;
 	

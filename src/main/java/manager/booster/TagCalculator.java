@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 import manager.data.EntityTag;
 import manager.exception.LogicException;
-import manager.system.SMError;
+import manager.system.SelfXErrors;
 
 /**
  * 该类旨在为系统内可能出现给实体打标签行为，提供统一的管理方式。
@@ -69,10 +69,10 @@ public abstract class TagCalculator {
 
 	private static void checkTagLegal(String tag) throws LogicException {
 		if(tag.contains(SEPARATOR)) {
-			throw new LogicException(SMError.ILLEGAL_TAG, SEPARATOR);
+			throw new LogicException(SelfXErrors.ILLEGAL_TAG, SEPARATOR);
 		}
 		if(tag.contains(CREATED_BY_SYSTEM)) {
-			throw new LogicException(SMError.ILLEGAL_TAG,CREATED_BY_SYSTEM);
+			throw new LogicException(SelfXErrors.ILLEGAL_TAG,CREATED_BY_SYSTEM);
 		}
 	}
 	
@@ -90,6 +90,6 @@ public abstract class TagCalculator {
 			return;
 		}
 		
-		throw new LogicException(SMError.DUP_TAG,dupTags.stream().collect(Collectors.joining(",")));
+		throw new LogicException(SelfXErrors.DUP_TAG,dupTags.stream().collect(Collectors.joining(",")));
 	}
 }

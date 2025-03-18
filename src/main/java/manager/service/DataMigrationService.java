@@ -1,12 +1,11 @@
 package manager.service;
 
 import manager.entity.general.SMGeneralEntity;
-import manager.entity.general.User;
 import manager.entity.general.UserGroup;
 import manager.entity.general.career.*;
 import manager.service.work.WorkContentConverter;
 import manager.system.DBConstants;
-import manager.system.SMPerm;
+import manager.system.SelfXPerms;
 import manager.util.*;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Service;
@@ -35,7 +34,7 @@ public class DataMigrationService {
      * @param loginId
      */
     public synchronized void doFullMigrateOfV1(long loginId){
-        uL.checkPerm(loginId, SMPerm.CREATE_NOTE_BOOK_AND_NOTE);
+        uL.checkPerm(loginId, SelfXPerms.CREATE_NOTE_BOOK_AND_NOTE);
 
         migration.put("startTime",System.currentTimeMillis());
 
@@ -214,7 +213,7 @@ public class DataMigrationService {
     }
 
     public Map<String, Object> checkLatestMigration(long loginId) {
-        uL.checkPerm(loginId, SMPerm.CREATE_NOTE_BOOK_AND_NOTE);
+        uL.checkPerm(loginId, SelfXPerms.CREATE_NOTE_BOOK_AND_NOTE);
 
         return migration;
     }

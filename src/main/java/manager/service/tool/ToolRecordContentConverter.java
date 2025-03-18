@@ -8,7 +8,7 @@ import org.dom4j.Element;
 import manager.data.tool.ToolRecordContent;
 import manager.entity.general.tool.ToolRecord;
 import manager.exception.LogicException;
-import manager.system.SMError;
+import manager.system.SelfXErrors;
 
 /**
  *  <rec>
@@ -73,7 +73,7 @@ public abstract class ToolRecordContentConverter {
 			return DocumentHelper.parseText(one.getContent());
 		} catch (DocumentException e) {
 			e.printStackTrace();
-			throw new LogicException(SMError.TOOL_RECORD_DOC_ERROR,"解析xml 失败 "+one.getId());
+			throw new LogicException(SelfXErrors.TOOL_RECORD_DOC_ERROR,"解析xml 失败 "+one.getId());
 		}
 		
 	}

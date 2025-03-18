@@ -9,12 +9,13 @@ import manager.data.career.MultipleItemsResult;
 import manager.entity.general.books.PageNode;
 import manager.entity.general.books.SharingBook;
 import manager.exception.LogicException;
+import manager.booster.SecurityBooster;
 import manager.system.Language;
-import manager.system.SMError;
+import manager.system.SelfXDataSrcTypes;
+import manager.system.SelfXErrors;
 import manager.system.SolrFields;
 import manager.system.books.*;
 import manager.system.career.BookStyle;
-import manager.util.SecurityUtil;
 import manager.util.locks.UserLockManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +50,7 @@ public class BooksServiceImpl implements BooksService{
          * unnecessary but do not harm
          */
         if(Language.get(defaultLanguage)==Language.UNKNOWN){
-            throw new LogicException(SMError.UNEXPECTED_ERROR,"IMPOSSIBLE lang " + defaultLanguage);
+            throw new LogicException(SelfXErrors.UNEXPECTED_ERROR,"IMPOSSIBLE lang " + defaultLanguage);
         }
 
         locker.lockByUserAndClass(loginId,()->{
@@ -83,7 +84,7 @@ public class BooksServiceImpl implements BooksService{
 
     private static void fill(MultipleItemsResult<SharingBook> books) {
         books.items.forEach(item->{
-            item.setUpdaterEncodedId(SecurityUtil.encodeInfo(item.getUpdaterId()));
+            item.setUpdaterEncodedId(SecurityBooster.encodeUnstableCommonId(item.getUpdaterId()));
             item.setUpdaterId(null);
         });
     }
@@ -101,7 +102,7 @@ public class BooksServiceImpl implements BooksService{
                 .anyMatch(one->one.equals(SolrFields.PARENT_IDS)
                 || one.equals(SolrFields.INDEXES)
                 )){
-            throw new LogicException(SMError.UNEXPECTED_ERROR);
+            throw new LogicException(SelfXErrors.UNEXPECTED_ERROR);
         }
         locker.lockByUserAndClass(loginId,()->{
             cache.savePageNode(loginId,pageNodeId,()->operator.updatePageNode(pageNodeId,loginId,loginId,updatingAttrs));
@@ -113,8 +114,6 @@ public class BooksServiceImpl implements BooksService{
         /**
          * 必须只管当下的
          */
-
-
         updatePageNodeParentIdsAndIndexesSyncly(loginId,nodeId,parentIds,indexes);
     }
     public void updatePageNodeParentIdsAndIndexesSyncly(long loginId, String nodeId, List<String> parentIds, List<Double> indexes) {
@@ -163,6 +162,7 @@ public class BooksServiceImpl implements BooksService{
             page.setIsHidden(false);
             page.setChildrenNum(0);
             page.setType(PageNodeType.PAGE);
+            page.setSrcType(SelfXDataSrcTypes.BY_USERS);
             operator.insertPage(page,loginId);
 
             refreshPageChildrenNums(isRoot,parentId,bookId,loginId);
@@ -219,7 +219,7 @@ public class BooksServiceImpl implements BooksService{
                  * 这里相反就是为了防止出现由于环导致的无限递归（尽管想定没有）
                  * 如果出现圆了 之后会由于空指针结束这个循环
                  */
-                operator.deletePageNodeById(loginId,pageId);
+                cache.deletePageNode(loginId,pageId,()-> operator.deletePageNodeById(loginId,pageId));
                 operator.getPageNodesByParentIdForDelete(loginId,bookId, generatePageParentId(bookId,pageId,false))
                         .forEach(one->{
                             deletePageNode(loginId,bookId,pageId,false,one.getId());
@@ -235,17 +235,19 @@ public class BooksServiceImpl implements BooksService{
     @Override
     public void deleteBook(long loginId, String bookId) {
         locker.lockByUserAndClass(loginId,()->{
-            operator.deleteBookById(loginId,bookId);
-            operator.deletePageNodesByBookId(loginId,bookId);
+            cache.deleteBook(loginId,bookId,()->{
+                operator.deleteBookById(loginId,bookId);
+                operator.deletePageNodesByBookId(loginId,bookId);
+            });
         });
     }
 
     private static void checkPageNodeLegal(List<String> parentIds, List<Double> indexes){
         if(parentIds.stream().distinct().count() != parentIds.size()){
-            throw new LogicException(SMError.INCONSISTENT_DB_ERROR," parentIds msg:"+parentIds.stream().distinct().count() +" vs "+parentIds.size());
+            throw new LogicException(SelfXErrors.INCONSISTENT_DB_ERROR," parentIds msg:"+parentIds.stream().distinct().count() +" vs "+parentIds.size());
         }
         if(parentIds.size() != indexes.size()){
-            throw new LogicException(SMError.INCONSISTENT_DB_ERROR," indexes msg:"+indexes.size() +" vs "+parentIds.size());
+            throw new LogicException(SelfXErrors.INCONSISTENT_DB_ERROR," indexes msg:"+indexes.size() +" vs "+parentIds.size());
         }
     }
 
@@ -264,7 +266,7 @@ public class BooksServiceImpl implements BooksService{
         if(index == -1){
             System.err.println(JSON.toJSONString(node));
             System.err.println(parentId);
-            throw new LogicException(SMError.INCONSISTENT_DB_ERROR);
+            throw new LogicException(SelfXErrors.INCONSISTENT_DB_ERROR);
         }
 
         node.getParentIds().remove(index);

@@ -29,7 +29,7 @@ import javax.imageio.stream.ImageOutputStream;
 import org.w3c.dom.Element;
 
 import manager.exception.LogicException;
-import manager.system.SMError;
+import manager.system.SelfXErrors;
 
 public abstract class ImageUtil {
 
@@ -122,7 +122,7 @@ public abstract class ImageUtil {
 		
 		Iterator<ImageWriter> iw = ImageIO.getImageWritersByFormatName(formatName);
 		if (!iw.hasNext()) {
-			throw new LogicException(SMError.IMG_ERROR, "错误的类型" + formatName);
+			throw new LogicException(SelfXErrors.IMG_ERROR, "错误的类型" + formatName);
 
 		}
 		ImageWriter writer = iw.next();

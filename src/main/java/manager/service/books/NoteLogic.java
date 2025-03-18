@@ -18,7 +18,7 @@ import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.SMException;
 import manager.service.UserService;
-import manager.system.SM;
+import manager.system.SelfX;
 import manager.system.career.BookStyle;
 import manager.system.career.NoteLabel;
 
@@ -98,7 +98,7 @@ public abstract class NoteLogic{
 			return target.stream().sorted(comp).collect(Collectors.toList());
 		}
 		
-		List<Long> seq = Arrays.stream(notesSeq.split(SM.ARRAY_SPLIT_MARK)).map(Long::parseLong).collect(Collectors.toList());
+		List<Long> seq = Arrays.stream(notesSeq.split(SelfX.ARRAY_SPLIT_MARK)).map(Long::parseLong).collect(Collectors.toList());
 		
 		List<Note> rlt = new ArrayList<Note>();
 		

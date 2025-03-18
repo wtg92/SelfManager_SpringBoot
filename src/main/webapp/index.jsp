@@ -1,14 +1,14 @@
 <%@page import="manager.system.VerifyUserMethod"%>
-<%@page import="manager.system.SM"%>
+<%@page import="manager.system.SelfX"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 
 <html>
 <head>
 <jsp:include page="including.jsp" flush="false" />
-<link href="${pageContext.request.contextPath}/css/index.css?<%= SM.VERSION %>" type="text/css" rel="stylesheet" />
-<script src="${pageContext.request.contextPath}/js/index.js?<%= SM.VERSION %>" type="text/javascript"></script>
-<title><%=SM.WEB_TITLE%></title>
+<link href="${pageContext.request.contextPath}/css/index.css?<%= SelfX.VERSION %>" type="text/css" rel="stylesheet" />
+<script src="${pageContext.request.contextPath}/js/index.js?<%= SelfX.VERSION %>" type="text/javascript"></script>
+<title><%=SelfX.WEB_TITLE%></title>
 </head>
 <body>
 	<jsp:include page="header.jsp" flush="false" />
@@ -16,7 +16,7 @@
 		<div id="index_sub_main_container" class="common_sub_main_container">
 		<div id="index_text_info_container">
 			<p>
-			<span>欢迎来到<%=SM.BRAND_NAME%></span>
+			<span>欢迎来到<%=SelfX.BRAND_NAME%></span>
 			<br/>
 			<span>一个面向个人的信息管理系统</span>
 			</p>

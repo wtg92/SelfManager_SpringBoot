@@ -21,13 +21,11 @@ import manager.entity.general.career.NoteBook;
 import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.SMException;
-import manager.service.books.NoteLogic;
-import manager.service.books.NoteContentConverter;
 import manager.cache.CacheScheduler_Old;
 import manager.cache.CacheMode;
-import manager.system.SM;
-import manager.system.SMError;
-import manager.system.SMPerm;
+import manager.system.SelfX;
+import manager.system.SelfXErrors;
+import manager.system.SelfXPerms;
 import manager.system.career.BookStyle;
 import manager.system.career.NoteLabel;
 
@@ -42,7 +40,7 @@ public class NoteLogicImpl extends NoteLogic {
 	public long createNoteBook(long creatorId, String name, String note, BookStyle style)
 			throws DBException, LogicException {
 
-		uL.checkPerm(creatorId, SMPerm.CREATE_NOTE_BOOK_AND_NOTE);
+		uL.checkPerm(creatorId, SelfXPerms.CREATE_NOTE_BOOK_AND_NOTE);
 
 		NoteBook book = new NoteBook();
 		book.setName(name);
@@ -57,12 +55,12 @@ public class NoteLogicImpl extends NoteLogic {
 
 	@Override
 	public long createNote(long creatorId, long noteBookId, String name) throws DBException, LogicException {
-		uL.checkPerm(creatorId, SMPerm.CREATE_NOTE_BOOK_AND_NOTE);
+		uL.checkPerm(creatorId, SelfXPerms.CREATE_NOTE_BOOK_AND_NOTE);
 
 		NoteBook book = CacheScheduler_Old.getOne(CacheMode.E_ID, noteBookId, NoteBook.class,
 				() -> nDAO.selectExistedNoteBook(noteBookId));
 		if (book.getOwnerId() != creatorId) {
-			throw new LogicException(SMError.CANNOT_ADD_NOTE_IN_THE_NOTEBOOK_OF_OTHERS, "不能为别人的笔记本添加笔记");
+			throw new LogicException(SelfXErrors.CANNOT_ADD_NOTE_IN_THE_NOTEBOOK_OF_OTHERS, "不能为别人的笔记本添加笔记");
 		}
 
 		Note note = new Note();
@@ -81,7 +79,7 @@ public class NoteLogicImpl extends NoteLogic {
 		NoteBook book = CacheScheduler_Old.getOne(CacheMode.E_ID, noteBookId, NoteBook.class,
 				() -> nDAO.selectExistedNoteBook(noteBookId));
 		if (saverId != book.getOwnerId()) {
-			throw new LogicException(SMError.CANNOT_EDIT_NOTE_BOOK_OF_OTHERS, "无权修改别人的笔记本");
+			throw new LogicException(SelfXErrors.CANNOT_EDIT_NOTE_BOOK_OF_OTHERS, "无权修改别人的笔记本");
 		}
 
 		checkBookOpened(book);
@@ -95,7 +93,7 @@ public class NoteLogicImpl extends NoteLogic {
 
 	private void checkBookOpened(NoteBook book) throws LogicException {
 		if (book.getClosed()) {
-			throw new LogicException(SMError.CANNOT_EDIT_NOTE_BOOK_OF_OTHERS, "笔记本已关闭");
+			throw new LogicException(SelfXErrors.CANNOT_EDIT_NOTE_BOOK_OF_OTHERS, "笔记本已关闭");
 		}
 	}
 
@@ -107,7 +105,7 @@ public class NoteLogicImpl extends NoteLogic {
 		NoteBook book = CacheScheduler_Old.getOne(CacheMode.E_ID, noteBookId, NoteBook.class,
 				() -> nDAO.selectExistedNoteBook(noteBookId));
 		if (saverId != book.getOwnerId()) {
-			throw new LogicException(SMError.CANNOT_EDIT_NOTE_OF_OTHERS, "无权修改别人的笔记");
+			throw new LogicException(SelfXErrors.CANNOT_EDIT_NOTE_OF_OTHERS, "无权修改别人的笔记");
 		}
 
 		checkBookOpened(book);
@@ -128,7 +126,7 @@ public class NoteLogicImpl extends NoteLogic {
 		NoteBook book = CacheScheduler_Old.getOne(CacheMode.E_ID, noteBookId, NoteBook.class,
 				() -> nDAO.selectExistedNoteBook(noteBookId));
 		if (saverId != book.getOwnerId()) {
-			throw new LogicException(SMError.CANNOT_EDIT_NOTE_OF_OTHERS, "无权修改别人的笔记");
+			throw new LogicException(SelfXErrors.CANNOT_EDIT_NOTE_OF_OTHERS, "无权修改别人的笔记");
 		}
 
 		checkBookOpened(book);
@@ -150,7 +148,7 @@ public class NoteLogicImpl extends NoteLogic {
 		NoteBook book = CacheScheduler_Old.getOne(CacheMode.E_ID, noteBookId, NoteBook.class,
 				() -> nDAO.selectExistedNoteBook(noteBookId));
 		if (saverId != book.getOwnerId()) {
-			throw new LogicException(SMError.CANNOT_EDIT_NOTE_OF_OTHERS, "无权修改别人的笔记");
+			throw new LogicException(SelfXErrors.CANNOT_EDIT_NOTE_OF_OTHERS, "无权修改别人的笔记");
 		}
 
 		checkBookOpened(book);
@@ -174,11 +172,11 @@ public class NoteLogicImpl extends NoteLogic {
 		NoteBook book = CacheScheduler_Old.getOne(CacheMode.E_ID, bookId, NoteBook.class,
 				() -> nDAO.selectExistedNoteBook(bookId));
 		if (saverId != book.getOwnerId()) {
-			throw new LogicException(SMError.CANNOT_EDIT_NOTE_BOOK_OF_OTHERS, "不能调整非本人的笔记顺序");
+			throw new LogicException(SelfXErrors.CANNOT_EDIT_NOTE_BOOK_OF_OTHERS, "不能调整非本人的笔记顺序");
 		}
 
 		checkBookOpened(book);
-		book.setNotesSeq(notesSeq.stream().map(String::valueOf).collect(Collectors.joining(SM.ARRAY_SPLIT_MARK)));
+		book.setNotesSeq(notesSeq.stream().map(String::valueOf).collect(Collectors.joining(SelfX.ARRAY_SPLIT_MARK)));
 		CacheScheduler_Old.saveEntity(book, one -> nDAO.updateExistedNoteBook(one));
 	}
 
@@ -193,7 +191,7 @@ public class NoteLogicImpl extends NoteLogic {
 		NoteBook book = CacheScheduler_Old.getOne(CacheMode.E_ID, bookId, NoteBook.class,
 				() -> nDAO.selectExistedNoteBook(bookId));
 		if (loginerId != book.getOwnerId()) {
-			throw new LogicException(SMError.CANNOT_SEE_OTHER_NOTE_BOOK);
+			throw new LogicException(SelfXErrors.CANNOT_SEE_OTHER_NOTE_BOOK);
 		}
 		return new NoteBookProxy(book);
 	}
@@ -203,7 +201,7 @@ public class NoteLogicImpl extends NoteLogic {
 		NoteBook book = CacheScheduler_Old.getOne(CacheMode.E_ID, noteBookId, NoteBook.class,
 				() -> nDAO.selectExistedNoteBook(noteBookId));
 		if (loginerId != book.getOwnerId()) {
-			throw new LogicException(SMError.CANNOT_SEE_OTHERS_NOTE);
+			throw new LogicException(SelfXErrors.CANNOT_SEE_OTHERS_NOTE);
 		}
 		BookContent content = new BookContent();
 		
@@ -222,7 +220,7 @@ public class NoteLogicImpl extends NoteLogic {
 		NoteBook book = CacheScheduler_Old.getOne(CacheMode.E_ID, noteBookId, NoteBook.class,
 				() -> nDAO.selectExistedNoteBook(noteBookId));
 		if (loginerId != book.getOwnerId()) {
-			throw new LogicException(SMError.CANNOT_SEE_OTHERS_NOTE);
+			throw new LogicException(SelfXErrors.CANNOT_SEE_OTHERS_NOTE);
 		}
 		NoteProxy rlt = new NoteProxy(note);
 		return rlt;
@@ -283,11 +281,11 @@ public class NoteLogicImpl extends NoteLogic {
 	public void deleteNoteBook(long deletorId, long id) throws DBException, LogicException {
 		NoteBook book = CacheScheduler_Old.getOne(CacheMode.E_ID, id, NoteBook.class, () -> nDAO.selectExistedNoteBook(id));
 		if (deletorId != book.getOwnerId()) {
-			throw new LogicException(SMError.CANNOT_EDIT_NOTE_BOOK_OF_OTHERS, "不能删除非本人的笔记本");
+			throw new LogicException(SelfXErrors.CANNOT_EDIT_NOTE_BOOK_OF_OTHERS, "不能删除非本人的笔记本");
 		}
 
 		if (!book.getClosed()) {
-			throw new LogicException(SMError.CANNOT_EDIT_NOTE_BOOK_OF_OTHERS, "不能删除已打开的笔记本");
+			throw new LogicException(SelfXErrors.CANNOT_EDIT_NOTE_BOOK_OF_OTHERS, "不能删除已打开的笔记本");
 		}
 
 		/* 这里删除 就不管缓存了 等缓存自己消亡就行 */
@@ -304,7 +302,7 @@ public class NoteLogicImpl extends NoteLogic {
 				() -> nDAO.selectExistedNoteBook(note.getNoteBookId()));
 		
 		if (deletorId != book.getOwnerId()) {
-			throw new LogicException(SMError.CANNOT_EDIT_NOTE_OF_OTHERS, "不能删除非本人的笔记本");
+			throw new LogicException(SelfXErrors.CANNOT_EDIT_NOTE_OF_OTHERS, "不能删除非本人的笔记本");
 		}
 
 		checkBookOpened(book);
@@ -317,7 +315,7 @@ public class NoteLogicImpl extends NoteLogic {
 		NoteBook book = CacheScheduler_Old.getOne(CacheMode.E_ID, bookId, NoteBook.class,
 				() -> nDAO.selectExistedNoteBook(bookId));
 		if (closerId != book.getOwnerId()) {
-			throw new LogicException(SMError.CANNOT_EDIT_NOTE_BOOK_OF_OTHERS, "不能关闭非本人的笔记本");
+			throw new LogicException(SelfXErrors.CANNOT_EDIT_NOTE_BOOK_OF_OTHERS, "不能关闭非本人的笔记本");
 		}
 
 		checkBookOpened(book);
@@ -336,11 +334,11 @@ public class NoteLogicImpl extends NoteLogic {
 		NoteBook book = CacheScheduler_Old.getOne(CacheMode.E_ID, bookId, NoteBook.class,
 				() -> nDAO.selectExistedNoteBook(bookId));
 		if (closerId != book.getOwnerId()) {
-			throw new LogicException(SMError.CANNOT_EDIT_NOTE_BOOK_OF_OTHERS, "不能重启非本人的笔记本");
+			throw new LogicException(SelfXErrors.CANNOT_EDIT_NOTE_BOOK_OF_OTHERS, "不能重启非本人的笔记本");
 		}
 
 		if (!book.getClosed()) {
-			throw new LogicException(SMError.CANNOT_EDIT_NOTE_BOOK_OF_OTHERS, "笔记本已打开");
+			throw new LogicException(SelfXErrors.CANNOT_EDIT_NOTE_BOOK_OF_OTHERS, "笔记本已打开");
 		}
 
 		book.setClosed(false);
@@ -362,7 +360,7 @@ public class NoteLogicImpl extends NoteLogic {
 					() -> nDAO.selectExistedNoteBook(srcNote.getNoteBookId()));
 			
 			if (adderId != book.getOwnerId()) {
-				throw new LogicException(SMError.EDIT_MEMO_OF_OTHERS_ERROR, "无权把别人笔记内容放入备忘录");
+				throw new LogicException(SelfXErrors.EDIT_MEMO_OF_OTHERS_ERROR, "无权把别人笔记内容放入备忘录");
 			}
 
 			checkBookOpened(book);

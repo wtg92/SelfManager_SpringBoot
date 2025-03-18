@@ -14,7 +14,7 @@ import manager.entity.general.UserGroup;
 import manager.exception.DBException;
 import manager.exception.NoSuchElement;
 import manager.system.DBConstants;
-import manager.system.SMPerm;
+import manager.system.SelfXPerms;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
@@ -65,7 +65,7 @@ public class UserDAOImpl implements UserDAO {
 	}
 
 	@Override
-	public void insertPermsToGroup(List<SMPerm> perms, long groupId) throws DBException {
+	public void insertPermsToGroup(List<SelfXPerms> perms, long groupId) throws DBException {
 		insertGeneralRTableData(DBConstants.T_R_GROUP_PERM,perms.stream().map(perm->(long)perm.getDbCode()).collect(Collectors.toList()), groupId, sessionFactory);
 	}
 
@@ -75,7 +75,7 @@ public class UserDAOImpl implements UserDAO {
 	}
 
 	@Override
-	public void deletePermsFromGroup(List<SMPerm> perms, long groupId) throws DBException {
+	public void deletePermsFromGroup(List<SelfXPerms> perms, long groupId) throws DBException {
 		deleteGeneralRTableData(DBConstants.T_R_GROUP_PERM, DBConstants.F_PERM_ID, DBConstants.F_USER_GROUP_ID,
 				perms.stream().map(perm->(long)perm.getDbCode()).collect(Collectors.toList()), groupId, sessionFactory);
 	}
@@ -86,7 +86,7 @@ public class UserDAOImpl implements UserDAO {
 	}
 
 	@Override
-	public boolean hasPerm(long userId, SMPerm perm) {
+	public boolean hasPerm(long userId, SelfXPerms perm) {
 		return sessionFactory.fromStatelessSession((session)->
 			 session.createNativeQuery("""
 					select count(*)>0 from scientific_manager.user u1

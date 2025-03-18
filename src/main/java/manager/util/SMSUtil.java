@@ -11,7 +11,7 @@ import com.tencentcloudapi.sms.v20190711.SmsClient;
 import com.tencentcloudapi.sms.v20190711.models.SendSmsRequest;
 
 import manager.exception.LogicException;
-import manager.system.SMError;
+import manager.system.SelfXErrors;
 
 public abstract class SMSUtil {
 	
@@ -60,7 +60,7 @@ public abstract class SMSUtil {
             client.SendSms(req);
         } catch (TencentCloudSDKException e) {
             e.printStackTrace();
-            throw new LogicException(SMError.SEND_SMS_ERROR);
+            throw new LogicException(SelfXErrors.SEND_SMS_ERROR);
         }
 	}
 

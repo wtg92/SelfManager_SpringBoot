@@ -1,7 +1,7 @@
 package manager.util;
 
 import static java.util.stream.Collectors.toList;
-import static manager.system.SMParams.USER_TOKEN;
+import static manager.system.SelfXParams.USER_TOKEN;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,8 +21,8 @@ import com.alibaba.fastjson2.JSONArray;
 
 import manager.exception.LogicException;
 import manager.exception.NoSuchElement;
-import manager.servlet.ServletAdapter;
-import manager.system.SMError;
+import manager.booster.SecurityBooster;
+import manager.system.SelfXErrors;
 
 public abstract class UIUtil {
 
@@ -42,9 +42,10 @@ public abstract class UIUtil {
 	 */
 	public static long getLoginId(String auth) throws LogicException {
 		try{
-			return ServletAdapter.getUserId(auth.replace("Bearer ",""));
+			return SecurityBooster.getUserId(auth.replace("Bearer ",""));
 		}catch(Exception e){
-			throw new LogicException(SMError.LOGIN_FAILED);
+			e.printStackTrace();
+			throw new LogicException(SelfXErrors.LOGIN_FAILED);
 		}
 	}
 
@@ -99,7 +100,7 @@ public abstract class UIUtil {
 		try {
 			return Integer.parseInt(getNonNullParam(request, key));
 		} catch (NumberFormatException e) {
-			throw new LogicException(SMError.REQUEST_ARG_ILLEGAL,"String int 转化失败 "+key);
+			throw new LogicException(SelfXErrors.REQUEST_ARG_ILLEGAL,"String int 转化失败 "+key);
 		}
 	}
 	
@@ -107,7 +108,7 @@ public abstract class UIUtil {
 		try {
 			return Double.parseDouble(getNonNullParam(request, key));
 		} catch (NumberFormatException e) {
-			throw new LogicException(SMError.REQUEST_ARG_ILLEGAL,"String double 转化失败 "+key);
+			throw new LogicException(SelfXErrors.REQUEST_ARG_ILLEGAL,"String double 转化失败 "+key);
 		}
 	}
 	
@@ -140,7 +141,7 @@ public abstract class UIUtil {
 		try {
 			return Boolean.parseBoolean(getNonNullParam(request, key));
 		} catch (Exception e) {
-			throw new LogicException(SMError.REQUEST_ARG_ILLEGAL,"String boolean 转化失败 "+key);
+			throw new LogicException(SelfXErrors.REQUEST_ARG_ILLEGAL,"String boolean 转化失败 "+key);
 		}
 	}
 
@@ -154,7 +155,7 @@ public abstract class UIUtil {
 			try{
 				return TimeUtil.parseDate(getParam(request,key));
 			}catch(Exception e2){
-				throw new LogicException(SMError.REQUEST_ARG_ILLEGAL,"String date 转化失败 "+key);
+				throw new LogicException(SelfXErrors.REQUEST_ARG_ILLEGAL,"String date 转化失败 "+key);
 			}
 		}
 	}
@@ -167,7 +168,7 @@ public abstract class UIUtil {
 			try{
 				return TimeUtil.parseTime(getParam(request,key));
 			}catch(Exception e2){
-				throw new LogicException(SMError.REQUEST_ARG_ILLEGAL,"String date 转化失败 "+key);
+				throw new LogicException(SelfXErrors.REQUEST_ARG_ILLEGAL,"String date 转化失败 "+key);
 			}
 		}
 	}
@@ -192,7 +193,7 @@ public abstract class UIUtil {
 			}
 			return rlt;
 		} catch (NoSuchElement e) {
-			throw new LogicException(SMError.REQUEST_ARG_ILLEGAL,"缺失参数");
+			throw new LogicException(SelfXErrors.REQUEST_ARG_ILLEGAL,"缺失参数");
 		}
 	}
 	
@@ -201,7 +202,7 @@ public abstract class UIUtil {
 		try {
 			return getParams(request, key).stream().map(str->str==null?TimeUtil.getBlank():TimeUtil.parseTime(str)).collect(toList());
 		} catch (NoSuchElement e) {
-			throw new LogicException(SMError.REQUEST_ARG_ILLEGAL,"缺失参数");
+			throw new LogicException(SelfXErrors.REQUEST_ARG_ILLEGAL,"缺失参数");
 		}
 	}
 	
@@ -209,7 +210,7 @@ public abstract class UIUtil {
 		try {
 			return getParams(request, key).stream().map(str->Boolean.parseBoolean(str)).collect(toList());
 		} catch (NoSuchElement e) {
-			throw new LogicException(SMError.REQUEST_ARG_ILLEGAL,"缺失参数");
+			throw new LogicException(SelfXErrors.REQUEST_ARG_ILLEGAL,"缺失参数");
 		}
 	}
 	
@@ -303,7 +304,7 @@ public abstract class UIUtil {
 			return getParam(request, key);
 		} catch (NoSuchElement e) {
 			e.printStackTrace();
-			throw new LogicException(SMError.REQUEST_ARG_NULL,key);
+			throw new LogicException(SelfXErrors.REQUEST_ARG_NULL,key);
 		}
 	}
 	
@@ -319,7 +320,7 @@ public abstract class UIUtil {
 		try {
 			return getParams(request, key);
 		} catch (NoSuchElement e) {
-			throw new LogicException(SMError.REQUEST_ARG_NULL,key);
+			throw new LogicException(SelfXErrors.REQUEST_ARG_NULL,key);
 		}
 	}
 	
@@ -364,7 +365,7 @@ public abstract class UIUtil {
 
 	public static long getLoginId(HttpServletRequest request) throws LogicException {
 		String token = getNonNullParam(request,USER_TOKEN); 
-		return ServletAdapter.getUserId(token);
+		return SecurityBooster.getUserId(token);
 	}
 	
 	private final static double MAX_SIZE_OF_MB_FOR_SINGLE_FILE = 20;

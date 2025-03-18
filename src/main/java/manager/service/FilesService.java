@@ -4,9 +4,10 @@ import manager.cache.CacheOperator;
 import manager.dao.FilesDAO;
 import manager.entity.general.FileRecord;
 import manager.exception.LogicException;
-import manager.system.SMError;
+import manager.booster.SecurityBooster;
+import manager.system.SelfXDataSrcTypes;
+import manager.system.SelfXErrors;
 import manager.util.FileUtil;
-import manager.util.SecurityUtil;
 import manager.util.locks.UserLockManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -33,16 +34,20 @@ public class FilesService {
     @Resource
     private FilesDAO dao;
 
+    @Resource
+    private SecurityBooster securityBooster;
+
+
     public Map<String,Object> retrieveUploadURL(long loginId, Long sizeKB, String suffix) {
         Map<String,Object> rlt = new HashMap<>();
         locker.lockByUserAndClass(loginId,()->{
             double sumGB = FileUtil.kbToGb(dao.selectSumKBSizeByOwner(loginId));
             if(sumGB > UPLOAD_MAX_GB_FOR_ONE_USER){
-                throw new LogicException(SMError.MAX_UPLOAD_FILE_FOR_ONE_USER,sumGB,UPLOAD_MAX_GB_FOR_ONE_USER);
+                throw new LogicException(SelfXErrors.MAX_UPLOAD_FILE_FOR_ONE_USER,sumGB,UPLOAD_MAX_GB_FOR_ONE_USER);
             }
             double mbForUpload = FileUtil.kbToMb(sizeKB);
             if(mbForUpload > UPLOAD_MAX_SIZE_OF_MB){
-                throw new LogicException(SMError.UPLOAD_MAX_SIZE_OF_MB,mbForUpload,UPLOAD_MAX_SIZE_OF_MB);
+                throw new LogicException(SelfXErrors.UPLOAD_MAX_SIZE_OF_MB,mbForUpload,UPLOAD_MAX_SIZE_OF_MB);
             }
             FileRecord record = new FileRecord();
             record.setSizeKb(sizeKB);
@@ -54,9 +59,10 @@ public class FilesService {
             record.setUploadStartUtc(System.currentTimeMillis());
             record.setPublic(true);
             record.setBucketName(S3Service.BUCKET_NAME);
+            record.setSrcType(SelfXDataSrcTypes.BY_USERS);
             long id = dao.insertFileRecord(record);
             rlt.put("url",s3Service.generateUploadURL(fileName));
-            rlt.put("id", SecurityUtil.encodeInfo(id));
+            rlt.put("id", securityBooster.encodeStableCommonId(id));
         });
         return rlt;
     }
@@ -76,11 +82,15 @@ public class FilesService {
         return loginId != fileRecord.getOwnerId();
     }
 
-    public Map<String,Object> retrieveGetURL(long loginId, Long id) {
-        FileRecord fileRecord = dao.selectFileRecord(id);
+    private static void checkRecordPerms(FileRecord fileRecord,long loginId){
         if((!fileRecord.getPublic()) && isNotOwner(loginId, fileRecord)){
-            throw new LogicException(SMError.SEE_PRIVATE_IMG);
+            throw new LogicException(SelfXErrors.SEE_PRIVATE_IMG);
         }
+    }
+
+    public Map<String,Object> retrieveGetURL(long loginId, Long id) {
+        FileRecord fileRecord = cache.getFileRecord(id,()->dao.selectFileRecord(id));
+        checkRecordPerms(fileRecord,loginId);
         Map<String,Object> rlt = new HashMap<>();
         rlt.put("url",s3Service.generateGetURL(fileRecord));
         rlt.put("suffix",fileRecord.getSuffix());
@@ -90,20 +100,30 @@ public class FilesService {
 
 
     public void deleteFileRecord(long loginId, Long id) {
-        FileRecord fileRecord = dao.selectFileRecord(id);
+        FileRecord fileRecord = cache.getFileRecord(id,()->dao.selectFileRecord(id));
         if(isNotOwner(loginId, fileRecord)){
             /**
              * 东西只能本人删
              */
-            throw new LogicException(SMError.UNEXPECTED_ERROR);
+            throw new LogicException(SelfXErrors.UNEXPECTED_ERROR);
         }
         // 这个删除S3上的 和单个用户无关 和所有用户有关
         locker.lockByClass(()->{
-            dao.deleteFileRecord(id);
+            cache.deleteFileRecord(id,()->dao.deleteFileRecord(id));
             long num = dao.countFileRecordsByBucketNameAndFileName(fileRecord.getBucketName(),fileRecord.getFileName());
             if(num == 0){
                 s3Service.deleteObject(fileRecord);
             }
         });
+    }
+
+    public FileRecord getRecord(long loginId, Long id) {
+        FileRecord fileRecord = cache.getFileRecord(id,()->dao.selectFileRecord(id));
+        checkRecordPerms(fileRecord,loginId);
+        // 不暴露实际ID
+        fileRecord.setId(null);
+        fileRecord.setOwnerId(null);
+        fileRecord.setBucketName(null);
+        return fileRecord;
     }
 }

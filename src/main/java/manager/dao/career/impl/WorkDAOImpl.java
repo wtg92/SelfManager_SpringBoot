@@ -98,7 +98,7 @@ public class WorkDAOImpl implements WorkDAO {
 	}
 
 	@Override
-	public void deleteExistedWorkSheet(long wsId) throws DBException {
+	public void deleteExistedWorkSheet(long wsId){
 		deleteEntity(WorkSheet.class, wsId, sessionFactory);
 	}
 

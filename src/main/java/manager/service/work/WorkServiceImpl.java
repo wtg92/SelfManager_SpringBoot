@@ -34,10 +34,10 @@ import manager.exception.LogicException;
 import manager.exception.SMException;
 import manager.booster.TagCalculator;
 import manager.cache.CacheMode;
-import manager.system.SM;
+import manager.system.SelfX;
 import manager.system.DBConstants;
-import manager.system.SMError;
-import manager.system.SMPerm;
+import manager.system.SelfXErrors;
+import manager.system.SelfXPerms;
 import manager.system.career.CareerLogAction;
 import manager.system.career.PlanItemType;
 import manager.system.career.PlanSetting;
@@ -124,7 +124,7 @@ public class WorkServiceImpl extends WorkService {
 
 	@Override
 	public long createPlan(long loginId, String name, Long startDate, Long endDate,String timezone, String note) throws LogicException, DBException {
-		uL.checkPerm(loginId, SMPerm.CREATE_WORKSHEET_PLAN);
+		uL.checkPerm(loginId, SelfXPerms.CREATE_WORKSHEET_PLAN);
 
 		Plan plan = new Plan();
 		plan.setName(name);
@@ -156,7 +156,7 @@ public class WorkServiceImpl extends WorkService {
 			PlanItemType type, int fatherId, double mappingVal) throws LogicException, DBException {
 		Plan existed = getPlan(planId);
 		if(existed.getOwnerId() != adderId) {
-			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
+			throw new LogicException(SelfXErrors.CANNOT_EDIT_OTHERS_PLAN);
 		}
 		WorkContentConverter.addItemToPlan(existed,adderId,categoryName,value,note,type,fatherId,mappingVal);
 		updatePlanSynchronously(existed,adderId);
@@ -167,7 +167,7 @@ public class WorkServiceImpl extends WorkService {
 			int fatherId, double mappingVal) throws LogicException, DBException {
 		WorkSheet ws = getWorksheet(wsId);
 		if(loginId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS);
+			throw new LogicException(SelfXErrors.CANNOT_MODIFY_OTHERS_WS);
 		}
 		
 		WorkContentConverter.addItemToWSPlan(ws, loginId, categoryName, value, note, type, fatherId, mappingVal);
@@ -181,7 +181,7 @@ public class WorkServiceImpl extends WorkService {
 		locker.lockByUserAndClass(loginId,()->{
 			WorkSheet ws = getWorksheet(wsId);
 			if(loginId != ws.getOwnerId()) {
-				throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS);
+				throw new LogicException(SelfXErrors.CANNOT_MODIFY_OTHERS_WS);
 			}
 
 			WorkContentConverter.addItemToWorkSheet(ws, loginId, planItemId, value, note, mood, forAdd, startUtc, endUtc);
@@ -194,7 +194,7 @@ public class WorkServiceImpl extends WorkService {
 	public void removeItemFromPlan(long loginId, long planId, int itemId) throws LogicException, DBException {
 		Plan existed = getPlan(planId);
 		if(existed.getOwnerId() != loginId) {
-			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
+			throw new LogicException(SelfXErrors.CANNOT_EDIT_OTHERS_PLAN);
 		}
 		
 		WorkContentConverter.removeItemFromPlan(existed,loginId,itemId);
@@ -205,7 +205,7 @@ public class WorkServiceImpl extends WorkService {
 	public void removeItemFromWSPlan(long removerId, long wsId, int itemId) throws LogicException, DBException {
 		WorkSheet ws = getWorksheet(wsId);
 		if(removerId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS,removerId+" vs "+ws.getOwnerId());
+			throw new LogicException(SelfXErrors.CANNOT_MODIFY_OTHERS_WS,removerId+" vs "+ws.getOwnerId());
 		}
 		
 		WorkContentConverter.removeItemFromWSPlan(ws, removerId, itemId);
@@ -218,7 +218,7 @@ public class WorkServiceImpl extends WorkService {
 	public void removeItemFromWorkSheet(long loginId, long wsId, int itemId) throws LogicException, DBException {
 		WorkSheet ws = getWorksheet(wsId);
 		if(loginId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS);
+			throw new LogicException(SelfXErrors.CANNOT_MODIFY_OTHERS_WS);
 		}
 		
 		WorkContentConverter.removeItemFromWorkSheet(ws, loginId, itemId);
@@ -233,7 +233,7 @@ public class WorkServiceImpl extends WorkService {
 	public void resetPlanTags(long loginId, long planId, List<String> tags) throws SMException {
 		Plan plan = getPlan(planId);
 		if(plan.getOwnerId() != loginId) {
-			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
+			throw new LogicException(SelfXErrors.CANNOT_EDIT_OTHERS_PLAN);
 		}
 		
 		List<EntityTag> entityTags = tags.stream().map(tag->new EntityTag(tag, false)).collect(toList());
@@ -251,7 +251,7 @@ public class WorkServiceImpl extends WorkService {
 	public void resetWorkSheetTags(long loginId,long wsId,List<String> tags) throws SMException {
 		WorkSheet ws = getWorksheet(wsId);
 		if(loginId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS);
+			throw new LogicException(SelfXErrors.CANNOT_MODIFY_OTHERS_WS);
 		}
 		
 		List<EntityTag> old = ws.getTags();
@@ -278,7 +278,7 @@ public class WorkServiceImpl extends WorkService {
 	) {
 		Plan plan = getPlan(planId);
 		if(plan.getOwnerId() != loginId) {
-			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
+			throw new LogicException(SelfXErrors.CANNOT_EDIT_OTHERS_PLAN);
 		}
 
 		if(!name.equals(plan.getName())
@@ -311,7 +311,7 @@ public class WorkServiceImpl extends WorkService {
 	public void recalculatePlanState(long loginId, long planId) {
 		Plan plan = getPlan(planId);
 		if(plan.getOwnerId() != loginId) {
-			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
+			throw new LogicException(SelfXErrors.CANNOT_EDIT_OTHERS_PLAN);
 		}
 		PlanState stateByNow = calculateStateByNow(plan);
 		if(stateByNow != plan.getState()) {
@@ -327,11 +327,11 @@ public class WorkServiceImpl extends WorkService {
 	public void saveWorkSheetPlanId(long updaterId, long wsId, long planId) throws SMException {
 		WorkSheet ws = getWorksheet(wsId);
 		if(updaterId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS);
+			throw new LogicException(SelfXErrors.CANNOT_MODIFY_OTHERS_WS);
 		}
 		Plan plan = getPlan(planId);
 		if(plan.getOwnerId() != updaterId) {
-			throw new LogicException(SMError.CAREER_ACTION_ERROR,"不能把工作表的基准计划修改为他人的计划");
+			throw new LogicException(SelfXErrors.CAREER_ACTION_ERROR,"不能把工作表的基准计划修改为他人的计划");
 		}
 		
 		ws.setPlanId(planId);
@@ -342,7 +342,7 @@ public class WorkServiceImpl extends WorkService {
 	public void savePlanItem(long loginId, long planId,int itemId , String catName, int value,String note, double mappingVal) throws LogicException, DBException {
 		Plan plan = getPlan(planId);
 		if(plan.getOwnerId() != loginId) {
-			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
+			throw new LogicException(SelfXErrors.CANNOT_EDIT_OTHERS_PLAN);
 		}
 		
 		WorkContentConverter.updatePlanItem(plan, loginId, itemId, catName, value, note, mappingVal);
@@ -354,7 +354,7 @@ public class WorkServiceImpl extends WorkService {
 	public void savePlanItemFold(long loginId, long planId, int itemId, boolean fold) throws LogicException, DBException {
 		Plan plan = cache.getEntity(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
 		if(plan.getOwnerId() != loginId) {
-			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
+			throw new LogicException(SelfXErrors.CANNOT_EDIT_OTHERS_PLAN);
 		}
 		
 		WorkContentConverter.updatePlanItemFold(plan, loginId, itemId, fold);
@@ -368,7 +368,7 @@ public class WorkServiceImpl extends WorkService {
 			double mappingVal) throws LogicException, DBException {
 		WorkSheet ws = getWorksheet(wsId);
 		if(loginId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS);
+			throw new LogicException(SelfXErrors.CANNOT_MODIFY_OTHERS_WS);
 		}
 		
 		WorkContentConverter.updateWSPlanItem(ws, loginId, itemId, catName, value, note, mappingVal);
@@ -380,7 +380,7 @@ public class WorkServiceImpl extends WorkService {
 	public void saveWSPlanItemFold(long loginId, long wsId, int itemId, boolean fold) throws DBException, LogicException {
 		WorkSheet ws = getWorksheet(wsId);
 		if(loginId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS,loginId+" vs "+ws.getOwnerId());
+			throw new LogicException(SelfXErrors.CANNOT_MODIFY_OTHERS_WS,loginId+" vs "+ws.getOwnerId());
 		}
 		
 		WorkContentConverter.updateWSPlanItemFold(ws, loginId, itemId, fold);
@@ -401,7 +401,7 @@ public class WorkServiceImpl extends WorkService {
 	public void abandonPlan(long loginId, long planId){
 		Plan plan = getPlan(planId);
 		if(plan.getOwnerId() != loginId) {
-			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
+			throw new LogicException(SelfXErrors.CANNOT_EDIT_OTHERS_PLAN);
 		}
 
 		assert plan.getState() != PlanState.ABANDONED;
@@ -431,7 +431,7 @@ public class WorkServiceImpl extends WorkService {
 	public void finishPlan(long loginId, long planId) throws LogicException, DBException {
 		Plan plan = getPlan(planId);
 		if(plan.getOwnerId() != loginId) {
-			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
+			throw new LogicException(SelfXErrors.CANNOT_EDIT_OTHERS_PLAN);
 		}
 		PlanState after= PlanState.ABANDONED;
 		assert plan.getState() != after;
@@ -458,7 +458,7 @@ public class WorkServiceImpl extends WorkService {
 
 			toUpdate.forEach(one->{
 				WorkSheetState stateByNow =  calculateStateByNow(one);
-				WorkContentConverter.addLog(one, CareerLogAction.WS_STATE_CHANGED_BY_DATE, SM.SYSTEM_ID,
+				WorkContentConverter.addLog(one, CareerLogAction.WS_STATE_CHANGED_BY_DATE, SelfX.SYSTEM_ID,
 						one.getState().getDbCode(),
 						stateByNow.getDbCode());
 				one.setState(stateByNow);
@@ -500,7 +500,7 @@ public class WorkServiceImpl extends WorkService {
 	public WorkSheetProxy loadWorkSheet(long loginId, long wsId) throws DBException, LogicException {
 		WorkSheet ws = getWorksheet(wsId);
 		if(loginId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOT_SEE_OTHERS_WS);
+			throw new LogicException(SelfXErrors.CANNOT_SEE_OTHERS_WS);
 		}
 		WorkSheetContent content = WorkContentConverter.convertWorkSheet(ws);
 		calculateWSContentDetail(content);
@@ -519,7 +519,7 @@ public class WorkServiceImpl extends WorkService {
 	public WorkSheet getWorksheet(long loginId, long wsId) {
 		WorkSheet ws = getWorksheet(wsId);
 		if(loginId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOT_SEE_OTHERS_WS);
+			throw new LogicException(SelfXErrors.CANNOT_SEE_OTHERS_WS);
 		}
 		return ws;
 	}
@@ -527,7 +527,7 @@ public class WorkServiceImpl extends WorkService {
 
 	@Override
 	public long getWorkSheetCount(long loginId, Long date, String timezone) {
-		uL.checkPerm(loginId, SMPerm.SEE_TODAY_WS_COUNT);
+		uL.checkPerm(loginId, SelfXPerms.SEE_TODAY_WS_COUNT);
 		return Long.parseLong(cache.getGeneralValOrInit(CacheMode.T_WS_COUNT_FOR_DATE
 				,()->String.valueOf(wDAO.countWorkSheetByDateAndTimezone(date,timezone))
 				,date,timezone));
@@ -539,7 +539,7 @@ public class WorkServiceImpl extends WorkService {
 	 */
 	@Override
 	public void calculatePlanStatesRoutinely(long loginId) {
-		uL.checkPerm(loginId, SMPerm.SEE_SELF_PLANS);
+		uL.checkPerm(loginId, SelfXPerms.SEE_SELF_PLANS);
 		locker.lockByUserAndClass(loginId,()->{
 			List<Plan> toUpdate = wDAO.selectPlansByOwnerAndStates(loginId,Arrays.asList(PlanState.ACTIVE,PlanState.PREPARED)).stream()
 					.filter(one->calculateStateByNow(one) != one.getState())
@@ -548,7 +548,7 @@ public class WorkServiceImpl extends WorkService {
 			toUpdate.forEach(one->{
 				PlanState stateByNow =  calculateStateByNow(one);
 				WorkContentConverter.addLog(one, CareerLogAction.PLAN_STATE_CHANGED_BY_DATE,
-						SM.SYSTEM_ID,
+						SelfX.SYSTEM_ID,
 						one.getStartUtc(),
 						one.getEndUtc(),
 						one.getState().getDbCode(),
@@ -568,7 +568,7 @@ public class WorkServiceImpl extends WorkService {
 		Plan plan = getPlan(planId);
 
 		if(plan.getOwnerId() != loginId) {
-			throw new LogicException(SMError.CANNOT_SEE_PLAN_OF_OTHERS);
+			throw new LogicException(SelfXErrors.CANNOT_SEE_PLAN_OF_OTHERS);
 		}
 
 		PlanProxy proxy = new PlanProxy(plan);
@@ -800,10 +800,10 @@ public class WorkServiceImpl extends WorkService {
 
 		Plan plan = getPlan(planId);
 		if(plan.getState() != PlanState.ACTIVE) {
-			throw new LogicException(SMError.OPEN_WORK_BASE_WRONG_STATE_PLAN,plan.getState().getName());
+			throw new LogicException(SelfXErrors.OPEN_WORK_BASE_WRONG_STATE_PLAN,plan.getState().getName());
 		}
 		if(plan.getOwnerId() != loginId) {
-			throw new LogicException(SMError.CANNOT_OPEN_OTHERS_PLAN,plan.getOwnerId()+":"+loginId);
+			throw new LogicException(SelfXErrors.CANNOT_OPEN_OTHERS_PLAN,plan.getOwnerId()+":"+loginId);
 		}
 
 		LockHandler<Long> handler = new LockHandler<>();
@@ -813,7 +813,7 @@ public class WorkServiceImpl extends WorkService {
 			final String timezone = plan.getTimezone();
 			long today = ZonedTimeUtils.getCurrentDateUtc(timezone);
 			if(wDAO.includeUniqueWorkSheetByOwnerAndDateAndTimezone(loginId, today,timezone)) {
-				throw new LogicException(SMError.OPEN_WORK_SHEET_SYNC_ERROR);
+				throw new LogicException(SelfXErrors.OPEN_WORK_SHEET_SYNC_ERROR);
 			}
 			WorkSheet ws = new WorkSheet();
 			ws.setOwnerId(loginId);
@@ -840,7 +840,7 @@ public class WorkServiceImpl extends WorkService {
 	public void saveWorkSheet(long updaterId, long wsId, String note) throws LogicException, DBException {
 		WorkSheet ws = getWorksheet(wsId);
 		if(updaterId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS,updaterId+" vs "+ws.getOwnerId());
+			throw new LogicException(SelfXErrors.CANNOT_MODIFY_OTHERS_WS,updaterId+" vs "+ws.getOwnerId());
 		}
 		ws.setNote(note);
 		updateWorksheetSynchronously(ws,updaterId);
@@ -851,11 +851,10 @@ public class WorkServiceImpl extends WorkService {
 	public void deleteWorkSheet(long loginId, long wsId){
 		WorkSheet ws = getWorksheet(wsId);
 		if(loginId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS,loginId+" vs "+ws.getOwnerId());
+			throw new LogicException(SelfXErrors.CANNOT_MODIFY_OTHERS_WS,loginId+" vs "+ws.getOwnerId());
 		}
 		locker.lockByUserAndClass(loginId,()->{
-			wDAO.deleteExistedWorkSheet(wsId);
-			cache.removeWorksheet(wsId);
+			cache.deleteWorksheet(wsId,()->wDAO.deleteExistedWorkSheet(wsId));
 			deleteCountRecord(ws.getDateUtc(),ws.getTimezone());
 		});
 	}
@@ -864,7 +863,7 @@ public class WorkServiceImpl extends WorkService {
 	public void assumeWorkSheetFinished(long opreatorId, long wsId) throws LogicException, DBException {
 		WorkSheet ws = getWorksheet(wsId);
 		if(opreatorId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS,opreatorId+" vs "+ws.getOwnerId());
+			throw new LogicException(SelfXErrors.CANNOT_MODIFY_OTHERS_WS,opreatorId+" vs "+ws.getOwnerId());
 		}
 		ws.setState(WorkSheetState.NO_MONITOR);
 		updateWorksheetSynchronously(ws,opreatorId);
@@ -874,10 +873,10 @@ public class WorkServiceImpl extends WorkService {
 	public void cancelAssumeWorkSheetFinished(long opreatorId, long wsId) throws LogicException, DBException {
 		WorkSheet ws = getWorksheet(wsId);
 		if(opreatorId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS,opreatorId+" vs "+ws.getOwnerId());
+			throw new LogicException(SelfXErrors.CANNOT_MODIFY_OTHERS_WS,opreatorId+" vs "+ws.getOwnerId());
 		}
 		if(ws.getState() != WorkSheetState.NO_MONITOR) {
-			throw new LogicException(SMError.CANNOT_CANCEL_WS_WHICH_NOT_ASSUMED,ws.getState().getName());
+			throw new LogicException(SelfXErrors.CANNOT_CANCEL_WS_WHICH_NOT_ASSUMED,ws.getState().getName());
 		}
 		ws.setState(calculateStateByNow(ws));
 		updateWorksheetSynchronously(ws,opreatorId);
@@ -896,7 +895,7 @@ public class WorkServiceImpl extends WorkService {
 		locker.lockByUserAndClass(loginId,()->{
 			WorkSheet ws = getWorksheet(wsId);
 			if(loginId != ws.getOwnerId()) {
-				throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS);
+				throw new LogicException(SelfXErrors.CANNOT_MODIFY_OTHERS_WS);
 			}
 			WorkContentConverter.updateWorkItem(ws, loginId, itemId, val, note, mood, forAdd, startUtc, endUtc);
 			refreshStateAfterItemModified(ws);
@@ -910,7 +909,7 @@ public class WorkServiceImpl extends WorkService {
 	public void saveWorkItemPlanItemId(long loginId, long wsId, int workItemId, int planItemId){
 		WorkSheet ws = getWorksheet(wsId);
 		if(loginId != ws.getOwnerId()) {
-			throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS);
+			throw new LogicException(SelfXErrors.CANNOT_MODIFY_OTHERS_WS);
 		}
 		WorkContentConverter.updateWorkItemPlanItemId(ws, loginId, workItemId, planItemId);;
 		refreshStateAfterItemModified(ws);
@@ -921,7 +920,7 @@ public class WorkServiceImpl extends WorkService {
 		PlanBalance dept = new PlanBalance();
 		dept.setOwnerId(ownerId);
 		try {
-			WorkContentConverter.addLog(dept, CareerLogAction.CREATE_PLAN_DEPT, SM.SYSTEM_ID);
+			WorkContentConverter.addLog(dept, CareerLogAction.CREATE_PLAN_DEPT, SelfX.SYSTEM_ID);
 		}catch (LogicException e) {
 			/*这个函数不想让它抛逻辑异常 在这里处理*/
 			throw new RuntimeException("initPlanDept error "+e.getMessage());
@@ -937,7 +936,7 @@ public class WorkServiceImpl extends WorkService {
 		locker.lockByUserAndClass(loginId,()->{
 			WorkSheet ws = getWorksheet(wsId);
 			if(loginId != ws.getOwnerId()) {
-				throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS);
+				throw new LogicException(SelfXErrors.CANNOT_MODIFY_OTHERS_WS);
 			}
 
 			WorkSheetContent content = WorkContentConverter.convertWorkSheet(ws);
@@ -945,12 +944,12 @@ public class WorkServiceImpl extends WorkService {
 
 			Map<Integer,PlanItemNode> planItemsById = parseTo(content.planItems);
 			if(!planItemsById.containsKey(planItemId)) {
-				throw new LogicException(SMError.INCONSISTENT_WS_DATA,"缺失的wsPlanId"+planItemId);
+				throw new LogicException(SelfXErrors.INCONSISTENT_WS_DATA,"缺失的wsPlanId"+planItemId);
 			}
 			PlanItemProxy planItem = planItemsById.get(planItemId).item;
 
 			if(planItem.remainingValForCur == 0) {
-				throw new LogicException(SMError.NO_SYNC_ZERO_WS_PLAN_ITEM,planItem.item.getName());
+				throw new LogicException(SelfXErrors.NO_SYNC_ZERO_WS_PLAN_ITEM,planItem.item.getName());
 			}
 
 			PlanBalance dept = getPlanBalance(loginId);
@@ -967,7 +966,7 @@ public class WorkServiceImpl extends WorkService {
 		locker.lockByUserAndClass(loginId,()->{
 			WorkSheet ws = getWorksheet(wsId);
 			if(loginId != ws.getOwnerId()) {
-				throw new LogicException(SMError.CANNOT_MODIFY_OTHERS_WS,loginId+" vs "+ws.getOwnerId());
+				throw new LogicException(SelfXErrors.CANNOT_MODIFY_OTHERS_WS,loginId+" vs "+ws.getOwnerId());
 			}
 
 			WorkSheetContent content = WorkContentConverter.convertWorkSheet(ws);
@@ -1011,7 +1010,7 @@ public class WorkServiceImpl extends WorkService {
 	public void syncPlanTagsToWorkSheet(long loginId, long planId) throws SMException {
 		Plan target = cache.getEntity(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
 		if(target.getOwnerId() != loginId) {
-			throw new LogicException(SMError.CANNOT_SYNC_OTHERS_PLAN_TAGS);
+			throw new LogicException(SelfXErrors.CANNOT_SYNC_OTHERS_PLAN_TAGS);
 		}
 		
 		List<WorkSheet> toSave = wDAO.selectWorkSheetByField(DBConstants.F_PLAN_ID, planId);
@@ -1062,12 +1061,12 @@ public class WorkServiceImpl extends WorkService {
 			throws DBException, LogicException {
 		Plan target = getPlan(targetPlanId);
 		if(target.getOwnerId() != loginId) {
-			throw new LogicException(SMError.CANNOT_EDIT_OTHERS_PLAN);
+			throw new LogicException(SelfXErrors.CANNOT_EDIT_OTHERS_PLAN);
 		}
 		Plan template = getPlan(templatePlanId);
 		if(template.getOwnerId() !=loginId
 				&& !template.hasSetting(PlanSetting.ALLOW_OTHERS_COPY_PLAN_ITEMS)) {
-			throw new LogicException(SMError.CANNOT_COPY_OTHERS_PLAN_ITEMS);
+			throw new LogicException(SelfXErrors.CANNOT_COPY_OTHERS_PLAN_ITEMS);
 		}
 		
 		WorkContentConverter.copyPlanItemsFrom(target, template, loginId);

@@ -1,5 +1,6 @@
 package manager.entity.general.books;
 
+import jakarta.persistence.Column;
 import manager.entity.SMSolrDoc;
 import org.apache.solr.client.solrj.beans.Field;
 
@@ -27,6 +28,11 @@ public class PageNode extends SMSolrDoc {
     @Field
     private Integer childrenNum;
 
+    @Field
+    private String srcType ;
+    @Field
+    private String srcParams;
+
     /**
      * 变量还是需要有一个类型的
      * 这样为未来的扩展比较好
@@ -34,6 +40,23 @@ public class PageNode extends SMSolrDoc {
      */
     @Field
     private List<String> variables;
+
+
+    public String getSrcType() {
+        return srcType;
+    }
+
+    public void setSrcType(String srcType) {
+        this.srcType = srcType;
+    }
+
+    public String getSrcParams() {
+        return srcParams;
+    }
+
+    public void setSrcParams(String srcParams) {
+        this.srcParams = srcParams;
+    }
 
     public Boolean getIsHidden() {
         return isHidden;

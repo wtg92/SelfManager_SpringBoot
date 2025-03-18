@@ -3,8 +3,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
-import manager.dao.UserDAOTest;
-import manager.dao.WorkDAOTest;
 import manager.service.UserLogicTest;
 import manager.service.books.NoteLogicStaticTest;
 import manager.service.books.WorkContentConverterTest;

@@ -40,6 +40,27 @@ public class FileRecord extends SMGeneralEntity{
     @Column
     private String bucketName;
 
+    @Column
+    private String srcType ;
+    @Column
+    private String srcParams;
+
+    public String getSrcType() {
+        return srcType;
+    }
+
+    public void setSrcType(String srcType) {
+        this.srcType = srcType;
+    }
+
+    public String getSrcParams() {
+        return srcParams;
+    }
+
+    public void setSrcParams(String srcParams) {
+        this.srcParams = srcParams;
+    }
+
     public Long getSizeKb() {
         return sizeKb;
     }

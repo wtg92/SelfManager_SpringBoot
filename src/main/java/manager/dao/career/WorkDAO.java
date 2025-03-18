@@ -9,7 +9,7 @@ import manager.entity.general.career.PlanBalance;
 import manager.entity.general.career.WorkSheet;
 import manager.exception.DBException;
 import manager.exception.NoSuchElement;
-import manager.system.SMError;
+import manager.system.SelfXErrors;
 import manager.system.career.PlanState;
 import manager.system.career.WorkSheetState;
 
@@ -29,13 +29,13 @@ public interface WorkDAO {
 	long countWorkSheetByOwnerAndPlanId(long ownerId,long planId) throws DBException;
 	
 	void deleteExistedPlan(long planId) throws DBException;
-	void deleteExistedWorkSheet(long wsId) throws DBException;
+	void deleteExistedWorkSheet(long wsId);
 	
 	default Plan selectExistedPlan(long id) throws DBException{
 		try {
 			return selectPlan(id);
 		}catch (NoSuchElement e) {
-			throw new DBException(SMError.INCONSISTENT_DB_ERROR,id);
+			throw new DBException(SelfXErrors.INCONSISTENT_DB_ERROR,id);
 		}
 	}
 	
@@ -45,7 +45,7 @@ public interface WorkDAO {
 		try {
 			return selectBalanceByOwner(ownerId);
 		}catch (NoSuchElement e) {
-			throw new DBException(SMError.INCONSISTENT_DB_ERROR,ownerId);
+			throw new DBException(SelfXErrors.INCONSISTENT_DB_ERROR,ownerId);
 		}
 	}
 	
@@ -54,7 +54,7 @@ public interface WorkDAO {
 		try {
 			return selectWorkSheet(id);
 		}catch (NoSuchElement e) {
-			throw new DBException(SMError.INCONSISTENT_DB_ERROR,id);
+			throw new DBException(SelfXErrors.INCONSISTENT_DB_ERROR,id);
 		}
 	}
 

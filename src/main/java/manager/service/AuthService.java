@@ -1,6 +1,5 @@
 package manager.service;
 
-import com.alibaba.fastjson2.JSON;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
@@ -10,7 +9,7 @@ import manager.exception.LogicException;
 import manager.system.AuthUniqueFields;
 import manager.system.DBConstants;
 import manager.system.Gender;
-import manager.system.SMError;
+import manager.system.SelfXErrors;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +32,7 @@ public class AuthService {
                 return DBConstants.F_EMAIL;
             }
             default ->
-                throw new LogicException(SMError.UNEXPECTED_ERROR);
+                throw new LogicException(SelfXErrors.UNEXPECTED_ERROR);
         }
     }
 
@@ -46,10 +45,10 @@ public class AuthService {
         try{
             idToken = verifier.verify(token);
         }catch (Exception e){
-            throw new LogicException(SMError.GMAIL_AUTH);
+            throw new LogicException(SelfXErrors.GMAIL_AUTH);
         }
         if( idToken == null){
-            throw new LogicException(SMError.GMAIL_AUTH);
+            throw new LogicException(SelfXErrors.GMAIL_AUTH);
         }
 
         GoogleIdToken.Payload payload = idToken.getPayload();

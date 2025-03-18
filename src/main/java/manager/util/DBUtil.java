@@ -14,8 +14,7 @@ import jakarta.persistence.OptimisticLockException;
 import jakarta.persistence.TypedQuery;
 import manager.data.general.FinalHandler;
 import manager.data.general.FinalIntegerTempStorageCalculator;
-import manager.entity.general.User;
-import manager.system.SM;
+import manager.system.SelfX;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -25,7 +24,7 @@ import manager.entity.general.SMGeneralEntity;
 import manager.exception.DBException;
 import manager.exception.NoSuchElement;
 import manager.system.DBConstants;
-import manager.system.SMError;
+import manager.system.SelfXErrors;
 import org.hibernate.query.NativeQuery;
 import org.hibernate.query.Query;
 
@@ -47,7 +46,7 @@ public abstract class DBUtil {
 		} catch (NoSuchElement e) {
 			e.printStackTrace();
 			assert false;
-			throw new DBException(SMError.INCONSISTENT_DB_ERROR, fieldName + ":" + val);
+			throw new DBException(SelfXErrors.INCONSISTENT_DB_ERROR, fieldName + ":" + val);
 		}
 	}
 	
@@ -62,7 +61,7 @@ public abstract class DBUtil {
 		if (rlt.size() == 1)
 			return rlt.get(0);
 
-		throw new DBException(SMError.INCONSISTENT_DB_ERROR, fieldName + ":" + val + ":" + rlt.size());
+		throw new DBException(SelfXErrors.INCONSISTENT_DB_ERROR, fieldName + ":" + val + ":" + rlt.size());
 	}
 	
 	public static <T> T selectUniqueEntityByBiFields(Class<T> cla, String field1Name, Object val1,String field2Name,Object val2,
@@ -75,7 +74,7 @@ public abstract class DBUtil {
 		if (rlt.size() == 1)
 			return rlt.get(0);
 
-		throw new DBException(SMError.INCONSISTENT_DB_ERROR, field1Name + ":" + val1 + ":" + rlt.size());
+		throw new DBException(SelfXErrors.INCONSISTENT_DB_ERROR, field1Name + ":" + val1 + ":" + rlt.size());
 	}
 	
 	
@@ -200,7 +199,7 @@ public abstract class DBUtil {
 					handler.val =handler.val.setParameter(key,val);
 				});
 
-				return handler.val.setMaxResults(SM.MAX_DB_LINES_IN_ONE_SELECTS).getResultList();
+				return handler.val.setMaxResults(SelfX.MAX_DB_LINES_IN_ONE_SELECTS).getResultList();
 			}catch (Exception e) {
 				throw processDBException(e);
 			}
@@ -291,7 +290,7 @@ public abstract class DBUtil {
 			return entities;
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new DBException(SMError.UNKNOWN_DB_ERROR, e.getMessage());
+			throw new DBException(SelfXErrors.UNKNOWN_DB_ERROR, e.getMessage());
 		}
 	}
 
@@ -458,7 +457,7 @@ public abstract class DBUtil {
 		try {
 			return selectEntity(id,cla,hbFactory);
 		}catch (NoSuchElement e) {
-			throw new DBException(SMError.INCONSISTENT_DB_ERROR,id);
+			throw new DBException(SelfXErrors.INCONSISTENT_DB_ERROR,id);
 		}
 	}
 	public static<T extends SMGeneralEntity> T selectEntity(long id,Class<T> cla,SessionFactory hbFactory) throws NoSuchElement {
@@ -494,7 +493,7 @@ public abstract class DBUtil {
 					session.merge(one);
 			});
 		} catch (OptimisticLockException e) {
-			throw new DBException(SMError.DB_SYNC_ERROR);
+			throw new DBException(SelfXErrors.DB_SYNC_ERROR);
 		} catch (Exception e) {
 			throw processDBException(e);
 		}
@@ -505,10 +504,10 @@ public abstract class DBUtil {
 		try {
 			detectDataTooLongExceptionAndThrowIfAny(e);
 		}catch(DBException dataTooLong) {
-			assert dataTooLong.type == SMError.DATA_TOO_LONG : dataTooLong.type;
+			assert dataTooLong.type == SelfXErrors.DATA_TOO_LONG : dataTooLong.type;
 			return dataTooLong;
 		}
-		return new DBException(SMError.UNKNOWN_DB_ERROR, e.getMessage());
+		return new DBException(SelfXErrors.UNKNOWN_DB_ERROR, e.getMessage());
 	}
 	public static DBException processDBException(Transaction trans,Session session,Exception e){
 		try {
@@ -519,11 +518,11 @@ public abstract class DBUtil {
 			try {
 				detectDataTooLongExceptionAndThrowIfAny(e);
 			}catch(DBException dataTooLong) {
-				assert dataTooLong.type == SMError.DATA_TOO_LONG : dataTooLong.type;
+				assert dataTooLong.type == SelfXErrors.DATA_TOO_LONG : dataTooLong.type;
 				return dataTooLong;
 			}
 
-			return new DBException(SMError.UNKNOWN_DB_ERROR, e.getMessage());
+			return new DBException(SelfXErrors.UNKNOWN_DB_ERROR, e.getMessage());
 		}finally {
 			/*trans.rollback() 可能出现异常*/
 			if (session != null) {
@@ -538,7 +537,7 @@ public abstract class DBUtil {
 		Throwable cur = e.getCause();
 		while(cur != null) {
 			if(cur.getMessage().contains("Data too long for column")) {
-				throw new DBException(SMError.DATA_TOO_LONG);
+				throw new DBException(SelfXErrors.DATA_TOO_LONG);
 			}
 			cur = cur.getCause();
 		}
@@ -559,7 +558,7 @@ public abstract class DBUtil {
 			throw e;
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new DBException(SMError.UNKNOWN_DB_ERROR, e.getMessage());
+			throw new DBException(SelfXErrors.UNKNOWN_DB_ERROR, e.getMessage());
 		}
 	}
 
@@ -571,12 +570,12 @@ public abstract class DBUtil {
 				return false;
 			if (count == 1)
 				return true;
-			throw new DBException(SMError.INCONSISTENT_DB_ERROR, count);
+			throw new DBException(SelfXErrors.INCONSISTENT_DB_ERROR, count);
 		} catch (DBException e) {
 			throw e;
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new DBException(SMError.UNKNOWN_DB_ERROR, e.getMessage());
+			throw new DBException(SelfXErrors.UNKNOWN_DB_ERROR, e.getMessage());
 		}
 	}
 
@@ -588,11 +587,11 @@ public abstract class DBUtil {
 				return false;
 			if (count == 1)
 				return true;
-			throw new DBException(SMError.INCONSISTENT_DB_ERROR, count);
+			throw new DBException(SelfXErrors.INCONSISTENT_DB_ERROR, count);
 		} catch (DBException e) {
 			throw e;
 		} catch (Exception e) {
-			throw new DBException(SMError.UNKNOWN_DB_ERROR, e.getMessage());
+			throw new DBException(SelfXErrors.UNKNOWN_DB_ERROR, e.getMessage());
 		}
 	}
 
@@ -611,11 +610,11 @@ public abstract class DBUtil {
 				return false;
 			if (count == 1)
 				return true;
-			throw new DBException(SMError.INCONSISTENT_DB_ERROR, count);
+			throw new DBException(SelfXErrors.INCONSISTENT_DB_ERROR, count);
 		} catch (DBException e) {
 			throw e;
 		} catch (Exception e) {
-			throw new DBException(SMError.UNKNOWN_DB_ERROR, e.getMessage());
+			throw new DBException(SelfXErrors.UNKNOWN_DB_ERROR, e.getMessage());
 		}
 	}
 

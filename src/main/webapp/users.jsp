@@ -1,19 +1,19 @@
 <%@page import="java.util.List"%>
 <%@page import="java.util.Map"%>
-<%@page import="manager.system.SMPerm"%>
+<%@page import="manager.system.SelfXPerms"%>
 <%@page import="manager.system.DBConstants"%>
 <%@page import="manager.system.Gender"%>
 <%@page import="manager.system.VerifyUserMethod"%>
-<%@page import="manager.system.SM"%>
+<%@page import="manager.system.SelfX"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 
 <html>
 <head>
 <jsp:include page="including.jsp" flush="false" />
-<link href="${pageContext.request.contextPath}/css/users.css?<%= SM.VERSION %>" type="text/css" rel="stylesheet" />
-<script src="${pageContext.request.contextPath}/js/users.js?<%= SM.VERSION %>" type="text/javascript"></script>
-<title><%=SM.WEB_TITLE %></title>
+<link href="${pageContext.request.contextPath}/css/users.css?<%= SelfX.VERSION %>" type="text/css" rel="stylesheet" />
+<script src="${pageContext.request.contextPath}/js/users.js?<%= SelfX.VERSION %>" type="text/javascript"></script>
+<title><%=SelfX.WEB_TITLE %></title>
 </head>
 <body>
 	<jsp:include page="header.jsp" flush="false" />
@@ -31,7 +31,7 @@
 						<button type="button" class="btn btn-primary" id="users_open_group_summary_dialog">查看分析</button>
 					</div>
 					<div id="users_group_datatable_container">
-						<span>最多显示<em><%=SM.MAX_DB_LINES_IN_ONE_SELECTS %></em>条</span>
+						<span>最多显示<em><%=SelfX.MAX_DB_LINES_IN_ONE_SELECTS %></em>条</span>
 					</div>
 					<div id="users_datatable_container">
 						<table></table>
@@ -54,14 +54,14 @@
       <div class="modal-body">
       	<input type="hidden" id="users_target_group_id"/>
       	<% 
-      	   Map<String,List<SMPerm>> permsByGroup =  SMPerm.getPermsByGroup();
+      	   Map<String,List<SelfXPerms>> permsByGroup =  SelfXPerms.getPermsByGroup();
       		for(String title :permsByGroup.keySet()){
       			%>
       			<div class="users_one_group_perms_container">
 					<div class="users_title"><%=title%></div>
 					<div class="users_perms_button_group btn-group btn-group-toggle" data-toggle="buttons">
 						<%
-							for(SMPerm one :permsByGroup.get(title)){
+							for(SelfXPerms one :permsByGroup.get(title)){
 								%>
 								  <label class="btn btn-outline-primary">
     									<input type="checkbox" name="perm" value="<%=one.getDbCode() %>" > <%=one.getName() %>

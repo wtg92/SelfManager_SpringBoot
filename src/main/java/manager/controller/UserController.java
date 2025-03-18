@@ -5,7 +5,7 @@ import manager.data.LoginInfo;
 import manager.data.UserBasicInfo;
 import manager.data.proxy.UserProxy;
 import manager.service.UserService;
-import manager.servlet.ServletAdapter;
+import manager.booster.SecurityBooster;
 import manager.system.Gender;
 import manager.system.UserUniqueField;
 import manager.system.VerifyUserMethod;
@@ -18,17 +18,17 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Resource;
 
-import static manager.system.SMParams.*;
-import static manager.system.SMParams.TEMP_USER_ID;
+import static manager.system.SelfXParams.*;
+import static manager.system.SelfXParams.TEMP_USER_ID;
 
 @RestController
 @RequestMapping("/user")
 public class UserController {
-    public static LoginInfo generateUnifiedLoginInfo(UserProxy proxy){
-        return ServletAdapter.process(proxy);
-    }
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+
+    @Resource
+    private SecurityBooster securityBooster;
 
     @Resource
     private UserService userService;
@@ -40,7 +40,7 @@ public class UserController {
         String nickName = param.getString(NICK_NAME);
         Gender gender = Gender.valueOfDBCode(param.getInteger(GENDER));
         String motto = param.getString(MOTTO);
-        Long portraitId = ServletAdapter.getCommonId(param.getString(PORTRAIT_ID));
+        Long portraitId = SecurityBooster.getUnstableCommonId(param.getString(PORTRAIT_ID));
         userService.updateUser(loginId,nickName,gender,motto,portraitId);
     }
 
@@ -56,7 +56,7 @@ public class UserController {
         String tel = param.getString(TEL);
         String telVerifyCode = param.getString(TEL_VERIFY_CODE);
         String tempUserId = param.getString(TEMP_USER_ID);
-        return generateUnifiedLoginInfo(userService.signIn(tempUserId,method,account,accountPwd,email,emailVerifyCode,tel,telVerifyCode)) ;
+        return securityBooster.process(userService.signIn(tempUserId,method,account,accountPwd,email,emailVerifyCode,tel,telVerifyCode)) ;
     }
 
     @PostMapping("/sendEmailVerifyCodeForSignIn")
@@ -139,18 +139,18 @@ public class UserController {
         String tempUserId = param.getString(TEMP_USER_ID);
         boolean forEmail = param.getBooleanValue(FOR_EMAIL);
         if(forEmail) {
-            return ServletAdapter.process(userService.createEmailYZM(tempUserId, ""));
+            return SecurityBooster.process(userService.createEmailYZM(tempUserId, ""));
         }else {
-            return ServletAdapter.process(userService.createTelYZM(tempUserId, ""));
+            return SecurityBooster.process(userService.createTelYZM(tempUserId, ""));
         }
     }
 
     @PostMapping("/confirmUserToken")
     private LoginInfo confirmUserToken(@RequestBody JSONObject param){
         String token = param.getString(USER_TOKEN);
-        long userId = ServletAdapter.getUserId(token);
+        long userId = SecurityBooster.getUserId(token);
         UserProxy user = userService.loadUser(userId, userId);
-        return ServletAdapter.confirmUser(user,token);
+        return securityBooster.confirmUser(user,token);
     }
 
     @PostMapping("/confirmTempUser")
@@ -173,9 +173,9 @@ public class UserController {
         int x = param.getInteger(X);
         String imgSrc = param.getString(IMG_SRC);
         if(forEmail) {
-            return ServletAdapter.process(userService.checkEmailYZMAndRefreshIfFailed(tempUserId,x,imgSrc));
+            return SecurityBooster.process(userService.checkEmailYZMAndRefreshIfFailed(tempUserId,x,imgSrc));
         }else {
-            return ServletAdapter.process(userService.checkTelYZMAndRefreshIfFailed(tempUserId,x, imgSrc));
+            return SecurityBooster.process(userService.checkTelYZMAndRefreshIfFailed(tempUserId,x, imgSrc));
         }
     }
 
@@ -184,7 +184,7 @@ public class UserController {
     private UserBasicInfo getUserBasicInfo(@RequestParam(ID)String id,@RequestHeader(value = "Authorization",required = false)
         String authorizationHeader)  {
         long loginId = authorizationHeader == null ? 0 : UIUtil.getLoginId(authorizationHeader);
-        Long decodedId = ServletAdapter.getCommonId(id);
+        Long decodedId = securityBooster.getStableCommonId(id);
         return userService.getUserBasicInfo(loginId,decodedId);
     }
 }

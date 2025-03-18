@@ -26,17 +26,17 @@ import manager.entity.general.UserGroup;
 import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.NoSuchElement;
+import manager.booster.SecurityBooster;
 import manager.system.Gender;
 import manager.system.NoSuchElementType;
-import manager.system.SM;
+import manager.system.SelfX;
 import manager.system.DBConstants;
-import manager.system.SMError;
-import manager.system.SMPerm;
+import manager.system.SelfXErrors;
+import manager.system.SelfXPerms;
 import manager.system.UserUniqueField;
 import manager.system.VerifyUserMethod;
 import manager.util.EmailUtil;
 import manager.util.SMSUtil;
-import manager.util.SecurityUtil;
 import manager.util.ThrowableSupplier;
 import manager.util.YZMUtil;
 import manager.util.YZMUtil.YZMInfo;
@@ -67,6 +67,8 @@ public class UserLogicImpl extends UserService {
 	@Resource
 	FilesService filesService;
 
+	@Resource
+	SecurityBooster securityBooster;
 
 	public User getUser(long userId){
 		ThrowableSupplier<User, DBException> generator = ()-> uDAO.selectExistedUser(userId);
@@ -75,10 +77,10 @@ public class UserLogicImpl extends UserService {
 
 
 	private boolean isAdmin(long userId) throws LogicException, DBException {
-		return getUser(userId).getAccount().equals(SM.ADMIN_ACCOUNT);
+		return getUser(userId).getAccount().equals(SelfX.ADMIN_ACCOUNT);
 	}
 	@Override
-	public boolean hasPerm(long userId, SMPerm perm) {
+	public boolean hasPerm(long userId, SelfXPerms perm) {
 		/*admin owning all perms*/
 		if(isAdmin(userId)) {
 			return true;
@@ -88,12 +90,12 @@ public class UserLogicImpl extends UserService {
 		return perms.contains(perm.getDbCode());
 	}
 
-	public Set<SMPerm> getUserAllPerms(long userId) throws DBException, LogicException{
+	public Set<SelfXPerms> getUserAllPerms(long userId) throws DBException, LogicException{
 		if(isAdmin(userId)) {
-			return Arrays.stream(SMPerm.values()).filter(perm->perm != SMPerm.UNDECIDED).collect(toSet());
+			return Arrays.stream(SelfXPerms.values()).filter(perm->perm != SelfXPerms.UNDECIDED).collect(toSet());
 		}
 		return new HashSet<>(cache.getPermsByUser(userId,()->new HashSet<>(uDAO.selectPermsByUser(userId)))
-				.stream().map(SMPerm::valueOfDBCode).toList());
+				.stream().map(SelfXPerms::valueOfDBCode).toList());
 	}
 	
 
@@ -104,15 +106,15 @@ public class UserLogicImpl extends UserService {
 			try {
 				User user = uDAO.selectUniqueUserByField(DBConstants.F_ACCOUNT, account);
 
-				if (!SecurityUtil.verifyUserPwd(user, accountPwd)) {
+				if (!SecurityBooster.verifyUserPwd(user, accountPwd)) {
 					//TODO 未来做点处理  防止连续登录
-					throw new LogicException(SMError.PWD_WRONG);
+					throw new LogicException(SelfXErrors.PWD_WRONG);
 				}
 
 				cache.removeTempUser(uuId);
 				return loadUser(user.getId(), user.getId());
 			} catch (NoSuchElement e) {
-				throw new LogicException(SMError.ACCOUNT_NULL, account);
+				throw new LogicException(SelfXErrors.ACCOUNT_NULL, account);
 			}
 		}
 		case EMAIL_VERIFY_CODE:{
@@ -120,11 +122,11 @@ public class UserLogicImpl extends UserService {
 			String key = createGeneralKey(mode, email);
 			String ans = cache.get(key);
 			if(ans == null)
-				throw new LogicException(SMError.EMAIL_VERIFY_TIMEOUT, email);
+				throw new LogicException(SelfXErrors.EMAIL_VERIFY_TIMEOUT, email);
 
 			if(!ans.equals(emailVerifyCode)) {
 				cache.remove(key);
-				throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL,emailVerifyCode);
+				throw new LogicException(SelfXErrors.CHECK_VERIFY_CODE_FAIL,emailVerifyCode);
 			}
 
 			User user = uDAO.selectUniqueUserByField(DBConstants.F_EMAIL, email);
@@ -137,11 +139,11 @@ public class UserLogicImpl extends UserService {
 			String key = createGeneralKey(mode, email);
 			String ans = cache.get(key);
 			if(ans == null)
-				throw new LogicException(SMError.TEL_VERIFY_TIMEOUT, tel);
+				throw new LogicException(SelfXErrors.TEL_VERIFY_TIMEOUT, tel);
 
 			if(!ans.equals(telVerifyCode)) {
 				cache.remove(key);
-				throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL,telVerifyCode);
+				throw new LogicException(SelfXErrors.CHECK_VERIFY_CODE_FAIL,telVerifyCode);
 			}
 
 			User user = uDAO.selectUniqueUserByField(DBConstants.F_TEL_NUM, tel);
@@ -159,7 +161,7 @@ public class UserLogicImpl extends UserService {
 	@Override
 	public UserProxy loadUser(long userId, long loginId) throws LogicException, DBException {
 		if(!isAdmin(loginId) && userId != loginId){
-			throw new LogicException(SMError.COMMON,"Unexpected");
+			throw new LogicException(SelfXErrors.COMMON,"Unexpected");
 		}
 		User user=  getUser(userId);
 		UserProxy proxy = new UserProxy();
@@ -174,30 +176,30 @@ public class UserLogicImpl extends UserService {
 			String tel,String telVerifyCode,String pwd,String nickName,Gender gender) throws LogicException, DBException {
 
 		if(account.isBlank())
-			throw new LogicException(SMError.SIGN_UP_ILLEGAL,"账号不能为空");
+			throw new LogicException(SelfXErrors.SIGN_UP_ILLEGAL,"账号不能为空");
 		
 		if(nickName.isBlank())
-			throw new LogicException(SMError.SIGN_UP_ILLEGAL,"昵称不能为空");
+			throw new LogicException(SelfXErrors.SIGN_UP_ILLEGAL,"昵称不能为空");
 		
 		if(gender == Gender.UNDECIDED)
-			throw new LogicException(SMError.SIGN_UP_ILLEGAL,"性别不能为空");
+			throw new LogicException(SelfXErrors.SIGN_UP_ILLEGAL,"性别不能为空");
 		
 		if(email.isBlank() && tel.isBlank()) {
-			throw new LogicException(SMError.SIGN_UP_ILLEGAL,"邮箱和手机号必须至少填入一个");
+			throw new LogicException(SelfXErrors.SIGN_UP_ILLEGAL,"邮箱和手机号必须至少填入一个");
 		};
 		
 		if(!email.isBlank()) {
 			try {
 				String ans = cache.getTempUserMapVal( uuId, EMAIL_VERIFY_CODE_KEY_FOR_SIGN_UP);
 				if(!ans.equals(emailVerifyCode)) {
-					throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL);
+					throw new LogicException(SelfXErrors.CHECK_VERIFY_CODE_FAIL);
 				}
 				String matchEmail = cache.getTempUserMapVal( uuId, EMAIL_KEY_FOR_SIGN_UP);
 				if(!matchEmail.equals(email)) {
-					throw new LogicException(SMError.INCONSISTENT_AUTHENTICATION_MAIL);
+					throw new LogicException(SelfXErrors.INCONSISTENT_AUTHENTICATION_MAIL);
 				}
 			} catch (NoSuchElement e) {
-				throw new LogicException(SMError.EMAIL_VERIFY_TIMEOUT);
+				throw new LogicException(SelfXErrors.EMAIL_VERIFY_TIMEOUT);
 			}
 			
 		}
@@ -206,14 +208,14 @@ public class UserLogicImpl extends UserService {
 			try {
 				String ans = cache.getTempUserMapVal( uuId, TEL_VERIFY_CODE_KEY_FOR_SIGN_UP);
 				if(!ans.equals(telVerifyCode)) {
-					throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL);
+					throw new LogicException(SelfXErrors.CHECK_VERIFY_CODE_FAIL);
 				}
 				String matchTel = cache.getTempUserMapVal( uuId, TEL_KEY_FOR_SIGN_UP);
 				if(!matchTel.equals(tel)) {
-					throw new LogicException(SMError.INCONSISTENT_AUTHENTICATION_TEL);
+					throw new LogicException(SelfXErrors.INCONSISTENT_AUTHENTICATION_TEL);
 				}
 			} catch (NoSuchElement e) {
-				throw new LogicException(SMError.TEL_VERIFY_TIMEOUT);
+				throw new LogicException(SelfXErrors.TEL_VERIFY_TIMEOUT);
 			}
 		}
 		signUpDirectly(uuId,account,pwd,nickName,gender,email,tel);
@@ -226,12 +228,12 @@ public class UserLogicImpl extends UserService {
 		user.setAccount(account);
 		user.setNickName(nickName);
 		user.setPassword(pwd);
-		SecurityUtil.encodeUserPwd(user);
+		SecurityBooster.encodeUserPwd(user);
 		user.setGender(gender);
 		user.setEmail(email);
 		user.setTelNum(tel);
 		long uId = uDAO.insertUser(user);
-		UserGroup defaultGroup = uDAO.selectUniqueExistedUserGroupByField(DBConstants.F_NAME, SM.DEFAULT_BASIC_USER_GROUP);
+		UserGroup defaultGroup = uDAO.selectUniqueExistedUserGroupByField(DBConstants.F_NAME, SelfX.DEFAULT_BASIC_USER_GROUP);
 		/*这里比较特殊 是系统自动添加的 并且相对来说太过频繁 不应该重置缓存 这里选择直接添加进缓存 影响到的是 一个组里有多少用户*/
 		uDAO.insertUsersToGroup(List.of(uId), defaultGroup.getId());
 		cache.deleteGeneralKey(CacheMode.T_USER, uuId);
@@ -249,15 +251,15 @@ public class UserLogicImpl extends UserService {
 	@Override
 	public synchronized void addUsersToGroup(List<Long> usersId, long groupId,long loginId) throws LogicException, DBException {
 		
-		checkPerm(loginId, SMPerm.ADD_USERS_TO_PERM);
+		checkPerm(loginId, SelfXPerms.ADD_USERS_TO_PERM);
 		
 		List<User> users = getUsers(usersId);
 		
 		if(users.size() != usersId.size())
-			throw new LogicException(SMError.INCONSISTENT_ARGS_BETWEEN_DATA,"数量不一致 "+usersId.size() + " vs " + users.size());
+			throw new LogicException(SelfXErrors.INCONSISTENT_ARGS_BETWEEN_DATA,"数量不一致 "+usersId.size() + " vs " + users.size());
 		
 		if(!uDAO.includeUserGroup(groupId))
-			throw new LogicException(SMError.INCONSISTENT_ARGS_BETWEEN_DATA,"用户组不存在 "+groupId);
+			throw new LogicException(SelfXErrors.INCONSISTENT_ARGS_BETWEEN_DATA,"用户组不存在 "+groupId);
 
 		List<Long> usersForThisGroup = uDAO.selectUsersIdByGroup(groupId);
 		List<Long> distinctUsers = usersId.stream().filter(uId->!usersForThisGroup.contains(uId)).collect(toList());
@@ -273,18 +275,18 @@ public class UserLogicImpl extends UserService {
 	}
 
 	@Override
-	public synchronized void overrideGroupPerms(List<SMPerm> permsForOverride, long groupId, long loginId) throws LogicException, DBException {
+	public synchronized void overrideGroupPerms(List<SelfXPerms> permsForOverride, long groupId, long loginId) throws LogicException, DBException {
 
-		checkPerm(loginId, SMPerm.EDIT_PERMS_TO_GROUP);
+		checkPerm(loginId, SelfXPerms.EDIT_PERMS_TO_GROUP);
 		
 		if(!uDAO.includeUserGroup(groupId)) {
-			throw new LogicException(SMError.INCONSISTENT_ARGS_BETWEEN_DATA,"用户组不存在 "+groupId);
+			throw new LogicException(SelfXErrors.INCONSISTENT_ARGS_BETWEEN_DATA,"用户组不存在 "+groupId);
 		}
 		
-		List<SMPerm> permsForThisGroup =uDAO.selectPermsByGroup(groupId)
-				.stream().map(SMPerm::valueOfDBCode).toList();
-		List<SMPerm> permsForAdd = permsForOverride.stream().filter(perm->!permsForThisGroup.contains(perm)).collect(toList());
-		List<SMPerm> permsForDelete = permsForThisGroup.stream().filter(perm->!permsForOverride.contains(perm)).collect(toList());
+		List<SelfXPerms> permsForThisGroup =uDAO.selectPermsByGroup(groupId)
+				.stream().map(SelfXPerms::valueOfDBCode).toList();
+		List<SelfXPerms> permsForAdd = permsForOverride.stream().filter(perm->!permsForThisGroup.contains(perm)).collect(toList());
+		List<SelfXPerms> permsForDelete = permsForThisGroup.stream().filter(perm->!permsForOverride.contains(perm)).collect(toList());
 		if(!permsForAdd.isEmpty()) {
 			uDAO.insertPermsToGroup(permsForAdd, groupId);
 		}
@@ -298,10 +300,10 @@ public class UserLogicImpl extends UserService {
 	@Override
 	public synchronized long createUserGroup(String name, long loginId) throws LogicException, DBException {
 		
-		checkPerm(loginId, SMPerm.CREATE_USER_GROUP);
+		checkPerm(loginId, SelfXPerms.CREATE_USER_GROUP);
 		
 		if(uDAO.includeUniqueUserGroupByField(DBConstants.F_NAME, name)) {
-			throw new LogicException(SMError.DUP_USER_GROUP_NAME);
+			throw new LogicException(SelfXErrors.DUP_USER_GROUP_NAME);
 		}
 		
 		UserGroup group = new UserGroup();
@@ -346,7 +348,7 @@ public class UserLogicImpl extends UserService {
 		try {
 			cache.setTempUserMap( uuId, TEL_YZM_KEY, String.valueOf(rlt.xForCheck));
 		} catch (NoSuchElement e) {
-			throw new LogicException(SMError.TEMP_USER_TIMEOUT);
+			throw new LogicException(SelfXErrors.TEMP_USER_TIMEOUT);
 		}
 		return rlt;
 	}
@@ -358,7 +360,7 @@ public class UserLogicImpl extends UserService {
 			cache.setTempUserMap( uuId, EMAIL_YZM_KEY, String.valueOf(rlt.xForCheck));
 		} catch (NoSuchElement e) {
 			assert e.type ==  NoSuchElementType.REDIS_KEY_NOT_EXISTS;
-			throw new LogicException(SMError.TEMP_USER_TIMEOUT);
+			throw new LogicException(SelfXErrors.TEMP_USER_TIMEOUT);
 		}
 		return rlt;
 	}
@@ -389,7 +391,7 @@ public class UserLogicImpl extends UserService {
 			int ans = Integer.parseInt(answer);
 			return Math.abs(ans-x) <= RIGHT_RANGE_FOR_YZM;
 		} catch (NoSuchElement e) {
-			throw new LogicException(SMError.TEMP_USER_TIMEOUT);
+			throw new LogicException(SelfXErrors.TEMP_USER_TIMEOUT);
 		}
 	}
 	
@@ -399,7 +401,7 @@ public class UserLogicImpl extends UserService {
 			int ans = Integer.parseInt(answer);
 			return Math.abs(ans-x) <= RIGHT_RANGE_FOR_YZM;
 		} catch (NoSuchElement e) {
-			throw new LogicException(SMError.TEMP_USER_TIMEOUT);
+			throw new LogicException(SelfXErrors.TEMP_USER_TIMEOUT);
 		}
 	}
 
@@ -411,7 +413,7 @@ public class UserLogicImpl extends UserService {
 		 * 本身这里可能有点诡异 为何在生成验证码的时候 生成了verifyCode?
 		 */
 		if(!checkTelYZM(uuId, YZM)) {
-			throw new LogicException(SMError.CHECK_YZM_ERROR);
+			throw new LogicException(SelfXErrors.CHECK_YZM_ERROR);
 		}
 		/*checkEmailYZM 保证了key一定存在（极小的可能性不存在，但那不考虑了）*/
 		try {
@@ -420,7 +422,7 @@ public class UserLogicImpl extends UserService {
 			cache.setTempUserMap( uuId, TEL_KEY_FOR_SIGN_UP, tel);
 			SMSUtil.sendSMS(SMSUtil.SIGN_UP_TEMPLATE_ID, tel, verifyCode, cache.getExpirationSeconds());
 		} catch (NoSuchElement e) {
-			throw new LogicException(SMError.TEMP_USER_TIMEOUT);
+			throw new LogicException(SelfXErrors.TEMP_USER_TIMEOUT);
 
 		}
 	}
@@ -428,7 +430,7 @@ public class UserLogicImpl extends UserService {
 	@Override
 	public void sendEmailVerifyCodeForSignUp(String email, String uuId, int YZM) throws LogicException {
 		if(!checkEmailYZM(uuId, YZM)) {
-			throw new LogicException(SMError.CHECK_YZM_ERROR);
+			throw new LogicException(SelfXErrors.CHECK_YZM_ERROR);
 		}
 		/*checkEmailYZM 保证了key一定存在（极小的可能性不存在，但那不考虑了）*/
 		try {
@@ -437,7 +439,7 @@ public class UserLogicImpl extends UserService {
 			cache.setTempUserMap(uuId, EMAIL_VERIFY_CODE_KEY_FOR_SIGN_UP, verifyCode);
 			EmailUtil.sendSimpleEmail(email,VERIFY_CODE_EMAIL_SUBJECT , createSignUpEmailMes(verifyCode));
 		} catch (NoSuchElement e) {
-			throw new LogicException(SMError.TEMP_USER_TIMEOUT);
+			throw new LogicException(SelfXErrors.TEMP_USER_TIMEOUT);
 		}
 	}
 	
@@ -448,13 +450,13 @@ public class UserLogicImpl extends UserService {
 		try {
 			user = uDAO.selectUniqueUserByField(DBConstants.F_ACCOUNT, account);
 		} catch (NoSuchElement e) {
-			throw new LogicException(SMError.NON_EXISTED_ACCOUNT,"不存在的账号"+account);
+			throw new LogicException(SelfXErrors.NON_EXISTED_ACCOUNT,"不存在的账号"+account);
 		}
 		
 		switch(method) {
 		case EMAIL_VERIFY_CODE:{
 			if(user.getEmail() == null || !user.getEmail().equals(val)) {
-				throw new LogicException(SMError.NON_EXISTED_EMAIL);
+				throw new LogicException(SelfXErrors.NON_EXISTED_EMAIL);
 			}
 			
 			String verifyCode = createVerifyCode();
@@ -465,7 +467,7 @@ public class UserLogicImpl extends UserService {
 		}
 		case TEL_VERIFY_CODE:{
 			if(user.getTelNum() == null ||!user.getTelNum().equals(val)) {
-				throw new LogicException(SMError.NON_EXISTED_TEL);
+				throw new LogicException(SelfXErrors.NON_EXISTED_TEL);
 			}
 			
 			String verifyCode = createVerifyCode();
@@ -485,7 +487,7 @@ public class UserLogicImpl extends UserService {
 	@Override
 	public void sendTelVerifyCodeForSignIn(String tel) throws LogicException, DBException {
 		if(!uDAO.includeUniqueUserByField(DBConstants.F_TEL_NUM, tel)) {
-			throw new LogicException(SMError.NON_EXISTED_TEL,tel);
+			throw new LogicException(SelfXErrors.NON_EXISTED_TEL,tel);
 		}
 		String verifyCode = createVerifyCode();
 		String key = createGeneralKey(CacheMode.T_TEL_FOR_SIGN_IN, tel);
@@ -496,7 +498,7 @@ public class UserLogicImpl extends UserService {
 	@Override
 	public void sendEmailVerifyCodeForSignIn(String email) throws LogicException, DBException {
 		if(!uDAO.includeUniqueUserByField(DBConstants.F_EMAIL, email)) {
-			throw new LogicException(SMError.NON_EXISTED_EMAIL,email);
+			throw new LogicException(SelfXErrors.NON_EXISTED_EMAIL,email);
 		}
 		String verifyCode = createVerifyCode();
 		String key = createGeneralKey(CacheMode.T_EMAIL_FOR_SIGN_IN, email);
@@ -525,7 +527,7 @@ public class UserLogicImpl extends UserService {
 	
 	@Override
 	public List<UserGroupProxy> loadAllUserGroups(long loginId) throws DBException, LogicException {
-		checkPerm(loginId, SMPerm.SEE_USERS_AND_USER_GROUPS_DATA);
+		checkPerm(loginId, SelfXPerms.SEE_USERS_AND_USER_GROUPS_DATA);
 		
 		List<UserGroupProxy> rlt = new ArrayList<>(); 
 		for(UserGroup group : uDAO.selectAllUserGroup()) {
@@ -538,15 +540,15 @@ public class UserLogicImpl extends UserService {
 	}
 
 	@Override
-	public List<SMPerm> loadPermsOfGroup(long groupId, long loginId) throws DBException, LogicException {
-		checkPerm(loginId, SMPerm.SEE_USERS_AND_USER_GROUPS_DATA);
+	public List<SelfXPerms> loadPermsOfGroup(long groupId, long loginId) throws DBException, LogicException {
+		checkPerm(loginId, SelfXPerms.SEE_USERS_AND_USER_GROUPS_DATA);
 		
-		return uDAO.selectPermsByGroup(groupId).stream().map(SMPerm::valueOfDBCode).collect(toList());
+		return uDAO.selectPermsByGroup(groupId).stream().map(SelfXPerms::valueOfDBCode).collect(toList());
 	}
 
 	@Override
 	public UserSummary loadUserSummary(long loginId) throws LogicException, DBException {
-		checkPerm(loginId, SMPerm.SEE_USERS_AND_USER_GROUPS_DATA);
+		checkPerm(loginId, SelfXPerms.SEE_USERS_AND_USER_GROUPS_DATA);
 		UserSummary summary = new UserSummary();
 		summary.countUsers = uDAO.countAllUsers();
 		/**
@@ -558,8 +560,8 @@ public class UserLogicImpl extends UserService {
 
 	@Override
 	public List<UserProxy> loadUsersOfGroup(long groupId, long loginId) throws LogicException, DBException {
-		checkPerm(loginId, SMPerm.SEE_USERS_AND_USER_GROUPS_DATA);
-		return uDAO.selectUsersByGroup(groupId, SM.MAX_DB_LINES_IN_ONE_SELECTS).stream().map(user->{
+		checkPerm(loginId, SelfXPerms.SEE_USERS_AND_USER_GROUPS_DATA);
+		return uDAO.selectUsersByGroup(groupId, SelfX.MAX_DB_LINES_IN_ONE_SELECTS).stream().map(user->{
 			UserProxy proxy = new UserProxy();
 			proxy.user=user;
 			return proxy;
@@ -572,9 +574,9 @@ public class UserLogicImpl extends UserService {
 		case EMAIL_VERIFY_CODE:
 			try {
 				User user = uDAO.selectUniqueUserByField(DBConstants.F_EMAIL, val);
-				EmailUtil.sendSimpleEmail(val,SM.BRAND_NAME+"找回账号", createRetrieveAccountMes(user.getAccount()));
+				EmailUtil.sendSimpleEmail(val, SelfX.BRAND_NAME+"找回账号", createRetrieveAccountMes(user.getAccount()));
 			} catch (NoSuchElement e) {
-				throw new LogicException(SMError.NON_EXISTED_EMAIL);
+				throw new LogicException(SelfXErrors.NON_EXISTED_EMAIL);
 			}
 			break;
 		case TEL_VERIFY_CODE:
@@ -582,7 +584,7 @@ public class UserLogicImpl extends UserService {
 				User user = uDAO.selectUniqueUserByField(DBConstants.F_TEL_NUM, val);
 				SMSUtil.sendSMS(SMSUtil.RETRIEVE_ACCOUNT_TEMPLATE_ID, val, user.getAccount());
 			} catch (NoSuchElement e) {
-				throw new LogicException(SMError.NON_EXISTED_TEL);
+				throw new LogicException(SelfXErrors.NON_EXISTED_TEL);
 			}
 			break;
 		default:
@@ -597,46 +599,46 @@ public class UserLogicImpl extends UserService {
 		try {
 			user = uDAO.selectUniqueUserByField(DBConstants.F_ACCOUNT, account);
 		} catch (NoSuchElement e) {
-			throw new LogicException(SMError.NON_EXISTED_ACCOUNT);
+			throw new LogicException(SelfXErrors.NON_EXISTED_ACCOUNT);
 		}
 		
 		switch(method) {
 		case EMAIL_VERIFY_CODE:{
 			if(user.getEmail() == null || !user.getEmail().equals(val)) {
-				throw new LogicException(SMError.NON_EXISTED_EMAIL);
+				throw new LogicException(SelfXErrors.NON_EXISTED_EMAIL);
 			}
 			
 			String key = createTempKeyByBiIdentifiers(CacheMode.T_EMAIL_FOR_RESET_PWD,account,val);
 			String forCheck = cache.get(key);
 			if(forCheck == null)
-				throw new LogicException(SMError.EMAIL_VERIFY_TIMEOUT);
+				throw new LogicException(SelfXErrors.EMAIL_VERIFY_TIMEOUT);
 			if(!forCheck.equals(verifyCode)) {
 				cache.remove(key);
-				throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL);
+				throw new LogicException(SelfXErrors.CHECK_VERIFY_CODE_FAIL);
 			}
 			
 			user.setPassword(resetPWD);
-			SecurityUtil.encodeUserPwd(user);
+			SecurityBooster.encodeUserPwd(user);
 			cache.saveEntity(user, one -> uDAO.updateExistedUser(user));
 			return;
 		}
 		case TEL_VERIFY_CODE:{
 			if(user.getTelNum() == null ||!user.getTelNum().equals(val)) {
-				throw new LogicException(SMError.NON_EXISTED_TEL,"账号和手机号不匹配"+val);
+				throw new LogicException(SelfXErrors.NON_EXISTED_TEL,"账号和手机号不匹配"+val);
 			}
 
 			String key = createTempKeyByBiIdentifiers(CacheMode.T_TEL_FOR_RESET_PWD,account,val);
 			String forCheck = cache.get(key);
 			if(forCheck == null)
-				throw new LogicException(SMError.TEL_VERIFY_TIMEOUT);
+				throw new LogicException(SelfXErrors.TEL_VERIFY_TIMEOUT);
 
 			if(!forCheck.equals(verifyCode)) {
 				cache.remove(key);
-				throw new LogicException(SMError.CHECK_VERIFY_CODE_FAIL);
+				throw new LogicException(SelfXErrors.CHECK_VERIFY_CODE_FAIL);
 			}		
 			
 			user.setPassword(resetPWD);
-			SecurityUtil.encodeUserPwd(user);
+			SecurityBooster.encodeUserPwd(user);
 			cache.saveEntity(user, one -> uDAO.updateExistedUser(user));
 			return;
 		}
@@ -655,7 +657,7 @@ public class UserLogicImpl extends UserService {
 		info.motto = user.getMotto();
 		info.gender = user.getGender().getDbCode();
 		info.isSelf = isSameUser;
-		info.portraitId = SecurityUtil.encodeInfo(user.getPortraitId());
+		info.portraitId = securityBooster.encodeStableCommonId(user.getPortraitId());
 		return info;
 	}
 

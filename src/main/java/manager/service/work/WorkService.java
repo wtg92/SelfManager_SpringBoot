@@ -32,7 +32,7 @@ import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.SMException;
 import manager.service.UserService;
-import manager.system.SM;
+import manager.system.SelfX;
 import manager.system.career.CareerLogAction;
 import manager.system.career.PlanItemType;
 import manager.system.career.PlanSetting;
@@ -248,7 +248,7 @@ public abstract class WorkService {
 			return false;
 		}
 		
-		WorkContentConverter.addLog(workSheet, CareerLogAction.WS_STATE_CHENGED_DUE_TO_ITEM_MODIFIED, SM.SYSTEM_ID,
+		WorkContentConverter.addLog(workSheet, CareerLogAction.WS_STATE_CHENGED_DUE_TO_ITEM_MODIFIED, SelfX.SYSTEM_ID,
 				workSheet.getState().getDbCode(),
 				stateByNow.getDbCode());
 		
@@ -433,13 +433,13 @@ public abstract class WorkService {
 	}
 	
 	protected void fill(List<CareerLogProxy> logs) throws LogicException, DBException {
-		List<Long> relevantUsers = logs.stream().map(proxy->proxy.log.getCreatorId()).distinct().filter(id->id!=SM.SYSTEM_ID).collect(toList());
+		List<Long> relevantUsers = logs.stream().map(proxy->proxy.log.getCreatorId()).distinct().filter(id->id!= SelfX.SYSTEM_ID).collect(toList());
 		Map<Long,User> users = uL.getUsers(relevantUsers).stream().collect(toMap(User::getId, Function.identity()));
 		assert users.size() == relevantUsers.size();
 		
 		for(CareerLogProxy log:logs) {
-			log.isBySystem = log.log.getCreatorId() == SM.SYSTEM_ID;
-			log.creatorName = log.log.getCreatorId() == SM.SYSTEM_ID ? SM.SYSTEM_NAME : users.get(log.log.getCreatorId()).getNickName();
+			log.isBySystem = log.log.getCreatorId() == SelfX.SYSTEM_ID;
+			log.creatorName = log.log.getCreatorId() == SelfX.SYSTEM_ID ? SelfX.SYSTEM_NAME : users.get(log.log.getCreatorId()).getNickName();
 			log.code = log.log.getAction().getDbCode();
 			log.params = log.log.getParams();
 

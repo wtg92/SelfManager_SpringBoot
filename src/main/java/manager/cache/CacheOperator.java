@@ -10,7 +10,7 @@ import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.NoSuchElement;
 import manager.exception.SMException;
-import manager.system.SMError;
+import manager.system.SelfXErrors;
 import manager.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,9 +71,7 @@ public class CacheOperator {
 	}
 
 
-	public WorkSheet getWorksheet(Long wsId,ThrowableSupplier<WorkSheet, DBException> generator) throws LogicException, DBException {
-		return caches.Worksheet_Cache.get(wsId,(k)->generator.get()).clone();
-	}
+
 
 	public Set<Integer> getPermsByUser(Long userId, Supplier<Set<Integer>> generator) {
 		return caches.Perms_Cache.get(userId,(e)->generator.get());
@@ -107,7 +105,7 @@ public class CacheOperator {
 			} catch (NoSuchElement e2) {
 				e2.printStackTrace();
 				assert false;
-				throw new LogicException(SMError.WRONG_INITIATOR,identifier);
+				throw new LogicException(SelfXErrors.WRONG_INITIATOR,identifier);
 			}
 		}
 	}
@@ -144,7 +142,7 @@ public class CacheOperator {
 		try {
 			updater.accept(one);
 		}catch(DBException e) {
-			if(e.type == SMError.DB_SYNC_ERROR) {
+			if(e.type == SelfXErrors.DB_SYNC_ERROR) {
 				deleteFromKey(key);
 			}
 			throw e;
@@ -152,81 +150,114 @@ public class CacheOperator {
 		deleteFromKey(key);
 	}
 
-	public void removeBook(String id){
-		caches.Books_Cache.invalidate(id);
+
+	/*- Worksheet----start- */
+	public WorkSheet getWorksheet(Long wsId,ThrowableSupplier<WorkSheet, DBException> generator) throws LogicException, DBException {
+		return caches.Worksheet_Cache.get(wsId,(k)->generator.get()).clone();
 	}
-
-	public void removePageNode(String id){
-		caches.Page_Nodes_Cache.invalidate(id);
-	}
-
-
-	public void removeWorksheet(long id){
+	private void removeWorksheet(long id){
 		caches.Worksheet_Cache.invalidate(id);
 	}
-	public void removeFileRecord(long id){
-		caches.File_Records_Cache.invalidate(id);
+
+	public void deleteWorksheet(long id,Runnable deleting){
+		deleting.run();
+		removeWorksheet(id);
 	}
 
-	public void saveWorksheet(WorkSheet one,ThrowableConsumer<WorkSheet, DBException> updater) throws DBException, LogicException {
+	public void saveWorksheet(WorkSheet one,ThrowableConsumer<WorkSheet, DBException> updater){
 		long key = one.getId();
 		try {
 			updater.accept(one);
 		}catch(DBException e) {
-			if(e.type == SMError.DB_SYNC_ERROR) {
+			if(e.type == SelfXErrors.DB_SYNC_ERROR) {
 				removeWorksheet(key);
 			}
 			throw e;
 		}
 		removeWorksheet(key);
 	}
-	public FileRecord getFileRecord(Long wsId,ThrowableSupplier<FileRecord, DBException> generator) throws LogicException, DBException {
-		return caches.File_Records_Cache.get(wsId,(k)->generator.get()).clone();
+
+	/*- Worksheet----end- */
+
+	/*- FileRecord----start- */
+
+	public FileRecord getFileRecord(Long id,ThrowableSupplier<FileRecord, DBException> generator) throws LogicException, DBException {
+		return caches.File_Records_Cache.get(id,(k)->generator.get()).clone();
 	}
 	public void saveFileRecord(FileRecord one, ThrowableConsumer<FileRecord, DBException> updater) throws DBException, LogicException {
 		long key = one.getId();
 		try {
 			updater.accept(one);
 		}catch(DBException e) {
-			if(e.type == SMError.DB_SYNC_ERROR) {
+			if(e.type == SelfXErrors.DB_SYNC_ERROR) {
 				removeFileRecord(key);
 			}
 			throw e;
 		}
 		removeFileRecord(key);
 	}
+	private void removeFileRecord(long id){
+		caches.File_Records_Cache.invalidate(id);
+	}
+
+	public void deleteFileRecord(long id,Runnable deleting){
+		deleting.run();
+		removeFileRecord(id);
+	}
+	/*- FileRecord----end- */
+
+	/*- BOOK----start- */
 
 	public SharingBook getBook(long loginId, String bookId, Supplier<SharingBook> generator) {
 		String cacheId = generateCacheIdInUserIsolation(loginId,bookId);
 		return caches.Books_Cache.get(cacheId,(k)->generator.get()).clone();
 	}
+	private void removeBook(long loginId,String id){
+		String cacheId = generateCacheIdInUserIsolation(loginId,id);
+		caches.Books_Cache.invalidate(cacheId);
+	}
 
+	public void deleteBook(long loginId,String id,Runnable deleting){
+		deleting.run();
+		removeBook(loginId,id);
+	}
+
+	public void saveBook(long loginId, String bookId, Runnable saving ) {
+		try{
+			saving.run();
+		}finally {
+			removeBook(loginId,bookId);
+		}
+	}
+
+	/*- BOOK----end- */
+
+	/*- PageNode----start- */
 	public PageNode getPageNode(long loginId, String pageId, Supplier<PageNode> generator) {
 		String cacheId = generateCacheIdInUserIsolation(loginId,pageId);
 		return caches.Page_Nodes_Cache.get(cacheId,(k)->generator.get()).clone();
 	}
 
-	private static String generateCacheIdInUserIsolation(long loginId, String id){
-		return loginId+"__"+id;
+	private void removePageNode(long loginId,String id){
+		String cacheId = generateCacheIdInUserIsolation(loginId,id);
+		caches.Page_Nodes_Cache.invalidate(cacheId);
 	}
 
-	public void saveBook(long loginId, String bookId, Runnable saving ) {
-		String cacheId = generateCacheIdInUserIsolation(loginId,bookId);
-		try{
-			saving.run();
-		}finally {
-			removeBook(cacheId);
-		}
+	public void deletePageNode(long loginId,String id,Runnable deleting){
+		deleting.run();
+		removePageNode(loginId,id);
 	}
-
 	public void savePageNode(long loginId, String nodeId, Runnable saving ) {
-		String cacheId = generateCacheIdInUserIsolation(loginId,nodeId);
 		try{
 			saving.run();
 		}finally {
-			removePageNode(cacheId);
+			removePageNode(loginId,nodeId);
 		}
 	}
+
+	/*- PageNode----end- */
+
+
 
 	public<T extends SMEntity> long countAllEntities(Class<T> cla) {
 		String tableName = getEntityTableName(cla);
@@ -264,8 +295,6 @@ public class CacheOperator {
 		deleter.accept(entity.getId());
 		deleteEntityByIdOnlyForCache(entity);
 	}
-
-
 
 	public void deleteGeneralKey(CacheMode mode, Object ...identifier) {
 		String key = createGeneralKey(mode, identifier);
@@ -315,6 +344,8 @@ public class CacheOperator {
 		caches.Temp_Users_Cache.invalidate(uuId);
 	}
 
-
+	private static String generateCacheIdInUserIsolation(long loginId, String id){
+		return loginId+"__"+id;
+	}
 
 }

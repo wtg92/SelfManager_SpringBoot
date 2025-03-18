@@ -1,5 +1,5 @@
 package manager.servlet;
-import static manager.system.SMParams.OP;
+import static manager.system.SelfXParams.OP;
 import static manager.util.UIUtil.getNonNullParam;
 
 import java.io.BufferedWriter;

@@ -3,7 +3,7 @@ package manager.system;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
-public enum SMError {
+public enum SelfXErrors {
 	
 	
 	UNDECIDED(0,""),
@@ -108,11 +108,11 @@ public enum SMError {
 	;
 	public final String description;
 	public final int code;
-	private SMError(int code) {
+	private SelfXErrors(int code) {
 		this.code = code;
 		this.description = "";
 	}
-	private SMError(int code,String description) {
+	private SelfXErrors(int code, String description) {
 		this.code = code;
 		this.description = description;
 	}

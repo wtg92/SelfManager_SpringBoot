@@ -1,16 +1,16 @@
 <%@page import="manager.system.career.PlanState"%>
 <%@page import="manager.system.Gender"%>
 <%@page import="manager.system.VerifyUserMethod"%>
-<%@page import="manager.system.SM"%>
+<%@page import="manager.system.SelfX"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 
 <html>
 <head>
 <jsp:include page="including.jsp" flush="false" />
-<script src="${pageContext.request.contextPath}/js/all_plans.js?<%= SM.VERSION %>" type="text/javascript" ></script>
-<link  href="${pageContext.request.contextPath}/css/all_plans.css?<%= SM.VERSION %>" type="text/css" rel="stylesheet" />
-<title><%=SM.WEB_TITLE%></title>
+<script src="${pageContext.request.contextPath}/js/all_plans.js?<%= SelfX.VERSION %>" type="text/javascript" ></script>
+<link href="${pageContext.request.contextPath}/css/all_plans.css?<%= SelfX.VERSION %>" type="text/css" rel="stylesheet" />
+<title><%=SelfX.WEB_TITLE%></title>
 </head>
 <body>
 	<jsp:include page="header.jsp" flush="false" />

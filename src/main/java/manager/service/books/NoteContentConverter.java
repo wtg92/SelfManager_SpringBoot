@@ -16,7 +16,7 @@ import manager.data.proxy.career.MemoItemProxy;
 import manager.entity.general.career.Memo;
 import manager.entity.virtual.career.MemoItem;
 import manager.exception.LogicException;
-import manager.system.SMError;
+import manager.system.SelfXErrors;
 import manager.system.career.NoteLabel;
 
 /**
@@ -109,7 +109,7 @@ public abstract class NoteContentConverter {
 			}
 			return item;
 		}
-		throw new LogicException(SMError.MEMO_DOC_ERROR,"memo 无法匹配id "+itemId+"\n"+doc.asXML());
+		throw new LogicException(SelfXErrors.MEMO_DOC_ERROR,"memo 无法匹配id "+itemId+"\n"+doc.asXML());
 	}
 	
 	private static Document getDocumentOrInitIfNotExists(Memo one) {
@@ -120,19 +120,19 @@ public abstract class NoteContentConverter {
 			return DocumentHelper.parseText(one.getContent());
 		} catch (DocumentException e) {
 			e.printStackTrace();
-			throw new LogicException(SMError.MEMO_DOC_ERROR,"解析xml 失败 "+one.getId());
+			throw new LogicException(SelfXErrors.MEMO_DOC_ERROR,"解析xml 失败 "+one.getId());
 		}
 	}
 	
 	private static Document getDefinateDocument(Memo one) throws LogicException {
 		if(one.getContent() == null) {
-			throw new LogicException(SMError.MEMO_DOC_ERROR,"无content的memo"+one.getId());
+			throw new LogicException(SelfXErrors.MEMO_DOC_ERROR,"无content的memo"+one.getId());
 		}
 		try {
 			return DocumentHelper.parseText(one.getContent());
 		} catch (DocumentException e) {
 			e.printStackTrace();
-			throw new LogicException(SMError.MEMO_DOC_ERROR,"解析xml 失败 "+one.getId());
+			throw new LogicException(SelfXErrors.MEMO_DOC_ERROR,"解析xml 失败 "+one.getId());
 		}
 	}
 	
@@ -174,7 +174,7 @@ public abstract class NoteContentConverter {
 			}
 			return item.getContent().equals(content.strip()) && item.getSrcNoteId() == srcNoteId && sameLabel;
 		})) {
-			throw new LogicException(SMError.MEMO_ITEMS_DUP_ERROR,content);
+			throw new LogicException(SelfXErrors.MEMO_ITEMS_DUP_ERROR,content);
 		}
 	}
 	
@@ -257,7 +257,7 @@ public abstract class NoteContentConverter {
 		
 		boolean success = itemsElement.remove(ele);
 		if(!success)
-			throw new LogicException(SMError.UNEXPECTED_OP_ERROR_FOR_MEMO,"删除失败");
+			throw new LogicException(SelfXErrors.UNEXPECTED_OP_ERROR_FOR_MEMO,"删除失败");
 		
 		one.setContent(doc.asXML());
 	}

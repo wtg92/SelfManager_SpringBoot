@@ -1,16 +1,16 @@
 <%@page import="manager.service.work.WorkService"%>
 <%@page import="manager.system.Gender"%>
 <%@page import="manager.system.VerifyUserMethod"%>
-<%@page import="manager.system.SM"%>
+<%@page import="manager.system.SelfX"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 
 <html>
 <head>
 <jsp:include page="including.jsp" flush="false" />
-<script src="${pageContext.request.contextPath}/js/work.js?<%= SM.VERSION %>" type="text/javascript" ></script>
-<link  href="${pageContext.request.contextPath}/css/work.css?<%= SM.VERSION %>" type="text/css" rel="stylesheet" />
-<title><%=SM.WEB_TITLE%></title>
+<script src="${pageContext.request.contextPath}/js/work.js?<%= SelfX.VERSION %>" type="text/javascript" ></script>
+<link href="${pageContext.request.contextPath}/css/work.css?<%= SelfX.VERSION %>" type="text/css" rel="stylesheet" />
+<title><%=SelfX.WEB_TITLE%></title>
 </head>
 <body>
 	<jsp:include page="header.jsp" flush="false" />
@@ -191,8 +191,8 @@
         </button>
       </div>
       <div class="modal-body">
-      	<a href="<%=SM.BASIC_FILES_FOLDER%>plan_example1.jpg" data-fancybox data-caption="2021.9.18" >
-    		<img src="<%=SM.BASIC_FILES_FOLDER%>plan_example1.jpg"  class="right_float_img"/>
+      	<a href="<%=SelfX.BASIC_FILES_FOLDER%>plan_example1.jpg" data-fancybox data-caption="2021.9.18" >
+    		<img src="<%=SelfX.BASIC_FILES_FOLDER%>plan_example1.jpg" class="right_float_img"/>
   		</a>
       	<p>
   			本模块根据<em>工作表</em>来记录每天的工作，而工作表一定是基于<em>计划</em>的。
@@ -207,8 +207,8 @@
   			另外，工作表里的计划、是预设计划的<em>副本</em>，因此，你可以随便编辑每日工作表里的计划、而不会影响到预设的计划——这通常适用于计划临时变动的情况。
   		</p>
       	<br/>
-		<a href="<%=SM.BASIC_FILES_FOLDER%>plan_example1_ws.jpg" data-fancybox data-caption="2021.9.18" >
-    		<img src="<%=SM.BASIC_FILES_FOLDER%>plan_example1_ws.jpg" />
+		<a href="<%=SelfX.BASIC_FILES_FOLDER%>plan_example1_ws.jpg" data-fancybox data-caption="2021.9.18" >
+    		<img src="<%=SelfX.BASIC_FILES_FOLDER%>plan_example1_ws.jpg" />
   		</a>
   		<br/>
   		<p>
@@ -217,11 +217,11 @@
   		 <p>
   			以上就是对工作表的简单介绍，使用愉快。
   		</p>
-		<a href="<%=SM.BASIC_FILES_FOLDER%>plan_example1_report.jpg" data-fancybox data-caption="2021.9.18" >
-    		<img src="<%=SM.BASIC_FILES_FOLDER%>plan_example1_report.jpg" />
+		<a href="<%=SelfX.BASIC_FILES_FOLDER%>plan_example1_report.jpg" data-fancybox data-caption="2021.9.18" >
+    		<img src="<%=SelfX.BASIC_FILES_FOLDER%>plan_example1_report.jpg" />
   		</a>
-		<a href="<%=SM.BASIC_FILES_FOLDER%>plan_example1_report_by_month.jpg" data-fancybox data-caption="2021.9.18" >
-    		<img src="<%=SM.BASIC_FILES_FOLDER%>plan_example1_report_by_month.jpg"  class="right_float_img"/>
+		<a href="<%=SelfX.BASIC_FILES_FOLDER%>plan_example1_report_by_month.jpg" data-fancybox data-caption="2021.9.18" >
+    		<img src="<%=SelfX.BASIC_FILES_FOLDER%>plan_example1_report_by_month.jpg" class="right_float_img"/>
   		</a>
 
       </div>

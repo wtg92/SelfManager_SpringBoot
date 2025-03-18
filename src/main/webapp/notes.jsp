@@ -2,17 +2,17 @@
 <%@page import="manager.service.work.WorkService"%>
 <%@page import="manager.system.Gender"%>
 <%@page import="manager.system.VerifyUserMethod"%>
-<%@page import="manager.system.SM"%>
+<%@page import="manager.system.SelfX"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 
 <html>
 <head>
 <jsp:include page="including.jsp" flush="false" />
-<script src="${pageContext.request.contextPath}/js/notes.js?<%= SM.VERSION %>" type="text/javascript" ></script>
-<link  href="${pageContext.request.contextPath}/css/notes.css?<%= SM.VERSION %>" type="text/css" rel="stylesheet" />
+<script src="${pageContext.request.contextPath}/js/notes.js?<%= SelfX.VERSION %>" type="text/javascript" ></script>
+<link href="${pageContext.request.contextPath}/css/notes.css?<%= SelfX.VERSION %>" type="text/css" rel="stylesheet" />
 <meta charset="utf-8" />
-<title><%=SM.WEB_TITLE%></title>
+<title><%=SelfX.WEB_TITLE%></title>
 </head>
 <body>
 	<jsp:include page="header.jsp" flush="false" />
@@ -76,8 +76,8 @@
       		毕竟我最初设计它的原因（也是设计这个模块的原因），只不过是我厌倦了Word文档里，每次都要手动把“TODO”四个字母改成“DONE”。
       	</p>
       	
-      	<a href="<%=SM.BASIC_FILES_FOLDER%>note_example_1.jpg" data-fancybox data-caption="我在写这篇使用说明时的当日笔记，2020.11.23" >
-    		<img src="<%=SM.BASIC_FILES_FOLDER%>note_example_1.jpg"  class="right_float_img"/>
+      	<a href="<%=SelfX.BASIC_FILES_FOLDER%>note_example_1.jpg" data-fancybox data-caption="我在写这篇使用说明时的当日笔记，2020.11.23" >
+    		<img src="<%=SelfX.BASIC_FILES_FOLDER%>note_example_1.jpg" class="right_float_img"/>
   		</a>
 		<p> 
 			在我工作的过程中，我常常需要把一些阶段性的目的记录下来，并且在完成它之后，再消掉它。（PS：我觉得这是一种非常好的完成事情的方式，它能够分解一个庞大的事情，从而让人不至于迷失在过程之中）

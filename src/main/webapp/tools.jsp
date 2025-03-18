@@ -2,7 +2,7 @@
 <%@page import="manager.service.work.WorkService"%>
 <%@page import="manager.system.Gender"%>
 <%@page import="manager.system.VerifyUserMethod"%>
-<%@page import="manager.system.SM"%>
+<%@page import="manager.system.SelfX"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 
@@ -13,10 +13,10 @@
 <script src="${pageContext.request.contextPath}/js/dependency/webuploader.nolog.min.js" type="text/javascript" ></script>
 <link  href="${pageContext.request.contextPath}/css/dependency/webuploader.css" type="text/css" rel="stylesheet" /> 
 
-<script src="${pageContext.request.contextPath}/js/tools.js?<%= SM.VERSION %>" type="text/javascript" ></script>
-<link  href="${pageContext.request.contextPath}/css/tools.css?<%= SM.VERSION %>" type="text/css" rel="stylesheet" />
+<script src="${pageContext.request.contextPath}/js/tools.js?<%= SelfX.VERSION %>" type="text/javascript" ></script>
+<link href="${pageContext.request.contextPath}/css/tools.css?<%= SelfX.VERSION %>" type="text/css" rel="stylesheet" />
 <meta charset="utf-8" />
-<title><%=SM.WEB_TITLE%></title>
+<title><%=SelfX.WEB_TITLE%></title>
 </head>
 <body>
 	<jsp:include page="header.jsp" flush="false" />

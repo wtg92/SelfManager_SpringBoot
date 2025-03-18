@@ -2,8 +2,6 @@ package manager.system;
 
 import org.junit.Test;
 
-import manager.TestUtil;
-import manager.entity.general.tool.ToolRecord;
 import manager.system.career.BookStyle;
 import manager.system.career.CareerLogAction;
 import manager.system.career.NoteLabel;
@@ -18,7 +16,7 @@ public class EnumTest {
 	
 	@Test
 	public void noDupTest() throws Exception {
-		TestUtil.checkEnumNoDup(SMPerm.class,"dbCode");
+		TestUtil.checkEnumNoDup(SelfXPerms.class,"dbCode");
 		TestUtil.checkEnumNoDup(SMOP.class,"name");
 		
 		TestUtil.checkEnumNoDup(CareerLogAction.class,"dbCode");
@@ -41,7 +39,7 @@ public class EnumTest {
 	
 	@Test
 	public void testPermSetting() {
-		SMPerm.getPermsByGroup();
+		SelfXPerms.getPermsByGroup();
 	}
 	
 }

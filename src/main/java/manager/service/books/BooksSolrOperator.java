@@ -7,8 +7,8 @@ import manager.entity.general.books.SharingBook;
 import manager.solr.SolrOperator;
 import manager.solr.SolrUtil;
 import manager.solr.constants.SolrRequestParam;
-import manager.system.SM;
-import manager.system.SMCores;
+import manager.system.SelfX;
+import manager.system.SelfXCores;
 import manager.system.SolrFields;
 import org.apache.solr.common.params.MapSolrParams;
 import org.apache.solr.common.params.MultiMapSolrParams;
@@ -38,11 +38,11 @@ public class BooksSolrOperator {
     private String PAGE_NODE_CONFIG;
 
     public void insertBook(SharingBook book, Long userId){
-        operator.insertDoc(book, SMCores.SHARING_BOOK,userId,SHARING_BOOK_CONFIG);
+        operator.insertDoc(book, SelfXCores.SHARING_BOOK,userId,SHARING_BOOK_CONFIG);
     }
 
     public void insertPage(PageNode page, Long userId){
-        operator.insertDoc(page, SMCores.PAGE_NODE,userId, PAGE_NODE_CONFIG);
+        operator.insertDoc(page, SelfXCores.PAGE_NODE,userId, PAGE_NODE_CONFIG);
     }
 
     public MultipleItemsResult<SharingBook> getBooks(long userId, Integer state) {
@@ -53,26 +53,26 @@ public class BooksSolrOperator {
                 ,SolrFields.UPDATE_UTC,SolrFields.NAME_MULTI,SolrFields.COMMENT_MULTI,SolrFields.DEFAULT_LANG,SolrFields.STYLE
                 ,SolrFields.UPDATER_ID));
         queryParamMap.put(SolrRequestParam.QUERY_SORT, SolrFields.SEQ_WEIGHT+" "+SolrRequestParam.QUERY_DESC);
-        queryParamMap.put(SolrRequestParam.QUERY_LIMIT, String.valueOf( SM.MAX_DB_LINES_IN_ONE_SELECTS));
+        queryParamMap.put(SolrRequestParam.QUERY_LIMIT, String.valueOf( SelfX.MAX_DB_LINES_IN_ONE_SELECTS));
         MapSolrParams queryParams = new MapSolrParams(queryParamMap);
-        return operator.query(SMCores.SHARING_BOOK,userId,queryParams,SHARING_BOOK_CONFIG,SharingBook.class);
+        return operator.query(SelfXCores.SHARING_BOOK,userId,queryParams,SHARING_BOOK_CONFIG,SharingBook.class);
     }
 
     public void updateBook(String id,Long creatorId,Long updaterId,Map<String,Object> updatingFields){
-        operator.updateDocPartially(SMCores.SHARING_BOOK,id,creatorId,updaterId,updatingFields);
+        operator.updateDocPartially(SelfXCores.SHARING_BOOK,id,creatorId,updaterId,updatingFields);
     }
 
     public void updatePageNode(String id, Long creatorId, Long updaterId, Map<String,Object> updatingFields){
-        operator.updateDocPartially(SMCores.PAGE_NODE,id,creatorId,updaterId,updatingFields);
+        operator.updateDocPartially(SelfXCores.PAGE_NODE,id,creatorId,updaterId,updatingFields);
     }
 
 
     public SharingBook getBook(long loginId, String id) {
-        return operator.getDocById(SMCores.SHARING_BOOK,loginId,id,SharingBook.class);
+        return operator.getDocById(SelfXCores.SHARING_BOOK,loginId,id,SharingBook.class);
     }
 
     public PageNode getPageNode(long loginId, String id) {
-        return operator.getDocById(SMCores.PAGE_NODE,loginId,id,PageNode.class);
+        return operator.getDocById(SelfXCores.PAGE_NODE,loginId,id,PageNode.class);
     }
 
     private final static String FULL_BASE_QUERY = "*:*";
@@ -87,9 +87,9 @@ public class BooksSolrOperator {
                 ,SolrFields.CHILDREN_NUM
                 ,SolrFields.UPDATER_ID
                 ,SolrFields.IS_HIDDEN)});
-        queryParamMap.put(SolrRequestParam.QUERY_LIMIT, new String[]{String.valueOf(SM.MAX_DB_LINES_IN_ONE_SELECTS)});
+        queryParamMap.put(SolrRequestParam.QUERY_LIMIT, new String[]{String.valueOf(SelfX.MAX_DB_LINES_IN_ONE_SELECTS)});
         MultiMapSolrParams queryParams = new MultiMapSolrParams(queryParamMap);
-        return operator.query(SMCores.PAGE_NODE,loginId,queryParams, PAGE_NODE_CONFIG, PageNode.class);
+        return operator.query(SelfXCores.PAGE_NODE,loginId,queryParams, PAGE_NODE_CONFIG, PageNode.class);
     }
 
     public List<PageNode> getPageNodesByParentIdForDelete(long loginId, String bookId, String parentId) {
@@ -99,28 +99,28 @@ public class BooksSolrOperator {
         queryParamMap.put(SolrRequestParam.QUERY_FIELDS,new String[]{SolrUtil.getMultipleFieldParam(SolrFields.ID,SolrFields.INDEXES,SolrFields.PARENT_IDS)});
         queryParamMap.put(SolrRequestParam.QUERY_LIMIT, new String[]{String.valueOf(Integer.MAX_VALUE)});
         MultiMapSolrParams queryParams = new MultiMapSolrParams(queryParamMap);
-        return operator.query(SMCores.PAGE_NODE,loginId,queryParams, PAGE_NODE_CONFIG, PageNode.class).items;
+        return operator.query(SelfXCores.PAGE_NODE,loginId,queryParams, PAGE_NODE_CONFIG, PageNode.class).items;
     }
 
     public long countPagesForSpecificParentId(String parentId,String bookId,long loginId) {
         final Map<String, String[]> queryParamMap = new HashMap<>();
         queryParamMap.put(SolrRequestParam.RELEVANT_QUERY, new String[]{FULL_BASE_QUERY});
         queryParamMap.put(SolrRequestParam.FILTER_QUERY_SEPERATELY,  new String[]{SolrFields.PARENT_IDS+":"+ parentId,SolrFields.BOOK_ID+":"+bookId});
-        return operator.queryStatus(SMCores.PAGE_NODE,loginId,queryParamMap, PAGE_NODE_CONFIG).count;
+        return operator.queryStatus(SelfXCores.PAGE_NODE,loginId,queryParamMap, PAGE_NODE_CONFIG).count;
     }
 
     public void deleteBookById(long loginId, String id) {
-        operator.deleteById(SMCores.SHARING_BOOK,loginId,id);
+        operator.deleteById(SelfXCores.SHARING_BOOK,loginId,id);
     }
 
     public void deletePageNodeById(long loginId, String id) {
-        operator.deleteById(SMCores.PAGE_NODE,loginId,id);
+        operator.deleteById(SelfXCores.PAGE_NODE,loginId,id);
     }
 
     public void deletePageNodesByBookId(long loginId, String bookId) {
         Map<String,Object> params = new HashMap<>();
         params.put(SolrFields.BOOK_ID,bookId);
-        operator.deleteByFields(SMCores.PAGE_NODE,loginId,params);
+        operator.deleteByFields(SelfXCores.PAGE_NODE,loginId,params);
     }
 
 

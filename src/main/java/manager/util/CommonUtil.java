@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 
 
 import jakarta.persistence.Table;
-import manager.system.SM;
+import manager.system.SelfX;
 
 public abstract class CommonUtil {
 	private static final Random random = new SecureRandom();
@@ -30,7 +30,7 @@ public abstract class CommonUtil {
 	
 	public static InputStream getFileInResourcesDirectoryBufferedly(String fileName) {
 		try {
-			return new BufferedInputStream(SM.class.getResourceAsStream("/"+fileName),5000) ;
+			return new BufferedInputStream(SelfX.class.getResourceAsStream("/"+fileName),5000) ;
 		}catch (Exception e) {
 			e.printStackTrace();
 			assert false;
@@ -42,15 +42,15 @@ public abstract class CommonUtil {
 		return t == null || emptyPredicate.test(t);
 	}
 	public static boolean getBoolValFromPropertiesFileInResource(String key) {
-		return Boolean.parseBoolean(getValFromPropertiesFileInResource(key, SM.PROPERTIES_FILE_NAME));
+		return Boolean.parseBoolean(getValFromPropertiesFileInResource(key, SelfX.PROPERTIES_FILE_NAME));
 	}
 	
 	public static int getIntValFromPropertiesFileInResource(String key) {
-		return Integer.parseInt(getValFromPropertiesFileInResource(key, SM.PROPERTIES_FILE_NAME));
+		return Integer.parseInt(getValFromPropertiesFileInResource(key, SelfX.PROPERTIES_FILE_NAME));
 	}
 	
 	public static String getValFromPropertiesFileInResource(String key) {
-		return getValFromPropertiesFileInResource(key, SM.PROPERTIES_FILE_NAME);
+		return getValFromPropertiesFileInResource(key, SelfX.PROPERTIES_FILE_NAME);
 	}
 	
 	public static String getValFromPropertiesFileInResource(String key,String fileName) {

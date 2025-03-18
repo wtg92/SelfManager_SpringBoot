@@ -1,8 +1,8 @@
-<%@page import="manager.system.SM"%>
+<%@page import="manager.system.SelfX"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
-<script src="${pageContext.request.contextPath}/components/ws_stat_of_date_range_dialog/ws_stat_of_date_range_dialog.js?<%= SM.VERSION %>" type="text/javascript" ></script>
-<link  href="${pageContext.request.contextPath}/components/ws_stat_of_date_range_dialog/ws_stat_of_date_range_dialog.css?<%= SM.VERSION %>" type="text/css" rel="stylesheet" />
+<script src="${pageContext.request.contextPath}/components/ws_stat_of_date_range_dialog/ws_stat_of_date_range_dialog.js?<%= SelfX.VERSION %>" type="text/javascript" ></script>
+<link href="${pageContext.request.contextPath}/components/ws_stat_of_date_range_dialog/ws_stat_of_date_range_dialog.css?<%= SelfX.VERSION %>" type="text/css" rel="stylesheet" />
 <div class="modal fade" id="ws_stat_of_date_range_dialog" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="ws_stat_of_date_range_dialog_label" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">

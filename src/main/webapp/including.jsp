@@ -1,7 +1,7 @@
-<%@page import="manager.system.SM"%>
+<%@page import="manager.system.SelfX"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 
-<link rel="shortcut icon" href="<%=SM.BASIC_FILES_FOLDER%>web_logo.png" type="image/x-icon" />  
+<link rel="shortcut icon" href="<%=SelfX.BASIC_FILES_FOLDER%>web_logo.png" type="image/x-icon" />
 
 <script src="${pageContext.request.contextPath}/js/dependency/jquery-3.5.1.min.js" type="text/javascript" ></script>
 <script src="${pageContext.request.contextPath}/js/dependency/polyfill.min.js"></script>
@@ -22,10 +22,10 @@
 <script src="${pageContext.request.contextPath}/js/dependency/jquery.dropdown.js" type="text/javascript" ></script>
 <link  href="${pageContext.request.contextPath}/css/dependency/jquery.dropdown.min.css" type="text/css" rel="stylesheet" /> 
 
-<script src="${pageContext.request.contextPath}/js/config.js?<%= SM.VERSION %>" type="text/javascript" ></script>
-<script src="${pageContext.request.contextPath}/js/util.js?<%= SM.VERSION %>" type="text/javascript" ></script>
-<script src="${pageContext.request.contextPath}/js/basic.js?<%= SM.VERSION %>" type="text/javascript" ></script>
-<link  href="${pageContext.request.contextPath}/css/basic.css?<%= SM.VERSION %>" type="text/css" rel="stylesheet" /> 
+<script src="${pageContext.request.contextPath}/js/config.js?<%= SelfX.VERSION %>" type="text/javascript" ></script>
+<script src="${pageContext.request.contextPath}/js/util.js?<%= SelfX.VERSION %>" type="text/javascript" ></script>
+<script src="${pageContext.request.contextPath}/js/basic.js?<%= SelfX.VERSION %>" type="text/javascript" ></script>
+<link href="${pageContext.request.contextPath}/css/basic.css?<%= SelfX.VERSION %>" type="text/css" rel="stylesheet" />
 
 
 <script src="${pageContext.request.contextPath}/js/dependency/echarts.min.js" type="text/javascript" ></script>

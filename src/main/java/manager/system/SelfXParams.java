@@ -1,6 +1,6 @@
 package manager.system;
 
-public abstract class SMParams {
+public abstract class SelfXParams {
 	public final static String OP = "op";
 	public final static String NAME = "name";
 

@@ -13,7 +13,7 @@ import javax.annotation.Resource;
 
 import java.util.Map;
 
-import static manager.system.SMParams.*;
+import static manager.system.SelfXParams.*;
 
 @RestController
 @RequestMapping("/books")

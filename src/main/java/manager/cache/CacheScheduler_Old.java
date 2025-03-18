@@ -27,7 +27,7 @@ import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.NoSuchElement;
 import manager.exception.SMException;
-import manager.system.SMError;
+import manager.system.SelfXErrors;
 import manager.util.BiThrowableSupplier;
 import manager.util.ThrowableConsumer;
 import manager.util.ThrowableFunction;
@@ -91,7 +91,7 @@ public abstract class CacheScheduler_Old {
 				} catch (NoSuchElement e1) {
 					e1.printStackTrace();
 					assert false;
-					throw new LogicException(SMError.WRONG_INITIATOR,identifier);
+					throw new LogicException(SelfXErrors.WRONG_INITIATOR,identifier);
 				}
 			}
 		}
@@ -116,7 +116,7 @@ public abstract class CacheScheduler_Old {
 				} catch (NoSuchElement e2) {
 					e2.printStackTrace();
 					assert false;
-					throw new LogicException(SMError.WRONG_INITIATOR,identifier);
+					throw new LogicException(SelfXErrors.WRONG_INITIATOR,identifier);
 				}
 			}
 		}
@@ -214,7 +214,7 @@ public abstract class CacheScheduler_Old {
 		
 		List<T> matchedObjs = allInCache.stream().filter(one->identifierTranslator.apply(one).equals(identifier)).collect(toList());
 		if(matchedObjs.size() > 1) {
-			throw new LogicException(SMError.INCONSISTENT_CACHE_ERROR,"Unique字段在缓存中有多份 "+ matchedObjs.size()+ " "+identifier.toString());
+			throw new LogicException(SelfXErrors.INCONSISTENT_CACHE_ERROR,"Unique字段在缓存中有多份 "+ matchedObjs.size()+ " "+identifier.toString());
 		}
 		if(matchedObjs.size() == 1) {
 			return matchedObjs.get(0);
@@ -260,7 +260,7 @@ public abstract class CacheScheduler_Old {
 		try {
 			updater.accept(one);
 		}catch(DBException e) {
-			if(e.type == SMError.DB_SYNC_ERROR) {
+			if(e.type == SelfXErrors.DB_SYNC_ERROR) {
 				CacheUtil_OLD.deleteOne(key);
 			}
 			throw e;
