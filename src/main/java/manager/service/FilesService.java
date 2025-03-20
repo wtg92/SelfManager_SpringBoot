@@ -38,7 +38,7 @@ public class FilesService {
     private SecurityBooster securityBooster;
 
 
-    public Map<String,Object> retrieveUploadURL(long loginId, Long sizeKB, String suffix) {
+    public Map<String,Object> retrieveUploadURL(long loginId, Long sizeKB, String suffix,String srcParams) {
         Map<String,Object> rlt = new HashMap<>();
         locker.lockByUserAndClass(loginId,()->{
             double sumGB = FileUtil.kbToGb(dao.selectSumKBSizeByOwner(loginId));
@@ -60,6 +60,7 @@ public class FilesService {
             record.setPublic(true);
             record.setBucketName(S3Service.BUCKET_NAME);
             record.setSrcType(SelfXDataSrcTypes.BY_USERS);
+            record.setSrcParams(srcParams);
             long id = dao.insertFileRecord(record);
             rlt.put("url",s3Service.generateUploadURL(fileName));
             rlt.put("id", securityBooster.encodeStableCommonId(id));

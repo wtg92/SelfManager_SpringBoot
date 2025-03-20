@@ -7,6 +7,9 @@ public abstract class SelfXParams {
 	public final static String SIZE_KB = "size_kb";
 
 	public final static String SUFFIX = "suffix";
+
+	public final static String SRC_PARAMS = "src_params";
+
 	public final static String ACCOUNT = "account";
 	public final static String ACCOUNT_PWD = "account_pwd";
 	public final static String EMAIL = "email";

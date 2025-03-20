@@ -1,6 +1,8 @@
 package manager.solr;
 
+import manager.exception.DBException;
 import manager.solr.constants.CustomProcessors;
+import manager.system.SelfXErrors;
 import org.apache.solr.client.solrj.beans.DocumentObjectBinder;
 
 import java.util.Map;
@@ -48,6 +50,21 @@ public abstract class SolrUtil {
     private static String escapeSpecialChars(String value) {
         return value.replaceAll("([+\\-!(){}\\[\\]^\"~*?:\\\\/])", "\\\\$1");
     }
+    private static void detectDataTooLongExceptionAndThrowIfAny(Exception e) throws DBException {
+        if(e.getMessage().contains("too large")) {
+            throw new DBException(SelfXErrors.DATA_TOO_LONG);
+        }
+    }
+    public static DBException processSolrException(Exception e){
+        try {
+            detectDataTooLongExceptionAndThrowIfAny(e);
+        }catch(DBException dataTooLong) {
+            assert dataTooLong.type == SelfXErrors.DATA_TOO_LONG : dataTooLong.type;
+            return dataTooLong;
+        }
+        return new DBException(SelfXErrors.UNKNOWN_DB_ERROR, e.getMessage());
+    }
+
 
     // 内部类处理范围查询
     public static class Range<T> {

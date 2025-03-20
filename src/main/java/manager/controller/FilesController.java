@@ -29,7 +29,8 @@ public class FilesController {
         long loginId = UIUtil.getLoginId(authorizationHeader);
         Long sizeKB = param.getLong(SIZE_KB);
         String suffix = param.getString(SUFFIX);
-        return service.retrieveUploadURL(loginId,sizeKB,suffix);
+        String srcParams = param.getString(SRC_PARAMS);
+        return service.retrieveUploadURL(loginId,sizeKB,suffix,srcParams);
     }
 
     @PostMapping("/uploadDoneNotify")

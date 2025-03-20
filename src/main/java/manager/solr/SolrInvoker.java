@@ -60,8 +60,7 @@ public class SolrInvoker{
             req.setIndexInfoNeeded(false);
             return CoreAdminRequest.getStatus(coreName, solrClient).getCoreStatus(coreName);
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            throw SolrUtil.processSolrException(e);
         }
     }
 
@@ -73,8 +72,7 @@ public class SolrInvoker{
             req.setConfigSet(configSet);
             return (CoreAdminResponse)req.process(solrClient);
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            throw SolrUtil.processSolrException(e);
         }
     }
 
@@ -86,8 +84,7 @@ public class SolrInvoker{
             updateRequest.add(doc);
             return updateRequest.commit(solrClient,coreName);
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            throw SolrUtil.processSolrException(e);
         }
     }
 
@@ -95,8 +92,7 @@ public class SolrInvoker{
         try (SolrClient solrClient = generateSpecificClient(coreName)) {
             return solrClient.getById(id);
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            throw SolrUtil.processSolrException(e);
         }
     }
 
@@ -105,8 +101,7 @@ public class SolrInvoker{
             solrClient.deleteById(id);
             solrClient.commit();
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            throw SolrUtil.processSolrException(e);
         }
     }
 
@@ -115,8 +110,7 @@ public class SolrInvoker{
             solrClient.deleteByQuery(SolrUtil.buildQueryString(fieldsFilter));
             solrClient.commit();
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            throw SolrUtil.processSolrException(e);
         }
     }
 
@@ -130,8 +124,7 @@ public class SolrInvoker{
             }
             solrClient.commit();
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            throw SolrUtil.processSolrException(e);
         }
     }
 
@@ -147,8 +140,7 @@ public class SolrInvoker{
             solrClient.add(doc);
             solrClient.commit();
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            throw SolrUtil.processSolrException(e);
         }
     }
 
@@ -156,11 +148,9 @@ public class SolrInvoker{
         try (SolrClient solrClient = generateSpecificClient(coreName)) {
             return solrClient.query(queryParamMap);
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            throw SolrUtil.processSolrException(e);
         }
     }
-
 
 
 }

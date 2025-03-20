@@ -25,6 +25,10 @@ public class FileRecord extends SMGeneralEntity{
     @Column
     private Long ownerId;
 
+    /**
+     * 这个视作 type
+     * TODO 将来做个人文件管理时 以这个后缀来区分
+     */
     @Column
     private String suffix;
 
@@ -42,6 +46,7 @@ public class FileRecord extends SMGeneralEntity{
 
     @Column
     private String srcType ;
+
     @Column
     private String srcParams;
 

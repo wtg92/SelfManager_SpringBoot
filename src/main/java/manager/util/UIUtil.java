@@ -37,14 +37,10 @@ public abstract class UIUtil {
 	}
 
 
-	/**
-	 *  New version migration....
-	 */
 	public static long getLoginId(String auth) throws LogicException {
 		try{
 			return SecurityBooster.getUserId(auth.replace("Bearer ",""));
 		}catch(Exception e){
-			e.printStackTrace();
 			throw new LogicException(SelfXErrors.LOGIN_FAILED);
 		}
 	}
