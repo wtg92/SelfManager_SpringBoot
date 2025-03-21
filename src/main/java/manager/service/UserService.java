@@ -156,7 +156,7 @@ public abstract class UserService {
 			String telVerifyCode,String pwd,String nickName,Gender gender) throws LogicException, DBException;
 
 	public abstract void signUpDirectly(String uuId,String account,String pwd,String nickName,Gender gender
-			,String email,String tel);
+			,String email,String tel,String alipayOpenId);
 
 	/**
 	 *   要求权限 ADD_USERS_TO_PERM ，没有，抛LACK_PERM

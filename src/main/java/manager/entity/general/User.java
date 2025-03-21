@@ -47,6 +47,9 @@ public class User extends SMGeneralEntity{
 	
 	@Column
 	private String telNum;
+
+	@Column
+	private String alipayOpenId;
 	
 	@Column
 	private String pwdSalt;
@@ -65,6 +68,14 @@ public class User extends SMGeneralEntity{
 	}
 	
 	/*======================== Auto-Genrated Code==================================*/
+
+	public String getAlipayOpenId() {
+		return alipayOpenId;
+	}
+
+	public void setAlipayOpenId(String alipayOpenId) {
+		this.alipayOpenId = alipayOpenId;
+	}
 
 	public Long getPortraitId() {
 		return portraitId;

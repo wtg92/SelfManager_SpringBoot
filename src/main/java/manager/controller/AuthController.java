@@ -26,9 +26,12 @@ public class AuthController {
         return securityBooster.process(authService.googleAuth(token,tempUserId));
     }
 
-    static class TokenRequest {
-        private String token;
-        public String getToken() { return token; }
-        public void setToken(String token) { this.token = token; }
+
+    @PostMapping("/alipay")
+    public LoginInfo alipayAuth(@RequestBody JSONObject param) {
+        String token = param.getString(TOKEN);
+        String tempUserId = param.getString(TEMP_USER_ID);
+        return securityBooster.process(authService.alipayAuth(token,tempUserId));
     }
+
 }

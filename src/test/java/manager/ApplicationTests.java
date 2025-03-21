@@ -1,11 +1,13 @@
 package manager;
 
 import com.alibaba.fastjson2.JSON;
+import com.alipay.api.AlipayClient;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import manager.dao.UserDAO;
 import manager.dao.career.WorkDAO;
 import manager.data.proxy.career.PlanProxy;
 import manager.entity.general.career.Plan;
+import manager.service.AuthService;
 import manager.service.UserService;
 import manager.service.work.WorkService;
 import manager.system.SelfXPerms;
@@ -36,6 +38,16 @@ class ApplicationTests {
 
 	@Resource
 	WorkService workService;
+
+	@Resource
+	AuthService authService;
+
+	@Test
+	public void authTest(){
+//		AlipayClient alipayClient = authService.getAlipayClient();
+//		System.out.println(JSON.toJSONString(alipayClient));
+	}
+
 
 	@Test
 	public void	testGetPlan(){

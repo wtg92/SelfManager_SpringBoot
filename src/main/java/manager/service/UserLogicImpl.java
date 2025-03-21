@@ -218,12 +218,12 @@ public class UserLogicImpl extends UserService {
 				throw new LogicException(SelfXErrors.TEL_VERIFY_TIMEOUT);
 			}
 		}
-		signUpDirectly(uuId,account,pwd,nickName,gender,email,tel);
+		signUpDirectly(uuId,account,pwd,nickName,gender,email,tel,null);
 	}
 
 	@Override
 	public synchronized void signUpDirectly(String uuId,String account,String pwd,String nickName,Gender gender
-			,String email,String tel) {
+			,String email,String tel,String alipayOpenId) {
 		User user = new User();
 		user.setAccount(account);
 		user.setNickName(nickName);
@@ -232,9 +232,9 @@ public class UserLogicImpl extends UserService {
 		user.setGender(gender);
 		user.setEmail(email);
 		user.setTelNum(tel);
+		user.setAlipayOpenId(alipayOpenId);
 		long uId = uDAO.insertUser(user);
 		UserGroup defaultGroup = uDAO.selectUniqueExistedUserGroupByField(DBConstants.F_NAME, SelfX.DEFAULT_BASIC_USER_GROUP);
-		/*这里比较特殊 是系统自动添加的 并且相对来说太过频繁 不应该重置缓存 这里选择直接添加进缓存 影响到的是 一个组里有多少用户*/
 		uDAO.insertUsersToGroup(List.of(uId), defaultGroup.getId());
 		cache.deleteGeneralKey(CacheMode.T_USER, uuId);
 	}

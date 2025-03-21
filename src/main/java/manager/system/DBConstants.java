@@ -40,6 +40,9 @@ public abstract class DBConstants {
 	public static final String F_CONTENT= "content";
 	public static final String F_ACCOUNT = "account";
 	public static final String F_WEI_XIN_OPEN_ID = "wei_xin_open_id";
+
+	public static final String F_ALIPAY_OPEN_ID = "alipay_open_id";
+
 	public static final String F_EMAIL = "email";
 	public static final String F_TEL_NUM = "tel_num";
 	public static final String F_NICK_NAME = "nick_name";
