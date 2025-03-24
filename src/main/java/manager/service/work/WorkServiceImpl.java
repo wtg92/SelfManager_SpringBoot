@@ -101,9 +101,6 @@ public class WorkServiceImpl extends WorkService {
 		});
 	}
 
-
-
-
 	private void updatePlanSynchronously(Plan plan, long loginId){
 		locker.lockByUserAndClass(loginId,()->{
 			cache.saveEntity(plan, p->wDAO.updateExistedPlan(p));
@@ -174,7 +171,6 @@ public class WorkServiceImpl extends WorkService {
 		refreshStateAfterItemModified(ws);
 		updateWorksheetSynchronously(ws,loginId);
 	}
-	
 
 	@Override
 	public void addItemToWS(long loginId, long wsId, int planItemId, double value, String note, int mood, boolean forAdd, Long startUtc, Long endUtc) {
@@ -227,8 +223,7 @@ public class WorkServiceImpl extends WorkService {
 		
 		updateWorksheetSynchronously(ws,loginId);
 	}
-	
-	
+
 	@Override
 	public void resetPlanTags(long loginId, long planId, List<String> tags) throws SMException {
 		Plan plan = getPlan(planId);
@@ -269,7 +264,6 @@ public class WorkServiceImpl extends WorkService {
 
 		updateWorksheetSynchronously(ws,loginId);
 	}
-
 
 	@Override
 	public void savePlan(long loginId, long planId, String name, Long startDate
@@ -361,7 +355,6 @@ public class WorkServiceImpl extends WorkService {
 
 		updatePlanSynchronously(plan,loginId);
 	}
-	
 
 	@Override
 	public void saveWSPlanItem(long loginId, long wsId, int itemId, String catName, int value, String note,
@@ -387,16 +380,13 @@ public class WorkServiceImpl extends WorkService {
 		updateWorksheetSynchronously(ws,loginId);
 	}
 
-
-
 	@Override
 	public void patchBalanceItem(long loginId, int itemId, String name, double val){
 		PlanBalance dept = getPlanBalance(loginId);
 		WorkContentConverter.updatePlanDeptItem(dept, loginId, itemId, name, val);
 		updatePlanDeptSynchronously(dept,loginId);
 	}
-	
-	
+
 	@Override
 	public void abandonPlan(long loginId, long planId){
 		Plan plan = getPlan(planId);
@@ -472,8 +462,6 @@ public class WorkServiceImpl extends WorkService {
 	public List<WorkSheet> loadWorkSheetInfosRecently(long operateId, int page) throws DBException, LogicException {
 		return wDAO.selectWorkSheetInfoRecentlyByOwner(operateId, page, DEFAULT_WS_LIMIT_OF_ONE_PAGE);
 	}
-	
-
 
 	@Override
 	public List<WorkSheetProxy> loadWorkSheetsByDateScopeAndTimezone(long loginId, long startDate, long endDate, String timezone, Boolean regardingTimezone) {
@@ -578,47 +566,6 @@ public class WorkServiceImpl extends WorkService {
 	 	
 		return proxy;
 	}
-
-
-	/**
-	 * 所有的时间类型需要处理时区问题 因此改用utc时间戳的方式记载时间
-	 * 处理之后 理论上说 本方法就没有了
-	 * @param plan
-	 */
-	public Plan tryToFixPlanTimeTypeIssue(Plan plan,long loginId) {
-		boolean needToSave = false;
-		if(plan.getTimezone() == null){
-			plan.setTimezone(RefiningUtil.getDefaultTimeZone());
-			needToSave = true;
-		}
-
-		if(shouldFixUtcBasedOnDate(plan.getCreateUtc(),plan.getCreateTime())){
-			plan.setCreateUtc(plan.getCreateTime().getTime().getTime());
-			needToSave = true;
-		}
-
-		if(shouldFixUtcBasedOnDate(plan.getUpdateUtc(),plan.getUpdateTime())){
-			plan.setUpdateUtc(plan.getUpdateTime().getTime().getTime());
-			needToSave = true;
-		}
-
-		if(shouldFixUtcBasedOnDate(plan.getStartUtc(),plan.getStartDate())){
-			plan.setStartUtc(plan.getStartDate().getTime().getTime());
-			needToSave = true;
-		}
-
-		if(shouldFixUtcBasedOnDate(plan.getEndUtc(),plan.getEndDate())){
-			plan.setEndUtc(plan.getEndDate().getTime().getTime());
-			needToSave = true;
-		}
-		if(!needToSave){
-			return plan;
-		}
-		updatePlanSynchronously(plan,loginId);
-
-		return getPlan(plan.getId());
-	}
-
 
 	@Override
 	public Map<String, Long> 	loadPlanStateStatistics(long ownerId) throws LogicException, DBException {
@@ -809,7 +756,6 @@ public class WorkServiceImpl extends WorkService {
 		LockHandler<Long> handler = new LockHandler<>();
 
 		locker.lockByUserAndClass(loginId,()->{
-			tryToFixPlanTimeTypeIssue(plan,loginId);
 			final String timezone = plan.getTimezone();
 			long today = ZonedTimeUtils.getCurrentDateUtc(timezone);
 			if(wDAO.includeUniqueWorkSheetByOwnerAndDateAndTimezone(loginId, today,timezone)) {
@@ -1012,30 +958,30 @@ public class WorkServiceImpl extends WorkService {
 		if(target.getOwnerId() != loginId) {
 			throw new LogicException(SelfXErrors.CANNOT_SYNC_OTHERS_PLAN_TAGS);
 		}
-		
-		List<WorkSheet> toSave = wDAO.selectWorkSheetByField(DBConstants.F_PLAN_ID, planId);
-		
-	 	for(WorkSheet workSheet : toSave) {
-	 		List<EntityTag> tagsByPlan =  CommonUtil.cloneList(target.getTags(),tag->{
-	 			EntityTag one = tag;
-	 			one.createdBySystem = true;
-	 			return one;
-	 		});
-	 		/*万一有重复 认为该标签该是tagsFromPlan，即当同步之后，认为该标签是由系统创立的*/
-	 		List<EntityTag> tagsByUser = workSheet.getTags().stream()
-	 				.filter(tag->!tag.createdBySystem)
-	 				.filter(tag->tagsByPlan.stream().noneMatch(tagByPlan->tag.name.equals(tagByPlan.name)))
-	 				.toList();
-	 		
-	 		List<EntityTag> tagsForNew = new ArrayList<EntityTag>();
-	 		tagsForNew.addAll(tagsByUser);
-	 		tagsForNew.addAll(tagsByPlan);
-	 		
-	 		TagCalculator.checkTagsForReset(tagsForNew);
-	 		workSheet.setTags(tagsForNew);
-	 	}
-	 	
-	 	cache.saveEntities(toSave, p->wDAO.updateExistedWorkSheet(p));
+		locker.lockByUserAndClass(loginId,()->{
+			List<WorkSheet> toSave = wDAO.selectWorkSheetByField(DBConstants.F_PLAN_ID, planId);
+
+			for(WorkSheet workSheet : toSave) {
+				List<EntityTag> tagsByPlan =  CommonUtil.cloneList(target.getTags(),tag->{
+                    tag.createdBySystem = true;
+					return tag;
+				});
+				/*万一有重复 认为该标签该是tagsFromPlan，即当同步之后，认为该标签是由系统创立的*/
+				List<EntityTag> tagsByUser = workSheet.getTags().stream()
+						.filter(tag->!tag.createdBySystem)
+						.filter(tag->tagsByPlan.stream().noneMatch(tagByPlan->tag.name.equals(tagByPlan.name)))
+						.toList();
+
+				List<EntityTag> tagsForNew = new ArrayList<EntityTag>();
+				tagsForNew.addAll(tagsByUser);
+				tagsForNew.addAll(tagsByPlan);
+
+				TagCalculator.checkTagsForReset(tagsForNew);
+				workSheet.setTags(tagsForNew);
+			}
+
+			cache.saveEntities(toSave, p->wDAO.updateExistedWorkSheet(p));
+		});
 	}
 	
 	private List<WorkSheetProxy> fillPlanInfos(List<WorkSheet> src) throws DBException{

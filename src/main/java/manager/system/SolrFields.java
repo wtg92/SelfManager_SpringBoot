@@ -21,4 +21,6 @@ public abstract class SolrFields {
     public static final String BOOK_ID = "bookId";
 
     public static final String CHILDREN_NUM = "childrenNum";
+
+    public static final String FILE_IDS = "fileIds";
 }

@@ -10,12 +10,11 @@ import manager.entity.general.books.PageNode;
 import manager.entity.general.books.SharingBook;
 import manager.exception.LogicException;
 import manager.booster.SecurityBooster;
-import manager.system.Language;
-import manager.system.SelfXDataSrcTypes;
-import manager.system.SelfXErrors;
-import manager.system.SolrFields;
+import manager.service.FilesService;
+import manager.system.*;
 import manager.system.books.*;
 import manager.system.career.BookStyle;
+import manager.util.SelfXCollectionUtils;
 import manager.util.locks.UserLockManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +35,12 @@ public class BooksServiceImpl implements BooksService{
     @Resource
     CacheOperator cache;
 
+    @Resource
+    SecurityBooster securityBooster;
+
+    @Resource
+    FilesService filesService;
+
     private static final Logger log = LoggerFactory.getLogger(SelfXManagerSpringbootApplication.class);
 
 
@@ -44,6 +49,7 @@ public class BooksServiceImpl implements BooksService{
     private static final Integer BOOK_DEFAULT_DISPLAY_PATTERN = SharingBookDisplayPatterns.LIST;
 
     private static final Integer BOOK_DEFAULT_STYLE = BookStyle.GREEN.getDbCode();
+
     @Override
     public void createBook(long loginId,String name,String defaultLanguage,String comment) {
         /**
@@ -70,7 +76,6 @@ public class BooksServiceImpl implements BooksService{
             book.setDisplayPattern(BOOK_DEFAULT_DISPLAY_PATTERN);
             book.setSeqWeight(0);
             book.setStyle(BOOK_DEFAULT_STYLE);
-
             operator.insertBook(book,loginId);
         });
     }
@@ -105,7 +110,26 @@ public class BooksServiceImpl implements BooksService{
             throw new LogicException(SelfXErrors.UNEXPECTED_ERROR);
         }
         locker.lockByUserAndClass(loginId,()->{
-            cache.savePageNode(loginId,pageNodeId,()->operator.updatePageNode(pageNodeId,loginId,loginId,updatingAttrs));
+            Runnable savingNode = ()->  cache.savePageNode(loginId,pageNodeId,()->operator.updatePageNode(pageNodeId,loginId,loginId,updatingAttrs));
+
+            if(!updatingAttrs.containsKey(SolrFields.FILE_IDS)){
+                savingNode.run();
+            }else{
+                List<String> toUpdate = updatingAttrs.get(SolrFields.FILE_IDS)==null ? null : (List<String>)updatingAttrs.get(SolrFields.FILE_IDS);
+                List<String> inDB = getPageNode(loginId, pageNodeId).getFileIds();
+                SelfXCollectionUtils.ComparisonResult<String> fileIdsComparisonResult = SelfXCollectionUtils.compareLists(toUpdate, inDB, String::equals);
+                /**
+                 * 对于处理fileRecords 需要在实际更新成功后再处理
+                 */
+                savingNode.run();
+                /**
+                 * 被更新掉的
+                 */
+                fileIdsComparisonResult.onlyInList2.forEach(encodedFileIds->{
+                    long fileToDelete = securityBooster.getStableCommonId(encodedFileIds);
+                    filesService.deleteFileRecord(loginId,fileToDelete);
+                });
+            }
         });
     }
 
@@ -163,6 +187,7 @@ public class BooksServiceImpl implements BooksService{
             page.setChildrenNum(0);
             page.setType(PageNodeType.PAGE);
             page.setSrcType(SelfXDataSrcTypes.BY_USERS);
+            page.setFileIds(new ArrayList<>());
             operator.insertPage(page,loginId);
 
             refreshPageChildrenNums(isRoot,parentId,bookId,loginId);

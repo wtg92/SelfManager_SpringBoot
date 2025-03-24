@@ -5,6 +5,9 @@ import org.apache.solr.client.solrj.beans.Field;
 
 import java.util.List;
 
+/**
+ * TODO 配置文件里 已经预留出ImgId_ 字段了 有时间 为Book 弄一个封面
+ */
 public class SharingBook extends SMSolrDoc {
     @Field
     private Integer status;

@@ -41,6 +41,16 @@ public class PageNode extends SMSolrDoc {
     @Field
     private List<String> variables;
 
+    @Field
+    private List<String> fileIds;
+
+    public List<String> getFileIds() {
+        return fileIds;
+    }
+
+    public void setFileIds(List<String> fileIds) {
+        this.fileIds = fileIds;
+    }
 
     public String getSrcType() {
         return srcType;
