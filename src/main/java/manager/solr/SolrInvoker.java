@@ -1,10 +1,11 @@
 package manager.solr;
 
+import com.alibaba.fastjson2.JSON;
 import manager.booster.UserIsolator;
 import manager.entity.SMSolrDoc;
 import manager.solr.constants.SolrRequestParam;
-import manager.system.SelfXCores;
 import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.impl.HttpJdkSolrClient;
 import org.apache.solr.client.solrj.request.CoreAdminRequest;
 import org.apache.solr.client.solrj.request.UpdateRequest;
@@ -12,14 +13,13 @@ import org.apache.solr.client.solrj.response.CoreAdminResponse;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.CoreAdminParams;
-import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.common.util.NamedList;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,9 +43,6 @@ public class SolrInvoker{
 
     @Value("${solr.createCollections.numReplicas}")
     Integer numReplicas;
-
-    @Value("${solr.config.default}")
-    String defaultConfig;
 
 
     public boolean coreExists(String coreName){
@@ -130,23 +127,33 @@ public class SolrInvoker{
 
     public void testSolrClient() {
         try (SolrClient solrClient = new HttpJdkSolrClient.Builder(baseURL+UserIsolator.calculateCoreNamByUser(SelfXCores.SHARING_BOOK,(long)1)).build()) {
-            final Map<String, String> queryParamMap = new HashMap<String, String>();
+            SolrQuery query = new SolrQuery();
+            query.setQuery("(name_arabic:哈~ OR comment_arabic:Java~)");  // 对 name_* 和 comment_* 进行模糊匹配
+            query.setStart(0);
+            query.setRows(10);  // 分页：获取前10条数据
+            query.setSort("score", SolrQuery.ORDER.desc); // 按得分排序
 
-            SolrInputDocument doc = new SolrInputDocument();
-            doc.addField("id", "b4c85078-0d89-41d1-8fae-7f5d1178ec07"); // Mandatory: Unique identifier
-            // Add the fields to update
-            doc.addField("comment_ja",Map.of("set", "new value for field1")); // Atomic update
-            doc.addField("status",Map.of("set", 2)); // Atomic update
-            solrClient.add(doc);
-            solrClient.commit();
+
+            query.setHighlight(true);  // 启用高亮
+            query.addHighlightField("name_arabic");  // 指定高亮字段
+            query.setHighlightSimplePre("<mark>");  // 高亮前缀
+            query.setHighlightSimplePost("</mark>");  // 高亮后缀
+            query.setHighlightFragsize(100);  // 片段大小
+
+            QueryResponse response = solrClient.query(query);
+            SolrDocumentList docs = response.getResults();
+
+            // 输出结果
+            System.out.println(JSON.toJSONString(docs));
+            System.out.println(JSON.toJSONString(response.getHighlighting()));
         } catch (Exception e) {
             throw SolrUtil.processSolrException(e);
         }
     }
 
-    public QueryResponse query(String coreName, SolrParams queryParamMap) {
+    public QueryResponse query(String coreName, SolrQuery q) {
         try (SolrClient solrClient = generateSpecificClient(coreName)) {
-            return solrClient.query(queryParamMap);
+            return solrClient.query(q);
         } catch (Exception e) {
             throw SolrUtil.processSolrException(e);
         }

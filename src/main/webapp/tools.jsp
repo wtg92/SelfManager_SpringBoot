@@ -1,4 +1,4 @@
-<%@page import="manager.system.career.BookStyle"%>
+<%@page import="manager.system.books.BookStyle"%>
 <%@page import="manager.service.work.WorkService"%>
 <%@page import="manager.system.Gender"%>
 <%@page import="manager.system.VerifyUserMethod"%>

@@ -3,7 +3,7 @@ package manager.system;
 import manager.TestUtil;
 import org.junit.Test;
 
-import manager.system.career.BookStyle;
+import manager.system.books.BookStyle;
 import manager.system.career.CareerLogAction;
 import manager.system.career.NoteLabel;
 import manager.system.career.PlanItemType;

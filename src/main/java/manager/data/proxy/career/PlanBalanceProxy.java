@@ -1,6 +1,6 @@
 package manager.data.proxy.career;
 
-import manager.data.career.BalanceContent;
+import manager.data.worksheet.BalanceContent;
 import manager.entity.general.career.PlanBalance;
 
 public class PlanBalanceProxy {

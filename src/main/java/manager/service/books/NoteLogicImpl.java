@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 import manager.dao.DAOFactory;
 import manager.dao.career.NoteDAO;
-import manager.data.career.BookContent;
+import manager.data.worksheet.BookContent;
 import manager.data.proxy.career.MemoItemProxy;
 import manager.data.proxy.career.MemoProxy;
 import manager.data.proxy.career.NoteBookProxy;
@@ -26,7 +26,7 @@ import manager.cache.CacheMode;
 import manager.system.SelfX;
 import manager.system.SelfXErrors;
 import manager.system.SelfXPerms;
-import manager.system.career.BookStyle;
+import manager.system.books.BookStyle;
 import manager.system.career.NoteLabel;
 
 /**

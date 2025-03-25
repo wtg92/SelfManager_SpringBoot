@@ -1,6 +1,6 @@
 package manager.data.proxy.career;
 
-import manager.data.career.MemoContent;
+import manager.data.worksheet.MemoContent;
 import manager.entity.general.career.Memo;
 
 public class MemoProxy {

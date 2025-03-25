@@ -6,8 +6,8 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 
-import manager.data.career.PlanContent;
-import manager.data.career.WorkSheetContent;
+import manager.data.worksheet.PlanContent;
+import manager.data.worksheet.WorkSheetContent;
 import manager.entity.general.career.Plan;
 import manager.entity.general.career.WorkSheet;
 import manager.entity.virtual.career.PlanItem;

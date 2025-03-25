@@ -1,7 +1,7 @@
 package manager.controller;
 
 import com.alibaba.fastjson2.JSONObject;
-import manager.data.career.MultipleItemsResult;
+import manager.data.MultipleItemsResult;
 import manager.data.proxy.career.PlanBalanceProxy;
 import manager.data.proxy.career.PlanProxy;
 import manager.data.proxy.career.WorkSheetProxy;

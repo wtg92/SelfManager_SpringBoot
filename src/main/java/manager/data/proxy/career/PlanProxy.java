@@ -1,6 +1,6 @@
 package manager.data.proxy.career;
 
-import manager.data.career.PlanContent;
+import manager.data.worksheet.PlanContent;
 import manager.entity.general.career.Plan;
 import manager.system.career.PlanSetting;
 

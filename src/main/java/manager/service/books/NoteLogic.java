@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import manager.data.career.BookContent;
+import manager.data.worksheet.BookContent;
 import manager.data.proxy.career.MemoProxy;
 import manager.data.proxy.career.NoteBookProxy;
 import manager.data.proxy.career.NoteProxy;
@@ -19,7 +19,7 @@ import manager.exception.LogicException;
 import manager.exception.SMException;
 import manager.service.UserService;
 import manager.system.SelfX;
-import manager.system.career.BookStyle;
+import manager.system.books.BookStyle;
 import manager.system.career.NoteLabel;
 
 

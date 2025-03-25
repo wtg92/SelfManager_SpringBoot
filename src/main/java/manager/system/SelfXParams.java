@@ -92,6 +92,8 @@ public abstract class SelfXParams {
 	public final static String END_UTC_FOR_UPDATE = "end_utc_for_update";
 
 	public final static String END_DATE = "end_date";
+
+	public final static String SEARCH_INFO = "search_info";
 	public final static String RECALCULATE_STATE = "recalculate_state";
 	public final static String STATE = "state";
 	public final static String WS_ID = "ws_id";

@@ -1,4 +1,4 @@
-package manager.data.career;
+package manager.data.worksheet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,7 +6,6 @@ import java.util.List;
 import manager.data.proxy.career.CareerLogProxy;
 import manager.data.proxy.career.PlanItemProxy;
 import manager.data.proxy.career.WorkItemProxy;
-import manager.entity.virtual.career.PlanItem;
 
 public class WorkSheetContent {
 	

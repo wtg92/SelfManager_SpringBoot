@@ -5,7 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import manager.data.career.MemoContent;
+import manager.data.worksheet.MemoContent;
 import manager.entity.general.career.Memo;
 import manager.entity.virtual.career.MemoItem;
 import manager.system.career.NoteLabel;

@@ -1,4 +1,4 @@
-package manager.data.career;
+package manager.data;
 
 import manager.system.SelfX;
 

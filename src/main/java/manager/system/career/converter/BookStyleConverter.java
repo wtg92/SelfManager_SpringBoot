@@ -4,7 +4,7 @@ package manager.system.career.converter;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
-import manager.system.career.BookStyle;
+import manager.system.books.BookStyle;
 
 
 

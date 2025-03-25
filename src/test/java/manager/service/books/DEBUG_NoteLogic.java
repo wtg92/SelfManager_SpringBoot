@@ -2,7 +2,7 @@ package manager.service.books;
 
 import org.junit.Test;
 
-import manager.data.career.BookContent;
+import manager.data.worksheet.BookContent;
 import manager.exception.DBException;
 import manager.exception.LogicException;
 

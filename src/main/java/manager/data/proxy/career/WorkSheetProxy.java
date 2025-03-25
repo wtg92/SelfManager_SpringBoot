@@ -1,7 +1,7 @@
 package manager.data.proxy.career;
 
 
-import manager.data.career.WorkSheetContent;
+import manager.data.worksheet.WorkSheetContent;
 import manager.entity.general.career.WorkSheet;
 
 public class WorkSheetProxy {

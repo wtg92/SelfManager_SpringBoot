@@ -1,6 +1,7 @@
 package manager.service.books;
 
-import manager.data.career.MultipleItemsResult;
+import manager.data.MultipleItemsResult;
+import manager.solr.data.SolrSearchResult;
 import manager.entity.general.books.PageNode;
 import manager.entity.general.books.SharingBook;
 
@@ -50,4 +51,6 @@ public interface BooksService {
     void deletePageNode(long loginId,String bookId,String parentId,Boolean isRoot, String id);
 
     void deleteBook(long loginId, String id);
+
+    SolrSearchResult<SharingBook> searchBooks(long loginId, String searchInfo, Integer pageNum);
 }

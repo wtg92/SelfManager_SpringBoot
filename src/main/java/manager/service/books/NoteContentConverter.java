@@ -11,7 +11,7 @@ import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
-import manager.data.career.MemoContent;
+import manager.data.worksheet.MemoContent;
 import manager.data.proxy.career.MemoItemProxy;
 import manager.entity.general.career.Memo;
 import manager.entity.virtual.career.MemoItem;

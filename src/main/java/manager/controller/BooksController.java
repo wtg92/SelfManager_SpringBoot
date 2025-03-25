@@ -2,7 +2,8 @@ package manager.controller;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
-import manager.data.career.MultipleItemsResult;
+import manager.data.MultipleItemsResult;
+import manager.solr.data.SolrSearchResult;
 import manager.entity.general.books.PageNode;
 import manager.entity.general.books.SharingBook;
 import manager.service.books.BooksService;
@@ -90,6 +91,15 @@ public class BooksController {
     ,@RequestParam(STATE)Integer state){
         long loginId = UIUtil.getLoginId(authorizationHeader);
         return service.getBooks(loginId,state);
+    }
+
+    @GetMapping(BOOKS_PATH+"/search")
+    private SolrSearchResult<SharingBook> searchBooks(@RequestHeader("Authorization") String authorizationHeader
+            , @RequestParam(SEARCH_INFO)String searchInfo
+            , @RequestParam(PAGE_NUM)Integer pageNum
+            ){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        return service.searchBooks(loginId,searchInfo,pageNum);
     }
 
     @GetMapping(BOOKS_PATH)

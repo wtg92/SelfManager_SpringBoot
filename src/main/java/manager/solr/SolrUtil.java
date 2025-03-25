@@ -5,6 +5,8 @@ import manager.solr.constants.CustomProcessors;
 import manager.system.SelfXErrors;
 import org.apache.solr.client.solrj.beans.DocumentObjectBinder;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -17,6 +19,10 @@ public abstract class SolrUtil {
 
     public static String getMultipleFieldParam(String ...params){
         return String.join(",", params);
+    }
+
+    public static String getMultipleFieldParam(Collection<String> params){
+        return getMultipleFieldParam(params.toArray(new String[0]));
     }
 
     public static String getAutoGenerateIdConfig(){
@@ -56,6 +62,7 @@ public abstract class SolrUtil {
         }
     }
     public static DBException processSolrException(Exception e){
+        e.printStackTrace();
         try {
             detectDataTooLongExceptionAndThrowIfAny(e);
         }catch(DBException dataTooLong) {
@@ -83,5 +90,22 @@ public abstract class SolrUtil {
         public T getEnd() {
             return end;
         }
+    }
+
+    public static String buildSearchQuery(List<String> fieldNames, String searchInfo) {
+        if (fieldNames == null || fieldNames.isEmpty() || searchInfo == null || searchInfo.isEmpty()) {
+            throw new RuntimeException("Why Call This?");
+        }
+
+        StringBuilder queryBuilder = new StringBuilder("(");
+        for (int i = 0; i < fieldNames.size(); i++) {
+            String fieldName = fieldNames.get(i);
+            queryBuilder.append(fieldName).append(":").append(searchInfo).append("~");
+            if (i < fieldNames.size() - 1) {
+                queryBuilder.append(" OR ");
+            }
+        }
+        queryBuilder.append(")");
+        return queryBuilder.toString();
     }
 }

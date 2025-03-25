@@ -5,7 +5,9 @@ import com.alibaba.fastjson2.JSON;
 import manager.SelfXManagerSpringbootApplication;
 import manager.booster.MultipleLangHelper;
 import manager.cache.CacheOperator;
-import manager.data.career.MultipleItemsResult;
+import manager.data.MultipleItemsResult;
+import manager.solr.SolrFields;
+import manager.solr.data.SolrSearchResult;
 import manager.entity.general.books.PageNode;
 import manager.entity.general.books.SharingBook;
 import manager.exception.LogicException;
@@ -13,7 +15,7 @@ import manager.booster.SecurityBooster;
 import manager.service.FilesService;
 import manager.system.*;
 import manager.system.books.*;
-import manager.system.career.BookStyle;
+import manager.system.books.BookStyle;
 import manager.util.SelfXCollectionUtils;
 import manager.util.locks.UserLockManager;
 import org.slf4j.Logger;
@@ -217,7 +219,7 @@ public class BooksServiceImpl implements BooksService{
 
     @Override
     public MultipleItemsResult<PageNode> getPages(long loginId, String bookId, String parentId, Boolean isRoot) {
-        return operator.getPages(loginId,bookId, generatePageParentId(bookId,parentId,isRoot));
+        return operator.getPageNodes(loginId,bookId, generatePageParentId(bookId,parentId,isRoot));
     }
 
     /**
@@ -265,6 +267,11 @@ public class BooksServiceImpl implements BooksService{
                 operator.deletePageNodesByBookId(loginId,bookId);
             });
         });
+    }
+
+    @Override
+    public SolrSearchResult<SharingBook> searchBooks(long loginId, String searchInfo, Integer pageNum) {
+        return operator.searchBooks(loginId,searchInfo,pageNum);
     }
 
     private static void checkPageNodeLegal(List<String> parentIds, List<Double> indexes){

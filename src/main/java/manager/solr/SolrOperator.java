@@ -2,20 +2,21 @@ package manager.solr;
 
 import com.alibaba.fastjson2.JSON;
 import manager.booster.UserIsolator;
-import manager.data.career.MultipleItemsResult;
+import manager.data.MultipleItemsResult;
 import manager.entity.SMSolrDoc;
+import manager.solr.constants.SolrConfig;
 import manager.solr.constants.SolrRequestParam;
+import manager.solr.data.SolrSearchResult;
 import manager.solr.data.StatsResult;
-import manager.system.SolrFields;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrInputDocument;
-import org.apache.solr.common.params.MultiMapSolrParams;
-import org.apache.solr.common.params.SolrParams;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * 该类处理的问题：
@@ -38,10 +39,6 @@ public class SolrOperator {
     /**
      * UserIsolator.calculateCoreNamByUser放在这个方法里的原因是
      * 当传入coreName时 说明是分用户的 因此这段逻辑 放在这里是okay的
-     * @param doc
-     * @param core
-     * @param userId
-     * @param configDir
      */
     public void insertDoc(SMSolrDoc doc,String core,long userId,String configDir) {
         String coreName = UserIsolator.calculateCoreNamByUser(core,userId) ;
@@ -88,36 +85,71 @@ public class SolrOperator {
     }
 
 
-    public <T> MultipleItemsResult<T> query(String core, Long userId, SolrParams queryParamMap, String configDir, Class<T> cls) {
+    public <T> MultipleItemsResult<T> query(String core, Long userId, SolrQuery query, String configDir, Class<T> cls) {
         String coreName = UserIsolator.calculateCoreNamByUser(core,userId) ;
         initCoreIfNotExist(coreName,configDir);
-        QueryResponse queryResponse = invoker.query(coreName, queryParamMap);
+        QueryResponse queryResponse = invoker.query(coreName, query);
         MultipleItemsResult<T> rlt = new MultipleItemsResult<>();
         rlt.count=queryResponse.getResults().getNumFound();
         rlt.items=queryResponse.getBeans(cls);
         return rlt;
     }
 
+    public <T> SolrSearchResult<T> search(String core, Long userId, List<String> fieldNames
+            ,String searchInfo
+            ,int pageNum
+            ,String configDir, Class<T> cls) {
+        return search(core,userId,fieldNames,searchInfo,pageNum,configDir,cls,null);
+    }
+
+
+    public <T> SolrSearchResult<T> search(String core, Long userId, List<String> fieldNames
+            , String searchInfo
+            , int pageNum
+            , String configDir
+            , Class<T> cls
+            , Consumer<SolrQuery> queryAdditionalFilter) {
+        String coreName = UserIsolator.calculateCoreNamByUser(core,userId) ;
+        initCoreIfNotExist(coreName,configDir);
+
+        SolrQuery query = new SolrQuery();
+        query.setQuery(SolrUtil.buildSearchQuery(fieldNames,searchInfo));
+        query.setStart((pageNum - 1) * SolrConfig.SEARCH_PAGE_SIZE);
+        query.setRows(SolrConfig.SEARCH_PAGE_SIZE);
+        query.setSort(SolrRequestParam.QUERY_SCORE, SolrQuery.ORDER.desc);
+
+        query.setHighlight(true);
+        fieldNames.forEach(query::addHighlightField);
+        query.setHighlightSimplePre("<"+ SolrConfig.HIGHLIGHT_TAG+">");
+        query.setHighlightSimplePost("</"+SolrConfig.HIGHLIGHT_TAG+">");
+        query.setHighlightFragsize(SolrConfig.HIGHLIGHT_FRAGMENT_SIZE);
+
+        if(queryAdditionalFilter != null){
+            queryAdditionalFilter.accept(query);
+        }
+
+        QueryResponse queryResponse = invoker.query(coreName, query);
+        SolrSearchResult<T> rlt = new SolrSearchResult<>();
+        rlt.count=queryResponse.getResults().getNumFound();
+        rlt.items=queryResponse.getBeans(cls);
+        rlt.highlighting = queryResponse.getHighlighting();
+        return rlt;
+    }
+
     /**
      * TODO 将来扩展 还有一个stats.field 可以设置
      * 假设数值 还可以求出最大值 最小值
-     * @param core
-     * @param userId
-     * @param queryParamMap
-     * @param configDir
-     * @return
      */
-    public StatsResult queryStatus(String core, Long userId, Map<String, String[]> queryParamMap, String configDir) {
+    public StatsResult queryStatus(String core, Long userId, SolrQuery query, String configDir) {
         String coreName = UserIsolator.calculateCoreNamByUser(core,userId) ;
         initCoreIfNotExist(coreName,configDir);
-        queryParamMap.put(SolrRequestParam.STATS, new String[]{SolrRequestParam.TRUE});;
-        queryParamMap.put(SolrRequestParam.QUERY_LIMIT, new String[]{String.valueOf(0)});
-        MultiMapSolrParams queryParams = new MultiMapSolrParams(queryParamMap);
-        QueryResponse queryResponse = invoker.query(coreName, queryParams);
+        query.set(SolrRequestParam.STATS, SolrRequestParam.TRUE);
+        query.set(SolrRequestParam.QUERY_LIMIT, "0");
+        QueryResponse queryResponse = invoker.query(coreName, query);
         return transfer(queryResponse);
     }
 
-    private StatsResult transfer(QueryResponse queryResponse) {
+    private static StatsResult transfer(QueryResponse queryResponse) {
         StatsResult rlt = new StatsResult();
         rlt.count = queryResponse.getResults().getNumFound();
         return rlt;

@@ -1,6 +1,8 @@
 package manager.util;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class ReflectUtil {
 
@@ -17,6 +19,21 @@ public abstract class ReflectUtil {
     public static String getInvokerClassName() {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         return stackTrace[3].getClassName();
+    }
+
+    public static List<String> getFiledNamesByPrefix(Class<?> clazz, String prefix){
+        List<String> fieldNames = new ArrayList<>();
+        if (clazz == null || prefix == null) {
+            throw new RuntimeException("Why Invoke This?");
+        }
+        Field[] fields = clazz.getDeclaredFields();
+        for (Field field : fields) {
+            String fieldName = field.getName();
+            if (fieldName.startsWith(prefix)) {
+                fieldNames.add(fieldName);
+            }
+        }
+        return fieldNames;
     }
 
     public static <V,M> V setFiledValue(V obj,String fieldName,M value){

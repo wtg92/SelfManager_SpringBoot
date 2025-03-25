@@ -1,4 +1,4 @@
-<%@page import="manager.system.career.BookStyle"%>
+<%@page import="manager.system.books.BookStyle"%>
 <%@page import="manager.system.career.PlanItemType"%>
 <%@page import="manager.system.career.PlanState"%>
 <%@page import="manager.system.SelfX"%>
