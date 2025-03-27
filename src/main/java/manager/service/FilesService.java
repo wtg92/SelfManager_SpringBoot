@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -25,6 +26,10 @@ public class FilesService {
 
     @Value("${s3.upload.maxGBSumForOneUser}")
     private Integer UPLOAD_MAX_GB_FOR_ONE_USER;
+
+    @Value("${s3.folder}")
+    private String s3Folder;
+
     @Resource
     private UserLockManager locker;
     @Resource
@@ -37,6 +42,9 @@ public class FilesService {
     @Resource
     private SecurityBooster securityBooster;
 
+    private String generateFullFileName(String suffix){
+        return s3Folder+ "/" +UUID.randomUUID().toString()+"."+suffix;
+    }
 
     public Map<String,Object> retrieveUploadURL(long loginId, Long sizeKB, String suffix,String srcParams) {
         Map<String,Object> rlt = new HashMap<>();
@@ -53,7 +61,7 @@ public class FilesService {
             record.setSizeKb(sizeKB);
             record.setDone(false);
             record.setSuffix(suffix);
-            final String fileName = UUID.randomUUID().toString()+"."+suffix;
+            final String fileName = generateFullFileName(suffix);
             record.setFileName(fileName);
             record.setOwnerId(loginId);
             record.setUploadStartUtc(System.currentTimeMillis());

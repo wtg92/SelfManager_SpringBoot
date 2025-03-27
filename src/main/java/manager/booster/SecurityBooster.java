@@ -75,7 +75,7 @@ public class SecurityBooster {
 			throw new LogicException(SelfXErrors.ILLEGAL_USER_TOKEN, "无user id");
 		}
 		try {
-			return Long.parseLong(SecurityBasis.decodeUnstableInfo(rlt.asString()));
+			return getUnstableCommonId(rlt.asString());
 		} catch (NumberFormatException e) {
 			throw new LogicException(SelfXErrors.ILLEGAL_USER_TOKEN);
 		} catch (Exception e){

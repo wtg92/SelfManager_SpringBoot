@@ -26,7 +26,7 @@ import javax.annotation.Resource;
 import java.util.*;
 
 @Service
-public class BooksServiceImpl implements BooksService{
+public class BooksServiceImpl implements BooksService {
 
     @Resource
     private UserLockManager locker;
@@ -53,23 +53,23 @@ public class BooksServiceImpl implements BooksService{
     private static final Integer BOOK_DEFAULT_STYLE = BookStyle.GREEN.getDbCode();
 
     @Override
-    public void createBook(long loginId,String name,String defaultLanguage,String comment) {
+    public void createBook(long loginId, String name, String defaultLanguage, String comment) {
         /**
          * unnecessary but do not harm
          */
-        if(Language.get(defaultLanguage)==Language.UNKNOWN){
-            throw new LogicException(SelfXErrors.UNEXPECTED_ERROR,"IMPOSSIBLE lang " + defaultLanguage);
+        if (Language.get(defaultLanguage) == Language.UNKNOWN) {
+            throw new LogicException(SelfXErrors.UNEXPECTED_ERROR, "IMPOSSIBLE lang " + defaultLanguage);
         }
 
-        locker.lockByUserAndClass(loginId,()->{
+        locker.lockByUserAndClass(loginId, () -> {
             SharingBook book = new SharingBook();
             book.setDefaultLang(defaultLanguage);
 
             /**
              * 生成对应值
              */
-            book = MultipleLangHelper.setFiledValue(book, BooksMultipleFields.NAME,defaultLanguage,name);
-            book = MultipleLangHelper.setFiledValue(book, BooksMultipleFields.COMMENT,defaultLanguage,comment);
+            book = MultipleLangHelper.setFiledValue(book, BooksMultipleFields.NAME, defaultLanguage, name);
+            book = MultipleLangHelper.setFiledValue(book, BooksMultipleFields.COMMENT, defaultLanguage, comment);
 
             /**
              * 确定一系列初始值
@@ -78,19 +78,19 @@ public class BooksServiceImpl implements BooksService{
             book.setDisplayPattern(BOOK_DEFAULT_DISPLAY_PATTERN);
             book.setSeqWeight(0);
             book.setStyle(BOOK_DEFAULT_STYLE);
-            operator.insertBook(book,loginId);
+            operator.insertBook(book, loginId);
         });
     }
 
     @Override
-    public MultipleItemsResult<SharingBook> getBooks(long loginId,Integer state) {
+    public MultipleItemsResult<SharingBook> getBooks(long loginId, Integer state) {
         MultipleItemsResult<SharingBook> books = operator.getBooks(loginId, state);
         fill(books);
         return books;
     }
 
     private static void fill(MultipleItemsResult<SharingBook> books) {
-        books.items.forEach(item->{
+        books.items.forEach(item -> {
             item.setUpdaterEncodedId(SecurityBooster.encodeUnstableCommonId(item.getUpdaterId()));
             item.setUpdaterId(null);
         });
@@ -98,26 +98,26 @@ public class BooksServiceImpl implements BooksService{
 
     @Override
     public void updateBookPropsSyncly(long loginId, String bookId, Map<String, Object> updatingAttrs) {
-        locker.lockByUserAndClass(loginId,()->{
-            cache.saveBook(loginId,bookId,()->operator.updateBook(bookId,loginId,loginId,updatingAttrs));
+        locker.lockByUserAndClass(loginId, () -> {
+            cache.saveBook(loginId, bookId, () -> operator.updateBook(bookId, loginId, loginId, updatingAttrs));
         });
     }
 
     @Override
     public void updatePageNodePropsSyncly(long loginId, String pageNodeId, Map<String, Object> updatingAttrs) {
-        if(updatingAttrs.keySet().stream()
-                .anyMatch(one->one.equals(SolrFields.PARENT_IDS)
-                || one.equals(SolrFields.INDEXES)
-                )){
+        if (updatingAttrs.keySet().stream()
+                .anyMatch(one -> one.equals(SolrFields.PARENT_IDS)
+                        || one.equals(SolrFields.INDEXES)
+                )) {
             throw new LogicException(SelfXErrors.UNEXPECTED_ERROR);
         }
-        locker.lockByUserAndClass(loginId,()->{
-            Runnable savingNode = ()->  cache.savePageNode(loginId,pageNodeId,()->operator.updatePageNode(pageNodeId,loginId,loginId,updatingAttrs));
+        locker.lockByUserAndClass(loginId, () -> {
+            Runnable savingNode = () -> cache.savePageNode(loginId, pageNodeId, () -> operator.updatePageNode(pageNodeId, loginId, loginId, updatingAttrs));
 
-            if(!updatingAttrs.containsKey(SolrFields.FILE_IDS)){
+            if (!updatingAttrs.containsKey(SolrFields.FILE_IDS)) {
                 savingNode.run();
-            }else{
-                List<String> toUpdate = updatingAttrs.get(SolrFields.FILE_IDS)==null ? null : (List<String>)updatingAttrs.get(SolrFields.FILE_IDS);
+            } else {
+                List<String> toUpdate = updatingAttrs.get(SolrFields.FILE_IDS) == null ? null : (List<String>) updatingAttrs.get(SolrFields.FILE_IDS);
                 List<String> inDB = getPageNode(loginId, pageNodeId).getFileIds();
                 SelfXCollectionUtils.ComparisonResult<String> fileIdsComparisonResult = SelfXCollectionUtils.compareLists(toUpdate, inDB, String::equals);
                 /**
@@ -127,9 +127,9 @@ public class BooksServiceImpl implements BooksService{
                 /**
                  * 被更新掉的
                  */
-                fileIdsComparisonResult.onlyInList2.forEach(encodedFileIds->{
+                fileIdsComparisonResult.onlyInList2.forEach(encodedFileIds -> {
                     long fileToDelete = securityBooster.getStableCommonId(encodedFileIds);
-                    filesService.deleteFileRecord(loginId,fileToDelete);
+                    filesService.deleteFileRecord(loginId, fileToDelete);
                 });
             }
         });
@@ -140,15 +140,16 @@ public class BooksServiceImpl implements BooksService{
         /**
          * 必须只管当下的
          */
-        updatePageNodeParentIdsAndIndexesSyncly(loginId,nodeId,parentIds,indexes);
+        updatePageNodeParentIdsAndIndexesSyncly(loginId, nodeId, parentIds, indexes);
     }
+
     public void updatePageNodeParentIdsAndIndexesSyncly(long loginId, String nodeId, List<String> parentIds, List<Double> indexes) {
-        checkPageNodeLegal(parentIds,indexes);
-        locker.lockByUserAndClass(loginId,()->{
-            Map<String,Object> param = new HashMap<>();
-            param.put(SolrFields.PARENT_IDS,parentIds);
-            param.put(SolrFields.INDEXES,indexes);
-            cache.savePageNode(loginId,nodeId,()->operator.updatePageNode(nodeId,loginId,loginId,param));
+        checkPageNodeLegal(parentIds, indexes);
+        locker.lockByUserAndClass(loginId, () -> {
+            Map<String, Object> param = new HashMap<>();
+            param.put(SolrFields.PARENT_IDS, parentIds);
+            param.put(SolrFields.INDEXES, indexes);
+            cache.savePageNode(loginId, nodeId, () -> operator.updatePageNode(nodeId, loginId, loginId, param));
         });
     }
 
@@ -156,70 +157,71 @@ public class BooksServiceImpl implements BooksService{
     @Override
     public void closeBook(long loginId, String id) {
         //确定封存吗？（如果该笔记本不包含笔记页且不含备注，会被<em>直接删除</em>
-        Map<String,Object> param = new HashMap<>();
-        if(operator.countPagesForSpecificParentId
-                (generateParentIdForRootPages(id),id,loginId) == 0){
-            deleteBook(loginId,id);
-        }else{
-            param.put(SolrFields.STATUS,SharingBookStatus.CLOSED);
-            updateBookPropsSyncly(loginId,id,param);
+        Map<String, Object> param = new HashMap<>();
+        if (operator.countPagesForSpecificParentId
+                (generateParentIdForRootPages(id), id, loginId) == 0) {
+            deleteBook(loginId, id);
+        } else {
+            param.put(SolrFields.STATUS, SharingBookStatus.CLOSED);
+            updateBookPropsSyncly(loginId, id, param);
         }
     }
 
     @Override
     public SharingBook getBook(long loginId, String id) {
-        return cache.getBook(loginId,id,()->operator.getBook(loginId,id));
+        return cache.getBook(loginId, id, () -> operator.getBook(loginId, id));
     }
 
     @Override
     public PageNode getPageNode(long loginId, String id) {
-        return cache.getPageNode(loginId,id,()->operator.getPageNode(loginId,id));
+        return cache.getPageNode(loginId, id, () -> operator.getPageNode(loginId, id));
     }
 
     @Override
-    public void createPage(long loginId,String bookId, String name, String lang, String parentId,Boolean isRoot,Double index) {
-        locker.lockByUserAndClass(loginId,()->{
+    public void createPage(long loginId, String bookId, String name, String lang, String parentId, Boolean isRoot, Double index) {
+        locker.lockByUserAndClass(loginId, () -> {
             PageNode page = new PageNode();
             page.setBookId(bookId);
-            page.setParentIds(Collections.singletonList(generatePageParentId(bookId,parentId,isRoot)));
+            page.setParentIds(Collections.singletonList(generatePageParentId(bookId, parentId, isRoot)));
             page.setIndexes(Collections.singletonList(index));
-            page = MultipleLangHelper.setFiledValue(page, BooksMultipleFields.NAME,lang,name);
+            page = MultipleLangHelper.setFiledValue(page, BooksMultipleFields.NAME, lang, name);
             page.setWithTODOs(false);
             page.setIsHidden(false);
             page.setChildrenNum(0);
             page.setType(PageNodeType.PAGE);
             page.setSrcType(SelfXDataSrcTypes.BY_USERS);
             page.setFileIds(new ArrayList<>());
-            operator.insertPage(page,loginId);
+            operator.insertPage(page, loginId);
 
-            refreshPageChildrenNums(isRoot,parentId,bookId,loginId);
+            refreshPageChildrenNums(isRoot, parentId, bookId, loginId);
         });
     }
 
-    private void refreshPageChildrenNums(Boolean isRoot, String id,String bookId,long loginId) {
-        if(isRoot){
+    private void refreshPageChildrenNums(Boolean isRoot, String id, String bookId, long loginId) {
+        if (isRoot) {
             return;
         }
-        long count = operator.countPagesForSpecificParentId(generateParentIdForSubPages(id),bookId,loginId);
-        Map<String,Object> params = new HashMap<>();
-        params.put(SolrFields.CHILDREN_NUM,count);
-        updatePageNodePropsSyncly(loginId,id,params);
+        long count = operator.countPagesForSpecificParentId(generateParentIdForSubPages(id), bookId, loginId);
+        Map<String, Object> params = new HashMap<>();
+        params.put(SolrFields.CHILDREN_NUM, count);
+        updatePageNodePropsSyncly(loginId, id, params);
     }
 
-    private static String generatePageParentId(String bookId, String parentId, boolean isRoot){
+    private static String generatePageParentId(String bookId, String parentId, boolean isRoot) {
         return isRoot ? generateParentIdForRootPages(bookId) : generateParentIdForSubPages(parentId);
     }
 
-    private static String generateParentIdForRootPages(String bookId){
-        return BooksConstants.SHARING_BOOK_PURE+ "_" + bookId;
+    private static String generateParentIdForRootPages(String bookId) {
+        return BooksConstants.SHARING_BOOK_PURE + "_" + bookId;
     }
-    private static String generateParentIdForSubPages(String parentId){
+
+    private static String generateParentIdForSubPages(String parentId) {
         return BooksConstants.PAGE_NODE_PURE + "_" + parentId;
     }
 
     @Override
     public MultipleItemsResult<PageNode> getPages(long loginId, String bookId, String parentId, Boolean isRoot) {
-        return operator.getPageNodes(loginId,bookId, generatePageParentId(bookId,parentId,isRoot));
+        return operator.getPageNodes(loginId, bookId, generatePageParentId(bookId, parentId, isRoot));
     }
 
     /**
@@ -230,56 +232,56 @@ public class BooksServiceImpl implements BooksService{
      * 因此这样就是最快的了
      */
     @Override
-    public void deletePageNode(long loginId,String bookId,String parentId,Boolean isRoot,String pageId) {
-        PageNode node = getPageNode(loginId,pageId);
-        if(node == null){
+    public void deletePageNode(long loginId, String bookId, String parentId, Boolean isRoot, String pageId) {
+        PageNode node = getPageNode(loginId, pageId);
+        if (node == null) {
             /**
              * 出现环了而已 我只要确保删掉所有的数据即可
              */
             return;
         }
-        removeParentId(node,generatePageParentId(bookId,parentId,isRoot));
-        locker.lockByUserAndClass(loginId,()->{
-            if(node.getParentIds().isEmpty()){
+        removeParentId(node, generatePageParentId(bookId, parentId, isRoot));
+        locker.lockByUserAndClass(loginId, () -> {
+            if (node.getParentIds().isEmpty()) {
                 /**
                  * 对于树的操作 应该先删除子 再删除该节点 it's right
                  * 这里相反就是为了防止出现由于环导致的无限递归（尽管想定没有）
                  * 如果出现圆了 之后会由于空指针结束这个循环
                  */
-                cache.deletePageNode(loginId,pageId,()-> operator.deletePageNodeById(loginId,pageId));
-                operator.getPageNodesByParentIdForDelete(loginId,bookId, generatePageParentId(bookId,pageId,false))
-                        .forEach(one->{
-                            deletePageNode(loginId,bookId,pageId,false,one.getId());
+                cache.deletePageNode(loginId, pageId, () -> operator.deletePageNodeById(loginId, pageId));
+                operator.getPageNodesByParentIdForDelete(loginId, bookId, generatePageParentId(bookId, pageId, false))
+                        .forEach(one -> {
+                            deletePageNode(loginId, bookId, pageId, false, one.getId());
                         });
-            }else{
-                updatePageNodeParentIdsAndIndexesSyncly(loginId,pageId,node.getParentIds(),node.getIndexes());
+            } else {
+                updatePageNodeParentIdsAndIndexesSyncly(loginId, pageId, node.getParentIds(), node.getIndexes());
             }
         });
     }
 
 
-
     @Override
     public void deleteBook(long loginId, String bookId) {
-        locker.lockByUserAndClass(loginId,()->{
-            cache.deleteBook(loginId,bookId,()->{
-                operator.deleteBookById(loginId,bookId);
-                operator.deletePageNodesByBookId(loginId,bookId);
+        locker.lockByUserAndClass(loginId, () -> {
+            cache.deleteBook(loginId, bookId, () -> {
+                operator.deleteBookById(loginId, bookId);
+                operator.deletePageNodesByBookId(loginId, bookId);
             });
         });
     }
 
     @Override
-    public SolrSearchResult<SharingBook> searchBooks(long loginId, String searchInfo, Integer pageNum) {
-        return operator.searchBooks(loginId,searchInfo,pageNum);
+    public SolrSearchResult<SharingBook> searchBooks(long loginId, String searchInfo, Integer pageNum, Boolean searchAllVersions,
+                                                     List<String> searchVersions) {
+        return operator.searchBooks(loginId, searchInfo, pageNum, searchAllVersions, searchVersions);
     }
 
-    private static void checkPageNodeLegal(List<String> parentIds, List<Double> indexes){
-        if(parentIds.stream().distinct().count() != parentIds.size()){
-            throw new LogicException(SelfXErrors.INCONSISTENT_DB_ERROR," parentIds msg:"+parentIds.stream().distinct().count() +" vs "+parentIds.size());
+    private static void checkPageNodeLegal(List<String> parentIds, List<Double> indexes) {
+        if (parentIds.stream().distinct().count() != parentIds.size()) {
+            throw new LogicException(SelfXErrors.INCONSISTENT_DB_ERROR, " parentIds msg:" + parentIds.stream().distinct().count() + " vs " + parentIds.size());
         }
-        if(parentIds.size() != indexes.size()){
-            throw new LogicException(SelfXErrors.INCONSISTENT_DB_ERROR," indexes msg:"+indexes.size() +" vs "+parentIds.size());
+        if (parentIds.size() != indexes.size()) {
+            throw new LogicException(SelfXErrors.INCONSISTENT_DB_ERROR, " indexes msg:" + indexes.size() + " vs " + parentIds.size());
         }
     }
 
@@ -287,15 +289,15 @@ public class BooksServiceImpl implements BooksService{
 
         int index = -1;
         List<String> parentIds = node.getParentIds();
-        for(int i=0;i<parentIds.size();i++){
+        for (int i = 0; i < parentIds.size(); i++) {
             String existedParentId = parentIds.get(i);
-            if(existedParentId.equals(parentId)){
+            if (existedParentId.equals(parentId)) {
                 index = i;
                 break;
             }
         }
 
-        if(index == -1){
+        if (index == -1) {
             System.err.println(JSON.toJSONString(node));
             System.err.println(parentId);
             throw new LogicException(SelfXErrors.INCONSISTENT_DB_ERROR);

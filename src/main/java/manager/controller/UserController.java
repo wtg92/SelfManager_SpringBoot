@@ -40,7 +40,7 @@ public class UserController {
         String nickName = param.getString(NICK_NAME);
         Gender gender = Gender.valueOfDBCode(param.getInteger(GENDER));
         String motto = param.getString(MOTTO);
-        Long portraitId = SecurityBooster.getUnstableCommonId(param.getString(PORTRAIT_ID));
+        Long portraitId = securityBooster.getStableCommonId(param.getString(PORTRAIT_ID));
         userService.updateUser(loginId,nickName,gender,motto,portraitId);
     }
 

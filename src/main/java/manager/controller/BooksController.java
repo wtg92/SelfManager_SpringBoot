@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
+import java.util.List;
 import java.util.Map;
 
 import static manager.system.SelfXParams.*;
@@ -93,13 +94,16 @@ public class BooksController {
         return service.getBooks(loginId,state);
     }
 
-    @GetMapping(BOOKS_PATH+"/search")
+    @PostMapping(BOOKS_PATH+"/search")
     private SolrSearchResult<SharingBook> searchBooks(@RequestHeader("Authorization") String authorizationHeader
-            , @RequestParam(SEARCH_INFO)String searchInfo
-            , @RequestParam(PAGE_NUM)Integer pageNum
-            ){
+            , @RequestBody JSONObject param
+    ){
         long loginId = UIUtil.getLoginId(authorizationHeader);
-        return service.searchBooks(loginId,searchInfo,pageNum);
+        String searchInfo = param.getString(SEARCH_INFO);
+        Integer pageNum = param.getInteger(PAGE_NUM);
+        Boolean searchAllVersions = param.getBoolean(SEARCH_ALL_VERSIONS);
+        List<String> searchVersions = param.getList(SEARCH_VERSIONS,String.class);
+        return service.searchBooks(loginId,searchInfo,pageNum,searchAllVersions,searchVersions);
     }
 
     @GetMapping(BOOKS_PATH)

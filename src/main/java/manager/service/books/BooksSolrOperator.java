@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,10 +74,14 @@ public class BooksSolrOperator {
     public SharingBook getBook(long loginId, String id) {
         return operator.getDocById(SelfXCores.SHARING_BOOK,loginId,id,SharingBook.class);
     }
-    public SolrSearchResult<SharingBook> searchBooks(long loginId, String searchInfo, Integer pageNum) {
+    public SolrSearchResult<SharingBook> searchBooks(long loginId, String searchInfo, Integer pageNum, Boolean searchAllVersions,
+                                                     List<String> searchVersions) {
         Class<SharingBook> cla = SharingBook.class;
-        List<String> fieldNames = ReflectUtil.getFiledNamesByPrefix(cla, MultipleLangHelper.getFiledPrefix(SolrFields.NAME));
-        fieldNames.addAll(ReflectUtil.getFiledNamesByPrefix(cla, MultipleLangHelper.getFiledPrefix(SolrFields.COMMENT)));
+        List<String> fieldNames = new ArrayList<>(searchAllVersions ? ReflectUtil.getFiledNamesByPrefix(cla, MultipleLangHelper.getFiledPrefix(SolrFields.NAME))
+                : searchVersions.stream().map((langVersion) -> MultipleLangHelper.getFiledName(SolrFields.NAME, langVersion)).toList())
+                ;
+        fieldNames.addAll(searchAllVersions ? ReflectUtil.getFiledNamesByPrefix(cla, MultipleLangHelper.getFiledPrefix(SolrFields.COMMENT))
+                : searchVersions.stream().map((langVersion)->MultipleLangHelper.getFiledName(SolrFields.COMMENT,langVersion)).toList());
         return operator.search(SelfXCores.SHARING_BOOK,loginId,fieldNames,searchInfo,pageNum,SHARING_BOOK_CONFIG,cla,
                 (query)->{
                     /*

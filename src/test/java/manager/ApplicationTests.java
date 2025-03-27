@@ -5,12 +5,16 @@ import com.alipay.api.AlipayClient;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import manager.dao.UserDAO;
 import manager.dao.career.WorkDAO;
+import manager.data.MultipleItemsResult;
 import manager.data.proxy.career.PlanProxy;
+import manager.entity.general.books.SharingBook;
 import manager.entity.general.career.Plan;
 import manager.service.AuthService;
 import manager.service.UserService;
+import manager.service.books.BooksService;
 import manager.service.work.WorkService;
 import manager.system.SelfXPerms;
+import manager.system.books.SharingBookStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +24,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import javax.annotation.Resource;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes =  SelfXManagerSpringbootApplication.class)
@@ -40,7 +46,22 @@ class ApplicationTests {
 	WorkService workService;
 
 	@Resource
+	BooksService booksService;
+
+	@Resource
 	AuthService authService;
+
+	@Test
+	public void testBook(){
+		MultipleItemsResult<SharingBook> books = booksService.getBooks(1, SharingBookStatus.OPENED);
+		System.out.println(JSON.toJSONString(books));
+		Map<String,Object> update = new HashMap<>();
+		update.put("name_japanese","new");
+		booksService.updateBookPropsSyncly(1,"3906bb60-b792-4b33-b9f5-3fde8c28a9d1",update);
+		books = booksService.getBooks(1, SharingBookStatus.OPENED);
+		System.out.println(JSON.toJSONString(books));
+	}
+
 
 	@Test
 	public void authTest(){
