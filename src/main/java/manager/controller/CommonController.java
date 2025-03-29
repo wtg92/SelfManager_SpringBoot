@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import manager.service.work.WorkService;
 import manager.booster.SecurityBooster;
+import manager.solr.constants.SolrConfig;
 import manager.system.Gender;
 import manager.system.Language;
 import manager.system.VerifyUserMethod;
@@ -36,6 +37,9 @@ public class CommonController {
     	rlt.put("version", SelfX.VERSION);
     	rlt.put("appStartTime", SelfX.APP_STARTING_TIME);
     	rlt.put("appName", SelfX.BRAND_NAME);
+        rlt.put("searchPageSize", SolrConfig.SEARCH_PAGE_SIZE);
+        rlt.put("searchHighlightingTag",SolrConfig.HIGHLIGHT_TAG);
+        rlt.put("searchHighlightingFragSize",SolrConfig.HIGHLIGHT_FRAGMENT_SIZE);
         return AjaxResult.success(rlt);
     }
 

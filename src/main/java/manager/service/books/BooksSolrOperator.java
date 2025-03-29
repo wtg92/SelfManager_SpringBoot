@@ -3,8 +3,8 @@ package manager.service.books;
 
 import manager.booster.MultipleLangHelper;
 import manager.data.MultipleItemsResult;
-import manager.entity.general.books.PageNode;
-import manager.entity.general.books.SharingBook;
+import manager.solr.books.PageNode;
+import manager.solr.books.SharingBook;
 import manager.solr.SolrOperator;
 import manager.solr.SolrUtil;
 import manager.solr.constants.SolrRequestParam;
@@ -75,7 +75,8 @@ public class BooksSolrOperator {
         return operator.getDocById(SelfXCores.SHARING_BOOK,loginId,id,SharingBook.class);
     }
     public SolrSearchResult<SharingBook> searchBooks(long loginId, String searchInfo, Integer pageNum, Boolean searchAllVersions,
-                                                     List<String> searchVersions) {
+                                                     List<String> searchVersions
+                                                    , Integer fragSize) {
         Class<SharingBook> cla = SharingBook.class;
         List<String> fieldNames = new ArrayList<>(searchAllVersions ? ReflectUtil.getFiledNamesByPrefix(cla, MultipleLangHelper.getFiledPrefix(SolrFields.NAME))
                 : searchVersions.stream().map((langVersion) -> MultipleLangHelper.getFiledName(SolrFields.NAME, langVersion)).toList())
@@ -83,12 +84,17 @@ public class BooksSolrOperator {
         fieldNames.addAll(searchAllVersions ? ReflectUtil.getFiledNamesByPrefix(cla, MultipleLangHelper.getFiledPrefix(SolrFields.COMMENT))
                 : searchVersions.stream().map((langVersion)->MultipleLangHelper.getFiledName(SolrFields.COMMENT,langVersion)).toList());
         return operator.search(SelfXCores.SHARING_BOOK,loginId,fieldNames,searchInfo,pageNum,SHARING_BOOK_CONFIG,cla,
+                fragSize,
                 (query)->{
                     /*
                      * 关闭的book 不查
                      */
                     query.addFilterQuery("-"+SolrFields.STATUS+":"+ SharingBookStatus.CLOSED);
-                });
+                },
+                SharingBook::getId
+                ,
+                SharingBook::setScore
+                );
     }
     public PageNode getPageNode(long loginId, String id) {
         return operator.getDocById(SelfXCores.PAGE_NODE,loginId,id,PageNode.class);

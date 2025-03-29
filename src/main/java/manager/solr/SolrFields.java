@@ -4,6 +4,9 @@ public abstract class SolrFields {
     public static final String NAME_MULTI = "name_*";
     public static final String COMMENT_MULTI = "comment_*";
 
+    public static final String SCORE = "score";
+
+
     public static final String NAME = "name";
     public static final String COMMENT = "comment";
     public static final String STATUS = "status";

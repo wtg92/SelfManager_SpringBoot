@@ -4,12 +4,11 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import manager.entity.general.books.SharingBook;
+import manager.solr.books.SharingBook;
 import manager.entity.general.career.WorkSheet;
 import manager.util.*;
 import org.junit.Test;
 
-import javax.crypto.SecretKey;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.util.*;

@@ -4,8 +4,8 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import manager.data.MultipleItemsResult;
 import manager.solr.data.SolrSearchResult;
-import manager.entity.general.books.PageNode;
-import manager.entity.general.books.SharingBook;
+import manager.solr.books.PageNode;
+import manager.solr.books.SharingBook;
 import manager.service.books.BooksService;
 import manager.util.UIUtil;
 import org.springframework.web.bind.annotation.*;
@@ -103,7 +103,8 @@ public class BooksController {
         Integer pageNum = param.getInteger(PAGE_NUM);
         Boolean searchAllVersions = param.getBoolean(SEARCH_ALL_VERSIONS);
         List<String> searchVersions = param.getList(SEARCH_VERSIONS,String.class);
-        return service.searchBooks(loginId,searchInfo,pageNum,searchAllVersions,searchVersions);
+        Integer fragSize = param.getInteger(FRAG_SIZE);
+        return service.searchBooks(loginId,searchInfo,pageNum,searchAllVersions,searchVersions,fragSize);
     }
 
     @GetMapping(BOOKS_PATH)

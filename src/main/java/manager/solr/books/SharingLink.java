@@ -1,4 +1,4 @@
-package manager.entity.general.books;
+package manager.solr.books;
 
 import manager.entity.SMSolrDoc;
 import org.apache.solr.client.solrj.beans.Field;

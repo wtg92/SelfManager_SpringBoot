@@ -1,12 +1,15 @@
-package manager.entity.general.books;
+package manager.solr.books;
 
-import jakarta.persistence.Column;
 import manager.entity.SMSolrDoc;
 import org.apache.solr.client.solrj.beans.Field;
 
 import java.util.List;
 
 public class PageNode extends SMSolrDoc {
+
+    private Float score;
+
+
 
     @Field
     private String type;
@@ -43,6 +46,14 @@ public class PageNode extends SMSolrDoc {
 
     @Field
     private List<String> fileIds;
+
+    public Float getScore() {
+        return score;
+    }
+
+    public void setScore(Float score) {
+        this.score = score;
+    }
 
     public List<String> getFileIds() {
         return fileIds;

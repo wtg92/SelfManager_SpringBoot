@@ -1,13 +1,12 @@
 package manager;
 
 import com.alibaba.fastjson2.JSON;
-import com.alipay.api.AlipayClient;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import manager.dao.UserDAO;
 import manager.dao.career.WorkDAO;
 import manager.data.MultipleItemsResult;
 import manager.data.proxy.career.PlanProxy;
-import manager.entity.general.books.SharingBook;
+import manager.solr.books.SharingBook;
 import manager.entity.general.career.Plan;
 import manager.service.AuthService;
 import manager.service.UserService;

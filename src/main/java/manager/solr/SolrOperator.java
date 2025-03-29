@@ -10,13 +10,17 @@ import manager.solr.data.SolrSearchResult;
 import manager.solr.data.StatsResult;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * 该类处理的问题：
@@ -95,20 +99,17 @@ public class SolrOperator {
         return rlt;
     }
 
-    public <T> SolrSearchResult<T> search(String core, Long userId, List<String> fieldNames
-            ,String searchInfo
-            ,int pageNum
-            ,String configDir, Class<T> cls) {
-        return search(core,userId,fieldNames,searchInfo,pageNum,configDir,cls,null);
-    }
-
 
     public <T> SolrSearchResult<T> search(String core, Long userId, List<String> fieldNames
             , String searchInfo
             , int pageNum
             , String configDir
             , Class<T> cls
-            , Consumer<SolrQuery> queryAdditionalFilter) {
+            , Integer fragSize
+            , Consumer<SolrQuery> queryAdditionalFilter
+            , Function<T,String> idGetter
+            , BiConsumer<T,Float> scoreSetter
+    ) {
         String coreName = UserIsolator.calculateCoreNamByUser(core,userId) ;
         initCoreIfNotExist(coreName,configDir);
 
@@ -116,13 +117,25 @@ public class SolrOperator {
         query.setQuery(SolrUtil.buildSearchQuery(fieldNames,searchInfo));
         query.setStart((pageNum - 1) * SolrConfig.SEARCH_PAGE_SIZE);
         query.setRows(SolrConfig.SEARCH_PAGE_SIZE);
-        query.setSort(SolrRequestParam.QUERY_SCORE, SolrQuery.ORDER.desc);
+        query.setSort(SolrFields.SCORE, SolrQuery.ORDER.desc);
 
         query.setHighlight(true);
         fieldNames.forEach(query::addHighlightField);
+        query.setIncludeScore(true);
         query.setHighlightSimplePre("<"+ SolrConfig.HIGHLIGHT_TAG+">");
         query.setHighlightSimplePost("</"+SolrConfig.HIGHLIGHT_TAG+">");
-        query.setHighlightFragsize(SolrConfig.HIGHLIGHT_FRAGMENT_SIZE);
+        query.setHighlightFragsize(fragSize == null ? SolrConfig.HIGHLIGHT_FRAGMENT_SIZE : fragSize);
+
+        query.set("hl.requireFieldMatch", true);
+        query.set("hl.mergeContiguous", true);
+        query.set("hl.usePhraseHighlighter", true);
+        query.set("hl.fragListBuilder", "weighted");
+        query.set("hl.boundaryScanner", "sentence");
+        /**
+         * 最大
+         */
+        query.set("hl.snippets", 3);
+
 
         if(queryAdditionalFilter != null){
             queryAdditionalFilter.accept(query);
@@ -132,6 +145,11 @@ public class SolrOperator {
         SolrSearchResult<T> rlt = new SolrSearchResult<>();
         rlt.count=queryResponse.getResults().getNumFound();
         rlt.items=queryResponse.getBeans(cls);
+        SolrDocumentList list = queryResponse.getResults();
+        rlt.items.forEach(item->{
+            SolrDocument target = list.stream().filter(one -> one.get(SolrFields.ID).equals(idGetter.apply(item))).findAny().get();
+            scoreSetter.accept(item,(Float)target.get(SolrFields.SCORE));
+        });
         rlt.highlighting = queryResponse.getHighlighting();
         return rlt;
     }

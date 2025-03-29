@@ -60,6 +60,9 @@ public abstract class SolrUtil {
         if(e.getMessage().contains("too large")) {
             throw new DBException(SelfXErrors.DATA_TOO_LONG);
         }
+        if(e.getMessage().contains("URI Too Long")) {
+            throw new DBException(SelfXErrors.SOLR_SEARCH_URI_TOO_LANG);
+        }
     }
     public static DBException processSolrException(Exception e){
         e.printStackTrace();
@@ -97,13 +100,24 @@ public abstract class SolrUtil {
             throw new RuntimeException("Why Call This?");
         }
 
+        // 按一个或多个空格分割 searchInfo 成关键词数组
+        String[] keywords = searchInfo.trim().split("\\s+");
+
         StringBuilder queryBuilder = new StringBuilder("(");
         for (int i = 0; i < fieldNames.size(); i++) {
             String fieldName = fieldNames.get(i);
-            queryBuilder.append(fieldName).append(":").append(searchInfo).append("~");
-            if (i < fieldNames.size() - 1) {
+            if (i > 0) {
                 queryBuilder.append(" OR ");
             }
+            queryBuilder.append("(");
+            for (int j = 0; j < keywords.length; j++) {
+                String keyword = keywords[j];
+                queryBuilder.append(fieldName).append(":").append(keyword).append("~");
+                if (j < keywords.length - 1) {
+                    queryBuilder.append(" OR ");
+                }
+            }
+            queryBuilder.append(")");
         }
         queryBuilder.append(")");
         return queryBuilder.toString();

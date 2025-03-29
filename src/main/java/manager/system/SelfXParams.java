@@ -106,8 +106,8 @@ public abstract class SelfXParams {
 	public final static String WS_IDS = "ws_ids";
 	public final static String HIDDEN = "hidden";
 	public final static String PAGE = "page";
-
 	public final static String PAGE_NUM = "page_num";
+	public final static String FRAG_SIZE = "frag_size";
 	public final static String PAGE_SIZE = "page_size";
 
 	public final static String DATE = "date";

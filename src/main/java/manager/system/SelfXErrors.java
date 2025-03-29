@@ -47,6 +47,9 @@ public enum SelfXErrors {
 	FORBID_DUP_CAT_IN_PLAN(36,"同一份计划里不允许有重名的类别"),
 	CAREER_ACTION_ERROR(37,"操作失败"),
 	CANNOT_SEE_PLAN_OF_OTHERS(38,"无权限看对应计划"),
+
+	SOLR_SEARCH_URI_TOO_LANG(39),
+
 	ILLEGAL_WORK_SHEET_CONTENT(41,"非法的工作表结构"),
 	INCONSISTENT_WS_DATA(42,"不一致的工作表数据"),
 	OPEN_WORK_SHEET_SYNC_ERROR(44 ,"(计划时区)今天的工作表已经存在，不能重复开启"),

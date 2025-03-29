@@ -1,4 +1,4 @@
-package manager.entity.general.books;
+package manager.solr.books;
 
 import manager.entity.SMSolrDoc;
 import org.apache.solr.client.solrj.beans.Field;
@@ -9,6 +9,9 @@ import java.util.List;
  * TODO 配置文件里 已经预留出ImgId_ 字段了 有时间 为Book 弄一个封面
  */
 public class SharingBook extends SMSolrDoc {
+
+
+
     @Field
     private Integer status;
 
@@ -58,6 +61,16 @@ public class SharingBook extends SMSolrDoc {
      * FOR UI
      */
     private String updaterEncodedId;
+
+    private Float score;
+
+    public Float getScore() {
+        return score;
+    }
+
+    public void setScore(Float score) {
+        this.score = score;
+    }
 
     public String getUpdaterEncodedId() {
         return updaterEncodedId;

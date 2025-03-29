@@ -8,8 +8,8 @@ import manager.cache.CacheOperator;
 import manager.data.MultipleItemsResult;
 import manager.solr.SolrFields;
 import manager.solr.data.SolrSearchResult;
-import manager.entity.general.books.PageNode;
-import manager.entity.general.books.SharingBook;
+import manager.solr.books.PageNode;
+import manager.solr.books.SharingBook;
 import manager.exception.LogicException;
 import manager.booster.SecurityBooster;
 import manager.service.FilesService;
@@ -272,8 +272,8 @@ public class BooksServiceImpl implements BooksService {
 
     @Override
     public SolrSearchResult<SharingBook> searchBooks(long loginId, String searchInfo, Integer pageNum, Boolean searchAllVersions,
-                                                     List<String> searchVersions) {
-        return operator.searchBooks(loginId, searchInfo, pageNum, searchAllVersions, searchVersions);
+                                                     List<String> searchVersions, Integer fragSize) {
+        return operator.searchBooks(loginId, searchInfo, pageNum, searchAllVersions, searchVersions,fragSize);
     }
 
     private static void checkPageNodeLegal(List<String> parentIds, List<Double> indexes) {

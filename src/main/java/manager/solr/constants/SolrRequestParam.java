@@ -13,7 +13,6 @@ public class SolrRequestParam {
     public static String RELEVANT_QUERY = "q";
     public static String FILTER_QUERY_SEPERATELY = "fq";
 
-    public static String QUERY_SCORE = "score";
 
     public static String QUERY_FIELDS = "fl";
     public static String QUERY_START = "start";
