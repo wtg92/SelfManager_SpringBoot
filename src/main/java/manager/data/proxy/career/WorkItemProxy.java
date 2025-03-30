@@ -1,6 +1,6 @@
 package manager.data.proxy.career;
 
-import manager.entity.virtual.career.WorkItem;
+import manager.entity.virtual.worksheet.WorkItem;
 
 public class WorkItemProxy {
 	public WorkItem item;

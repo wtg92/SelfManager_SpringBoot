@@ -7,6 +7,7 @@ import manager.booster.MultipleLangHelper;
 import manager.cache.CacheOperator;
 import manager.data.MultipleItemsResult;
 import manager.solr.SolrFields;
+import manager.solr.data.SolrSearchRequest;
 import manager.solr.data.SolrSearchResult;
 import manager.solr.books.PageNode;
 import manager.solr.books.SharingBook;
@@ -271,9 +272,8 @@ public class BooksServiceImpl implements BooksService {
     }
 
     @Override
-    public SolrSearchResult<SharingBook> searchBooks(long loginId, String searchInfo, Integer pageNum, Boolean searchAllVersions,
-                                                     List<String> searchVersions, Integer fragSize) {
-        return operator.searchBooks(loginId, searchInfo, pageNum, searchAllVersions, searchVersions,fragSize);
+    public SolrSearchResult<SharingBook> searchBooks(long loginId, SolrSearchRequest searchRequest) {
+        return operator.searchBooks(loginId, searchRequest);
     }
 
     private static void checkPageNodeLegal(List<String> parentIds, List<Double> indexes) {

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import manager.entity.virtual.career.PlanItem;
+import manager.entity.virtual.worksheet.PlanItem;
 
 /*！当改数据结构时，别忘了检查clone也要深克隆*/
 public class PlanItemProxy implements Cloneable{

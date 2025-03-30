@@ -30,157 +30,157 @@ public class DataMigrationService {
 
     /**
      * 我的数据库里 一定给了一个default值吧
-     * TODO 这里临时有一个BUG 我认为是hibernate （引擎似乎导致我 先修改 会导致后修改的东西。） 导致 我需要连续点击多次 才可以真正更新掉所有东西
+     * DONE 这里临时有一个BUG 我认为是hibernate （引擎似乎导致我 先修改 会导致后修改的东西。） 导致 我需要连续点击多次 才可以真正更新掉所有东西
      * @param loginId
      */
     public synchronized void doFullMigrateOfV1(long loginId){
-        uL.checkPerm(loginId, SelfXPerms.CREATE_NOTE_BOOK_AND_NOTE);
-
-        migration.put("startTime",System.currentTimeMillis());
-
-        doGeneralMigration(Memo.class,Memo::getCreateTime);
-        doGeneralMigration(Plan.class,Plan::getCreateTime);
-        doGeneralMigration(PlanBalance.class, PlanBalance::getCreateTime);
-        doGeneralMigration(UserGroup.class,UserGroup::getCreateTime);
-        doGeneralMigration(WorkSheet.class,WorkSheet::getCreateTime);
-
-        /**
-         * Plan的默认时区
-         */
-        {
-            Map<String,Object> equals = new HashMap<>();
-            String filed = DBConstants.F_TIMEZONE;
-            equals.put(filed,null);
-            Class<Plan> cla = Plan.class;
-            String identity = CommonUtil.getEntityTableName(cla)+"_"+filed;
-            Long start = System.currentTimeMillis();
-            List<Plan> data = DBUtil.selectEntitiesByTerms(cla,null,equals,null,null,sessionFactory);
-            migration.put(identity+" size:",data.size());
-            data.forEach(one->{
-                one.setTimezone(RefiningUtil.getDefaultTimeZone());
-                if(one.getStartUtc() == null){
-                    one.setStartUtc(one.getStartDate().getTimeInMillis());
-                }
-                if(TimeUtil.isNotBlank(one.getEndDate())){
-                    one.setEndUtc(one.getEndDate().getTimeInMillis());
-                }else{
-                    one.setEndUtc((long)0);
-                }
-                DBUtil.updateExistedEntity(one,sessionFactory);
-            });
-            Long end = System.currentTimeMillis();
-            migration.put(identity+" lasting:",(end-start)/1000+" s");
-        }
-
-        /**
-         * Plan的StartUtc 以及 endUtc 这就是个补充吧
-         */
-        {
-            Map<String,Object> equals = new HashMap<>();
-            String filed = DBConstants.F_START_UTC;
-            equals.put(filed,null);
-            Class<Plan> cla = Plan.class;
-            String identity = CommonUtil.getEntityTableName(cla)+"_"+filed;
-            Long start = System.currentTimeMillis();
-            List<Plan> data = DBUtil.selectEntitiesByTerms(cla,null,equals,null,null,sessionFactory);
-            migration.put(identity+" size:",data.size());
-            data.forEach(one->{
-                one.setStartUtc(one.getStartDate().getTimeInMillis());
-                DBUtil.updateExistedEntity(one,sessionFactory);
-            });
-            Long end = System.currentTimeMillis();
-            migration.put(identity+" lasting:",(end-start)/1000+" s");
-        }
-
-        /**
-         * Plan的END_UTC 以及 endUtc 这就是个补充吧
-         */
-        {
-            Map<String,Object> equals = new HashMap<>();
-            String filed = DBConstants.F_END_UTC;
-            equals.put(filed,null);
-            Class<Plan> cla = Plan.class;
-            String identity = CommonUtil.getEntityTableName(cla)+"_"+filed;
-            Long start = System.currentTimeMillis();
-            List<Plan> data = DBUtil.selectEntitiesByTerms(cla,null,equals,null,null,sessionFactory);
-            migration.put(identity+" size:",data.size());
-            data.forEach(one->{
-                if(TimeUtil.isNotBlank(one.getEndDate())){
-                    one.setEndUtc(one.getEndDate().getTimeInMillis());
-                }else{
-                    one.setEndUtc((long)0);
-                }
-                DBUtil.updateExistedEntity(one,sessionFactory);
-            });
-            Long end = System.currentTimeMillis();
-            migration.put(identity+" lasting:",(end-start)/1000+" s");
-        }
-
-        /**
-         * Worksheet 默认时区
-         */
-        {
-            Map<String,Object> equals = new HashMap<>();
-            String filed = DBConstants.F_TIMEZONE;
-            equals.put(filed,null);
-            Class<WorkSheet> cla = WorkSheet.class;
-            String identity = CommonUtil.getEntityTableName(cla)+"_"+filed;
-            Long start = System.currentTimeMillis();
-            List<WorkSheet> data = DBUtil.selectEntitiesByTerms(cla,null,equals,null,null,sessionFactory);
-            migration.put(identity+" size:",data.size());
-            data.forEach(one->{
-                one.setTimezone(RefiningUtil.getDefaultTimeZone());
-                DBUtil.updateExistedEntity(one,sessionFactory);
-            });
-            Long end = System.currentTimeMillis();
-            migration.put(identity+" lasting:",(end-start)/1000+" s");
-        }
-
-        /**
-         * Worksheet DateUtc
-         */
-        {
-            Map<String,Object> equals = new HashMap<>();
-            String filed = DBConstants.F_DATE_UTC;
-            equals.put(filed,null);
-            Class<WorkSheet> cla = WorkSheet.class;
-            String identity = CommonUtil.getEntityTableName(cla)+"_"+filed;
-            Long start = System.currentTimeMillis();
-            List<WorkSheet> data = DBUtil.selectEntitiesByTerms(cla,null,equals,null,null,sessionFactory);
-            migration.put(identity+" size:",data.size());
-            data.forEach(one->{
-                one.setDateUtc(one.getDate().getTimeInMillis());
-                DBUtil.updateExistedEntity(one,sessionFactory);
-            });
-            Long end = System.currentTimeMillis();
-            migration.put(identity+" lasting:",(end-start)/1000+" s");
-        }
-
-
-        /**
-         * Worksheet F_DATA_VERSION
-         */
-        {
-            Map<String,Object> equals = new HashMap<>();
-            String filed = DBConstants.F_DATA_VERSION;
-            equals.put(filed,null);
-            Class<WorkSheet> cla = WorkSheet.class;
-            String identity = CommonUtil.getEntityTableName(cla)+"_"+filed;
-            Long start = System.currentTimeMillis();
-            List<WorkSheet> data = DBUtil.selectEntitiesByTerms(cla,null,equals,null,null,sessionFactory);
-            migration.put(identity+" size:",data.size());
-            data.forEach(one->{
-                one.setContent(WorkContentConverter.fixForVersionUTC(one.getContent()));
-                one.setDataVersion(WorkSheet.WS_VERSION);
-                DBUtil.updateExistedEntity(one,sessionFactory);
-            });
-            Long end = System.currentTimeMillis();
-            migration.put(identity+" lasting:",(end-start)/1000+" s");
-        }
-
-
-
-        migration.put("endTime",System.currentTimeMillis());
+//        uL.checkPerm(loginId, SelfXPerms.CREATE_NOTE_BOOK_AND_NOTE);
+//
+//        migration.put("startTime",System.currentTimeMillis());
+//
+//        doGeneralMigration(Memo.class,Memo::getCreateTime);
+//        doGeneralMigration(Plan.class,Plan::getCreateTime);
+//        doGeneralMigration(PlanBalance.class, PlanBalance::getCreateTime);
+//        doGeneralMigration(UserGroup.class,UserGroup::getCreateTime);
+//        doGeneralMigration(WorkSheet.class,WorkSheet::getCreateTime);
+//
+//        /**
+//         * Plan的默认时区
+//         */
+//        {
+//            Map<String,Object> equals = new HashMap<>();
+//            String filed = DBConstants.F_TIMEZONE;
+//            equals.put(filed,null);
+//            Class<Plan> cla = Plan.class;
+//            String identity = CommonUtil.getEntityTableName(cla)+"_"+filed;
+//            Long start = System.currentTimeMillis();
+//            List<Plan> data = DBUtil.selectEntitiesByTerms(cla,null,equals,null,null,sessionFactory);
+//            migration.put(identity+" size:",data.size());
+//            data.forEach(one->{
+//                one.setTimezone(RefiningUtil.getDefaultTimeZone());
+//                if(one.getStartUtc() == null){
+//                    one.setStartUtc(one.getStartDate().getTimeInMillis());
+//                }
+//                if(TimeUtil.isNotBlank(one.getEndDate())){
+//                    one.setEndUtc(one.getEndDate().getTimeInMillis());
+//                }else{
+//                    one.setEndUtc((long)0);
+//                }
+//                DBUtil.updateExistedEntity(one,sessionFactory);
+//            });
+//            Long end = System.currentTimeMillis();
+//            migration.put(identity+" lasting:",(end-start)/1000+" s");
+//        }
+//
+//        /**
+//         * Plan的StartUtc 以及 endUtc 这就是个补充吧
+//         */
+//        {
+//            Map<String,Object> equals = new HashMap<>();
+//            String filed = DBConstants.F_START_UTC;
+//            equals.put(filed,null);
+//            Class<Plan> cla = Plan.class;
+//            String identity = CommonUtil.getEntityTableName(cla)+"_"+filed;
+//            Long start = System.currentTimeMillis();
+//            List<Plan> data = DBUtil.selectEntitiesByTerms(cla,null,equals,null,null,sessionFactory);
+//            migration.put(identity+" size:",data.size());
+//            data.forEach(one->{
+//                one.setStartUtc(one.getStartDate().getTimeInMillis());
+//                DBUtil.updateExistedEntity(one,sessionFactory);
+//            });
+//            Long end = System.currentTimeMillis();
+//            migration.put(identity+" lasting:",(end-start)/1000+" s");
+//        }
+//
+//        /**
+//         * Plan的END_UTC 以及 endUtc 这就是个补充吧
+//         */
+//        {
+//            Map<String,Object> equals = new HashMap<>();
+//            String filed = DBConstants.F_END_UTC;
+//            equals.put(filed,null);
+//            Class<Plan> cla = Plan.class;
+//            String identity = CommonUtil.getEntityTableName(cla)+"_"+filed;
+//            Long start = System.currentTimeMillis();
+//            List<Plan> data = DBUtil.selectEntitiesByTerms(cla,null,equals,null,null,sessionFactory);
+//            migration.put(identity+" size:",data.size());
+//            data.forEach(one->{
+//                if(TimeUtil.isNotBlank(one.getEndDate())){
+//                    one.setEndUtc(one.getEndDate().getTimeInMillis());
+//                }else{
+//                    one.setEndUtc((long)0);
+//                }
+//                DBUtil.updateExistedEntity(one,sessionFactory);
+//            });
+//            Long end = System.currentTimeMillis();
+//            migration.put(identity+" lasting:",(end-start)/1000+" s");
+//        }
+//
+//        /**
+//         * Worksheet 默认时区
+//         */
+//        {
+//            Map<String,Object> equals = new HashMap<>();
+//            String filed = DBConstants.F_TIMEZONE;
+//            equals.put(filed,null);
+//            Class<WorkSheet> cla = WorkSheet.class;
+//            String identity = CommonUtil.getEntityTableName(cla)+"_"+filed;
+//            Long start = System.currentTimeMillis();
+//            List<WorkSheet> data = DBUtil.selectEntitiesByTerms(cla,null,equals,null,null,sessionFactory);
+//            migration.put(identity+" size:",data.size());
+//            data.forEach(one->{
+//                one.setTimezone(RefiningUtil.getDefaultTimeZone());
+//                DBUtil.updateExistedEntity(one,sessionFactory);
+//            });
+//            Long end = System.currentTimeMillis();
+//            migration.put(identity+" lasting:",(end-start)/1000+" s");
+//        }
+//
+//        /**
+//         * Worksheet DateUtc
+//         */
+//        {
+//            Map<String,Object> equals = new HashMap<>();
+//            String filed = DBConstants.F_DATE_UTC;
+//            equals.put(filed,null);
+//            Class<WorkSheet> cla = WorkSheet.class;
+//            String identity = CommonUtil.getEntityTableName(cla)+"_"+filed;
+//            Long start = System.currentTimeMillis();
+//            List<WorkSheet> data = DBUtil.selectEntitiesByTerms(cla,null,equals,null,null,sessionFactory);
+//            migration.put(identity+" size:",data.size());
+//            data.forEach(one->{
+//                one.setDateUtc(one.getDate().getTimeInMillis());
+//                DBUtil.updateExistedEntity(one,sessionFactory);
+//            });
+//            Long end = System.currentTimeMillis();
+//            migration.put(identity+" lasting:",(end-start)/1000+" s");
+//        }
+//
+//
+//        /**
+//         * Worksheet F_DATA_VERSION
+//         */
+//        {
+//            Map<String,Object> equals = new HashMap<>();
+//            String filed = DBConstants.F_DATA_VERSION;
+//            equals.put(filed,null);
+//            Class<WorkSheet> cla = WorkSheet.class;
+//            String identity = CommonUtil.getEntityTableName(cla)+"_"+filed;
+//            Long start = System.currentTimeMillis();
+//            List<WorkSheet> data = DBUtil.selectEntitiesByTerms(cla,null,equals,null,null,sessionFactory);
+//            migration.put(identity+" size:",data.size());
+//            data.forEach(one->{
+//                one.setContent(WorkContentConverter.fixForVersionUTC(one.getContent()));
+//                one.setDataVersion(WorkSheet.WS_VERSION);
+//                DBUtil.updateExistedEntity(one,sessionFactory);
+//            });
+//            Long end = System.currentTimeMillis();
+//            migration.put(identity+" lasting:",(end-start)/1000+" s");
+//        }
+//
+//
+//
+//        migration.put("endTime",System.currentTimeMillis());
     }
 
     /**

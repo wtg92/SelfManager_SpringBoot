@@ -6,12 +6,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.dom4j.Node;
 import org.junit.Test;
-
-import com.alibaba.fastjson2.JSON;
-
-import manager.entity.virtual.career.CareerLog;
 
 
 public class XMLUtilTest {

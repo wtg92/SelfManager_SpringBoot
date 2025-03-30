@@ -16,7 +16,6 @@ import manager.exception.NoSuchElement;
 import manager.system.DBConstants;
 import manager.system.career.PlanState;
 import manager.system.career.WorkSheetState;
-import manager.util.TimeUtil;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
@@ -65,17 +64,6 @@ public class WorkDAOImpl implements WorkDAO {
 	@Override
 	public void deleteExistedPlan(long planId) throws DBException {
 		deleteEntity(Plan.class, planId, sessionFactory);
-	}
-
-	@Override
-	public long countPlansByOwnerAndState(long ownerId, PlanState state) throws DBException {
-		return countEntitiesByBiFields(Plan.class, DBConstants.F_OWNER_ID,ownerId, DBConstants.F_STATE,state.getDbCode(), sessionFactory);
-	}
-
-	@Deprecated
-	@Override
-	public long countWorkSheetByOwnerAndState(long ownerId, WorkSheetState state) throws DBException {
-		return countEntitiesByBiFields(WorkSheet.class, DBConstants.F_OWNER_ID,ownerId, DBConstants.F_STATE,state.getDbCode(), sessionFactory);
 	}
 
 	@Override
@@ -128,10 +116,6 @@ public class WorkDAOImpl implements WorkDAO {
 		return rlt;
 	}
 
-	@Override
-	public long countWorkSheetByDate(Calendar date) throws DBException {
-		return countEntitiesByRange(WorkSheet.class, DBConstants.F_DATE, TimeUtil.getMinTimeOfDay(date), TimeUtil.getMaxTimeOfDay(date), sessionFactory);
-	}
 
 	@Override
 	public long countWorkSheetByDateAndTimezone(Long date, String timezone) {
@@ -273,11 +257,6 @@ public class WorkDAOImpl implements WorkDAO {
 	@Override
 	public long countWorkSheetByOwnerAndPlanId(long ownerId, long planId) throws DBException {
 		return countEntitiesByBiFields(WorkSheet.class, DBConstants.F_OWNER_ID,ownerId, DBConstants.F_PLAN_ID,planId, sessionFactory);
-	}
-
-	@Override
-	public List<WorkSheet> selectWorkSheetsByOwnerAndDateScope(long ownerId, Calendar startDate, Calendar endDate) throws DBException {
-		return selectEntitiesByDateScopeAndField(WorkSheet.class, DBConstants.F_DATE, startDate, endDate, DBConstants.F_OWNER_ID, ownerId, sessionFactory);
 	}
 
 	@Override

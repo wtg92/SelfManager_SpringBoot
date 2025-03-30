@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import manager.data.worksheet.MemoContent;
 import manager.entity.general.career.Memo;
-import manager.entity.virtual.career.MemoItem;
+import manager.entity.virtual.worksheet.MemoItem;
 import manager.system.career.NoteLabel;
 
 public class NoteLogicStaticTest {

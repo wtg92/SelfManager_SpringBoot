@@ -1,10 +1,7 @@
-package manager.entity.virtual.career;
-
-import java.util.Calendar;
+package manager.entity.virtual.worksheet;
 
 import manager.entity.virtual.SMVirtualEntity;
 import manager.system.career.WorkItemType;
-import manager.util.TimeUtil;
 
 public class WorkItem extends SMVirtualEntity{
 	
@@ -20,11 +17,6 @@ public class WorkItem extends SMVirtualEntity{
 	
 	/*前台到底是选择加号还是减号*/
 	private Boolean forAdd; 
-
-	@Deprecated
-	private Calendar startTime = TimeUtil.getCurrentTime();
-	@Deprecated
-	private Calendar endTime = TimeUtil.getCurrentTime();
 
 	/**
 	 * 来个默认值 让toString 不至于空指针
@@ -57,19 +49,7 @@ public class WorkItem extends SMVirtualEntity{
 	public void setType(WorkItemType type) {
 		this.type = type;
 	}
-	public Calendar getStartTime() {
-		return startTime;
-	}
-	public void setStartTime(Calendar startTime) {
-		this.startTime = startTime;
-	}
-	public Calendar getEndTime() {
-		return endTime;
-	}
-	public void setEndTime(Calendar endTime) {
-		this.endTime = endTime;
-	}
-	
+
 	public Integer getPlanItemId() {
 		return planItemId;
 	}

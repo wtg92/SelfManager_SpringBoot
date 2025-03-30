@@ -24,8 +24,6 @@ public interface WorkDAO {
 	List<Plan> selectPlansByOwnerAndStates(long ownerId,List<PlanState> states);
 
 	List<WorkSheet> selectWorkSheetByOwnerAndStates(long ownerId,List<WorkSheetState> states);
-	long countPlansByOwnerAndState(long ownerId,PlanState state) throws DBException;
-	long countWorkSheetByOwnerAndState(long ownerId,WorkSheetState state) throws DBException;
 	long countWorkSheetByOwnerAndPlanId(long ownerId,long planId) throws DBException;
 	
 	void deleteExistedPlan(long planId) throws DBException;
@@ -41,14 +39,7 @@ public interface WorkDAO {
 	
 	WorkSheet selectWorkSheet(long id) throws NoSuchElement, DBException;
 	PlanBalance selectBalanceByOwner(long ownerId) throws NoSuchElement, DBException;
-	default PlanBalance selectExistedBalanceByOwner(long ownerId) throws DBException{
-		try {
-			return selectBalanceByOwner(ownerId);
-		}catch (NoSuchElement e) {
-			throw new DBException(SelfXErrors.INCONSISTENT_DB_ERROR,ownerId);
-		}
-	}
-	
+
 	
 	default WorkSheet selectExistedWorkSheet(long id) throws DBException{
 		try {
@@ -73,16 +64,9 @@ public interface WorkDAO {
 	/*page从0开始*/
 	List<WorkSheet> selectWorkSheetInfoRecentlyByOwner(long ownerId,long page,long limit) throws DBException;
 	
-	/*闭区间*/
-	@Deprecated
-	List<WorkSheet> selectWorkSheetsByOwnerAndDateScope(long ownerId,Calendar startDate,Calendar endDate) throws DBException;
-	
-	
+
 	/*只取名字 Id*/
 	List<Plan> selectPlanInfosByIds(List<Long> planIds) throws DBException;
-
-	@Deprecated
-	long countWorkSheetByDate(Calendar date) throws DBException;
 
 	long countWorkSheetByDateAndTimezone(Long date,String timezone);
 

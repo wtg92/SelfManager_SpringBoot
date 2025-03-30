@@ -1,6 +1,6 @@
 package manager.data.proxy.career;
 
-import manager.entity.virtual.career.CareerLog;
+import manager.entity.virtual.worksheet.CareerLog;
 
 import java.util.List;
 

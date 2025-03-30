@@ -1,4 +1,4 @@
-package manager.entity.virtual.career;
+package manager.entity.virtual.worksheet;
 
 import manager.entity.virtual.SMVirtualEntity;
 import manager.system.career.NoteLabel;

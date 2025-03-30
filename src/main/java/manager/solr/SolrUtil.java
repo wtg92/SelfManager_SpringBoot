@@ -1,7 +1,9 @@
 package manager.solr;
 
 import manager.exception.DBException;
+import manager.exception.LogicException;
 import manager.solr.constants.CustomProcessors;
+import manager.solr.data.SolrSearchRequest;
 import manager.system.SelfXErrors;
 import org.apache.solr.client.solrj.beans.DocumentObjectBinder;
 
@@ -63,6 +65,9 @@ public abstract class SolrUtil {
         if(e.getMessage().contains("URI Too Long")) {
             throw new DBException(SelfXErrors.SOLR_SEARCH_URI_TOO_LANG);
         }
+        if(e.getMessage().contains("org.apache.solr.search.SyntaxError")){
+            throw new DBException(SelfXErrors.SOLR_SEARCH_Syntax_Error);
+        }
     }
     public static DBException processSolrException(Exception e){
         e.printStackTrace();
@@ -95,31 +100,31 @@ public abstract class SolrUtil {
         }
     }
 
-    public static String buildSearchQuery(List<String> fieldNames, String searchInfo) {
+
+
+    public static String buildSearchQuery(List<String> fieldNames, SolrSearchRequest request ) {
+        final String searchInfo = request.searchInfo;
         if (fieldNames == null || fieldNames.isEmpty() || searchInfo == null || searchInfo.isEmpty()) {
             throw new RuntimeException("Why Call This?");
         }
 
-        // 按一个或多个空格分割 searchInfo 成关键词数组
-        String[] keywords = searchInfo.trim().split("\\s+");
-
         StringBuilder queryBuilder = new StringBuilder("(");
+
         for (int i = 0; i < fieldNames.size(); i++) {
             String fieldName = fieldNames.get(i);
+            /**
+             * 字段级别 一定是OR的关系
+             * 如 书本 我会既查它的名字 也 查它的内容
+             */
             if (i > 0) {
                 queryBuilder.append(" OR ");
             }
             queryBuilder.append("(");
-            for (int j = 0; j < keywords.length; j++) {
-                String keyword = keywords[j];
-                queryBuilder.append(fieldName).append(":").append(keyword).append("~");
-                if (j < keywords.length - 1) {
-                    queryBuilder.append(" OR ");
-                }
-            }
+            queryBuilder.append(fieldName).append(":(").append(searchInfo).append(")");
             queryBuilder.append(")");
         }
         queryBuilder.append(")");
+        System.out.println(queryBuilder.toString());
         return queryBuilder.toString();
     }
 }

@@ -1,6 +1,6 @@
 package manager.data.proxy.career;
 
-import manager.entity.virtual.career.MemoItem;
+import manager.entity.virtual.worksheet.MemoItem;
 
 public class MemoItemProxy {
 	public MemoItem item;

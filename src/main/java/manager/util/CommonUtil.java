@@ -165,27 +165,6 @@ public abstract class CommonUtil {
 		return equalsOfElements(src1, src2,(t1,t2)->t1.equals(t2));
 	}
 	
-	/**
-	 * 用在缓存/DB的时候
-	 * 希望一些通用函数可以使用Object
-	 * int String 可以直接.toString()转 但是Calendar不行
-	 *  这个函数 现在遇到的情况是 只处理Calendar 把它转换成对应字符串
-	 *  
-	 * 假如传入字节码对象 则返回对象名称 
-	 *  TODO 似乎不需要了 当国际化之后 不会再使用Calendar了
-	 */
-	@Deprecated
-	public static Object pretreatForString(Object val) {
-		if(val instanceof Calendar) {
-			return TimeUtil.parseTime((Calendar)val);
-		}
-		
-		if(val instanceof Class<?>) {
-			return ((Class<?>)val).getName();
-		}
-		
-		return val;
-	}
 	public static<T> List<T> cloneList(List<T> units,Function<T,T> clone) {
 		List<T> rlt = new ArrayList<T>();
 		units.forEach(unit->{

@@ -2,7 +2,7 @@ package manager.entity;
 
 import org.junit.Test;
 
-import manager.entity.virtual.career.PlanItem;
+import manager.entity.virtual.worksheet.PlanItem;
 
 public class DEBUG_TestCloneDeeply {
 	

@@ -1,4 +1,4 @@
-package manager.entity.virtual.career;
+package manager.entity.virtual.worksheet;
 
 import java.util.Calendar;
 import java.util.LinkedList;

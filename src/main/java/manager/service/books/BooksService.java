@@ -1,6 +1,7 @@
 package manager.service.books;
 
 import manager.data.MultipleItemsResult;
+import manager.solr.data.SolrSearchRequest;
 import manager.solr.data.SolrSearchResult;
 import manager.solr.books.PageNode;
 import manager.solr.books.SharingBook;
@@ -51,6 +52,5 @@ public interface BooksService {
 
     void deleteBook(long loginId, String id);
 
-    SolrSearchResult<SharingBook> searchBooks(long loginId, String searchInfo, Integer pageNum, Boolean searchAllVersions,
-                                              List<String> searchVersions, Integer fragSize);
+    SolrSearchResult<SharingBook> searchBooks(long loginId, SolrSearchRequest searchRequest);
 }

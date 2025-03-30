@@ -5,7 +5,6 @@ import java.util.List;
 
 import jakarta.persistence.*;
 
-import manager.util.TimeUtil;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -60,23 +59,6 @@ public class Plan extends SMGeneralEntity {
 	@Column
 	private Integer seqWeight;
 
-
-	@Column
-	@Deprecated
-	private Calendar endDate = TimeUtil.getBlank();
-
-	@Column
-	@Deprecated
-	private Calendar createTime = TimeUtil.getBlank();
-
-	@Column
-	@Deprecated
-	private Calendar updateTime = TimeUtil.getBlank();
-
-	@Column
-	@Deprecated
-	private Calendar startDate = TimeUtil.getBlank();
-
 	@Override
 	public Plan clone(){
 		try {
@@ -95,18 +77,6 @@ public class Plan extends SMGeneralEntity {
 		return setting.contains(target);
 	}
 
-	public Calendar getCreateTime() {
-		return createTime;
-	}
-	public void setCreateTime(Calendar createTime) {
-		this.createTime = createTime;
-	}
-	public Calendar getUpdateTime() {
-		return updateTime;
-	}
-	public void setUpdateTime(Calendar updateTime) {
-		this.updateTime = updateTime;
-	}
 
 	public String getTimezone() {
 		return timezone;
@@ -155,26 +125,6 @@ public class Plan extends SMGeneralEntity {
 
 	public void setSetting(List<PlanSetting> setting) {
 		this.setting = setting;
-	}
-
-	@Deprecated
-	public Calendar getStartDate() {
-		return startDate;
-	}
-
-	@Deprecated
-	public void setStartDate(Calendar startDate) {
-		this.startDate = startDate;
-	}
-
-	@Deprecated
-	public Calendar getEndDate() {
-		return endDate;
-	}
-
-	@Deprecated
-	public void setEndDate(Calendar endDate) {
-		this.endDate = endDate;
 	}
 
 	public String getNote() {

@@ -21,15 +21,6 @@ public class DEBUG_COMMON {
     }
 
 
-    @Test
-    public void testTime3(){
-        long m = Long.parseLong("1708441200000");
-        Date date = new Date();
-        date.setTime(m);
-        Calendar cl = Calendar.getInstance();
-        cl.setTime(date);
-        System.out.println(TimeUtil.parseTime(cl));
-    }
 
     @Test
     public void testReflect(){

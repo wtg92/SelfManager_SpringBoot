@@ -50,6 +50,8 @@ public enum SelfXErrors {
 
 	SOLR_SEARCH_URI_TOO_LANG(39),
 
+	SOLR_SEARCH_Syntax_Error(40),
+
 	ILLEGAL_WORK_SHEET_CONTENT(41,"非法的工作表结构"),
 	INCONSISTENT_WS_DATA(42,"不一致的工作表数据"),
 	OPEN_WORK_SHEET_SYNC_ERROR(44 ,"(计划时区)今天的工作表已经存在，不能重复开启"),

@@ -3,8 +3,6 @@ package book;
 import java.util.Calendar;
 import java.util.Date;
 
-import manager.util.TimeUtil;
-
 
 public class Test { 
 	
@@ -65,13 +63,7 @@ public class Test {
 	private DAO dao;
 	
 	/*逻辑层 Service*/
-	public void insertA(A a) {
-		A src = a.clone();
-		src.createTime = TimeUtil.getCurrentTime();
-		src.updateTime = TimeUtil.getCurrentTime();
-		dao.insertA(a);
-	}
-	
+
 	
 	public static class B{
 		int v1;

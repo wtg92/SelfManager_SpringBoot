@@ -2,13 +2,12 @@ package manager.booster;
 
 import java.util.List;
 
-import manager.entity.virtual.career.BalanceItem;
+import manager.entity.virtual.worksheet.BalanceItem;
 import manager.system.career.CareerLogAction;
 import manager.system.career.PlanItemType;
 import manager.system.career.PlanState;
 import manager.system.career.WorkSheetState;
 import manager.util.CommonUtil;
-import manager.util.TimeUtil;
 
 public abstract class LogParser {
 	
@@ -41,37 +40,13 @@ public abstract class LogParser {
 					fillEmLabel(calculateSonPlanItemMes(params.get(3), params.get(4), sonType, fatherCatName, fatherType)),
 					fillEmLabel(calculateSonPlanItemMes(params.get(5), params.get(6), sonType, fatherCatName, fatherType)));
 		}
-		case PLAN_STATE_CHANGED_BY_DATE:
-			return String.format("根据开始日期 %s和结束日期 %s，由于时间到了，将状态由 %s修改为%s",
-					fillEmLabel(params.get(0)),
-					fillEmLabel(calculatePlanEndDate(params.get(1))),
-					fillEmLabel(PlanState.valueOfDBCode(params.get(2)).getName()),
-					fillEmLabel(PlanState.valueOfDBCode(params.get(3)).getName()));
-			
-		case CREATE_PLAN:
-			return String.format("创建计划%s，根据开始日期和结束日期，创建时计划的状态为%s",
-					fillEmLabel(calcaulatePlanMes(params.get(0),params.get(1),params.get(2))),
-					fillEmLabel(PlanState.valueOfDBCode(params.get(3)).getName()));
-		case SAVE_PLAN:
-			return String.format("将计划%s修改为%s",
-					fillEmLabel(calcaulatePlanMes(params.get(0), params.get(1), params.get(2))),
-					fillEmLabel(calcaulatePlanMes(params.get(3), params.get(4), params.get(5))));
+
+
 		case STATE_CHENGED_DUE_TO_SAVING_PLAN:
 			return String.format("由于在保存时选择了计算计划状态，经重新计算，将状态由%s修改为%s",
 					fillEmLabel(PlanState.valueOfDBCode(params.get(0)).getName()),
 					fillEmLabel(PlanState.valueOfDBCode(params.get(1)).getName()));
-		case ABANDON_PLAN:
-			return String.format("由于手动废弃了计划，将状态由%s修改为%s ，结束日期由%s修改为%s",
-					fillEmLabel(PlanState.valueOfDBCode(params.get(0)).getName()),
-					fillEmLabel(PlanState.valueOfDBCode(params.get(1)).getName()),
-					fillEmLabel(calculatePlanEndDate(params.get(2))),
-					fillEmLabel(calculatePlanEndDate(params.get(3))));
-		case FINISH_PLAN:
-			return String.format("由于手动完成了计划，将状态由%s修改为%s ，结束日期由%s修改为%s",
-					fillEmLabel(PlanState.valueOfDBCode(params.get(0)).getName()),
-					fillEmLabel(PlanState.valueOfDBCode(params.get(1)).getName()),
-					fillEmLabel(calculatePlanEndDate(params.get(2))),
-					fillEmLabel(calculatePlanEndDate(params.get(3))));
+
 		
 		case WS_STATE_CHANGED_BY_DATE:
 			return String.format("由于时间到了且存在未完成的计划项，将状态由%s 修改为%s",
@@ -166,19 +141,12 @@ public abstract class LogParser {
 		return calcaulatePlanDeptItemMes(item.getName(), String.valueOf(CommonUtil.fixDouble(item.getValue())), String.valueOf(item.getType().getDbCode()));
 	}
 	
-	private static String calculatePlanEndDate(String endDate) {
-		if(TimeUtil.isBlank(TimeUtil.parseDate(endDate))) {
-			return "至今";
-		};
-		return endDate;
-	}
+
 	private static String calcaulatePlanDeptItemMes(String name,String val,String typeCode) {
 		return String.format("%s %s%s",name,val, PlanItemType.valueOfDBCode(typeCode).getName());
 	}
 	
-	private static String calcaulatePlanMes(String name,String startDate,String endDate) {
-		return String.format("%s 开始日期 %s  结束日期 %s",name,startDate,calculatePlanEndDate(endDate));
-	}
+
 	
 	private static String calculateRootPlanItemMes(String catName, int value, PlanItemType type) {
 		return String.format("%s 投入  %s %s",catName,value,type.getName());

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import manager.data.proxy.career.CareerLogProxy;
-import manager.entity.virtual.career.BalanceItem;
+import manager.entity.virtual.worksheet.BalanceItem;
 
 public class BalanceContent {
 	public List<BalanceItem> items = new ArrayList<>();

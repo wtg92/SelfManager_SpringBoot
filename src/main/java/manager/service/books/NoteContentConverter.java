@@ -14,7 +14,7 @@ import org.dom4j.Element;
 import manager.data.worksheet.MemoContent;
 import manager.data.proxy.career.MemoItemProxy;
 import manager.entity.general.career.Memo;
-import manager.entity.virtual.career.MemoItem;
+import manager.entity.virtual.worksheet.MemoItem;
 import manager.exception.LogicException;
 import manager.system.SelfXErrors;
 import manager.system.career.NoteLabel;

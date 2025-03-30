@@ -3,6 +3,7 @@ package manager.controller;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import manager.data.MultipleItemsResult;
+import manager.solr.data.SolrSearchRequest;
 import manager.solr.data.SolrSearchResult;
 import manager.solr.books.PageNode;
 import manager.solr.books.SharingBook;
@@ -96,15 +97,10 @@ public class BooksController {
 
     @PostMapping(BOOKS_PATH+"/search")
     private SolrSearchResult<SharingBook> searchBooks(@RequestHeader("Authorization") String authorizationHeader
-            , @RequestBody JSONObject param
+            , @RequestBody SolrSearchRequest searchRequest
     ){
         long loginId = UIUtil.getLoginId(authorizationHeader);
-        String searchInfo = param.getString(SEARCH_INFO);
-        Integer pageNum = param.getInteger(PAGE_NUM);
-        Boolean searchAllVersions = param.getBoolean(SEARCH_ALL_VERSIONS);
-        List<String> searchVersions = param.getList(SEARCH_VERSIONS,String.class);
-        Integer fragSize = param.getInteger(FRAG_SIZE);
-        return service.searchBooks(loginId,searchInfo,pageNum,searchAllVersions,searchVersions,fragSize);
+        return service.searchBooks(loginId,searchRequest);
     }
 
     @GetMapping(BOOKS_PATH)

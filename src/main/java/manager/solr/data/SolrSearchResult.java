@@ -12,5 +12,8 @@ public class SolrSearchResult<T> extends MultipleItemsResult<T> {
 
     public Map<String, Map<String, List<String>>> highlighting;
 
+    public Boolean partialResults;
+    public int maxSearchSeconds = SolrConfig.SEARCH_TIME_ALLOWED_OF_SECONDS;
 
+    public Boolean numFoundExact;
 }

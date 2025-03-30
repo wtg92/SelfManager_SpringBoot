@@ -4,10 +4,13 @@ import com.alibaba.fastjson2.JSON;
 import manager.booster.UserIsolator;
 import manager.data.MultipleItemsResult;
 import manager.entity.SMSolrDoc;
+import manager.exception.LogicException;
 import manager.solr.constants.SolrConfig;
 import manager.solr.constants.SolrRequestParam;
+import manager.solr.data.SolrSearchRequest;
 import manager.solr.data.SolrSearchResult;
 import manager.solr.data.StatsResult;
+import manager.system.SelfXErrors;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -101,48 +104,63 @@ public class SolrOperator {
 
 
     public <T> SolrSearchResult<T> search(String core, Long userId, List<String> fieldNames
-            , String searchInfo
-            , int pageNum
             , String configDir
             , Class<T> cls
-            , Integer fragSize
             , Consumer<SolrQuery> queryAdditionalFilter
             , Function<T,String> idGetter
             , BiConsumer<T,Float> scoreSetter
+            , SolrSearchRequest searchRequest
     ) {
         String coreName = UserIsolator.calculateCoreNamByUser(core,userId) ;
         initCoreIfNotExist(coreName,configDir);
 
         SolrQuery query = new SolrQuery();
-        query.setQuery(SolrUtil.buildSearchQuery(fieldNames,searchInfo));
-        query.setStart((pageNum - 1) * SolrConfig.SEARCH_PAGE_SIZE);
+        /*
+         * 我自己管的
+         */
+        query.setHighlight(true);
+        query.setStart((searchRequest.pageNum - 1) * SolrConfig.SEARCH_PAGE_SIZE);
         query.setRows(SolrConfig.SEARCH_PAGE_SIZE);
         query.setSort(SolrFields.SCORE, SolrQuery.ORDER.desc);
-
-        query.setHighlight(true);
         fieldNames.forEach(query::addHighlightField);
         query.setIncludeScore(true);
         query.setHighlightSimplePre("<"+ SolrConfig.HIGHLIGHT_TAG+">");
         query.setHighlightSimplePost("</"+SolrConfig.HIGHLIGHT_TAG+">");
-        query.setHighlightFragsize(fragSize == null ? SolrConfig.HIGHLIGHT_FRAGMENT_SIZE : fragSize);
-
-        query.set("hl.requireFieldMatch", true);
-        query.set("hl.mergeContiguous", true);
-        query.set("hl.usePhraseHighlighter", true);
-        query.set("hl.fragListBuilder", "weighted");
-        query.set("hl.boundaryScanner", "sentence");
-        /**
-         * 最大
-         */
-        query.set("hl.snippets", 3);
-
-
         if(queryAdditionalFilter != null){
             queryAdditionalFilter.accept(query);
         }
+        query.setTimeAllowed(SolrConfig.SEARCH_TIME_ALLOWED_OF_SECONDS*1000);
+        query.set("minExactCount", SolrConfig.SEARCH_MIN_EXACT_COUNT);
+
+        /*
+         * 用户填的
+         */
+        query.setQuery(SolrUtil.buildSearchQuery(fieldNames,searchRequest));
+        query.set("defType", searchRequest.defType);
+        query.set("q.op", searchRequest.separatorMode);
+        query.set("sow",searchRequest.sow);
+
+
+
+//        query.setHighlightFragsize(fragSize == null ? SolrConfig.HIGHLIGHT_FRAGMENT_SIZE : fragSize);
+//
+//        query.set("hl.requireFieldMatch", true);
+//        query.set("hl.mergeContiguous", true);
+//        query.set("hl.usePhraseHighlighter", true);
+//        query.set("hl.fragListBuilder", "weighted");
+//        query.set("hl.boundaryScanner", "sentence");
+//
+//        if(snippets > 5) {
+//            throw new LogicException(SelfXErrors.UNEXPECTED_ERROR);
+//        }
+//        query.set("hl.snippets",snippets);
+
+
 
         QueryResponse queryResponse = invoker.query(coreName, query);
         SolrSearchResult<T> rlt = new SolrSearchResult<>();
+        rlt.partialResults = queryResponse.getResponseHeader().getBooleanArg("partialResults") != null && queryResponse.getResponseHeader().getBooleanArg("partialResults");
+        rlt.numFoundExact = queryResponse.getResponseHeader().getBooleanArg("numFoundExact");
         rlt.count=queryResponse.getResults().getNumFound();
         rlt.items=queryResponse.getBeans(cls);
         SolrDocumentList list = queryResponse.getResults();

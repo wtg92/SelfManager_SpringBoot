@@ -8,6 +8,7 @@ import manager.solr.books.SharingBook;
 import manager.solr.SolrOperator;
 import manager.solr.SolrUtil;
 import manager.solr.constants.SolrRequestParam;
+import manager.solr.data.SolrSearchRequest;
 import manager.solr.data.SolrSearchResult;
 import manager.system.SelfX;
 import manager.solr.SelfXCores;
@@ -74,27 +75,27 @@ public class BooksSolrOperator {
     public SharingBook getBook(long loginId, String id) {
         return operator.getDocById(SelfXCores.SHARING_BOOK,loginId,id,SharingBook.class);
     }
-    public SolrSearchResult<SharingBook> searchBooks(long loginId, String searchInfo, Integer pageNum, Boolean searchAllVersions,
-                                                     List<String> searchVersions
-                                                    , Integer fragSize) {
+    public SolrSearchResult<SharingBook> searchBooks(long loginId,SolrSearchRequest searchRequest) {
         Class<SharingBook> cla = SharingBook.class;
-        List<String> fieldNames = new ArrayList<>(searchAllVersions ? ReflectUtil.getFiledNamesByPrefix(cla, MultipleLangHelper.getFiledPrefix(SolrFields.NAME))
-                : searchVersions.stream().map((langVersion) -> MultipleLangHelper.getFiledName(SolrFields.NAME, langVersion)).toList())
+        List<String> fieldNames = new ArrayList<>(searchRequest.searchAllVersions ? ReflectUtil.getFiledNamesByPrefix(cla, MultipleLangHelper.getFiledPrefix(SolrFields.NAME))
+                : searchRequest.searchVersions.stream().map((langVersion) -> MultipleLangHelper.getFiledName(SolrFields.NAME, langVersion)).toList())
                 ;
-        fieldNames.addAll(searchAllVersions ? ReflectUtil.getFiledNamesByPrefix(cla, MultipleLangHelper.getFiledPrefix(SolrFields.COMMENT))
-                : searchVersions.stream().map((langVersion)->MultipleLangHelper.getFiledName(SolrFields.COMMENT,langVersion)).toList());
-        return operator.search(SelfXCores.SHARING_BOOK,loginId,fieldNames,searchInfo,pageNum,SHARING_BOOK_CONFIG,cla,
-                fragSize,
+        fieldNames.addAll(searchRequest.searchAllVersions ? ReflectUtil.getFiledNamesByPrefix(cla, MultipleLangHelper.getFiledPrefix(SolrFields.COMMENT))
+                : searchRequest.searchVersions.stream().map((langVersion)->MultipleLangHelper.getFiledName(SolrFields.COMMENT,langVersion)).toList());
+
+        return operator.search(SelfXCores.SHARING_BOOK,loginId,fieldNames,SHARING_BOOK_CONFIG,cla,
                 (query)->{
                     /*
                      * 关闭的book 不查
                      */
                     query.addFilterQuery("-"+SolrFields.STATUS+":"+ SharingBookStatus.CLOSED);
+                    //待填
+//                    query.setFields();
                 },
                 SharingBook::getId
                 ,
                 SharingBook::setScore
-                );
+                ,searchRequest);
     }
     public PageNode getPageNode(long loginId, String id) {
         return operator.getDocById(SelfXCores.PAGE_NODE,loginId,id,PageNode.class);

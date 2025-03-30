@@ -86,7 +86,7 @@ public abstract class DBUtil {
 				String tableName = CommonUtil.getEntityTableName(cla);
 				String hql = String.format("FROM %s WHERE %s=:val", transTableToEntity(tableName), transFieldToAttr(fieldName));
 				TypedQuery<T> query = session.createQuery(hql, cla);
-				query.setParameter("val", CommonUtil.pretreatForString(val));
+				query.setParameter("val", val);
 				return query.getResultList();
 
 			});
@@ -139,14 +139,6 @@ public abstract class DBUtil {
 				throw processDBException(e);
 			}
 		});
-	}
-	@Deprecated
-	public static<T> List<T> selectEntitiesByDateScopeAndField(Class<T> cla, String dateFieldName,Calendar startDate,Calendar endDate,
-			String field2Name, Object field2val,
-			SessionFactory hbFactory) throws DBException {
-		Calendar minTimeOfstartDate = TimeUtil.getMinTimeOfDay(startDate);
-	    Calendar maxTimeOfendDate = TimeUtil.getMaxTimeOfDay(endDate);
-		return selectEntitiesByTimeScopeAndField(cla, dateFieldName, minTimeOfstartDate, maxTimeOfendDate, field2Name, field2val, hbFactory);
 	}
 
 	private static void fillTermsSQL(StringBuffer additionalParams , Map<String, Object> likes, Map<String, Object> equals, Map<String, Object> greaterThan, Map<String, Object> lessThan,FinalIntegerTempStorageCalculator storageCalculator){
@@ -284,7 +276,7 @@ public abstract class DBUtil {
 			TypedQuery<T> query = session.createQuery(hql, cla);
 			query.setParameter("val1", startTime);
 			query.setParameter("val2", endTime);
-			query.setParameter("val3", CommonUtil.pretreatForString(field2val));
+			query.setParameter("val3", field2val);
 			List<T> entities = query.getResultList();
 			trans.commit();
 			return entities;
@@ -305,8 +297,8 @@ public abstract class DBUtil {
 			return hbFactory.fromStatelessSession(session -> {
 				String hql = String.format("FROM %s WHERE %s=:val1 and %s=:val2", transTableToEntity(tableName), transFieldToAttr(field1Name),transFieldToAttr(field2Name));
 				return session.createQuery(hql, cla)
-						.setParameter("val1", CommonUtil.pretreatForString(field1val) )
-						.setParameter("val2", CommonUtil.pretreatForString(field2val))
+						.setParameter("val1", field1val )
+						.setParameter("val2", field2val)
 						.getResultList();
 
 			});
@@ -358,8 +350,8 @@ public abstract class DBUtil {
 
 					String sql = String.format("SELECT COUNT(*) FROM %s WHERE %s>=? and %s<=?", tableName, field,field);
 					return session.createQuery(sql, Long.class)
-						.setParameter(1, CommonUtil.pretreatForString(min))
-						.setParameter(2, CommonUtil.pretreatForString(max))
+						.setParameter(1, min)
+						.setParameter(2, max)
 						.getSingleResult();
 
 			});
@@ -417,8 +409,8 @@ public abstract class DBUtil {
 					String sql = String.format("SELECT COUNT(*) FROM %s WHERE %s=? and %s=?"
 							, tableName, field1,field2);
 					return session.createNativeQuery(sql, Long.class)
-							.setParameter(1, CommonUtil.pretreatForString(val1))
-							.setParameter(2, CommonUtil.pretreatForString(val2))
+							.setParameter(1, val1)
+							.setParameter(2, val2)
 							.uniqueResult();
 
 			});
@@ -433,7 +425,7 @@ public abstract class DBUtil {
 
 					String sql = String.format("SELECT COUNT(*) FROM %s WHERE %s=?", tableName, fieldName);
 					return session.createNativeQuery(sql, Long.class)
-							.setParameter(1, CommonUtil.pretreatForString(val))
+							.setParameter(1, val)
 							.getSingleResult();
 			});
 		} catch (Exception e) {
@@ -675,28 +667,6 @@ public abstract class DBUtil {
 			});
 		} catch (Exception e) {
 			throw processDBException(e);
-		}
-	}
-
-	@Deprecated
-	private static void setPSParams(PreparedStatement ps,Object ...params) throws SQLException {
-		for(int i=0;i<params.length;i++) {
-			Object param = params[i];
-			int indexForPS = i+1;
-			if(param.getClass().equals(long.class) || param instanceof Long) {
-				ps.setLong(indexForPS, (long)param);
-			}else if(param.getClass().equals(int.class) || param instanceof Integer) {
-				ps.setInt(indexForPS, (int)param);
-			}else if(param.getClass().equals(float.class) || param instanceof Float) {
-				assert false : "shouldn't use float";
-				ps.setFloat(indexForPS, (float)param);
-			}else if(param.getClass().equals(double.class) || param instanceof Double) {
-				ps.setDouble(indexForPS, (double)param);
-			}else if(param.getClass().equals(boolean.class) || param instanceof Boolean) {
-				ps.setBoolean(indexForPS, (boolean)param);
-			}else {
-				ps.setString(indexForPS, CommonUtil.pretreatForString(param).toString());
-			}
 		}
 	}
 

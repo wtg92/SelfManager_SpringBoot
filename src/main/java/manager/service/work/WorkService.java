@@ -27,7 +27,7 @@ import manager.data.proxy.career.WorkSheetProxy;
 import manager.entity.general.User;
 import manager.entity.general.career.Plan;
 import manager.entity.general.career.WorkSheet;
-import manager.entity.virtual.career.PlanItem;
+import manager.entity.virtual.worksheet.PlanItem;
 import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.SMException;
