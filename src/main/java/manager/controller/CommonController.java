@@ -14,6 +14,7 @@ import manager.system.career.PlanItemType;
 import manager.system.career.PlanSetting;
 import manager.system.career.PlanState;
 import manager.util.UIUtil;
+import manager.util.ZonedTimeUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -69,16 +70,6 @@ public class CommonController {
     @GetMapping("/getPlanItemTypes")
     public List<PlanItemType> getPlanItemTypes() {
         return PlanItemType.getTypes();
-    }
-
-    @GetMapping("/getTimezones")
-    public Set<String> getTimezones() {
-        Set<String> availableZoneIds = ZoneId.getAvailableZoneIds();
-        /**
-         * 有些时区废弃
-         */
-        availableZoneIds.remove("America/Shiprock");
-        return availableZoneIds;
     }
 
     @GetMapping("/languages")

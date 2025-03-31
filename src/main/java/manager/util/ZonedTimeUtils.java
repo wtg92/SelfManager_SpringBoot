@@ -4,8 +4,10 @@ import manager.exception.LogicException;
 
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Calendar;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ZonedTimeUtils {
 
@@ -85,5 +87,24 @@ public class ZonedTimeUtils {
 
     public static Long copyDateOnly(Long utc, String timezone) {
         return copyDateOnly(get(timezone,utc)).toInstant().toEpochMilli();
+    }
+
+    public static List<String> mapTimezoneTo24Categories(Set<String> availableZones) {
+        Map<Integer, String> offsetMap = new TreeMap<>();
+
+        for (String zoneId : availableZones) {
+            if (!zoneId.startsWith("Etc/GMT") && !zoneId.equals("UTC")) {
+                continue; // 只保留 "Etc/GMT±X" 和 "UTC"
+            }
+
+            ZoneId zone = ZoneId.of(zoneId);
+            int offset = ZonedDateTime.now(zone).getOffset().getTotalSeconds() / 3600;
+
+            // 只保留一个最通用的时区名称
+            offsetMap.putIfAbsent(offset, zoneId);
+        }
+
+
+        return new ArrayList<>(offsetMap.values());
     }
 }
