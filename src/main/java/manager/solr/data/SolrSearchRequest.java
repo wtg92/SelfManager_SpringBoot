@@ -23,17 +23,45 @@ public class SolrSearchRequest {
     public Integer pageNum;
     public Boolean searchAllVersions;
     public List<String> searchVersions;
+
+    public String mm;
+
+    public Boolean mmAutoRelax;
+
+    public String hlMethod;
+
+    public Boolean applyHighlighting;
+
     public Integer fragSize;
     public Integer snippets;
-    public Float minMatchAbility;
     public Boolean requireFieldMatch;
-    public Boolean mergeContiguous;
 
     public Boolean highlightMultiTerm;
-    public String fragListBuilder;
-    public String boundaryScanner;
 
     public Boolean usePhraseHighlighter;
+
+    public Boolean hlFragsizeIsMinimum;
+
+    public String hlTagEllipsis;
+
+    public String hlScoreK1;
+
+    public String hlScoreB;
+
+    public Integer hlScorePivot;
+
+    public Boolean hlWeightMatches;
+
+    public Boolean mergeContiguous;
+
+
+    public boolean isUnifiedHL(){
+        return hlMethod.equalsIgnoreCase("unified");
+    }
+
+    public boolean isOriginalHL(){
+        return hlMethod.equalsIgnoreCase("original");
+    }
 
 
     public boolean isLucene () {

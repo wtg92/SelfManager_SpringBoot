@@ -118,49 +118,80 @@ public class SolrOperator {
         /*
          * 我自己管的
          */
-        query.setHighlight(true);
         query.setStart((searchRequest.pageNum - 1) * SolrConfig.SEARCH_PAGE_SIZE);
         query.setRows(SolrConfig.SEARCH_PAGE_SIZE);
         query.setSort(SolrFields.SCORE, SolrQuery.ORDER.desc);
-        fieldNames.forEach(query::addHighlightField);
         query.setIncludeScore(true);
-        query.setHighlightSimplePre("<"+ SolrConfig.HIGHLIGHT_TAG+">");
-        query.setHighlightSimplePost("</"+SolrConfig.HIGHLIGHT_TAG+">");
         if(queryAdditionalFilter != null){
             queryAdditionalFilter.accept(query);
         }
-        query.setTimeAllowed(SolrConfig.SEARCH_TIME_ALLOWED_OF_SECONDS*1000);
+        query.setTimeAllowed(SolrConfig.SEARCH_TIME_ALLOWED_OF_SECONDS * 1000);
         query.set("minExactCount", SolrConfig.SEARCH_MIN_EXACT_COUNT);
 
         /*
          * 用户填的
          */
-        query.setQuery(SolrUtil.buildSearchQuery(fieldNames,searchRequest));
+        /* Search Parameters */
+        query.setQuery(searchRequest.isLucene() ? SolrUtil.buildLuceneSearchQuery(fieldNames,searchRequest)
+                 : searchRequest.searchInfo);
+        if(!searchRequest.isLucene()){
+            query.set("qf",String.join(" ",fieldNames));
+        }
+
         query.set("defType", searchRequest.defType);
         query.set("q.op", searchRequest.separatorMode);
         query.set("sow",searchRequest.sow);
+        if(!searchRequest.isLucene() && searchRequest.mm != null){
+            query.set("mm",searchRequest.mm);
+        }
+        if(searchRequest.isEdismax() && searchRequest.mmAutoRelax != null){
+            query.set("mm.autoRelax",searchRequest.mmAutoRelax);
+        }
 
+        query.setHighlight(searchRequest.applyHighlighting);
 
+        if(searchRequest.applyHighlighting){
+            fieldNames.forEach(query::addHighlightField);
+            query.set("hl.requireFieldMatch", searchRequest.requireFieldMatch);
+            query.set("hl.usePhraseHighlighter", searchRequest.usePhraseHighlighter);
+            query.set("hl.highlightMultiTerm", searchRequest.highlightMultiTerm);
+            if(searchRequest.snippets > 5) {
+                throw new LogicException(SelfXErrors.UNEXPECTED_ERROR);
+            }
+            query.set("hl.snippets",searchRequest.snippets);
+            query.setHighlightFragsize(searchRequest.fragSize == null ? SolrConfig.HIGHLIGHT_FRAGMENT_SIZE : searchRequest.fragSize);
+            query.setHighlightSimplePre("<"+ SolrConfig.HIGHLIGHT_TAG+">");
+            query.setHighlightSimplePost("</"+SolrConfig.HIGHLIGHT_TAG+">");
 
-//        query.setHighlightFragsize(fragSize == null ? SolrConfig.HIGHLIGHT_FRAGMENT_SIZE : fragSize);
-//
-//        query.set("hl.requireFieldMatch", true);
-//        query.set("hl.mergeContiguous", true);
-//        query.set("hl.usePhraseHighlighter", true);
-//        query.set("hl.fragListBuilder", "weighted");
-//        query.set("hl.boundaryScanner", "sentence");
-//
-//        if(snippets > 5) {
-//            throw new LogicException(SelfXErrors.UNEXPECTED_ERROR);
-//        }
-//        query.set("hl.snippets",snippets);
+            /* Highlighting Parameters */
+            query.set("hl.method", searchRequest.hlMethod);
 
+            if(searchRequest.isUnifiedHL()){
+                query.set("hl.fragsizeIsMinimum",searchRequest.hlFragsizeIsMinimum);
+                if(!searchRequest.hlTagEllipsis.isEmpty()){
+                    query.set("hl.tag.ellipsis",searchRequest.hlFragsizeIsMinimum);
+                }
+                if(!searchRequest.hlScoreK1.isEmpty()){
+                    query.set("hl.score.k1",searchRequest.hlScoreK1);
+                }
+                if(!searchRequest.hlScoreB.isEmpty()){
+                    query.set("hl.score.b",searchRequest.hlScoreB);
+                }
+                if(searchRequest.hlScorePivot != null){
+                    query.set("hl.score.pivot",searchRequest.hlScorePivot);
+                }
+                query.set("hl.weightMatches",searchRequest.hlWeightMatches);
+            }
 
+            if(searchRequest.isOriginalHL()){
+                query.set("hl.mergeContiguous", searchRequest.mergeContiguous);
+            }
+        }
 
         QueryResponse queryResponse = invoker.query(coreName, query);
         SolrSearchResult<T> rlt = new SolrSearchResult<>();
         rlt.partialResults = queryResponse.getResponseHeader().getBooleanArg("partialResults") != null && queryResponse.getResponseHeader().getBooleanArg("partialResults");
-        rlt.numFoundExact = queryResponse.getResponseHeader().getBooleanArg("numFoundExact");
+        rlt.numFoundExact = queryResponse.getResults().getNumFoundExact();
         rlt.count=queryResponse.getResults().getNumFound();
         rlt.items=queryResponse.getBeans(cls);
         SolrDocumentList list = queryResponse.getResults();

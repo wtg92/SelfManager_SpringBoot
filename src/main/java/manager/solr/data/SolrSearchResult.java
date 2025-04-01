@@ -16,4 +16,5 @@ public class SolrSearchResult<T> extends MultipleItemsResult<T> {
     public int maxSearchSeconds = SolrConfig.SEARCH_TIME_ALLOWED_OF_SECONDS;
 
     public Boolean numFoundExact;
+    public int searchMinExactCount = SolrConfig.SEARCH_MIN_EXACT_COUNT;
 }

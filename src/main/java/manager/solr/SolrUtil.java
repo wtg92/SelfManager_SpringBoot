@@ -1,7 +1,6 @@
 package manager.solr;
 
 import manager.exception.DBException;
-import manager.exception.LogicException;
 import manager.solr.constants.CustomProcessors;
 import manager.solr.data.SolrSearchRequest;
 import manager.system.SelfXErrors;
@@ -102,7 +101,7 @@ public abstract class SolrUtil {
 
 
 
-    public static String buildSearchQuery(List<String> fieldNames, SolrSearchRequest request ) {
+    public static String buildLuceneSearchQuery(List<String> fieldNames, SolrSearchRequest request ) {
         final String searchInfo = request.searchInfo;
         if (fieldNames == null || fieldNames.isEmpty() || searchInfo == null || searchInfo.isEmpty()) {
             throw new RuntimeException("Why Call This?");

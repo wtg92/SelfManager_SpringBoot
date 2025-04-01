@@ -192,7 +192,7 @@ public abstract class WorkContentConverter {
         item.setType(PlanItemType.valueOfDBCode(Integer.parseInt(element.attributeValue(A_TYPE))));
 
         String foldAttr = element.attributeValue(A_FOLD);
-        item.setFold(foldAttr == null ? false : Boolean.parseBoolean(foldAttr));
+        item.setFold(Boolean.parseBoolean(foldAttr));
 
         return item;
     }
