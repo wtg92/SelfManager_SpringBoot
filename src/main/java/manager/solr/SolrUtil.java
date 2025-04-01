@@ -58,6 +58,10 @@ public abstract class SolrUtil {
         return value.replaceAll("([+\\-!(){}\\[\\]^\"~*?:\\\\/])", "\\\\$1");
     }
     private static void detectDataTooLongExceptionAndThrowIfAny(Exception e) throws DBException {
+        if(e.getMessage().contains("boost must be a positive float")){
+            throw new DBException(SelfXErrors.SOLR_SEARCH_PARAMS_Error);
+        }
+
         if(e.getMessage().contains("too large")) {
             throw new DBException(SelfXErrors.DATA_TOO_LONG);
         }

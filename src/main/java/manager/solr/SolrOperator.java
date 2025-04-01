@@ -121,6 +121,7 @@ public class SolrOperator {
         query.setStart((searchRequest.pageNum - 1) * SolrConfig.SEARCH_PAGE_SIZE);
         query.setRows(SolrConfig.SEARCH_PAGE_SIZE);
         query.setSort(SolrFields.SCORE, SolrQuery.ORDER.desc);
+        query.addSort(SolrFields.UPDATE_UTC, SolrQuery.ORDER.desc);
         query.setIncludeScore(true);
         if(queryAdditionalFilter != null){
             queryAdditionalFilter.accept(query);

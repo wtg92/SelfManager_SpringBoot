@@ -20,10 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 连接operator
@@ -89,8 +86,14 @@ public class BooksSolrOperator {
                      * 关闭的book 不查
                      */
                     query.addFilterQuery("-"+SolrFields.STATUS+":"+ SharingBookStatus.CLOSED);
-                    //待填
-//                    query.setFields();
+                    List<String> fields = ReflectUtil.getFiledNamesByPrefix(cla, MultipleLangHelper.getFiledPrefix(SolrFields.NAME));
+                    fields.addAll(Arrays.asList(SolrFields.CREATE_UTC,
+                            SolrFields.UPDATE_UTC,
+                            SolrFields.DEFAULT_LANG,
+                            SolrFields.ID));
+
+                    query.setFields(fields.toArray(new String[0])
+                    );
                 },
                 SharingBook::getId
                 ,

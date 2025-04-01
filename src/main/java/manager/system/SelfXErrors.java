@@ -54,6 +54,8 @@ public enum SelfXErrors {
 
 	ILLEGAL_WORK_SHEET_CONTENT(41,"非法的工作表结构"),
 	INCONSISTENT_WS_DATA(42,"不一致的工作表数据"),
+
+	SOLR_SEARCH_PARAMS_Error(43),
 	OPEN_WORK_SHEET_SYNC_ERROR(44 ,"(计划时区)今天的工作表已经存在，不能重复开启"),
 	OPEN_WORK_BASE_WRONG_STATE_PLAN(45,"只能基于进行中的计划开启工作表"),
 	CANNOT_OPEN_OTHERS_PLAN(46,"无权限以他人的计划开启工作表"),
