@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * 连接operator
@@ -49,15 +50,26 @@ public class BooksSolrOperator {
 
     public MultipleItemsResult<SharingBook> getBooks(long userId, Integer state) {
         SolrQuery query = new SolrQuery();
-        query.set(SolrRequestParam.RELEVANT_QUERY, FULL_BASE_QUERY);
-        query.set(SolrRequestParam.FILTER_QUERY_SEPERATELY, SolrFields.STATUS + ":" + state);
-        query.set(SolrRequestParam.QUERY_FIELDS, SolrUtil.getMultipleFieldParam(
+        query.setQuery(FULL_BASE_QUERY);
+        query.addFilterQuery(SolrFields.STATUS + ":" + state);
+        query.setFields(
                 SolrFields.ID, SolrFields.CREATE_UTC, SolrFields.UPDATE_UTC, SolrFields.NAME_MULTI,
                 SolrFields.COMMENT_MULTI, SolrFields.DEFAULT_LANG, SolrFields.STYLE, SolrFields.UPDATER_ID
-        ));
+        );
         query.set(SolrRequestParam.QUERY_SORT, SolrFields.SEQ_WEIGHT + " " + SolrQuery.ORDER.desc);
         query.set(SolrRequestParam.QUERY_LIMIT, String.valueOf(SelfX.MAX_DB_LINES_IN_ONE_SELECTS));
         return operator.query(SelfXCores.SHARING_BOOK,userId,query,SHARING_BOOK_CONFIG,SharingBook.class);
+    }
+
+    public List<String> getBookIdsByState(long userId, Integer state) {
+        SolrQuery query = new SolrQuery();
+        query.setQuery(FULL_BASE_QUERY);
+        query.addFilterQuery (SolrFields.STATUS + ":" + state);
+        query.setFields(SolrUtil.getMultipleFieldParam(
+                SolrFields.ID
+        ));
+        return operator.query(SelfXCores.SHARING_BOOK,userId,query,SHARING_BOOK_CONFIG,SharingBook.class)
+                .items.stream().map(SharingBook::getId).toList();
     }
 
     public void updateBook(String id,Long creatorId,Long updaterId,Map<String,Object> updatingFields){
@@ -90,7 +102,8 @@ public class BooksSolrOperator {
                     fields.addAll(Arrays.asList(SolrFields.CREATE_UTC,
                             SolrFields.UPDATE_UTC,
                             SolrFields.DEFAULT_LANG,
-                            SolrFields.ID));
+                            SolrFields.ID,
+                            SolrFields.SCORE));
 
                     query.setFields(fields.toArray(new String[0])
                     );
@@ -100,6 +113,37 @@ public class BooksSolrOperator {
                 SharingBook::setScore
                 ,searchRequest);
     }
+
+    public SolrSearchResult<PageNode> searchPageNodes(long loginId, SolrSearchRequest searchRequest, List<String> closedBookIds) {
+        Class<PageNode> cla = PageNode.class;
+        List<String> fieldNames = new ArrayList<>(searchRequest.searchAllVersions ? ReflectUtil.getFiledNamesByPrefix(cla, MultipleLangHelper.getFiledPrefix(SolrFields.NAME))
+                : searchRequest.searchVersions.stream().map((langVersion) -> MultipleLangHelper.getFiledName(SolrFields.NAME, langVersion)).toList())
+                ;
+        fieldNames.addAll(searchRequest.searchAllVersions ? ReflectUtil.getFiledNamesByPrefix(cla, MultipleLangHelper.getFiledPrefix(SolrFields.CONTENT))
+                : searchRequest.searchVersions.stream().map((langVersion)->MultipleLangHelper.getFiledName(SolrFields.CONTENT,langVersion)).toList());
+
+        return operator.search(SelfXCores.PAGE_NODE,loginId,fieldNames,PAGE_NODE_CONFIG,cla,
+                (query)->{
+                    /*
+                     * 关闭的book 不查
+                     */
+                    if(!closedBookIds.isEmpty()){
+                        query.addFilterQuery("-"+SolrFields.BOOK_ID+":"+"("+(String.join(" OR ",closedBookIds))+")");
+                    }
+                    List<String> fields = ReflectUtil.getFiledNamesByPrefix(cla, MultipleLangHelper.getFiledPrefix(SolrFields.NAME));
+                    fields.addAll(Arrays.asList(SolrFields.CREATE_UTC,
+                            SolrFields.UPDATE_UTC,
+                            SolrFields.BOOK_ID,
+                            SolrFields.ID,
+                            SolrFields.SCORE));
+                    query.setFields(fields.toArray(new String[0]));
+                },
+                PageNode::getId
+                ,
+                PageNode::setScore
+                ,searchRequest);
+    }
+
     public PageNode getPageNode(long loginId, String id) {
         return operator.getDocById(SelfXCores.PAGE_NODE,loginId,id,PageNode.class);
     }
@@ -128,13 +172,10 @@ public class BooksSolrOperator {
 
     private static SolrQuery buildPageNodesQuery(String bookId, String parentId, List<String> fields, int limit) {
         SolrQuery query = new SolrQuery();
-        query.set(SolrRequestParam.RELEVANT_QUERY, FULL_BASE_QUERY);
-        query.set(SolrRequestParam.QUERY_FIELDS, SolrUtil.getMultipleFieldParam(fields));
+        query.setQuery(FULL_BASE_QUERY);
+        query.setFields(fields.toArray(new String[0]));
         query.set(SolrRequestParam.QUERY_LIMIT, String.valueOf(limit));
-
-        query.add(SolrRequestParam.FILTER_QUERY_SEPERATELY, SolrFields.PARENT_IDS + ":" + parentId);
-        query.add(SolrRequestParam.FILTER_QUERY_SEPERATELY, SolrFields.BOOK_ID + ":" + bookId);
-
+        query.addFilterQuery( SolrFields.PARENT_IDS + ":" + parentId, SolrFields.BOOK_ID + ":" + bookId);
         return query;
     }
 
@@ -142,9 +183,8 @@ public class BooksSolrOperator {
 
     public long countPagesForSpecificParentId(String parentId,String bookId,long loginId) {
         final SolrQuery query = new SolrQuery();
-        query.add(SolrRequestParam.RELEVANT_QUERY,FULL_BASE_QUERY);
-        query.add(SolrRequestParam.FILTER_QUERY_SEPERATELY,SolrFields.PARENT_IDS+":"+ parentId);
-        query.add(SolrRequestParam.FILTER_QUERY_SEPERATELY,SolrFields.BOOK_ID+":"+bookId);
+        query.setQuery(FULL_BASE_QUERY);
+        query.addFilterQuery (SolrFields.PARENT_IDS+":"+ parentId,SolrFields.BOOK_ID+":"+bookId);
         return operator.queryStatus(SelfXCores.PAGE_NODE,loginId,query, PAGE_NODE_CONFIG).count;
     }
 

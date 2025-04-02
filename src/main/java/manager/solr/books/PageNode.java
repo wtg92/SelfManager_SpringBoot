@@ -9,6 +9,7 @@ public class PageNode extends SMSolrDoc {
 
     private Float score;
 
+    private SharingBook book;
 
 
     @Field
@@ -239,6 +240,14 @@ public class PageNode extends SMSolrDoc {
     @Override
     public PageNode clone(){
         return (PageNode) super.clone();
+    }
+
+    public SharingBook getBook() {
+        return book;
+    }
+
+    public void setBook(SharingBook book) {
+        this.book = book;
     }
 
     public Boolean getHidden() {

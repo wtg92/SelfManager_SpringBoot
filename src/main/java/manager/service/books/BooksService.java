@@ -53,4 +53,6 @@ public interface BooksService {
     void deleteBook(long loginId, String id);
 
     SolrSearchResult<SharingBook> searchBooks(long loginId, SolrSearchRequest searchRequest);
+
+    SolrSearchResult<PageNode> searchPageNodes(long loginId, SolrSearchRequest searchRequest);
 }

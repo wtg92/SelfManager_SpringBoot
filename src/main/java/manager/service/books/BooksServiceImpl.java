@@ -17,6 +17,7 @@ import manager.service.FilesService;
 import manager.system.*;
 import manager.system.books.*;
 import manager.system.books.BookStyle;
+import manager.util.ReflectUtil;
 import manager.util.SelfXCollectionUtils;
 import manager.util.locks.UserLockManager;
 import org.slf4j.Logger;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.function.Consumer;
 
 @Service
 public class BooksServiceImpl implements BooksService {
@@ -101,15 +103,15 @@ public class BooksServiceImpl implements BooksService {
     public void updateBookPropsSyncly(long loginId, String bookId, Map<String, Object> updatingAttrs) {
         locker.lockByUserAndClass(loginId, () -> {
             cache.saveBook(loginId, bookId, () -> operator.updateBook(bookId, loginId, loginId, updatingAttrs));
+            if(updatingAttrs.containsKey(SolrFields.STATUS)){
+                cache.removeClosedBookIds(loginId);
+            }
         });
     }
 
     @Override
     public void updatePageNodePropsSyncly(long loginId, String pageNodeId, Map<String, Object> updatingAttrs) {
-        if (updatingAttrs.keySet().stream()
-                .anyMatch(one -> one.equals(SolrFields.PARENT_IDS)
-                        || one.equals(SolrFields.INDEXES)
-                )) {
+        if (updatingAttrs.containsKey(SolrFields.PARENT_IDS) || updatingAttrs.containsKey(SolrFields.INDEXES)) {
             throw new LogicException(SelfXErrors.UNEXPECTED_ERROR);
         }
         locker.lockByUserAndClass(loginId, () -> {
@@ -165,6 +167,7 @@ public class BooksServiceImpl implements BooksService {
         } else {
             param.put(SolrFields.STATUS, SharingBookStatus.CLOSED);
             updateBookPropsSyncly(loginId, id, param);
+            cache.removeClosedBookIds(loginId);
         }
     }
 
@@ -274,6 +277,23 @@ public class BooksServiceImpl implements BooksService {
     @Override
     public SolrSearchResult<SharingBook> searchBooks(long loginId, SolrSearchRequest searchRequest) {
         return operator.searchBooks(loginId, searchRequest);
+    }
+
+    @Override
+    public SolrSearchResult<PageNode> searchPageNodes(long loginId, SolrSearchRequest searchRequest) {
+        List<String> closedBookIds = cache.getClosedBookIds(loginId,()->operator.getBookIdsByState(loginId,SharingBookStatus.CLOSED));
+        SolrSearchResult<PageNode> pageNodeSolrSearchResult = operator.searchPageNodes(loginId, searchRequest, closedBookIds);
+
+        List<String> bookFields =  ReflectUtil.getFiledNamesByPrefix(SharingBook.class, MultipleLangHelper.getFiledPrefix(SolrFields.NAME));
+        bookFields.addAll(Arrays.asList(SolrFields.ID,SolrFields.DEFAULT_LANG));
+
+        pageNodeSolrSearchResult.items.forEach((node)->{
+            SharingBook book =
+                    ReflectUtil.filterFields(getBook(loginId, node.getBookId()),bookFields);
+            node.setBook(book);
+
+        });
+        return pageNodeSolrSearchResult;
     }
 
     private static void checkPageNodeLegal(List<String> parentIds, List<Double> indexes) {

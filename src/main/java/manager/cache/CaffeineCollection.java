@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -48,6 +49,9 @@ public class CaffeineCollection {
     private Integer PAGE_NODES_MAX_NUM;
     @Value("${cache.file-records.max-num}")
     private Integer FILE_RECORDS_MAX_NUM;
+
+    @Value("${cache.closed-book-ids.max-num}")
+    private Integer CLOSED_BOOK_IDS_MAX_NUM;
     @PostConstruct
     public void init() {
         Common_Cache = generateCommonCache();
@@ -59,6 +63,8 @@ public class CaffeineCollection {
         Books_Cache = generateSpecificEntityCache(BOOKS_MAX_NUM,COMMON_EXPIRATION_OF_MIN);
         Page_Nodes_Cache = generateSpecificEntityCache(PAGE_NODES_MAX_NUM,COMMON_EXPIRATION_OF_MIN);
         File_Records_Cache = generateSpecificEntityCache(FILE_RECORDS_MAX_NUM,COMMON_EXPIRATION_OF_MIN);
+        Closed_Book_Ids_Cache = generateSpecificEntityCache(CLOSED_BOOK_IDS_MAX_NUM,COMMON_EXPIRATION_OF_MIN);
+
     }
 
     private Cache<String, String> generateCommonTempCache() {
@@ -83,6 +89,9 @@ public class CaffeineCollection {
 
     public Cache<Long, WorkSheet> Worksheet_Cache;
     public Cache<Long, FileRecord> File_Records_Cache;
+
+    public Cache<Long, List<String>> Closed_Book_Ids_Cache;
+
     public Cache<String, SharingBook> Books_Cache;
 
     public Cache<String, PageNode> Page_Nodes_Cache;

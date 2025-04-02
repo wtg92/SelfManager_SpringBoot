@@ -22,10 +22,6 @@ public abstract class SolrUtil {
         return String.join(",", params);
     }
 
-    public static String getMultipleFieldParam(Collection<String> params){
-        return getMultipleFieldParam(params.toArray(new String[0]));
-    }
-
     public static String getAutoGenerateIdConfig(){
         return getMultipleFieldParam(CustomProcessors.IGNORE_ID, CustomProcessors.AUTO_GENERATE_ID);
     }

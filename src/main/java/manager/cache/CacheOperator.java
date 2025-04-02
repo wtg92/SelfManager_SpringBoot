@@ -212,6 +212,15 @@ public class CacheOperator {
 		String cacheId = generateCacheIdInUserIsolation(loginId,bookId);
 		return caches.Books_Cache.get(cacheId,(k)->generator.get()).clone();
 	}
+
+	public List<String> getClosedBookIds(long loginId, Supplier<List<String>> generator) {
+		return caches.Closed_Book_Ids_Cache.get(loginId,(k)->generator.get());
+	}
+
+	public void removeClosedBookIds(long loginId) {
+		caches.Closed_Book_Ids_Cache.invalidate(loginId);
+	}
+
 	private void removeBook(long loginId,String id){
 		String cacheId = generateCacheIdInUserIsolation(loginId,id);
 		caches.Books_Cache.invalidate(cacheId);
@@ -220,6 +229,7 @@ public class CacheOperator {
 	public void deleteBook(long loginId,String id,Runnable deleting){
 		deleting.run();
 		removeBook(loginId,id);
+		removeClosedBookIds(loginId);
 	}
 
 	public void saveBook(long loginId, String bookId, Runnable saving ) {
@@ -347,5 +357,6 @@ public class CacheOperator {
 	private static String generateCacheIdInUserIsolation(long loginId, String id){
 		return loginId+"__"+id;
 	}
+
 
 }

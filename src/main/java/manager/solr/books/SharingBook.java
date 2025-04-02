@@ -18,17 +18,6 @@ public class SharingBook extends SMSolrDoc {
     @Field
     private Integer style;
 
-    @Field
-    private Integer test;
-
-    public Integer getTest() {
-        return test;
-    }
-
-    public void setTest(Integer test) {
-        this.test = test;
-    }
-
     /**
      * Tree or list
      */

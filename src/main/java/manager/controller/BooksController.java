@@ -103,6 +103,14 @@ public class BooksController {
         return service.searchBooks(loginId,searchRequest);
     }
 
+    @PostMapping(PAGES_PATH+"/search")
+    private SolrSearchResult<PageNode> searchPageNodes(@RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody SolrSearchRequest searchRequest
+    ){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        return service.searchPageNodes(loginId,searchRequest);
+    }
+
     @GetMapping(BOOKS_PATH)
     private SharingBook getBook(@RequestHeader("Authorization") String authorizationHeader
             ,@RequestParam(ID)String id){
