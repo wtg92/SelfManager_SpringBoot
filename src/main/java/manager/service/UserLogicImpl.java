@@ -230,8 +230,12 @@ public class UserLogicImpl extends UserService {
 		user.setPassword(pwd);
 		SecurityBooster.encodeUserPwd(user);
 		user.setGender(gender);
-		user.setEmail(email);
-		user.setTelNum(tel);
+		if(email != null && !email.trim().isEmpty()){
+			user.setEmail(email);
+		}
+		if(tel != null && !tel.trim().isEmpty()){
+			user.setTelNum(email);
+		}
 		user.setAlipayOpenId(alipayOpenId);
 		long uId = uDAO.insertUser(user);
 		UserGroup defaultGroup = uDAO.selectUniqueExistedUserGroupByField(DBConstants.F_NAME, SelfX.DEFAULT_BASIC_USER_GROUP);

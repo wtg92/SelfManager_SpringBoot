@@ -351,6 +351,13 @@ public class CacheOperator {
 	}
 
 	public void removeTempUser(String uuId) {
+		if(uuId == null) {
+			/*
+			* 在无痕模式登录的时候 UUID 因为某种原因为空 此时也相当于没有
+			* 啥也不做 无伤大雅
+			* */
+			return;
+		}
 		caches.Temp_Users_Cache.invalidate(uuId);
 	}
 
