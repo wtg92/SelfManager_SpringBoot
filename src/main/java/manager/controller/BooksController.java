@@ -3,6 +3,7 @@ package manager.controller;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import manager.data.MultipleItemsResult;
+import manager.solr.data.ParentNode;
 import manager.solr.data.SolrSearchRequest;
 import manager.solr.data.SolrSearchResult;
 import manager.solr.books.PageNode;
@@ -51,6 +52,25 @@ public class BooksController {
         Boolean isRoot = param.getBoolean(IS_ROOT);
         service.createPage(loginId,bookId,name,lang,parentId,isRoot,index);
     }
+
+    @PostMapping(PAGES_PATH+"/parentNode")
+    private void addPageParentNode(@RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody JSONObject param ){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        String parentId = param.getString(PARENT_ID);
+        Double index = param.getDouble(INDEX);
+        Boolean isRoot = param.getBoolean(IS_ROOT);
+        String id = param.getString(ID);
+        String bookId = param.getString(BOOK_ID);
+        service.addPageParentNode(loginId,id,bookId,parentId,isRoot,index);
+    }
+    @GetMapping(PAGES_PATH+"/parentNodes")
+    private List<ParentNode<?>> getAllParentNodes(@RequestHeader("Authorization") String authorizationHeader
+            , @RequestParam(ID)String id){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        return service.getAllParentNodes(loginId,id);
+    }
+
 
     @GetMapping(PAGES_PATH+"/list")
     private MultipleItemsResult<PageNode> getPages(@RequestHeader("Authorization") String authorizationHeader

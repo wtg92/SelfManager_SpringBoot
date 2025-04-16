@@ -7,6 +7,7 @@ import manager.booster.MultipleLangHelper;
 import manager.cache.CacheOperator;
 import manager.data.MultipleItemsResult;
 import manager.solr.SolrFields;
+import manager.solr.data.ParentNode;
 import manager.solr.data.SolrSearchRequest;
 import manager.solr.data.SolrSearchResult;
 import manager.solr.books.PageNode;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 @Service
 public class BooksServiceImpl implements BooksService {
@@ -112,6 +114,9 @@ public class BooksServiceImpl implements BooksService {
     @Override
     public void updatePageNodePropsSyncly(long loginId, String pageNodeId, Map<String, Object> updatingAttrs) {
         if (updatingAttrs.containsKey(SolrFields.PARENT_IDS) || updatingAttrs.containsKey(SolrFields.INDEXES)) {
+            /*
+             * ParentNodes的更新必须用特定API
+             */
             throw new LogicException(SelfXErrors.UNEXPECTED_ERROR);
         }
         locker.lockByUserAndClass(loginId, () -> {
@@ -136,14 +141,6 @@ public class BooksServiceImpl implements BooksService {
                 });
             }
         });
-    }
-
-    @Override
-    public void changeNode(long loginId, String nodeId, List<String> parentIds, List<Double> indexes) {
-        /**
-         * 必须只管当下的
-         */
-        updatePageNodeParentIdsAndIndexesSyncly(loginId, nodeId, parentIds, indexes);
     }
 
     public void updatePageNodeParentIdsAndIndexesSyncly(long loginId, String nodeId, List<String> parentIds, List<Double> indexes) {
@@ -201,6 +198,31 @@ public class BooksServiceImpl implements BooksService {
         });
     }
 
+    @Override
+    public void addPageParentNode(long loginId, String id, String bookId, String parentId, Boolean isRoot, Double index) {
+        locker.lockByUserAndClass(loginId, () -> {
+            PageNode page = getPageNode(loginId,id);
+            List<String> parentIds = page.getParentIds();
+            List<Double> indexes = page.getIndexes();
+
+            String toAddParentId = generatePageParentId(bookId,parentId,isRoot);
+
+            /*
+            * 同一层级的话 相当于移动 只更换index即可
+            * */
+            int existingIndex = parentIds.indexOf(toAddParentId);
+            if (existingIndex != -1) {
+                indexes.set(existingIndex, index);
+            } else {
+                parentIds.add(toAddParentId);
+                indexes.add(index);
+            }
+
+            updatePageNodeParentIdsAndIndexesSyncly(loginId,id,parentIds,indexes);
+            refreshPageChildrenNums(isRoot, parentId, bookId, loginId);
+        });
+    }
+
     private void refreshPageChildrenNums(Boolean isRoot, String id, String bookId, long loginId) {
         if (isRoot) {
             return;
@@ -211,16 +233,32 @@ public class BooksServiceImpl implements BooksService {
         updatePageNodePropsSyncly(loginId, id, params);
     }
 
+    private static boolean isBookParentId(String pId){
+        return pId.startsWith(PARENT_ID_OF_BOOK_PREFIX);
+    }
+
+    private static String extractPureParentId(String pId){
+        if(isBookParentId(pId)){
+            return pId.substring(PARENT_ID_OF_BOOK_PREFIX.length());
+        }else{
+            return pId.substring(PARENT_ID_OF_PAGE_NODE_PREFIX.length());
+        }
+    }
+
     private static String generatePageParentId(String bookId, String parentId, boolean isRoot) {
         return isRoot ? generateParentIdForRootPages(bookId) : generateParentIdForSubPages(parentId);
     }
+    private static final String PARENT_ID_OF_BOOK_PREFIX = BooksConstants.SHARING_BOOK_PURE + "_";
+
+    private static final String PARENT_ID_OF_PAGE_NODE_PREFIX = BooksConstants.PAGE_NODE_PURE + "_";
+
 
     private static String generateParentIdForRootPages(String bookId) {
-        return BooksConstants.SHARING_BOOK_PURE + "_" + bookId;
+        return PARENT_ID_OF_BOOK_PREFIX + bookId;
     }
 
     private static String generateParentIdForSubPages(String parentId) {
-        return BooksConstants.PAGE_NODE_PURE + "_" + parentId;
+        return PARENT_ID_OF_PAGE_NODE_PREFIX + parentId;
     }
 
     @Override
@@ -294,6 +332,30 @@ public class BooksServiceImpl implements BooksService {
 
         });
         return pageNodeSolrSearchResult;
+    }
+
+    @Override
+    public List<ParentNode<?>> getAllParentNodes(long loginId, String id) {
+        PageNode pageNode = getPageNode(loginId, id);
+        List<String> parentIds = pageNode.getParentIds();
+        Function<String,ParentNode<?>> mapper = pId->getOriginalParentId(pId,loginId)  ;
+        return parentIds.stream().map(mapper).toList();
+    }
+
+    private ParentNode<?> getOriginalParentId(String pId,long loginId) {
+        if(isBookParentId(pId)){
+            ParentNode<SharingBook> parentNode = new ParentNode<>();
+            parentNode.isBook = true;
+            String bookId = extractPureParentId(pId);
+            parentNode.base = getBook(loginId,bookId);
+            return parentNode;
+        }else{
+            ParentNode<PageNode> parentNode = new ParentNode<>();
+            parentNode.isBook = false;
+            String pageId = extractPureParentId(pId);
+            parentNode.base = getPageNode(loginId,pageId);
+            return parentNode;
+        }
     }
 
     private static void checkPageNodeLegal(List<String> parentIds, List<Double> indexes) {
