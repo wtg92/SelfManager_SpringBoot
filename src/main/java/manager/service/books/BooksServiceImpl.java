@@ -6,6 +6,7 @@ import manager.SelfXManagerSpringbootApplication;
 import manager.booster.MultipleLangHelper;
 import manager.cache.CacheOperator;
 import manager.data.MultipleItemsResult;
+import manager.solr.SelfXCores;
 import manager.solr.SolrFields;
 import manager.solr.data.ParentNode;
 import manager.solr.data.SolrSearchRequest;
@@ -203,8 +204,11 @@ public class BooksServiceImpl implements BooksService {
         locker.lockByUserAndClass(loginId, () -> {
             PageNode page = getPageNode(loginId,id);
             List<String> parentIds = page.getParentIds();
+            if(parentIds.size()> SelfX.MAX_DB_LINES_IN_ONE_SELECTS){
+                throw new LogicException(SelfXErrors.PARENT_PAGE_REACH_OUT_MAX_LIMIT
+                        ,SelfX.MAX_DB_LINES_IN_ONE_SELECTS);
+            }
             List<Double> indexes = page.getIndexes();
-
             String toAddParentId = generatePageParentId(bookId,parentId,isRoot);
 
             /*
@@ -301,7 +305,52 @@ public class BooksServiceImpl implements BooksService {
         });
     }
 
+    public List<PageNode> findShortestPathToRoot(long loginId, PageNode startNode, Function<String, PageNode> idToNodeMap) {
+        Map<String, String> cameFrom = new HashMap<>();
+        Queue<String> queue = new LinkedList<>();
+        Set<String> visited = new HashSet<>();
 
+        queue.offer(startNode.getId());
+        visited.add(startNode.getId());
+
+        String rootId = null;
+
+        while (!queue.isEmpty()) {
+            String currentId = queue.poll();
+            PageNode currentNode = idToNodeMap.apply(currentId);
+            if (currentNode == null) continue;
+
+            // 如果是根节点（没有父ID）
+            if (currentNode.getParentIds().isEmpty()) {
+                rootId = currentId;
+                break;
+            }
+
+            for (String parentId : currentNode.getParentIds()) {
+                if (!visited.contains(parentId)) {
+                    visited.add(parentId);
+                    cameFrom.put(parentId, currentId);
+                    queue.offer(parentId);
+                }
+            }
+        }
+
+        // 从 rootId 回溯路径
+        List<PageNode> path = new LinkedList<>();
+        if (rootId != null) {
+            String currentId = rootId;
+            while (currentId != null) {
+                PageNode node = idToNodeMap.apply(currentId);
+                if (node != null) path.add(node);
+                currentId = cameFrom.get(currentId);
+            }
+
+            // 最后反转一下，让路径从根到当前节点
+            Collections.reverse(path);
+        }
+
+        return path;
+    }
     @Override
     public void deleteBook(long loginId, String bookId) {
         locker.lockByUserAndClass(loginId, () -> {
