@@ -305,7 +305,7 @@ public class BooksServiceImpl implements BooksService {
         });
     }
 
-    public List<PageNode> findShortestPathToRoot(long loginId, PageNode startNode, Function<String, PageNode> idToNodeMap) {
+    public List<PageNode> findShortestPathToRoot(PageNode startNode, Function<String, PageNode> idToNodeMap) {
         Map<String, String> cameFrom = new HashMap<>();
         Queue<String> queue = new LinkedList<>();
         Set<String> visited = new HashSet<>();
@@ -318,15 +318,19 @@ public class BooksServiceImpl implements BooksService {
         while (!queue.isEmpty()) {
             String currentId = queue.poll();
             PageNode currentNode = idToNodeMap.apply(currentId);
-            if (currentNode == null) continue;
+            if (currentNode == null) {
+                System.err.println("SHOULDN'T BE THIS"+idToNodeMap);
+                continue;
+            }
 
             // 如果是根节点（没有父ID）
-            if (currentNode.getParentIds().isEmpty()) {
+            if (currentNode.getParentIds().stream().anyMatch(BooksServiceImpl::isBookParentId)) {
                 rootId = currentId;
                 break;
             }
 
-            for (String parentId : currentNode.getParentIds()) {
+            for (String processedId : currentNode.getParentIds()) {
+                String parentId = extractPureParentId(processedId);
                 if (!visited.contains(parentId)) {
                     visited.add(parentId);
                     cameFrom.put(parentId, currentId);
@@ -344,9 +348,6 @@ public class BooksServiceImpl implements BooksService {
                 if (node != null) path.add(node);
                 currentId = cameFrom.get(currentId);
             }
-
-            // 最后反转一下，让路径从根到当前节点
-            Collections.reverse(path);
         }
 
         return path;
@@ -389,6 +390,15 @@ public class BooksServiceImpl implements BooksService {
         List<String> parentIds = pageNode.getParentIds();
         Function<String,ParentNode<?>> mapper = pId->getOriginalParentId(pId,loginId)  ;
         return parentIds.stream().map(mapper).toList();
+    }
+
+    @Override
+    public List<PageNode> calculatePath(long loginId, String id) {
+        PageNode pageNode = getPageNode(loginId, id);
+        return findShortestPathToRoot(
+                pageNode,
+                i->getPageNode(loginId, i)
+        );
     }
 
     private ParentNode<?> getOriginalParentId(String pId,long loginId) {

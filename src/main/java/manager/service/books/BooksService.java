@@ -45,4 +45,6 @@ public interface BooksService {
 
 
     List<ParentNode<?>> getAllParentNodes(long loginId, String id);
+
+    List<PageNode> calculatePath(long loginId, String id);
 }
