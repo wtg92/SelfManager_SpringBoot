@@ -72,6 +72,21 @@ public class BooksController {
         String bookId = param.getString(BOOK_ID);
         service.addPageParentNode(loginId,id,bookId,parentId,isRoot,index);
     }
+
+    @PostMapping(PAGES_PATH+"/copySinglePageNodeFromTheOwner")
+    private void copySinglePageNodeFromTheOwner(@RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody JSONObject param ){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        String srcId = param.getString(SRC_ID);
+        String parentId = param.getString(PARENT_ID);
+        Double index = param.getDouble(INDEX);
+        Boolean isRoot = param.getBoolean(IS_ROOT);
+        String targetId = param.getString(TARGET_ID);
+        String bookId = param.getString(BOOK_ID);
+        service.copySinglePageNodeFromTheOwner(loginId,srcId,targetId,bookId,parentId,isRoot,index);
+    }
+
+
     @GetMapping(PAGES_PATH+"/parentNodes")
     private List<ParentNode<?>> getAllParentNodes(@RequestHeader("Authorization") String authorizationHeader
             , @RequestParam(ID)String id){
@@ -118,9 +133,9 @@ public class BooksController {
 
     @GetMapping(BOOKS_PATH+"/list")
     private MultipleItemsResult<SharingBook> getBooks(@RequestHeader("Authorization") String authorizationHeader
-    ,@RequestParam(STATE)Integer state){
+    ,@RequestParam(STATES)List<Integer> states){
         long loginId = UIUtil.getLoginId(authorizationHeader);
-        return service.getBooks(loginId,state);
+        return service.getBooks(loginId,states);
     }
 
     @PostMapping(BOOKS_PATH+"/search")
@@ -154,7 +169,7 @@ public class BooksController {
         long loginId = UIUtil.getLoginId(authorizationHeader);
         String id = param.getString(ID);
         Map<String,Object> updatingProps = JSON.parseObject(param.getString(JSON_OBJ));
-        service.updateBookPropsSyncly(loginId,id,updatingProps);
+        service.updateBookPropsInSync(loginId,id,updatingProps);
     }
 
     @PatchMapping(PAGES_PATH)
@@ -163,7 +178,7 @@ public class BooksController {
         long loginId = UIUtil.getLoginId(authorizationHeader);
         String id = param.getString(ID);
         Map<String,Object> updatingProps = JSON.parseObject(param.getString(JSON_OBJ));
-        service.updatePageNodePropsSyncly(loginId,id,updatingProps);
+        service.updatePageNodePropsInSync(loginId,id,updatingProps);
         return service.getPageNode(loginId,id);
     }
     @PatchMapping(BOOKS_PATH+"/close")

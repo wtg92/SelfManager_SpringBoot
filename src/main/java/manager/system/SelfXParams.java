@@ -62,7 +62,7 @@ public abstract class SelfXParams {
 	public final static String NOTE = "note";
 
 	public final static String COMMENT = "comment";
-	public final static String SRC_NOTE_ID = "src_note_id";
+	public final static String SRC_ID = "src_id";
 	public final static String LABEL = "label";
 	public final static String CAT_TYPE = "cat_type";
 	public final static String FATHER_ID = "father_id";
@@ -101,6 +101,9 @@ public abstract class SelfXParams {
 
 	public final static String RECALCULATE_STATE = "recalculate_state";
 	public final static String STATE = "state";
+
+	public final static String STATES = "states";
+
 	public final static String WS_ID = "ws_id";
 	public final static String DATA = "data";
 	public final static String WS_IDS = "ws_ids";

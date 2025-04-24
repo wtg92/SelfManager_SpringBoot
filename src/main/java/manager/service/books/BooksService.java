@@ -14,11 +14,11 @@ public interface BooksService {
     abstract void createBook(long loginId, String name, String defaultLanguage, String comment);
 
 
-    MultipleItemsResult<SharingBook> getBooks(long loginId, Integer state);
+    MultipleItemsResult<SharingBook> getBooks(long loginId,List<Integer> states);
 
-    void updateBookPropsSyncly(long loginId, String bookId, Map<String, Object> updatingAttrs);
+    void updateBookPropsInSync(long loginId, String bookId, Map<String, Object> updatingAttrs);
 
-    void updatePageNodePropsSyncly(long loginId, String bookId, Map<String, Object> updatingAttrs);
+    void updatePageNodePropsInSync(long loginId, String bookId, Map<String, Object> updatingAttrs);
 
 
 
@@ -47,4 +47,6 @@ public interface BooksService {
     List<ParentNode<?>> getAllParentNodes(long loginId, String id);
 
     List<PageNode> calculatePath(long loginId, String id);
+
+    void copySinglePageNodeFromTheOwner(long loginId, String srcId, String targetId, String bookId, String parentId, Boolean isRoot, Double index);
 }

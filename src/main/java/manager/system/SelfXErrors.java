@@ -90,7 +90,9 @@ public enum SelfXErrors {
 	NON_EXISTED_ACCOUNT(69),
 	THIRTY_PARTY_AUTH(70),
 
-	PPT_ERROR(71,"PPT 操作异常"),
+	CANNOT_OPERATE_BOOK_IN_ILLEGAL_STATUS(71),
+
+
 	IMG_ERROR(72,"图片操作异常"),
 	
 	TOOL_RECORD_DOC_ERROR(73,"Tool Record Content Doc Error"),

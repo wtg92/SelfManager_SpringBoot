@@ -6,7 +6,6 @@ import manager.SelfXManagerSpringbootApplication;
 import manager.booster.MultipleLangHelper;
 import manager.cache.CacheOperator;
 import manager.data.MultipleItemsResult;
-import manager.solr.SelfXCores;
 import manager.solr.SolrFields;
 import manager.solr.data.ParentNode;
 import manager.solr.data.SolrSearchRequest;
@@ -28,9 +27,20 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
+/**
+ * 明晰如何处理文件：
+ * 文件的实际删除由FileService处理
+ * 任何一个fileRecord都仅属于一个pageNode
+ * 相关函数：
+ * updatePageNodePropsSyncly ----> 处理的是 更新页时 图片删除或新增 （条件：只有更新file_ids时） ----> 会处理文件的删除
+ *
+ * 当有操作节点的长操作时 就应该用book状态 锁住
+ * 1.本身是有锁的 因此长时间的操作 会停滞操作 ，此时我需要一个没有锁的地方 通知前台用户 拦下来
+ * 2.节点操作有本身的复杂性 处理节点及子节点时 我希望一次只处理一个
+ *
+ */
 @Service
 public class BooksServiceImpl implements BooksService {
 
@@ -57,6 +67,24 @@ public class BooksServiceImpl implements BooksService {
     private static final Integer BOOK_DEFAULT_DISPLAY_PATTERN = SharingBookDisplayPatterns.LIST;
 
     private static final Integer BOOK_DEFAULT_STYLE = BookStyle.GREEN.getDbCode();
+
+    @Override
+    public MultipleItemsResult<SharingBook> getBooks(long loginId,List<Integer> states) {
+        MultipleItemsResult<SharingBook> books = operator.getBooks(loginId, states);
+        fill(books);
+        return books;
+    }
+
+    @Override
+    public SharingBook getBook(long loginId, String id) {
+        return cache.getBook(loginId, id, () -> operator.getBook(loginId, id));
+    }
+
+    @Override
+    public PageNode getPageNode(long loginId, String id) {
+        return cache.getPageNode(loginId, id, () -> operator.getPageNode(loginId, id));
+    }
+
 
     @Override
     public void createBook(long loginId, String name, String defaultLanguage, String comment) {
@@ -88,12 +116,7 @@ public class BooksServiceImpl implements BooksService {
         });
     }
 
-    @Override
-    public MultipleItemsResult<SharingBook> getBooks(long loginId, Integer state) {
-        MultipleItemsResult<SharingBook> books = operator.getBooks(loginId, state);
-        fill(books);
-        return books;
-    }
+
 
     private static void fill(MultipleItemsResult<SharingBook> books) {
         books.items.forEach(item -> {
@@ -103,7 +126,8 @@ public class BooksServiceImpl implements BooksService {
     }
 
     @Override
-    public void updateBookPropsSyncly(long loginId, String bookId, Map<String, Object> updatingAttrs) {
+    public void updateBookPropsInSync(long loginId, String bookId, Map<String, Object> updatingAttrs) {
+        checkBookAllowOperations(loginId,bookId);
         locker.lockByUserAndClass(loginId, () -> {
             cache.saveBook(loginId, bookId, () -> operator.updateBook(bookId, loginId, loginId, updatingAttrs));
             if(updatingAttrs.containsKey(SolrFields.STATUS)){
@@ -113,7 +137,8 @@ public class BooksServiceImpl implements BooksService {
     }
 
     @Override
-    public void updatePageNodePropsSyncly(long loginId, String pageNodeId, Map<String, Object> updatingAttrs) {
+    public void updatePageNodePropsInSync(long loginId, String pageNodeId, Map<String, Object> updatingAttrs) {
+        checkBookAllowOperations(loginId,boo);
         if (updatingAttrs.containsKey(SolrFields.PARENT_IDS) || updatingAttrs.containsKey(SolrFields.INDEXES)) {
             /*
              * ParentNodes的更新必须用特定API
@@ -144,7 +169,7 @@ public class BooksServiceImpl implements BooksService {
         });
     }
 
-    public void updatePageNodeParentIdsAndIndexesSyncly(long loginId, String nodeId, List<String> parentIds, List<Double> indexes) {
+    private void updatePageNodeParentIdsAndIndexesSyncly(long loginId, String nodeId, List<String> parentIds, List<Double> indexes) {
         checkPageNodeLegal(parentIds, indexes);
         locker.lockByUserAndClass(loginId, () -> {
             Map<String, Object> param = new HashMap<>();
@@ -157,6 +182,7 @@ public class BooksServiceImpl implements BooksService {
 
     @Override
     public void closeBook(long loginId, String id) {
+        checkBookAllowOperations(loginId,id);
         //确定封存吗？（如果该笔记本不包含笔记页且不含备注，会被<em>直接删除</em>
         Map<String, Object> param = new HashMap<>();
         if (operator.countPagesForSpecificParentId
@@ -164,23 +190,16 @@ public class BooksServiceImpl implements BooksService {
             deleteBook(loginId, id);
         } else {
             param.put(SolrFields.STATUS, SharingBookStatus.CLOSED);
-            updateBookPropsSyncly(loginId, id, param);
+            updateBookPropsInSync(loginId, id, param);
             cache.removeClosedBookIds(loginId);
         }
     }
 
-    @Override
-    public SharingBook getBook(long loginId, String id) {
-        return cache.getBook(loginId, id, () -> operator.getBook(loginId, id));
-    }
 
-    @Override
-    public PageNode getPageNode(long loginId, String id) {
-        return cache.getPageNode(loginId, id, () -> operator.getPageNode(loginId, id));
-    }
 
     @Override
     public void createPage(long loginId, String bookId, String name, String lang, String parentId, Boolean isRoot, Double index) {
+        checkBookAllowOperations(loginId,bookId);
         locker.lockByUserAndClass(loginId, () -> {
             PageNode page = new PageNode();
             page.setBookId(bookId);
@@ -200,7 +219,38 @@ public class BooksServiceImpl implements BooksService {
     }
 
     @Override
+    public void copySinglePageNodeFromTheOwner(long loginId, String srcId, String targetId, String bookId, String parentId, Boolean isRoot, Double index) {
+        checkBookAllowOperations(loginId,bookId);
+        locker.lockByUserAndClass(loginId, () -> {
+//            PageNode page = getPageNode(loginId,srcId);
+//
+//            page.setId(null);
+//            page.setBookId(bookId);
+//            page.setParentIds();
+//
+//            List<Double> indexes = page.getIndexes();
+//            String toAddParentId = generatePageParentId(bookId,parentId,isRoot);
+//
+//            /*
+//             * 同一层级的话 相当于移动 只更换index即可
+//             * */
+//            int existingIndex = parentIds.indexOf(toAddParentId);
+//            if (existingIndex != -1) {
+//                indexes.set(existingIndex, index);
+//            } else {
+//                parentIds.add(toAddParentId);
+//                indexes.add(index);
+//            }
+//
+//            updatePageNodeParentIdsAndIndexesSyncly(loginId,id,parentIds,indexes);
+//            refreshPageChildrenNums(isRoot, parentId, bookId, loginId);
+        });
+    }
+
+
+    @Override
     public void addPageParentNode(long loginId, String id, String bookId, String parentId, Boolean isRoot, Double index) {
+        checkBookAllowOperations(loginId,bookId);
         locker.lockByUserAndClass(loginId, () -> {
             PageNode page = getPageNode(loginId,id);
             List<String> parentIds = page.getParentIds();
@@ -234,7 +284,7 @@ public class BooksServiceImpl implements BooksService {
         long count = operator.countPagesForSpecificParentId(generateParentIdForSubPages(id), bookId, loginId);
         Map<String, Object> params = new HashMap<>();
         params.put(SolrFields.CHILDREN_NUM, count);
-        updatePageNodePropsSyncly(loginId, id, params);
+        updatePageNodePropsInSync(loginId, id, params);
     }
 
     private static boolean isBookParentId(String pId){
@@ -265,9 +315,27 @@ public class BooksServiceImpl implements BooksService {
         return PARENT_ID_OF_PAGE_NODE_PREFIX + parentId;
     }
 
+    private void checkBookAllowOperations(long loginId,String bookId){
+        SharingBook book = getBook(loginId, bookId);
+        if(!Objects.equals(book.getStatus(), SharingBookStatus.OPENED)){
+            throw new LogicException(SelfXErrors.CANNOT_OPERATE_BOOK_IN_ILLEGAL_STATUS,book.getStatus());
+        }
+    }
+
     @Override
     public MultipleItemsResult<PageNode> getPages(long loginId, String bookId, String parentId, Boolean isRoot) {
         return operator.getPageNodes(loginId, bookId, generatePageParentId(bookId, parentId, isRoot));
+    }
+
+    private void deleteSinglePageNodeWithFields(long loginId,PageNode node){
+        String pageId = node.getId();
+        locker.lockByUserAndClass(loginId, () -> {
+            cache.deletePageNode(loginId, pageId, () -> operator.deletePageNodeById(loginId, pageId));
+            node.getFileIds().forEach(encodedFileIds->{
+                long fileToDelete = securityBooster.getStableCommonId(encodedFileIds);
+                filesService.deleteFileRecord(loginId,fileToDelete);
+            });
+        });
     }
 
     /**
@@ -279,6 +347,7 @@ public class BooksServiceImpl implements BooksService {
      */
     @Override
     public void deletePageNode(long loginId, String bookId, String parentId, Boolean isRoot, String pageId) {
+        checkBookAllowOperations(loginId,bookId);
         PageNode node = getPageNode(loginId, pageId);
         if (node == null) {
             /**
@@ -294,7 +363,7 @@ public class BooksServiceImpl implements BooksService {
                  * 这里相反就是为了防止出现由于环导致的无限递归（尽管想定没有）
                  * 如果出现圆了 之后会由于空指针结束这个循环
                  */
-                cache.deletePageNode(loginId, pageId, () -> operator.deletePageNodeById(loginId, pageId));
+                deleteSinglePageNodeWithFields(loginId,node);
                 operator.getPageNodesByParentIdForDelete(loginId, bookId, generatePageParentId(bookId, pageId, false))
                         .forEach(one -> {
                             deletePageNode(loginId, bookId, pageId, false, one.getId());
@@ -352,13 +421,26 @@ public class BooksServiceImpl implements BooksService {
 
         return path;
     }
+
+    private void updateBookState(long loginId, String bookId,Integer state){
+        Map<String,Object> updatingAttrs = new HashMap<>();
+        updatingAttrs.put(SolrFields.STATUS,state);
+        updateBookPropsInSync(loginId,bookId,updatingAttrs);
+    }
+
+    /**
+     * 长时间操作 因此需要修改状态
+     * @param loginId
+     * @param bookId
+     */
     @Override
     public void deleteBook(long loginId, String bookId) {
+        checkBookAllowOperations(loginId,bookId);
         locker.lockByUserAndClass(loginId, () -> {
-            cache.deleteBook(loginId, bookId, () -> {
-                operator.deleteBookById(loginId, bookId);
-                operator.deletePageNodesByBookId(loginId, bookId);
-            });
+            updateBookState(loginId,bookId,SharingBookStatus.DELETING);
+            List<PageNode> nodes = operator.getPageNodesByBookIdForDelete(loginId, bookId);
+            nodes.forEach(one->deleteSinglePageNodeWithFields(loginId,one));
+            cache.deleteBook(loginId, bookId, ()->operator.deleteBookById(loginId, bookId));
         });
     }
 
@@ -369,7 +451,7 @@ public class BooksServiceImpl implements BooksService {
 
     @Override
     public SolrSearchResult<PageNode> searchPageNodes(long loginId, SolrSearchRequest searchRequest) {
-        List<String> closedBookIds = cache.getClosedBookIds(loginId,()->operator.getBookIdsByState(loginId,SharingBookStatus.CLOSED));
+        List<String> closedBookIds = cache.getClosedBookIds(loginId,()->operator.getBookIdsByState(loginId, Collections.singletonList(SharingBookStatus.CLOSED)));
         SolrSearchResult<PageNode> pageNodeSolrSearchResult = operator.searchPageNodes(loginId, searchRequest, closedBookIds);
 
         List<String> bookFields =  ReflectUtil.getFiledNamesByPrefix(SharingBook.class, MultipleLangHelper.getFiledPrefix(SolrFields.NAME));
@@ -400,6 +482,8 @@ public class BooksServiceImpl implements BooksService {
                 i->getPageNode(loginId, i)
         );
     }
+
+
 
     private ParentNode<?> getOriginalParentId(String pId,long loginId) {
         if(isBookParentId(pId)){

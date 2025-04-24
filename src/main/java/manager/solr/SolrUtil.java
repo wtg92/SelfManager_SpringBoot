@@ -9,6 +9,8 @@ import org.apache.solr.client.solrj.beans.DocumentObjectBinder;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public abstract class SolrUtil {
@@ -77,6 +79,16 @@ public abstract class SolrUtil {
             return dataTooLong;
         }
         return new DBException(SelfXErrors.UNKNOWN_DB_ERROR, e.getMessage());
+    }
+
+    public static<T>  String buildCollectionsQuery(String fieldName, List<T> states){
+        return buildCollectionsQuery(fieldName,states, Objects::toString);
+    }
+
+    public static<T>  String buildCollectionsQuery(String fieldName, List<T> states, Function<T,String> mapper){
+        return states.stream()
+                .map(mapper)
+                .collect(Collectors.joining(" OR ", fieldName + ":(", ")"));
     }
 
 
