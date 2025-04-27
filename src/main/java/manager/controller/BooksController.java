@@ -177,8 +177,9 @@ public class BooksController {
             , @RequestBody JSONObject param ){
         long loginId = UIUtil.getLoginId(authorizationHeader);
         String id = param.getString(ID);
+        String bookId = param.getString(BOOK_ID);
         Map<String,Object> updatingProps = JSON.parseObject(param.getString(JSON_OBJ));
-        service.updatePageNodePropsInSync(loginId,id,updatingProps);
+        service.updatePageNodeProps(loginId,bookId,id,updatingProps);
         return service.getPageNode(loginId,id);
     }
     @PatchMapping(BOOKS_PATH+"/close")

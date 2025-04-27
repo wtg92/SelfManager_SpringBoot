@@ -52,13 +52,6 @@ class ApplicationTests {
 
 	@Test
 	public void testBook(){
-		MultipleItemsResult<SharingBook> books = booksService.getBooks(1, SharingBookStatus.OPENED);
-		System.out.println(JSON.toJSONString(books));
-		Map<String,Object> update = new HashMap<>();
-		update.put("name_japanese","new");
-		booksService.updateBookPropsInSync(1,"3906bb60-b792-4b33-b9f5-3fde8c28a9d1",update);
-		books = booksService.getBooks(1, SharingBookStatus.OPENED);
-		System.out.println(JSON.toJSONString(books));
 	}
 
 
@@ -122,7 +115,6 @@ class ApplicationTests {
 
 	@Test
 	public  void testCache(){
-		wl.loadWorkSheet(1,1213);
 		wl.loadWorkSheet(1,1213);
 	}
 

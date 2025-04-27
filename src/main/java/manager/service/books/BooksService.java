@@ -18,7 +18,7 @@ public interface BooksService {
 
     void updateBookPropsInSync(long loginId, String bookId, Map<String, Object> updatingAttrs);
 
-    void updatePageNodePropsInSync(long loginId, String bookId, Map<String, Object> updatingAttrs);
+    void updatePageNodeProps(long loginId,String bookId, String pageId, Map<String, Object> updatingAttrs);
 
 
 

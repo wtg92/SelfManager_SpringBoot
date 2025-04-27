@@ -152,7 +152,7 @@ public class BooksSolrOperator {
 
     public MultipleItemsResult<PageNode> getPageNodes(long loginId, String bookId, String parentId) {
         SolrQuery query =  buildPageNodesQuery(
-                Arrays.asList(SolrFields.PARENT_IDS + ":" + parentId,SolrFields.BOOK_ID + ":" + bookId)
+                Arrays.asList(SolrFields.PARENT_IDS + ":" + parentId,SolrFields.BOOK_ID + ":" + bookId),
                 List.of(SolrFields.ID, SolrFields.CREATE_UTC, SolrFields.UPDATE_UTC, SolrFields.NAME_MULTI,
                         SolrFields.INDEXES, SolrFields.PARENT_IDS, SolrFields.CHILDREN_NUM,
                         SolrFields.UPDATER_ID, SolrFields.IS_HIDDEN),
