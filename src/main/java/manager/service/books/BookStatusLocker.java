@@ -45,6 +45,13 @@ public class BookStatusLocker {
         DELETING_BOOKS.remove(generateKey(loginId,bookId));
     }
 
+    public void startCopying(long loginId, String bookId){
+        checkDoingOperations(loginId,bookId);
+        COPYING_BOOKS.add(generateKey(loginId,bookId));
+    }
+    public void endCopying(long loginId,String bookId){
+        COPYING_BOOKS.remove(generateKey(loginId,bookId));
+    }
 
 
     public void fill(long loginId,SharingBook book){

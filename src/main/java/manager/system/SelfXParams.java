@@ -63,6 +63,11 @@ public abstract class SelfXParams {
 
 	public final static String COMMENT = "comment";
 	public final static String SRC_ID = "src_id";
+
+	public final static String SRC_PARENT_ID = "src_parent_id";
+
+	public final static String SRC_BOOK_ID = "src_book_id";
+
 	public final static String LABEL = "label";
 	public final static String CAT_TYPE = "cat_type";
 	public final static String FATHER_ID = "father_id";
@@ -81,6 +86,8 @@ public abstract class SelfXParams {
 	public final static String IS_PREPENDED = "is_prepended";
 
 	public final static String IS_ROOT = "is_root";
+
+	public final static String SRC_IS_ROOT = "src_is_root";
 
 	public final static String START_UTC_FOR_CREATE = "start_utc_for_create";
 	public final static String END_UTC_FOR_CREATE = "end_utc_for_create";

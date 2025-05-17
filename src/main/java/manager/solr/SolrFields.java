@@ -10,6 +10,8 @@ public abstract class SolrFields {
     public static final String NAME = "name";
     public static final String COMMENT = "comment";
 
+    public static final String EDITOR_STATE= "editorState";
+
     public static final String CONTENT = "content";
 
     public static final String STATUS = "status";

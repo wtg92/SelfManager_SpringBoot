@@ -40,12 +40,12 @@ public class BooksSolrOperator {
     @Value("${solr.cores.pageNode}")
     private String PAGE_NODE_CONFIG;
 
-    public void insertBook(SharingBook book, Long userId){
-        operator.insertDoc(book, SelfXCores.SHARING_BOOK,userId,SHARING_BOOK_CONFIG);
+    public String insertBook(SharingBook book, Long userId){
+        return operator.insertDoc(book, SelfXCores.SHARING_BOOK,userId,SHARING_BOOK_CONFIG);
     }
 
-    public void insertPage(PageNode page, Long userId){
-        operator.insertDoc(page, SelfXCores.PAGE_NODE,userId, PAGE_NODE_CONFIG);
+    public String insertPage(PageNode page, Long userId){
+        return operator.insertDoc(page, SelfXCores.PAGE_NODE,userId, PAGE_NODE_CONFIG);
     }
 
     public MultipleItemsResult<SharingBook> getBooks(long userId,List<Integer> states) {
@@ -54,6 +54,7 @@ public class BooksSolrOperator {
         query.addFilterQuery(SolrUtil.buildCollectionsQuery(SolrFields.STATUS,states));
         query.setFields(
                 SolrFields.ID, SolrFields.CREATE_UTC, SolrFields.UPDATE_UTC, SolrFields.NAME_MULTI,
+                SolrFields.STATUS,
                 SolrFields.COMMENT_MULTI, SolrFields.DEFAULT_LANG, SolrFields.STYLE, SolrFields.UPDATER_ID
         );
         query.set(SolrRequestParam.QUERY_SORT, SolrFields.SEQ_WEIGHT + " " + SolrQuery.ORDER.desc);

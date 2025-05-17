@@ -273,18 +273,6 @@ public class WorkServiceImpl extends WorkService {
 			throw new LogicException(SelfXErrors.CANNOT_EDIT_OTHERS_PLAN);
 		}
 
-		if(!name.equals(plan.getName())
-				|| ZonedTimeUtils.isNotSameByDate(plan.getTimezone(),plan.getStartUtc(),startDate)
-				|| ZonedTimeUtils.isNotSameByDate(plan.getTimezone(),plan.getEndUtc(),endDate)
-		) {
-			WorkContentConverter.addLog(plan, CareerLogAction.SAVE_PLAN, loginId,
-					plan.getName(),
-					plan.getStartUtc(),
-					plan.getEndUtc(),
-					name,
-					startDate,
-					endDate);
-		}
 		plan.setName(name);
 		plan.setStartUtc(startDate);
 		plan.setEndUtc(endDate);

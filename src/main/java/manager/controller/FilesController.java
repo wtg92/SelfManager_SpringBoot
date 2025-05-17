@@ -59,9 +59,9 @@ public class FilesController {
 
     @GetMapping("/record")
     private FileRecord getRecord(@RequestHeader(name="Authorization", required = false) String authorizationHeader
-            , @RequestParam(ID)String decodedID){
+            , @RequestParam(ID)String encodedID){
         long loginId = authorizationHeader == null ? 0 : UIUtil.getLoginId(authorizationHeader);
-        Long id = securityBooster.getStableCommonId(decodedID) ;
+        Long id = securityBooster.getStableCommonId(encodedID) ;
         return service.getRecord(loginId,id);
     }
 

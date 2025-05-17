@@ -11,7 +11,10 @@ public class PageNode extends SMSolrDoc {
 
     private SharingBook book;
 
-
+    /*
+     * PAGE
+     * DIRECTORY
+     */
     @Field
     private String type;
 
@@ -41,6 +44,7 @@ public class PageNode extends SMSolrDoc {
      * 变量还是需要有一个类型的
      * 这样为未来的扩展比较好
      * 并且设置语言
+     * JSON格式
      */
     @Field
     private List<String> variables;

@@ -47,7 +47,7 @@ public class SolrOperator {
      * UserIsolator.calculateCoreNamByUser放在这个方法里的原因是
      * 当传入coreName时 说明是分用户的 因此这段逻辑 放在这里是okay的
      */
-    public void insertDoc(SMSolrDoc doc,String core,long userId,String configDir) {
+    public String insertDoc(SMSolrDoc doc,String core,long userId,String configDir) {
         String coreName = UserIsolator.calculateCoreNamByUser(core,userId) ;
         initCoreIfNotExist(coreName,configDir);
         doc.setCreateUtc(System.currentTimeMillis());
@@ -56,6 +56,7 @@ public class SolrOperator {
         /*Solr setting means not existed in db*/
         doc.set_version_((long)-1);
         invoker.insertDoc(coreName, doc);
+        return doc.getId();
     }
 
     public void updateDocPartially(String core,String id,long userId,long updaterId,Map<String,Object> updatingFields){
@@ -78,7 +79,11 @@ public class SolrOperator {
 
     public <T> T getDocById(String core,long userId, String id, Class<T> cls) {
         String coreName = UserIsolator.calculateCoreNamByUser(core,userId) ;
-        return JSON.parseObject(invoker.getDocument(coreName,id).jsonStr(),cls);
+        SolrDocument document = invoker.getDocument(coreName, id);
+        if(document == null){
+            return null;
+        }
+        return JSON.parseObject(document.jsonStr(),cls);
     }
 
     public void deleteById(String core,long userId, String id) {

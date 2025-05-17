@@ -245,7 +245,11 @@ public class CacheOperator {
 	/*- PageNode----start- */
 	public PageNode getPageNode(long loginId, String pageId, Supplier<PageNode> generator) {
 		String cacheId = generateCacheIdInUserIsolation(loginId,pageId);
-		return caches.Page_Nodes_Cache.get(cacheId,(k)->generator.get()).clone();
+		PageNode pageNode = caches.Page_Nodes_Cache.get(cacheId, (k) -> generator.get());
+		if(pageNode == null){
+			return null;
+		}
+		return pageNode.clone();
 	}
 
 	private void removePageNode(long loginId,String id){

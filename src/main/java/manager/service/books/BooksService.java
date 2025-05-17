@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface BooksService {
-    abstract void createBook(long loginId, String name, String defaultLanguage, String comment);
+    abstract String createBook(long loginId, String name, String defaultLanguage, String comment);
 
 
     MultipleItemsResult<SharingBook> getBooks(long loginId,List<Integer> states);
@@ -26,7 +26,7 @@ public interface BooksService {
 
     SharingBook getBook(long loginId, String id);
 
-    void createPage(long loginId, String bookId, String name, String lang, String parentId, Boolean isRoot, Double index);
+    String createPage(long loginId, String bookId, String name, String lang, String parentId, Boolean isRoot, Double index);
 
     void addPageParentNode(long loginId, String id, String bookId, String parentId, Boolean isRoot, Double index);
 
@@ -48,5 +48,7 @@ public interface BooksService {
 
     List<PageNode> calculatePath(long loginId, String id);
 
-    void copySinglePageNodeFromTheOwner(long loginId, String srcId, String targetId, String bookId, String parentId, Boolean isRoot, Double index);
+    void copySinglePageNodeFromTheOwner(long loginId, String srcId, String bookId, String parentId, Boolean isRoot, Double index);
+
+    void movePageNodeAndSub(long loginId, String srcId, String srcBookId, String srcParentId, Boolean srcIsRoot, String targetBookId, String targetParentId, Double targetIndex, Boolean targetIsRoot);
 }

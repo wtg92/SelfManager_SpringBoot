@@ -102,7 +102,7 @@ public enum SelfXErrors {
 	FILE_UPLOADING_ERROR(75,"文件上传失败"),
 	
 	MODIFY_DPI_ERROR(76,"修改图片DPI失败"),
-	ILLEGAL_TAG(77,"标签中包含非法字符"),
+	ILLEGAL_STR(77,"标签中包含非法字符"),
 	DUP_TAG(78,"标签重复"),
 	COMMON(79),
 

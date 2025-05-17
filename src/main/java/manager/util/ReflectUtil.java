@@ -64,6 +64,29 @@ public abstract class ReflectUtil {
         }
     }
 
+    public static <T> String getStringFieldValue(T base, String fieldName) {
+        if (base == null || fieldName == null || fieldName.isEmpty()) {
+            throw new IllegalArgumentException("Object or field name cannot be null/empty");
+        }
+
+        Class<?> clazz = base.getClass();
+
+        while (clazz != null) {
+            try {
+                Field field = clazz.getDeclaredField(fieldName);
+                field.setAccessible(true); // 允许访问 private 字段
+                Object value = field.get(base);
+                return value != null ? value.toString() : null;
+            } catch (NoSuchFieldException e) {
+                clazz = clazz.getSuperclass();
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException("无法访问字段: " + fieldName, e);
+            }
+        }
+
+        return null; // 如果整个类层次结构中都找不到字段
+    }
+
     public static <T> T filterFields(T original, List<String> fieldNames) {
         if (original == null || fieldNames == null) {
             throw new IllegalArgumentException("Original object and field names cannot be null");

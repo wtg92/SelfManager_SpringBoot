@@ -31,17 +31,17 @@ public class BooksController {
     private static final String PAGES_PATH = "/pageNodes";
 
     @PostMapping(BOOKS_PATH)
-    private void postBook( @RequestHeader("Authorization") String authorizationHeader
+    private String postBook( @RequestHeader("Authorization") String authorizationHeader
             , @RequestBody JSONObject param ){
         long loginId = UIUtil.getLoginId(authorizationHeader);
         String name = param.getString(NAME);
         String defaultLanguage = param.getString(DEFAULT_LANGUAGE);
         String comment = param.getString(COMMENT);
-        service.createBook(loginId,name,defaultLanguage,comment);
+        return service.createBook(loginId,name,defaultLanguage,comment);
     }
 
     @PostMapping(PAGES_PATH)
-    private void postPage( @RequestHeader("Authorization") String authorizationHeader
+    private String postPage( @RequestHeader("Authorization") String authorizationHeader
             , @RequestBody JSONObject param ){
         long loginId = UIUtil.getLoginId(authorizationHeader);
         String name = param.getString(NAME);
@@ -50,7 +50,7 @@ public class BooksController {
         Double index = param.getDouble(INDEX);
         String bookId = param.getString(BOOK_ID);
         Boolean isRoot = param.getBoolean(IS_ROOT);
-        service.createPage(loginId,bookId,name,lang,parentId,isRoot,index);
+        return service.createPage(loginId,bookId,name,lang,parentId,isRoot,index);
     }
 
     @PostMapping(PAGES_PATH+"/calculatePath")
@@ -81,9 +81,25 @@ public class BooksController {
         String parentId = param.getString(PARENT_ID);
         Double index = param.getDouble(INDEX);
         Boolean isRoot = param.getBoolean(IS_ROOT);
-        String targetId = param.getString(TARGET_ID);
         String bookId = param.getString(BOOK_ID);
-        service.copySinglePageNodeFromTheOwner(loginId,srcId,targetId,bookId,parentId,isRoot,index);
+        service.copySinglePageNodeFromTheOwner(loginId,srcId,bookId,parentId,isRoot,index);
+    }
+
+    @PostMapping(PAGES_PATH+"/movePageNodeAndSub")
+    private void movePageNodeAndSub(@RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody JSONObject param ){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        String srcId = param.getString(SRC_ID);
+        String srcParentId = param.getString(SRC_PARENT_ID);
+        String srcBookId = param.getString(SRC_BOOK_ID);
+        Boolean srcIsRoot = param.getBoolean(SRC_IS_ROOT);
+
+        String targetBookId = param.getString(BOOK_ID);
+        String targetParentId = param.getString(PARENT_ID);
+        Double targetIndex = param.getDouble(INDEX);
+        Boolean targetIsRoot = param.getBoolean(IS_ROOT);
+
+        service.movePageNodeAndSub(loginId,srcId,srcBookId,srcParentId,srcIsRoot,targetBookId,targetParentId,targetIndex,targetIsRoot);
     }
 
 

@@ -248,7 +248,7 @@ public abstract class WorkService {
 			return false;
 		}
 		
-		WorkContentConverter.addLog(workSheet, CareerLogAction.WS_STATE_CHENGED_DUE_TO_ITEM_MODIFIED, SelfX.SYSTEM_ID,
+		WorkContentConverter.addLog(workSheet, CareerLogAction.WS_STATE_CHANGED_DUE_TO_ITEM_MODIFIED, SelfX.SYSTEM_ID,
 				workSheet.getState().getDbCode(),
 				stateByNow.getDbCode());
 		

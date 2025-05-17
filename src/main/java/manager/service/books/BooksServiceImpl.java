@@ -7,6 +7,7 @@ import manager.booster.MultipleLangHelper;
 import manager.booster.UserIsolator;
 import manager.cache.CacheOperator;
 import manager.data.MultipleItemsResult;
+import manager.data.general.FinalHandler;
 import manager.solr.SelfXCores;
 import manager.solr.SolrFields;
 import manager.solr.data.ParentNode;
@@ -37,7 +38,7 @@ import java.util.stream.Collectors;
  * 文件的实际删除由FileService处理
  * 任何一个fileRecord都仅属于一个pageNode
  * 相关函数：
- * updatePageNodePropsSyncly ----> 处理的是 更新页时 图片删除或新增 （条件：只有更新file_ids时） ----> 会处理文件的删除
+ * updatePageNodePropsInSync ----> 处理的是 更新页时 图片删除或新增 （条件：只有更新file_ids时） ----> 会处理文件的删除
  * <p>
  * 当有操作节点的长操作时 就应该用book状态 锁住
  * 1.本身是有锁的 因此长时间的操作 会停滞操作 ，此时我需要一个没有锁的地方 通知前台用户 拦下来
@@ -91,19 +92,19 @@ public class BooksServiceImpl implements BooksService {
 
 
     @Override
-    public void createBook(long loginId, String name, String defaultLanguage, String comment) {
-        /**
+    public String createBook(long loginId, String name, String defaultLanguage, String comment) {
+        /*
          * unnecessary but do not harm
          */
         if (Language.get(defaultLanguage) == Language.UNKNOWN) {
             throw new LogicException(SelfXErrors.UNEXPECTED_ERROR, "IMPOSSIBLE lang " + defaultLanguage);
         }
-
+        FinalHandler<String> id = new FinalHandler<>();
         locker.lockByUserAndClass(loginId, () -> {
             SharingBook book = new SharingBook();
             book.setDefaultLang(defaultLanguage);
 
-            /**
+            /*
              * 生成对应值
              */
             book = MultipleLangHelper.setFiledValue(book, BooksMultipleFields.NAME, defaultLanguage, name);
@@ -116,8 +117,9 @@ public class BooksServiceImpl implements BooksService {
             book.setDisplayPattern(BOOK_DEFAULT_DISPLAY_PATTERN);
             book.setSeqWeight(0);
             book.setStyle(BOOK_DEFAULT_STYLE);
-            operator.insertBook(book, loginId);
+            id.val = operator.insertBook(book, loginId);
         });
+        return id.val;
     }
 
 
@@ -213,7 +215,8 @@ public class BooksServiceImpl implements BooksService {
 
 
     @Override
-    public void createPage(long loginId, String bookId, String name, String lang, String parentId, Boolean isRoot, Double index) {
+    public String createPage(long loginId, String bookId, String name, String lang, String parentId, Boolean isRoot, Double index) {
+        FinalHandler<String> id= new FinalHandler<>();
         locker.lockByUserAndClass(loginId, () -> {
             PageNode page = new PageNode();
             page.setBookId(bookId);
@@ -226,38 +229,144 @@ public class BooksServiceImpl implements BooksService {
             page.setType(PageNodeType.PAGE);
             page.setSrcType(SelfXDataSrcTypes.BY_USERS);
             page.setFileIds(new ArrayList<>());
-            operator.insertPage(page, loginId);
-
+            id.val = operator.insertPage(page, loginId);
             refreshPageChildrenNums(isRoot, parentId, bookId, loginId);
         });
+        return id.val;
     }
 
+
+    /**
+     * ABCD
+     * 需要复制什么？
+     * 1.name
+     * 2.CONTENT
+     * 3.WithTODOs
+     * 4.variables
+     * 5.type   PAGE
+     * 6.variables
+     * 需要修改生成的有什么？
+     * 1.filesId
+     * 2.EDITOR_STATE   -------> 包含File -----> Replace 非法字符 反射
+     * 需要和创建页面初始化一样的
+     * 1.isHidden
+     * 需要置空 从而上层决定的
+     * 1.bookId
+     * 2.parentIds
+     * 3.indexes
+     * 4.id
+     * 5.childrenName
+     */
+    private PageNode copyPureNodeFromOne(long loginId,PageNode one,long loginIdForThisNode) {
+        PageNode clone = one.clone();
+
+
+        if (clone.getFileIds() != null && !clone.getFileIds().isEmpty()) {
+            /*
+            这个用来校验是否含有FileIds
+            文本中 不允许出现特定的字符 -- 我认为该字段是读者输入的
+         */
+            List<String> contentsField = ReflectUtil.getFiledNamesByPrefix(PageNode.class, SolrFields.CONTENT);
+            for (String fieldName : contentsField) {
+                String stringFieldValue = ReflectUtil.getStringFieldValue(clone, fieldName);
+                if (stringFieldValue != null) {
+                    for(String fieldId : clone.getFileIds()){
+                        if(stringFieldValue.contains(fieldId)){
+                            throw new LogicException(SelfXErrors.ILLEGAL_STR,fieldId);
+                        }
+                    }
+                }
+            }
+            /*
+             * 校验成功 正式开始复制了
+             */
+            Map<String,String> copyingFileIdsMapper = new HashMap<>();
+            for(String fieldId : clone.getFileIds()){
+                Map<String,Object> srcParams = new HashMap<>();
+                srcParams.put("pageNodeLoginId",loginIdForThisNode);
+                srcParams.put("nodeId",one.getId());
+                /*
+                 * 重新produce一个Field Record
+                 * replace state里的file
+                 */
+                String copyingId = filesService.copyFileRecord(loginId, fieldId, srcParams);
+                copyingFileIdsMapper.put(fieldId,copyingId);
+            }
+
+            List<String> editorStatesFields = ReflectUtil.getFiledNamesByPrefix(PageNode.class, SolrFields.EDITOR_STATE);
+
+            for (String fieldName : editorStatesFields) {
+                String stringFieldValue = ReflectUtil.getStringFieldValue(clone, fieldName);
+                if (stringFieldValue != null) {
+                    copyingFileIdsMapper.forEach((oldId,copyingId)->{
+                        ReflectUtil.setFiledValue(clone,fieldName,stringFieldValue.replaceAll(oldId,copyingId));
+                    });
+                }
+            }
+
+        }
+
+        clone.setIsHidden(false);
+        /*
+         * 需要置空 从而上层决定的
+         * 1.id
+         * 2.bookId
+         * 3.parentIds
+         * 4.indexes
+         * 5.childrenName
+         */
+        clone.setId(null);
+        clone.setBookId(null);
+        clone.setParentIds(null);
+        clone.setIndexes(null);
+        clone.setChildrenNum(null);
+
+        return clone;
+    }
+
+
     @Override
-    public void copySinglePageNodeFromTheOwner(long loginId, String srcId, String targetId, String bookId, String parentId, Boolean isRoot, Double index) {
-        locker.lockByUserAndClass(loginId, () -> {
-//            PageNode page = getPageNode(loginId,srcId);
-//
-//            page.setId(null);
-//            page.setBookId(bookId);
-//            page.setParentIds();
-//
-//            List<Double> indexes = page.getIndexes();
-//            String toAddParentId = generatePageParentId(bookId,parentId,isRoot);
-//
-//            /*
-//             * 同一层级的话 相当于移动 只更换index即可
-//             * */
-//            int existingIndex = parentIds.indexOf(toAddParentId);
-//            if (existingIndex != -1) {
-//                indexes.set(existingIndex, index);
-//            } else {
-//                parentIds.add(toAddParentId);
-//                indexes.add(index);
-//            }
-//
-//            updatePageNodeParentIdsAndIndexesSyncly(loginId,id,parentIds,indexes);
-//            refreshPageChildrenNums(isRoot, parentId, bookId, loginId);
-        });
+    public void copySinglePageNodeFromTheOwner(long loginId, String srcId, String bookId, String parentId, Boolean isRoot, Double index) {
+        bookStatusLocker.startCopying(loginId, bookId);
+        try {
+            locker.lockByUserAndClass(loginId, () -> {
+
+                PageNode page = getPageNode(loginId, srcId);
+                PageNode clone = copyPureNodeFromOne(loginId,page,loginId);
+                /* copy置空的
+                 * 2.bookId
+                 * 3.parentIds
+                 * 4.indexes
+                 * 5.childrenName
+                 */
+                clone.setBookId(bookId);
+                clone.setParentIds(Collections.singletonList(generatePageParentId(bookId, parentId, isRoot)));
+                clone.setIndexes(Collections.singletonList(index));
+                clone.setChildrenNum(0);
+
+                operator.insertPage(clone, loginId);
+                refreshPageChildrenNums(isRoot, parentId, bookId, loginId);
+            });
+        } finally {
+            bookStatusLocker.endCopying(loginId, bookId);
+        }
+
+    }
+
+    /**
+     *
+     * 同一本书
+     * 1.移动同层 只相当于增加上级页
+     * 2.非同层 相当于先增加上级页 再删除当前连接
+     */
+    @Override
+    public void movePageNodeAndSub(long loginId, String srcId, String srcBookId, String srcParentId, Boolean srcIsRoot, String targetBookId, String targetParentId, Double targetIndex, Boolean targetIsRoot) {
+        if(srcBookId.equals(targetBookId)){
+            addPageParentNode(loginId,srcId,targetBookId,targetParentId,targetIsRoot,targetIndex);
+            if(!srcParentId.equals(targetParentId)){
+                deletePageNode(loginId,srcBookId,srcParentId,srcIsRoot,srcId);
+            }
+        }
     }
 
 
@@ -414,6 +523,11 @@ public class BooksServiceImpl implements BooksService {
                     }
                 }
                 /*
+                 * 更新一下父节点的childrenNums
+                 */
+                refreshPageChildrenNums(isRoot, parentId, bookId, loginId);
+
+                /*
                  * --- 补充：处理孤立环 ---
                  * 到这里为止，按照正常父子路径能遍历到的节点都清理完了。
                  * 但是如果存在孤立环，需要额外探测处理。
@@ -430,7 +544,7 @@ public class BooksServiceImpl implements BooksService {
 
                     PageNode current = getPageNode(loginId, currentId);
 
-                    if(current == null){
+                    if (current == null) {
                         //此时有可能为null 说明之前被删掉了 很好 感觉上只有第一次会出现
                         continue;
                     }
@@ -439,8 +553,8 @@ public class BooksServiceImpl implements BooksService {
                     /*
                      * 找到所有子
                      */
-                    List<String> children =  operator
-                            .getPageNodesByParentIdForDelete(loginId,bookId,generatePageParentId(bookId, currentId, false))
+                    List<String> children = operator
+                            .getPageNodesByParentIdForDelete(loginId, bookId, generatePageParentId(bookId, currentId, false))
                             .stream().map(PageNode::getId).toList();
 
                     for (String childId : children) {
@@ -542,14 +656,14 @@ public class BooksServiceImpl implements BooksService {
      */
     @Override
     public void deleteBook(long loginId, String bookId) {
-        try{
+        try {
             bookStatusLocker.startDeletingBook(loginId, bookId);
             locker.lockByUserAndClass(loginId, () -> {
                 List<PageNode> nodes = operator.getPageNodesByBookIdForDelete(loginId, bookId);
                 nodes.forEach(one -> deleteSinglePageNodeWithFileIds(loginId, one));
                 cache.deleteBook(loginId, bookId, () -> operator.deleteBookById(loginId, bookId));
             });
-        }finally {
+        } finally {
             bookStatusLocker.endDeletingBook(loginId, bookId);
         }
     }

@@ -69,10 +69,10 @@ public abstract class TagCalculator {
 
 	private static void checkTagLegal(String tag) throws LogicException {
 		if(tag.contains(SEPARATOR)) {
-			throw new LogicException(SelfXErrors.ILLEGAL_TAG, SEPARATOR);
+			throw new LogicException(SelfXErrors.ILLEGAL_STR, SEPARATOR);
 		}
 		if(tag.contains(CREATED_BY_SYSTEM)) {
-			throw new LogicException(SelfXErrors.ILLEGAL_TAG,CREATED_BY_SYSTEM);
+			throw new LogicException(SelfXErrors.ILLEGAL_STR,CREATED_BY_SYSTEM);
 		}
 	}
 	

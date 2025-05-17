@@ -58,7 +58,7 @@ public abstract class LogParser {
 					fillEmLabel(params.get(0)),
 					fillEmLabel(WorkSheetState.valueOfDBCode(params.get(1)).getName()));
 		
-		case WS_STATE_CHENGED_DUE_TO_ITEM_MODIFIED:
+		case WS_STATE_CHANGED_DUE_TO_ITEM_MODIFIED:
 			return String.format("由于计划项或工作项发生变化，重新计算工作表状态，状态由%s修改为%s",
 					fillEmLabel(WorkSheetState.valueOfDBCode(params.get(0)).getName()),
 					fillEmLabel(WorkSheetState.valueOfDBCode(params.get(1)).getName()));

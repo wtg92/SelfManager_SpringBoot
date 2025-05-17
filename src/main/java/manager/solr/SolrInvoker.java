@@ -3,9 +3,13 @@ package manager.solr;
 import com.alibaba.fastjson2.JSON;
 import manager.booster.UserIsolator;
 import manager.entity.SMSolrDoc;
+import manager.exception.DBException;
+import manager.exception.LogicException;
 import manager.solr.constants.SolrRequestParam;
+import manager.system.SelfXErrors;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.impl.BaseHttpSolrClient;
 import org.apache.solr.client.solrj.impl.HttpJdkSolrClient;
 import org.apache.solr.client.solrj.request.CoreAdminRequest;
 import org.apache.solr.client.solrj.request.UpdateRequest;
@@ -22,6 +26,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * 该类保持单纯 负责原子化操作
@@ -73,16 +78,33 @@ public class SolrInvoker{
         }
     }
 
+    /*
+     * 由于我要Java自动生成ID
+     * 因此 万分之一的几率 生成的UUID会重复
+     * 那么由主键的ID校验 来进行重设
+     * 因此 需要在该函数中 设置ID
+     * @param coreName
+     * @param solrDoc
+     * @return
+     */
     public UpdateResponse insertDoc(String coreName,SMSolrDoc solrDoc) {
-        try (SolrClient solrClient = new HttpJdkSolrClient.Builder(baseURL).build()) {
-            UpdateRequest updateRequest = new UpdateRequest();
-            updateRequest.setParam(SolrRequestParam.PROCESSOR, SolrUtil.getAutoGenerateIdConfig());
-            SolrInputDocument doc = SolrUtil.binder.toSolrInputDocument(solrDoc);
-            updateRequest.add(doc);
-            return updateRequest.commit(solrClient,coreName);
-        } catch (Exception e) {
-            throw SolrUtil.processSolrException(e);
+        int recursiveTime = 0;
+        while(true){
+            recursiveTime ++ ;
+            solrDoc.setId(UUID.randomUUID().toString());
+            try (SolrClient solrClient = new HttpJdkSolrClient.Builder(baseURL).build()) {
+                UpdateRequest updateRequest = new UpdateRequest();
+                SolrInputDocument doc = SolrUtil.binder.toSolrInputDocument(solrDoc);
+                updateRequest.add(doc);
+                return updateRequest.commit(solrClient,coreName);
+            } catch (Exception e) {
+                if(e.getMessage().contains("version conflict for") && recursiveTime < 3){
+                    continue;
+                }
+                throw SolrUtil.processSolrException(e);
+            }
         }
+
     }
 
     public SolrDocument getDocument(String coreName, String id) {

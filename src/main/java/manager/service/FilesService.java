@@ -1,5 +1,6 @@
 package manager.service;
 
+import com.alibaba.fastjson2.JSON;
 import manager.cache.CacheOperator;
 import manager.dao.FilesDAO;
 import manager.entity.general.FileRecord;
@@ -76,6 +77,23 @@ public class FilesService {
         return rlt;
     }
 
+    public String copyFileRecord(long loginId,String encodedID,Map<String,Object> srcParams){
+        long id = securityBooster.getStableCommonId(encodedID);
+        FileRecord fileRecord = cache.getFileRecord(id,()->dao.selectFileRecord(id));
+        checkRecordPerms(fileRecord,loginId);
+        //和create保持一致
+        fileRecord.setOwnerId(loginId);
+        fileRecord.setPublic(true);
+        //改为复制
+        fileRecord.setSrcType(SelfXDataSrcTypes.BY_COPYING_ACTION);
+        fileRecord.setSrcParams(JSON.toJSONString(srcParams));
+        //置空
+        fileRecord.setId(null);
+
+        long copyingId = dao.insertFileRecord(fileRecord);
+        return securityBooster.encodeStableCommonId(copyingId);
+    }
+
     public void uploadDoneNotify(long loginId, Long id) {
         locker.lockByUserAndClass(loginId,()->{
             FileRecord fileRecord = dao.selectFileRecord(id);
@@ -106,6 +124,7 @@ public class FilesService {
         rlt.put("fileName",fileRecord.getFileName());
         return rlt;
     }
+
 
 
     public void deleteFileRecord(long loginId, Long id) {
