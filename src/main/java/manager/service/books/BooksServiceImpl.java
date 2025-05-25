@@ -237,7 +237,6 @@ public class BooksServiceImpl implements BooksService {
 
 
     /**
-     * ABCD
      * 需要复制什么？
      * 1.name
      * 2.CONTENT
@@ -367,6 +366,37 @@ public class BooksServiceImpl implements BooksService {
                 deletePageNode(loginId,srcBookId,srcParentId,srcIsRoot,srcId);
             }
         }
+    }
+
+    @Override
+    public void copyPageNodeAndSubFromTheOwner(long loginId, String srcId, String bookId, String parentId, Boolean isRoot, Double index) {
+        bookStatusLocker.startCopying(loginId,bookId);
+        try {
+            /**
+             * 由于长时间是异步的 所以lock 没有意义
+             */
+            locker.lockByUserAndClass(loginId, () -> {
+
+                PageNode page = getPageNode(loginId, srcId);
+                PageNode clone = copyPureNodeFromOne(loginId,page,loginId);
+                /* copy置空的
+                 * 2.bookId
+                 * 3.parentIds
+                 * 4.indexes
+                 * 5.childrenName
+                 */
+                clone.setBookId(bookId);
+                clone.setParentIds(Collections.singletonList(generatePageParentId(bookId, parentId, isRoot)));
+                clone.setIndexes(Collections.singletonList(index));
+                clone.setChildrenNum(0);
+
+                operator.insertPage(clone, loginId);
+                refreshPageChildrenNums(isRoot, parentId, bookId, loginId);
+            });
+        } finally {
+            bookStatusLocker.endCopying(loginId, bookId);
+        }
+
     }
 
 

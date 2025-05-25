@@ -14,9 +14,6 @@ import java.util.Set;
 @Component
 public class BookStatusLocker {
 
-    /**
-     * 不弄Cache
-     */
     private Set<String> COPYING_BOOKS = new HashSet<>();
 
     private Set<String> DELETING_BOOKS = new HashSet<>();

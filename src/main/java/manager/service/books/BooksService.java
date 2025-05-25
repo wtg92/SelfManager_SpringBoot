@@ -51,4 +51,6 @@ public interface BooksService {
     void copySinglePageNodeFromTheOwner(long loginId, String srcId, String bookId, String parentId, Boolean isRoot, Double index);
 
     void movePageNodeAndSub(long loginId, String srcId, String srcBookId, String srcParentId, Boolean srcIsRoot, String targetBookId, String targetParentId, Double targetIndex, Boolean targetIsRoot);
+
+    void copyPageNodeAndSubFromTheOwner(long loginId, String srcId, String bookId, String parentId, Boolean isRoot, Double index);
 }

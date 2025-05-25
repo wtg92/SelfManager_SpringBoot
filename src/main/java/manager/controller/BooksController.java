@@ -85,6 +85,19 @@ public class BooksController {
         service.copySinglePageNodeFromTheOwner(loginId,srcId,bookId,parentId,isRoot,index);
     }
 
+    @PostMapping(PAGES_PATH+"/copyPageNodeAndSubFromTheOwner")
+    private void copyPageNodeAndSubFromTheOwner(@RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody JSONObject param ){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        String srcId = param.getString(SRC_ID);
+        String parentId = param.getString(PARENT_ID);
+        Double index = param.getDouble(INDEX);
+        Boolean isRoot = param.getBoolean(IS_ROOT);
+        String bookId = param.getString(BOOK_ID);
+        service.copyPageNodeAndSubFromTheOwner(loginId,srcId,bookId,parentId,isRoot,index);
+    }
+
+
     @PostMapping(PAGES_PATH+"/movePageNodeAndSub")
     private void movePageNodeAndSub(@RequestHeader("Authorization") String authorizationHeader
             , @RequestBody JSONObject param ){
