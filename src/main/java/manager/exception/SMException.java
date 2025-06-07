@@ -2,7 +2,9 @@ package manager.exception;
 
 import manager.system.SelfXErrors;
 
-public abstract class SMException extends RuntimeException{
+import java.io.Serializable;
+
+public abstract class SMException extends RuntimeException implements Serializable {
 
 	private static final long serialVersionUID = 3135260691229951722L;
 	public SelfXErrors type = null;

@@ -21,7 +21,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.*;
-import java.util.function.Consumer;
 
 /**
  * 连接operator
@@ -100,7 +99,7 @@ public class BooksSolrOperator {
                      */
                     query.addFilterQuery("-"+SolrFields.STATUS+":"+ SharingBookStatus.CLOSED);
                     List<String> fields = ReflectUtil.getFiledNamesByPrefix(cla, MultipleLangHelper.getFiledPrefix(SolrFields.NAME));
-                    fields.addAll(Arrays.asList(SolrFields.CREATE_UTC,
+                    fields.addAll(List.of(SolrFields.CREATE_UTC,
                             SolrFields.UPDATE_UTC,
                             SolrFields.DEFAULT_LANG,
                             SolrFields.ID,
@@ -132,7 +131,7 @@ public class BooksSolrOperator {
                         query.addFilterQuery("-"+SolrFields.BOOK_ID+":"+"("+(String.join(" OR ",closedBookIds))+")");
                     }
                     List<String> fields = ReflectUtil.getFiledNamesByPrefix(cla, MultipleLangHelper.getFiledPrefix(SolrFields.NAME));
-                    fields.addAll(Arrays.asList(SolrFields.CREATE_UTC,
+                    fields.addAll(List.of(SolrFields.CREATE_UTC,
                             SolrFields.UPDATE_UTC,
                             SolrFields.BOOK_ID,
                             SolrFields.ID,
@@ -153,7 +152,7 @@ public class BooksSolrOperator {
 
     public MultipleItemsResult<PageNode> getPageNodes(long loginId, String bookId, String parentId) {
         SolrQuery query =  buildPageNodesQuery(
-                Arrays.asList(SolrFields.PARENT_IDS + ":" + parentId,SolrFields.BOOK_ID + ":" + bookId),
+                List.of(SolrFields.PARENT_IDS + ":" + parentId,SolrFields.BOOK_ID + ":" + bookId),
                 List.of(SolrFields.ID, SolrFields.CREATE_UTC, SolrFields.UPDATE_UTC, SolrFields.NAME_MULTI,
                         SolrFields.INDEXES, SolrFields.PARENT_IDS, SolrFields.CHILDREN_NUM,
                         SolrFields.UPDATER_ID, SolrFields.IS_HIDDEN),
@@ -162,9 +161,32 @@ public class BooksSolrOperator {
         return operator.query(SelfXCores.PAGE_NODE,loginId,query, PAGE_NODE_CONFIG, PageNode.class);
     }
 
+    public List<PageNode> getPageNodesByParentIdForCopy(long loginId, String bookId, String parentId) {
+        SolrQuery query = buildPageNodesQuery(
+                List.of(SolrFields.PARENT_IDS + ":" + parentId,SolrFields.BOOK_ID + ":" + bookId),
+                List.of(SolrFields.ID,
+                        SolrFields.TYPE,
+                        SolrFields.PARENT_IDS,
+                        SolrFields.INDEXES,
+                        SolrFields.WITH_TODOs,
+                        SolrFields.IS_HIDDEN,
+                        SolrFields.VARIABLES,
+                        SolrFields.FILE_IDS,
+                        SolrFields.CONTENT_MULTI,
+                        SolrFields.NAME_MULTI,
+                        SolrFields.EDITOR_STATE_MULTI
+                        ),
+                /*
+                 * 代表不加限制
+                 */
+                Integer.MAX_VALUE
+        );
+        return operator.query(SelfXCores.PAGE_NODE,loginId,query, PAGE_NODE_CONFIG, PageNode.class).items;
+    }
+    
     public List<PageNode> getPageNodesByParentIdForDelete(long loginId, String bookId, String parentId) {
         SolrQuery query = buildPageNodesQuery(
-                Arrays.asList(SolrFields.PARENT_IDS + ":" + parentId,SolrFields.BOOK_ID + ":" + bookId),
+                List.of(SolrFields.PARENT_IDS + ":" + parentId,SolrFields.BOOK_ID + ":" + bookId),
                 List.of(SolrFields.ID, SolrFields.INDEXES, SolrFields.PARENT_IDS),
                 /*
                  * 代表不加限制
@@ -176,7 +198,7 @@ public class BooksSolrOperator {
 
     public List<PageNode> getPageNodesByBookIdForDelete(long loginId, String bookId) {
         SolrQuery query = buildPageNodesQuery(
-                Arrays.asList(SolrFields.BOOK_ID + ":" + bookId),
+                List.of(SolrFields.BOOK_ID + ":" + bookId),
                 List.of(SolrFields.ID, SolrFields.INDEXES, SolrFields.PARENT_IDS),
                 /*
                  * 代表不加限制
@@ -205,6 +227,13 @@ public class BooksSolrOperator {
         final SolrQuery query = new SolrQuery();
         query.setQuery(FULL_BASE_QUERY);
         query.addFilterQuery (SolrFields.PARENT_IDS+":"+ parentId,SolrFields.BOOK_ID+":"+bookId);
+        return operator.queryStatus(SelfXCores.PAGE_NODE,loginId,query, PAGE_NODE_CONFIG).count;
+    }
+
+    public long countPagesByBook(long loginId,String bookId){
+        final SolrQuery query = new SolrQuery();
+        query.setQuery(FULL_BASE_QUERY);
+        query.addFilterQuery (SolrFields.BOOK_ID+":"+bookId);
         return operator.queryStatus(SelfXCores.PAGE_NODE,loginId,query, PAGE_NODE_CONFIG).count;
     }
 

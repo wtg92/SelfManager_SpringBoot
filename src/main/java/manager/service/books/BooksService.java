@@ -26,16 +26,16 @@ public interface BooksService {
 
     SharingBook getBook(long loginId, String id);
 
-    String createPage(long loginId, String bookId, String name, String lang, String parentId, Boolean isRoot, Double index);
+    String createPage(long loginId, String bookId, String name, String lang, String parentId,  Double index);
 
-    void addPageParentNode(long loginId, String id, String bookId, String parentId, Boolean isRoot, Double index);
+    void addPageParentNode(long loginId, String id, String bookId, String parentId, Double index);
 
 
     PageNode getPageNode(long loginId, String id);
 
-    MultipleItemsResult<PageNode> getPages(long loginId, String bookId, String parentId, Boolean isRoot);
+    MultipleItemsResult<PageNode> getPages(long loginId, String bookId, String parentId);
 
-    void deletePageNode(long loginId, String bookId, String parentId, Boolean isRoot, String id);
+    void deletePageNode(long loginId, String bookId, String parentId, String id);
 
     void deleteBook(long loginId, String id);
 
@@ -48,9 +48,13 @@ public interface BooksService {
 
     List<PageNode> calculatePath(long loginId, String id);
 
-    void copySinglePageNodeFromTheOwner(long loginId, String srcId, String bookId, String parentId, Boolean isRoot, Double index);
+    void copySinglePageNodeFromTheOwner(long loginId, String srcId, String bookId, String parentId, Double index);
 
-    void movePageNodeAndSub(long loginId, String srcId, String srcBookId, String srcParentId, Boolean srcIsRoot, String targetBookId, String targetParentId, Double targetIndex, Boolean targetIsRoot);
+    void movePageNodeAndSub(long loginId, String srcId, String srcBookId, String srcParentId, String targetBookId, String targetParentId, Double targetIndex);
 
-    void copyPageNodeAndSubFromTheOwner(long loginId, String srcId, String bookId, String parentId, Boolean isRoot, Double index);
+    void copyPageNodeAndSubFromTheOwner(long loginId, String srcId, String srcBookId, String targetBookId, String targetParentId, Double targetIndex);
+
+    long getTotalPagesOfOwn(long loginId, String bookId);
+
+    void emptyBookPages(long loginId, String id);
 }

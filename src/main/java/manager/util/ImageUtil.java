@@ -115,39 +115,8 @@ public abstract class ImageUtil {
         return null;
  
     }
-	
-	
-	
-	public static BufferedImage changeDPIOfJPEG(BufferedImage src, int dpi,final String formatName) throws IOException, LogicException {
-		
-		Iterator<ImageWriter> iw = ImageIO.getImageWritersByFormatName(formatName);
-		if (!iw.hasNext()) {
-			throw new LogicException(SelfXErrors.IMG_ERROR, "错误的类型" + formatName);
 
-		}
-		ImageWriter writer = iw.next();
-		ImageWriteParam writeParam = writer.getDefaultWriteParam();
-		ImageTypeSpecifier typeSpecifier = ImageTypeSpecifier.createFromBufferedImageType(BufferedImage.TYPE_INT_RGB);
-		IIOMetadata metadata = writer.getDefaultImageMetadata(typeSpecifier, writeParam);
-		if (metadata.isReadOnly() || !metadata.isStandardMetadataFormatSupported()) {
-			logger.log(Level.WARNING,"不能转化的图片类型？？");
-			assert false;
-			throw new RuntimeException("Unknown Type");
-		}
-		setDPI(metadata, dpi);
-		try (ByteArrayOutputStream out = new ByteArrayOutputStream();
-				BufferedOutputStream bufOut = new BufferedOutputStream(out);
-				ImageOutputStream stream = ImageIO.createImageOutputStream(bufOut)) {
-			writer.setOutput(stream);
-			writer.write(metadata, new IIOImage(src, null, metadata), writeParam);
 
-			try (InputStream in = new BufferedInputStream(new ByteArrayInputStream(out.toByteArray()))) {
-				return ImageIO.read(in);
-			}
-		}
-
-	}
-	
 	
 	
     

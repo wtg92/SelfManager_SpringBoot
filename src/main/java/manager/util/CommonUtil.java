@@ -25,7 +25,14 @@ import manager.system.SelfX;
 
 public abstract class CommonUtil {
 	private static final Random random = new SecureRandom();
-	
+
+	public static void block(){
+        try {
+            Thread.sleep(1000000000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
 	private static Logger logger = Logger.getLogger(CommonUtil.class.getName());
 	
 	public static InputStream getFileInResourcesDirectoryBufferedly(String fileName) {

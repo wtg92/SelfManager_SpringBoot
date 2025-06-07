@@ -3,6 +3,7 @@ package manager.cache;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import manager.booster.longRunningTasks.LongRunningTasksMessage;
 import manager.entity.general.FileRecord;
 import manager.solr.books.PageNode;
 import manager.solr.books.SharingBook;
@@ -32,6 +33,8 @@ public class CaffeineCollection {
 
     @Value("${cache.common.expiration-of-min}")
     public Integer COMMON_EXPIRATION_OF_MIN;
+    @Value("${cache.long-running-tasks.expiration-of-min}")
+    public Integer LONG_RUNNING_TASKS_EXPIRATION_OF_MIN;
 
     @Value("${cache.temp-users.max-num}")
     private Integer TEMP_USERS_MAX_NUM;
@@ -52,6 +55,9 @@ public class CaffeineCollection {
 
     @Value("${cache.closed-book-ids.max-num}")
     private Integer CLOSED_BOOK_IDS_MAX_NUM;
+
+    @Value("${cache.long-running-tasks.max-num}")
+    private Integer LONG_RUNNING_TASKS_MAX_NUM;
     @PostConstruct
     public void init() {
         Common_Cache = generateCommonCache();
@@ -64,7 +70,7 @@ public class CaffeineCollection {
         Page_Nodes_Cache = generateSpecificEntityCache(PAGE_NODES_MAX_NUM,COMMON_EXPIRATION_OF_MIN);
         File_Records_Cache = generateSpecificEntityCache(FILE_RECORDS_MAX_NUM,COMMON_EXPIRATION_OF_MIN);
         Closed_Book_Ids_Cache = generateSpecificEntityCache(CLOSED_BOOK_IDS_MAX_NUM,COMMON_EXPIRATION_OF_MIN);
-
+        Long_Running_Tasks_Cache = generateSpecificEntityCache(LONG_RUNNING_TASKS_MAX_NUM,LONG_RUNNING_TASKS_EXPIRATION_OF_MIN);
     }
 
     private Cache<String, String> generateCommonTempCache() {
@@ -95,6 +101,8 @@ public class CaffeineCollection {
     public Cache<String, SharingBook> Books_Cache;
 
     public Cache<String, PageNode> Page_Nodes_Cache;
+
+    public Cache<Long, LongRunningTasksMessage> Long_Running_Tasks_Cache;
 
     private <T,V> Cache<V, T> generateSpecificEntityCache(int maxSize,int expirationMin) {
         return Caffeine.newBuilder()

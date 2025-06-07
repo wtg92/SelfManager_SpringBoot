@@ -59,6 +59,9 @@ public class BookStatusLocker {
         if(PAGE_DELETING_BOOKS.contains(key)){
             book.setStatus(SharingBookStatus.PAGES_DELETING);
         }
+        if(COPYING_BOOKS.contains(key)){
+            book.setStatus(SharingBookStatus.COPYING);
+        }
     }
 
     private void checkDoingOperations(long loginId,String bookId){

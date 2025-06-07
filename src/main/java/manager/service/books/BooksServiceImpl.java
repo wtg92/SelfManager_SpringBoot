@@ -5,6 +5,8 @@ import com.alibaba.fastjson2.JSON;
 import manager.SelfXManagerSpringbootApplication;
 import manager.booster.MultipleLangHelper;
 import manager.booster.UserIsolator;
+import manager.booster.longRunningTasks.LongRunningTaskType;
+import manager.booster.longRunningTasks.LongRunningTasksScheduler;
 import manager.cache.CacheOperator;
 import manager.data.MultipleItemsResult;
 import manager.data.general.FinalHandler;
@@ -21,11 +23,13 @@ import manager.service.FilesService;
 import manager.system.*;
 import manager.system.books.*;
 import manager.system.books.BookStyle;
+import manager.util.CommonUtil;
 import manager.util.ReflectUtil;
 import manager.util.SelfXCollectionUtils;
 import manager.util.locks.UserLockManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -65,6 +69,13 @@ public class BooksServiceImpl implements BooksService {
     @Resource
     FilesService filesService;
 
+    @Resource
+    LongRunningTasksScheduler longRunningTasksScheduler;
+
+    @Value("${books.max_size_of_page}")
+    private Integer MAX_SIZE_OF_ONE_BOOK;
+
+
     private static final Logger log = LoggerFactory.getLogger(SelfXManagerSpringbootApplication.class);
 
 
@@ -88,6 +99,13 @@ public class BooksServiceImpl implements BooksService {
     @Override
     public PageNode getPageNode(long loginId, String id) {
         return cache.getPageNode(loginId, id, () -> operator.getPageNode(loginId, id));
+    }
+
+    private void checkBookMaxNumOfPage(long loginId,String bookId){
+        long maxPageNum = operator.countPagesByBook(loginId,bookId);
+        if(maxPageNum > MAX_SIZE_OF_ONE_BOOK) {
+            throw new LogicException(SelfXErrors.PAGES_SIZE_REACHED_MAX,maxPageNum,MAX_SIZE_OF_ONE_BOOK);
+        }
     }
 
 
@@ -188,13 +206,15 @@ public class BooksServiceImpl implements BooksService {
         });
     }
 
-    private void updatePageNodeParentIdsAndIndexesInSync(long loginId, String nodeId, List<String> parentIds, List<Double> indexes) {
+    private void updatePageNodeParentIdsAndIndexesInSyncThenRefreshPageChildrenNum(long loginId, String nodeId, List<String> parentIds, List<Double> indexes, String refreshParentId, String refreshBookId) {
         checkPageNodeLegal(parentIds, indexes);
         locker.lockByUserAndClass(loginId, () -> {
             Map<String, Object> param = new HashMap<>();
             param.put(SolrFields.PARENT_IDS, parentIds);
             param.put(SolrFields.INDEXES, indexes);
             cache.savePageNode(loginId, nodeId, () -> operator.updatePageNode(nodeId, loginId, loginId, param));
+
+            refreshPageChildrenNums(refreshParentId, refreshBookId, loginId);
         });
     }
 
@@ -215,12 +235,13 @@ public class BooksServiceImpl implements BooksService {
 
 
     @Override
-    public String createPage(long loginId, String bookId, String name, String lang, String parentId, Boolean isRoot, Double index) {
+    public String createPage(long loginId, String bookId, String name, String lang, String parentId,  Double index) {
+        checkBookMaxNumOfPage(loginId,bookId);
         FinalHandler<String> id= new FinalHandler<>();
         locker.lockByUserAndClass(loginId, () -> {
             PageNode page = new PageNode();
             page.setBookId(bookId);
-            page.setParentIds(Collections.singletonList(generatePageParentId(bookId, parentId, isRoot)));
+            page.setParentIds(Collections.singletonList(generatePageParentId(bookId, parentId)));
             page.setIndexes(Collections.singletonList(index));
             page = MultipleLangHelper.setFiledValue(page, BooksMultipleFields.NAME, lang, name);
             page.setWithTODOs(false);
@@ -230,11 +251,26 @@ public class BooksServiceImpl implements BooksService {
             page.setSrcType(SelfXDataSrcTypes.BY_USERS);
             page.setFileIds(new ArrayList<>());
             id.val = operator.insertPage(page, loginId);
-            refreshPageChildrenNums(isRoot, parentId, bookId, loginId);
+            refreshPageChildrenNums(parentId, bookId, loginId);
         });
         return id.val;
     }
 
+    private PageNode copyOnePageNodeAndRefreshPageNum(long loginId, PageNode copyTarget
+            , long loginIdForCopyTarget
+            , String copyDestBookId
+            , String copyDestParentId
+            , Double copyDestIndex){
+        PageNode clone = copyPureNodeFromOne(loginId,copyTarget,loginIdForCopyTarget);
+        clone.setBookId(copyDestBookId);
+        clone.setParentIds(Collections.singletonList(generatePageParentId(copyDestBookId, copyDestParentId)));
+        clone.setIndexes(Collections.singletonList(copyDestIndex));
+        clone.setChildrenNum(0);
+        String copyId = operator.insertPage(clone, loginId);
+        refreshPageChildrenNums(copyDestParentId, copyDestBookId, loginId);
+        clone.setId(copyId);
+        return clone;
+    }
 
     /**
      * 需要复制什么？
@@ -256,7 +292,7 @@ public class BooksServiceImpl implements BooksService {
      * 4.id
      * 5.childrenName
      */
-    private PageNode copyPureNodeFromOne(long loginId,PageNode one,long loginIdForThisNode) {
+    private PageNode copyPureNodeFromOne(long loginId,PageNode one,long loginIdForCopyTarget) {
         PageNode clone = one.clone();
 
 
@@ -282,7 +318,7 @@ public class BooksServiceImpl implements BooksService {
             Map<String,String> copyingFileIdsMapper = new HashMap<>();
             for(String fieldId : clone.getFileIds()){
                 Map<String,Object> srcParams = new HashMap<>();
-                srcParams.put("pageNodeLoginId",loginIdForThisNode);
+                srcParams.put("pageNodeLoginId",loginIdForCopyTarget);
                 srcParams.put("nodeId",one.getId());
                 /*
                  * 重新produce一个Field Record
@@ -325,31 +361,17 @@ public class BooksServiceImpl implements BooksService {
 
 
     @Override
-    public void copySinglePageNodeFromTheOwner(long loginId, String srcId, String bookId, String parentId, Boolean isRoot, Double index) {
+    public void copySinglePageNodeFromTheOwner(long loginId, String srcId, String bookId, String parentId, Double index) {
+        checkBookMaxNumOfPage(loginId,bookId);
         bookStatusLocker.startCopying(loginId, bookId);
         try {
             locker.lockByUserAndClass(loginId, () -> {
-
                 PageNode page = getPageNode(loginId, srcId);
-                PageNode clone = copyPureNodeFromOne(loginId,page,loginId);
-                /* copy置空的
-                 * 2.bookId
-                 * 3.parentIds
-                 * 4.indexes
-                 * 5.childrenName
-                 */
-                clone.setBookId(bookId);
-                clone.setParentIds(Collections.singletonList(generatePageParentId(bookId, parentId, isRoot)));
-                clone.setIndexes(Collections.singletonList(index));
-                clone.setChildrenNum(0);
-
-                operator.insertPage(clone, loginId);
-                refreshPageChildrenNums(isRoot, parentId, bookId, loginId);
+                copyOnePageNodeAndRefreshPageNum(loginId,page,loginId,bookId,parentId,index);
             });
         } finally {
             bookStatusLocker.endCopying(loginId, bookId);
         }
-
     }
 
     /**
@@ -357,51 +379,113 @@ public class BooksServiceImpl implements BooksService {
      * 同一本书
      * 1.移动同层 只相当于增加上级页
      * 2.非同层 相当于先增加上级页 再删除当前连接
+     *
+     * 不同书
+     * 1.复制页及子节点
+     * 2.删除当前连接
      */
     @Override
-    public void movePageNodeAndSub(long loginId, String srcId, String srcBookId, String srcParentId, Boolean srcIsRoot, String targetBookId, String targetParentId, Double targetIndex, Boolean targetIsRoot) {
+    public void movePageNodeAndSub(long loginId, String srcId, String srcBookId, String srcParentId, String targetBookId, String targetParentId, Double targetIndex) {
         if(srcBookId.equals(targetBookId)){
-            addPageParentNode(loginId,srcId,targetBookId,targetParentId,targetIsRoot,targetIndex);
+            addPageParentNode(loginId,srcId,targetBookId,targetParentId,targetIndex);
             if(!srcParentId.equals(targetParentId)){
-                deletePageNode(loginId,srcBookId,srcParentId,srcIsRoot,srcId);
+                deletePageNode(loginId,srcBookId,srcParentId,srcId);
             }
+        }else{
+            copyPageNodeAndSubFromTheOwner(LongRunningTaskType.MOVE_PAGE_AND_SUB_TO_DIFFERENT_BOOK,loginId,srcId,srcBookId,targetBookId,targetParentId,targetIndex);
+            deletePageNode(loginId,srcBookId,srcParentId,srcId);
         }
     }
-
-    @Override
-    public void copyPageNodeAndSubFromTheOwner(long loginId, String srcId, String bookId, String parentId, Boolean isRoot, Double index) {
-        bookStatusLocker.startCopying(loginId,bookId);
-        try {
-            /**
-             * 由于长时间是异步的 所以lock 没有意义
-             */
-            locker.lockByUserAndClass(loginId, () -> {
-
-                PageNode page = getPageNode(loginId, srcId);
-                PageNode clone = copyPureNodeFromOne(loginId,page,loginId);
-                /* copy置空的
-                 * 2.bookId
-                 * 3.parentIds
-                 * 4.indexes
-                 * 5.childrenName
+    private void copyPageNodeAndSubFromTheOwner(Integer longRunningTaskType,long loginId, String srcId, String srcBookId, String targetBookId, String targetParentId, Double targetIndex) {
+        checkBookMaxNumOfPage(loginId,targetBookId);
+        longRunningTasksScheduler.runAsyncTask(loginId,()->{
+            bookStatusLocker.startCopying(loginId,targetBookId);
+            try {
+                /*
+                 * 第一个是一切的基础
                  */
-                clone.setBookId(bookId);
-                clone.setParentIds(Collections.singletonList(generatePageParentId(bookId, parentId, isRoot)));
-                clone.setIndexes(Collections.singletonList(index));
-                clone.setChildrenNum(0);
+                PageNode page = getPageNode(loginId, srcId);
+                PageNode clone = copyOnePageNodeAndRefreshPageNum(loginId,page,loginId,targetBookId,targetParentId,targetIndex);
+                //充当visited 功能
+                Map<String,String> parentIdsMapper = new HashMap<>();
+                parentIdsMapper.put(srcId,clone.getId());
+                Deque<String> stack = new ArrayDeque<>();
+                stack.push(srcId);
 
-                operator.insertPage(clone, loginId);
-                refreshPageChildrenNums(isRoot, parentId, bookId, loginId);
-            });
-        } finally {
-            bookStatusLocker.endCopying(loginId, bookId);
-        }
+                int count = 0;
+                while (!stack.isEmpty()) {
+                    count++;
+                    if(count > MAX_SIZE_OF_ONE_BOOK * 5){
+                        //加一层保险
+                        throw new LogicException(SelfXErrors.UNEXPECTED_ERROR);
+                    }
 
+
+                    String curSrcPageIdForSub = stack.pop();
+                    String generatedSrcPageIdForSub = generatePageParentId(srcBookId, curSrcPageIdForSub);
+                    String mappedPageIdForSub = parentIdsMapper.get(curSrcPageIdForSub);
+
+                    /*
+                     * 由于进入循环前处理了第一次 因此该处理处理子节点
+                     */
+                    List<PageNode> subNodes = operator.getPageNodesByParentIdForCopy(loginId, srcBookId,generatedSrcPageIdForSub);
+                    for(PageNode copyTarget:subNodes){
+                        String copySrcId = copyTarget.getId();
+                        if(parentIdsMapper.containsValue(copySrcId)){
+                            //同一本书 复制自己或自己的子节点下 会出现再取又取到新加的情况 此时跳过
+                            continue;
+                        }
+
+                        //子节点的 Index属性值保留以保存顺序关系
+                        Double srcIndex = findIndexByParentId(copyTarget,generatedSrcPageIdForSub);
+
+                        if (!parentIdsMapper.containsKey(copySrcId)) {
+                            //并未复制过 则进行复制
+                            PageNode cloneSub = copyOnePageNodeAndRefreshPageNum(loginId,copyTarget,loginId,targetBookId,mappedPageIdForSub,srcIndex);
+                            //增加映射关系
+                            //复制成功了 该节点进入下一个循环
+                            stack.push(copySrcId);
+                            parentIdsMapper.put(copySrcId,cloneSub.getId());
+                        }else{
+                            String copiedPageIdInThisProcess = parentIdsMapper.get(copySrcId);
+                            //已复制过 则增加parentId
+                            PageNode pageNode = getPageNode(loginId, copiedPageIdInThisProcess);
+                            List<Double> indexes = pageNode.getIndexes();
+                            indexes.add(srcIndex);
+                            List<String> parentIds = pageNode.getParentIds();
+                            parentIds.add(generatePageParentId(targetBookId,mappedPageIdForSub));
+                            updatePageNodeParentIdsAndIndexesInSyncThenRefreshPageChildrenNum(loginId,pageNode.getId(),parentIds,indexes,mappedPageIdForSub,targetBookId);
+                        }
+                    }
+                }
+            } finally {
+                bookStatusLocker.endCopying(loginId, targetBookId);
+            }
+        }, longRunningTaskType, new Object[]{srcBookId, targetBookId});
+    }
+    @Override
+    public void copyPageNodeAndSubFromTheOwner(long loginId, String srcId, String srcBookId, String targetBookId, String targetParentId, Double targetIndex) {
+        copyPageNodeAndSubFromTheOwner(LongRunningTaskType.COPY_PAGE_NODE_AND_SUB,loginId,srcId,srcBookId,targetBookId,targetParentId,targetIndex);
+    }
+
+    @Override
+    public long getTotalPagesOfOwn(long loginId, String id) {
+        return operator.countPagesByBook(loginId,id);
+    }
+
+    @Override
+    public void emptyBookPages(long loginId, String id) {
+        operator.deletePageNodesByBookId(loginId,id);
+    }
+
+    private static Double findIndexByParentId(PageNode node, String generatedParentId) {
+        int i = node.getParentIds().indexOf(generatedParentId);
+        return i == -1 ? null : node.getIndexes().get(i);
     }
 
 
     @Override
-    public void addPageParentNode(long loginId, String id, String bookId, String parentId, Boolean isRoot, Double index) {
+    public void addPageParentNode(long loginId, String id, String bookId, String parentId, Double index) {
         locker.lockByUserAndClass(loginId, () -> {
             PageNode page = getPageNode(loginId, id);
             List<String> parentIds = page.getParentIds();
@@ -410,7 +494,7 @@ public class BooksServiceImpl implements BooksService {
                         , SelfX.MAX_DB_LINES_IN_ONE_SELECTS);
             }
             List<Double> indexes = page.getIndexes();
-            String toAddParentId = generatePageParentId(bookId, parentId, isRoot);
+            String toAddParentId = generatePageParentId(bookId, parentId);
 
             /*
              * 同一层级的话 相当于移动 只更换index即可
@@ -423,19 +507,21 @@ public class BooksServiceImpl implements BooksService {
                 indexes.add(index);
             }
 
-            updatePageNodeParentIdsAndIndexesInSync(loginId, id, parentIds, indexes);
-            refreshPageChildrenNums(isRoot, parentId, bookId, loginId);
+            updatePageNodeParentIdsAndIndexesInSyncThenRefreshPageChildrenNum(loginId, id, parentIds, indexes,parentId,bookId);
         });
     }
 
-    private void refreshPageChildrenNums(Boolean isRoot, String id, String bookId, long loginId) {
-        if (isRoot) {
+    private void refreshPageChildrenNums(String pageId, String bookId, long loginId) {
+        if (pageId.isEmpty()) {
+            /*
+             * 说明是根节点
+             */
             return;
         }
-        long count = operator.countPagesForSpecificParentId(generateParentIdForSubPages(id), bookId, loginId);
+        long count = operator.countPagesForSpecificParentId(generateParentIdForSubPages(pageId), bookId, loginId);
         Map<String, Object> params = new HashMap<>();
         params.put(SolrFields.CHILDREN_NUM, count);
-        updatePageNodePropsInSync(loginId, id, params);
+        updatePageNodePropsInSync(loginId, pageId, params);
     }
 
     private static boolean isBookParentId(String pId) {
@@ -450,8 +536,8 @@ public class BooksServiceImpl implements BooksService {
         }
     }
 
-    private static String generatePageParentId(String bookId, String parentId, boolean isRoot) {
-        return isRoot ? generateParentIdForRootPages(bookId) : generateParentIdForSubPages(parentId);
+    private static String generatePageParentId(String bookId, String parentId) {
+        return parentId.isEmpty() ? generateParentIdForRootPages(bookId) : generateParentIdForSubPages(parentId);
     }
 
     private static final String PARENT_ID_OF_BOOK_PREFIX = BooksConstants.SHARING_BOOK_PURE + "_";
@@ -468,8 +554,8 @@ public class BooksServiceImpl implements BooksService {
     }
 
     @Override
-    public MultipleItemsResult<PageNode> getPages(long loginId, String bookId, String parentId, Boolean isRoot) {
-        return operator.getPageNodes(loginId, bookId, generatePageParentId(bookId, parentId, isRoot));
+    public MultipleItemsResult<PageNode> getPages(long loginId, String bookId, String parentId) {
+        return operator.getPageNodes(loginId, bookId, generatePageParentId(bookId, parentId));
     }
 
     private void deleteSinglePageNodeWithFileIds(long loginId, PageNode node) {
@@ -488,12 +574,10 @@ public class BooksServiceImpl implements BooksService {
 
     private static class PageDeleteTask {
         String parentId;
-        Boolean isRoot;
         String pageId;
 
-        PageDeleteTask(String parentId, Boolean isRoot, String pageId) {
+        PageDeleteTask(String parentId, String pageId) {
             this.parentId = parentId;
-            this.isRoot = isRoot;
             this.pageId = pageId;
         }
     }
@@ -507,22 +591,16 @@ public class BooksServiceImpl implements BooksService {
      * 因此这样就是最快的了
      */
     @Override
-    public void deletePageNode(long loginId, String bookId, String parentId, Boolean isRoot, String pageId) {
+    public void deletePageNode(long loginId, String bookId, String parentId, String pageId) {
 
         Deque<PageDeleteTask> stack = new ArrayDeque<>();
-        PageDeleteTask originalTarget = new PageDeleteTask(parentId, isRoot, pageId);
+        PageDeleteTask originalTarget = new PageDeleteTask(parentId, pageId);
         stack.push(originalTarget);
         Set<String> visited = new HashSet<>(); // 避免环导致重复处理
         try {
             bookStatusLocker.startDeletingPage(loginId, bookId);
             locker.lockByUserAndClass(loginId, () -> {
-                long counter = 0;
                 while (!stack.isEmpty()) {
-                    counter++;
-                    if (counter > 100) {
-                        System.err.println("算法错误");
-                        throw new LogicException(SelfXErrors.UNEXPECTED_ERROR);
-                    }
                     PageDeleteTask task = stack.pop();
                     String currentPageId = task.pageId;
 
@@ -536,26 +614,26 @@ public class BooksServiceImpl implements BooksService {
                         continue;
                     }
 
-                    removeParentId(node, generatePageParentId(bookId, task.parentId, task.isRoot));
+                    removeParentId(node, generatePageParentId(bookId, task.parentId));
 
                     if (!node.getParentIds().isEmpty()) {
-                        updatePageNodeParentIdsAndIndexesInSync(loginId, currentPageId, node.getParentIds(), node.getIndexes());
+                        updatePageNodeParentIdsAndIndexesInSyncThenRefreshPageChildrenNum(loginId, currentPageId, node.getParentIds(), node.getIndexes(),task.parentId,bookId);
                         continue;
                     }
 
                     deleteSinglePageNodeWithFileIds(loginId, node);
 
                     List<PageNode> children = operator.getPageNodesByParentIdForDelete(
-                            loginId, bookId, generatePageParentId(bookId, currentPageId, false)
+                            loginId, bookId, generatePageParentId(bookId, currentPageId)
                     );
                     for (PageNode child : children) {
-                        stack.push(new PageDeleteTask(currentPageId, false, child.getId()));
+                        stack.push(new PageDeleteTask(currentPageId, child.getId()));
                     }
                 }
                 /*
                  * 更新一下父节点的childrenNums
                  */
-                refreshPageChildrenNums(isRoot, parentId, bookId, loginId);
+                refreshPageChildrenNums(parentId, bookId, loginId);
 
                 /*
                  * --- 补充：处理孤立环 ---
@@ -584,7 +662,7 @@ public class BooksServiceImpl implements BooksService {
                      * 找到所有子
                      */
                     List<String> children = operator
-                            .getPageNodesByParentIdForDelete(loginId, bookId, generatePageParentId(bookId, currentId, false))
+                            .getPageNodesByParentIdForDelete(loginId, bookId, generatePageParentId(bookId, currentId))
                             .stream().map(PageNode::getId).toList();
 
                     for (String childId : children) {
@@ -632,16 +710,7 @@ public class BooksServiceImpl implements BooksService {
         visited.add(startNode.getId());
 
         String rootId = null;
-
-        long counter = 0;
-
         while (!queue.isEmpty()) {
-            counter++;
-            if (counter > 100) {
-                System.err.println("代码BUG");
-                throw new LogicException(SelfXErrors.UNEXPECTED_ERROR);
-            }
-
             String currentId = queue.poll();
             PageNode currentNode = idToNodeMap.apply(currentId);
             if (currentNode == null) {

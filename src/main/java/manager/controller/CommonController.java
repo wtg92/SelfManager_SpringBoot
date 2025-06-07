@@ -4,6 +4,8 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import manager.booster.longRunningTasks.LongRunningTasksMessage;
+import manager.booster.longRunningTasks.LongRunningTasksScheduler;
 import manager.service.work.WorkService;
 import manager.booster.SecurityBooster;
 import manager.solr.constants.SolrConfig;
@@ -15,10 +17,7 @@ import manager.system.career.PlanSetting;
 import manager.system.career.PlanState;
 import manager.util.UIUtil;
 import manager.util.ZonedTimeUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import manager.data.AjaxResult;
 import manager.system.SelfX;
@@ -31,6 +30,9 @@ public class CommonController {
 
     @Resource
     SecurityBooster securityBooster;
+
+    @Resource
+    LongRunningTasksScheduler longRunningTasksScheduler;
 
     @GetMapping("/getBasicInfo")
     public AjaxResult getBasicInfo() {
@@ -89,4 +91,13 @@ public class CommonController {
         long loginId = UIUtil.getLoginId(authorizationHeader);
         return securityBooster.encodeStableCommonId(loginId);
     }
+
+    @GetMapping("/getLongRunningTasksMessage")
+    public LongRunningTasksMessage getLongRunningTasksMessage(@RequestHeader("Authorization") String authorizationHeader) {
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        return longRunningTasksScheduler.getRunningMsg(loginId);
+    }
+
+
+
 }

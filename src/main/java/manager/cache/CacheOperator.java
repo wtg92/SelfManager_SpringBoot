@@ -1,6 +1,7 @@
 package manager.cache;
 
 import com.alibaba.fastjson2.JSON;
+import manager.booster.longRunningTasks.LongRunningTasksMessage;
 import manager.entity.SMEntity;
 import manager.entity.general.FileRecord;
 import manager.solr.books.PageNode;
@@ -271,6 +272,13 @@ public class CacheOperator {
 
 	/*- PageNode----end- */
 
+	public void pushLongRunningMessage(long userId, LongRunningTasksMessage msg){
+		caches.Long_Running_Tasks_Cache.put(userId,msg);
+	}
+
+	public LongRunningTasksMessage getLongRunningMessage(long userId){
+		return caches.Long_Running_Tasks_Cache.getIfPresent(userId);
+	}
 
 
 	public<T extends SMEntity> long countAllEntities(Class<T> cla) {

@@ -49,8 +49,7 @@ public class BooksController {
         String parentId = param.getString(PARENT_ID);
         Double index = param.getDouble(INDEX);
         String bookId = param.getString(BOOK_ID);
-        Boolean isRoot = param.getBoolean(IS_ROOT);
-        return service.createPage(loginId,bookId,name,lang,parentId,isRoot,index);
+        return service.createPage(loginId,bookId,name,lang,parentId,index);
     }
 
     @PostMapping(PAGES_PATH+"/calculatePath")
@@ -67,10 +66,9 @@ public class BooksController {
         long loginId = UIUtil.getLoginId(authorizationHeader);
         String parentId = param.getString(PARENT_ID);
         Double index = param.getDouble(INDEX);
-        Boolean isRoot = param.getBoolean(IS_ROOT);
         String id = param.getString(ID);
         String bookId = param.getString(BOOK_ID);
-        service.addPageParentNode(loginId,id,bookId,parentId,isRoot,index);
+        service.addPageParentNode(loginId,id,bookId,parentId,index);
     }
 
     @PostMapping(PAGES_PATH+"/copySinglePageNodeFromTheOwner")
@@ -80,9 +78,8 @@ public class BooksController {
         String srcId = param.getString(SRC_ID);
         String parentId = param.getString(PARENT_ID);
         Double index = param.getDouble(INDEX);
-        Boolean isRoot = param.getBoolean(IS_ROOT);
         String bookId = param.getString(BOOK_ID);
-        service.copySinglePageNodeFromTheOwner(loginId,srcId,bookId,parentId,isRoot,index);
+        service.copySinglePageNodeFromTheOwner(loginId,srcId,bookId,parentId,index);
     }
 
     @PostMapping(PAGES_PATH+"/copyPageNodeAndSubFromTheOwner")
@@ -90,11 +87,11 @@ public class BooksController {
             , @RequestBody JSONObject param ){
         long loginId = UIUtil.getLoginId(authorizationHeader);
         String srcId = param.getString(SRC_ID);
-        String parentId = param.getString(PARENT_ID);
-        Double index = param.getDouble(INDEX);
-        Boolean isRoot = param.getBoolean(IS_ROOT);
-        String bookId = param.getString(BOOK_ID);
-        service.copyPageNodeAndSubFromTheOwner(loginId,srcId,bookId,parentId,isRoot,index);
+        String srcBookId = param.getString(SRC_BOOK_ID);
+        String targetBookId = param.getString(BOOK_ID);
+        String targetParentId = param.getString(PARENT_ID);
+        Double targetIndex = param.getDouble(INDEX);
+        service.copyPageNodeAndSubFromTheOwner(loginId,srcId,srcBookId,targetBookId,targetParentId,targetIndex);
     }
 
 
@@ -105,14 +102,12 @@ public class BooksController {
         String srcId = param.getString(SRC_ID);
         String srcParentId = param.getString(SRC_PARENT_ID);
         String srcBookId = param.getString(SRC_BOOK_ID);
-        Boolean srcIsRoot = param.getBoolean(SRC_IS_ROOT);
 
         String targetBookId = param.getString(BOOK_ID);
         String targetParentId = param.getString(PARENT_ID);
         Double targetIndex = param.getDouble(INDEX);
-        Boolean targetIsRoot = param.getBoolean(IS_ROOT);
 
-        service.movePageNodeAndSub(loginId,srcId,srcBookId,srcParentId,srcIsRoot,targetBookId,targetParentId,targetIndex,targetIsRoot);
+        service.movePageNodeAndSub(loginId,srcId,srcBookId,srcParentId,targetBookId,targetParentId,targetIndex);
     }
 
 
@@ -123,15 +118,20 @@ public class BooksController {
         return service.getAllParentNodes(loginId,id);
     }
 
+    @GetMapping(PAGES_PATH+"/totalPagesOfOwn")
+    private long getTotalPagesOfOwn(@RequestHeader("Authorization") String authorizationHeader
+            , @RequestParam(ID)String id){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        return service.getTotalPagesOfOwn(loginId,id);
+    }
 
     @GetMapping(PAGES_PATH+"/list")
     private MultipleItemsResult<PageNode> getPages(@RequestHeader("Authorization") String authorizationHeader
             , @RequestParam(PARENT_ID)String parentId
-            , @RequestParam(IS_ROOT)Boolean isRoot
             , @RequestParam(BOOK_ID)String bookId
             ){
         long loginId = UIUtil.getLoginId(authorizationHeader);
-        return service.getPages(loginId,bookId,parentId,isRoot);
+        return service.getPages(loginId,bookId,parentId);
     }
 
     @GetMapping(PAGES_PATH)
@@ -148,8 +148,7 @@ public class BooksController {
         String id = param.getString(ID);
         String parentId = param.getString(PARENT_ID);
         String bookId = param.getString(BOOK_ID);
-        Boolean isRoot = param.getBoolean(IS_ROOT);
-        service.deletePageNode(loginId,bookId,parentId,isRoot,id);
+        service.deletePageNode(loginId,bookId,parentId,id);
     }
 
     @DeleteMapping(BOOKS_PATH)
@@ -190,7 +189,13 @@ public class BooksController {
         return service.getBook(loginId,id);
     }
 
-
+    @PostMapping(BOOKS_PATH+"/emptyBookPages")
+    private void emptyBookPages(@RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody JSONObject param){
+        String id = param.getString(ID);
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        service.emptyBookPages(loginId,id);
+    }
 
     @PatchMapping(BOOKS_PATH)
     private void patchBook( @RequestHeader("Authorization") String authorizationHeader
