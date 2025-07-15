@@ -72,6 +72,9 @@ public class BookStatusLocker {
         if(PAGE_DELETING_BOOKS.contains(key)){
             throw new LogicException(SelfXErrors.CANNOT_OPERATE_BOOK_IN_ILLEGAL_STATUS,SharingBookStatus.PAGES_DELETING);
         }
+        if(COPYING_BOOKS.contains(key)){
+            throw new LogicException(SelfXErrors.CANNOT_OPERATE_BOOK_IN_ILLEGAL_STATUS,SharingBookStatus.COPYING);
+        }
     }
 
 }

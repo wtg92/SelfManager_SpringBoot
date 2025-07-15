@@ -1,7 +1,7 @@
 package manager.solr;
 
 import com.alibaba.fastjson2.JSON;
-import manager.booster.UserIsolator;
+import manager.booster.CoreNameProducer;
 import manager.data.MultipleItemsResult;
 import manager.entity.SMSolrDoc;
 import manager.exception.LogicException;
@@ -43,12 +43,12 @@ public class SolrOperator {
         return false;
     }
 
-    /**
-     * UserIsolator.calculateCoreNamByUser放在这个方法里的原因是
-     * 当传入coreName时 说明是分用户的 因此这段逻辑 放在这里是okay的
-     */
-    public String insertDoc(SMSolrDoc doc,String core,long userId,String configDir) {
-        String coreName = UserIsolator.calculateCoreNamByUser(core,userId) ;
+    public String insertDocInUserIsolation(SMSolrDoc doc, String core, long userId, String configDir) {
+        String coreName = CoreNameProducer.calculateCoreNamByUser(core,userId) ;
+        return insertDocDirectly(doc,coreName,userId,configDir);
+    }
+
+    public String insertDocDirectly(SMSolrDoc doc,String coreName,long userId,String configDir) {
         initCoreIfNotExist(coreName,configDir);
         doc.setCreateUtc(System.currentTimeMillis());
         doc.setUpdateUtc(System.currentTimeMillis());
@@ -59,9 +59,12 @@ public class SolrOperator {
         return doc.getId();
     }
 
-    public void updateDocPartially(String core,String id,long userId,long updaterId,Map<String,Object> updatingFields){
-        String coreName = UserIsolator.calculateCoreNamByUser(core,userId) ;
+    public void updateDocPartiallyInUserIsolation(String core, String id, long userId, long updaterId, Map<String,Object> updatingFields){
+        String coreName = CoreNameProducer.calculateCoreNamByUser(core,userId) ;
+        updateDocPartiallyDirectly(coreName,id,updaterId,updatingFields);
+    }
 
+    public void updateDocPartiallyDirectly(String coreName,String id,long updaterId,Map<String,Object> updatingFields){
         SolrInputDocument doc = new SolrInputDocument();
         doc.addField(SolrFields.ID, id);
 
@@ -75,10 +78,12 @@ public class SolrOperator {
         invoker.updatePartialFields(coreName,List.of(doc));
     }
 
+    public <T> T getDocByIdInUserIsolation(String core, long userId, String id, Class<T> cls) {
+        String coreName = CoreNameProducer.calculateCoreNamByUser(core,userId) ;
+        return getDocByIdDirectly(coreName,id,cls);
+    }
 
-
-    public <T> T getDocById(String core,long userId, String id, Class<T> cls) {
-        String coreName = UserIsolator.calculateCoreNamByUser(core,userId) ;
+    public <T> T getDocByIdDirectly(String coreName, String id, Class<T> cls) {
         SolrDocument document = invoker.getDocument(coreName, id);
         if(document == null){
             return null;
@@ -86,19 +91,29 @@ public class SolrOperator {
         return JSON.parseObject(document.jsonStr(),cls);
     }
 
-    public void deleteById(String core,long userId, String id) {
-        String coreName = UserIsolator.calculateCoreNamByUser(core,userId) ;
+    public void deleteByIdInUserIsolation(String core, long userId, String id) {
+        String coreName = CoreNameProducer.calculateCoreNamByUser(core,userId) ;
+        deleteByIDDirectly(coreName,id);
+    }
+
+    public void deleteByIDDirectly(String coreName, String id) {
         invoker.deleteById(coreName,id);
     }
 
-    public void deleteByFields(String core, long userId, Map<String, Object> params) {
-        String coreName = UserIsolator.calculateCoreNamByUser(core,userId) ;
+    public void deleteByFieldsInUserIsolation(String core, long userId, Map<String, Object> params) {
+        String coreName = CoreNameProducer.calculateCoreNamByUser(core,userId) ;
+        deleteByFieldsDirectly(coreName,params);
+    }
+    public void deleteByFieldsDirectly(String coreName, Map<String, Object> params) {
         invoker.deleteByFields(coreName,params);
     }
 
+    public <T> MultipleItemsResult<T> queryInUserIsolation(String core, Long userId, SolrQuery query, String configDir, Class<T> cls) {
+        String coreName = CoreNameProducer.calculateCoreNamByUser(core,userId) ;
+        return queryDirectly(coreName,query,configDir,cls);
+    }
 
-    public <T> MultipleItemsResult<T> query(String core, Long userId, SolrQuery query, String configDir, Class<T> cls) {
-        String coreName = UserIsolator.calculateCoreNamByUser(core,userId) ;
+    public <T> MultipleItemsResult<T> queryDirectly(String coreName, SolrQuery query, String configDir, Class<T> cls) {
         initCoreIfNotExist(coreName,configDir);
         QueryResponse queryResponse = invoker.query(coreName, query);
         MultipleItemsResult<T> rlt = new MultipleItemsResult<>();
@@ -116,7 +131,7 @@ public class SolrOperator {
             , BiConsumer<T,Float> scoreSetter
             , SolrSearchRequest searchRequest
     ) {
-        String coreName = UserIsolator.calculateCoreNamByUser(core,userId) ;
+        String coreName = CoreNameProducer.calculateCoreNamByUser(core,userId) ;
         initCoreIfNotExist(coreName,configDir);
 
         SolrQuery query = new SolrQuery();
@@ -214,7 +229,7 @@ public class SolrOperator {
      * 假设数值 还可以求出最大值 最小值
      */
     public StatsResult queryStatus(String core, Long userId, SolrQuery query, String configDir) {
-        String coreName = UserIsolator.calculateCoreNamByUser(core,userId) ;
+        String coreName = CoreNameProducer.calculateCoreNamByUser(core,userId) ;
         initCoreIfNotExist(coreName,configDir);
         query.set(SolrRequestParam.STATS, SolrRequestParam.TRUE);
         query.set(SolrRequestParam.QUERY_LIMIT, "0");

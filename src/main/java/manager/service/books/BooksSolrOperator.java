@@ -7,6 +7,7 @@ import manager.solr.books.PageNode;
 import manager.solr.books.SharingBook;
 import manager.solr.SolrOperator;
 import manager.solr.SolrUtil;
+import manager.solr.books.SharingLink;
 import manager.solr.constants.SolrRequestParam;
 import manager.solr.data.SolrSearchRequest;
 import manager.solr.data.SolrSearchResult;
@@ -28,7 +29,7 @@ import java.util.*;
  * 确定用户逻辑DB逻辑
  */
 @Component
-public class BooksSolrOperator {
+public class   BooksSolrOperator {
 
     @Resource
     private SolrOperator operator;
@@ -36,15 +37,63 @@ public class BooksSolrOperator {
     @Value("${solr.cores.sharingBook}")
     private String SHARING_BOOK_CONFIG;
 
+    @Value("${solr.cores.sharingLink}")
+    private String SHARING_LINK_CONFIG;
+
     @Value("${solr.cores.pageNode}")
     private String PAGE_NODE_CONFIG;
 
     public String insertBook(SharingBook book, Long userId){
-        return operator.insertDoc(book, SelfXCores.SHARING_BOOK,userId,SHARING_BOOK_CONFIG);
+        return operator.insertDocInUserIsolation(book, SelfXCores.SHARING_BOOK,userId,SHARING_BOOK_CONFIG);
     }
 
     public String insertPage(PageNode page, Long userId){
-        return operator.insertDoc(page, SelfXCores.PAGE_NODE,userId, PAGE_NODE_CONFIG);
+        return operator.insertDocInUserIsolation(page, SelfXCores.PAGE_NODE,userId, PAGE_NODE_CONFIG);
+    }
+    public String insertLink(SharingLink link, long userId, Boolean isCommunityLink) {
+        String config = SHARING_LINK_CONFIG;
+        String coreName = SelfXCores.SHARING_LINK;
+        return  isCommunityLink ? operator.insertDocDirectly(link, coreName,userId, config):
+                operator.insertDocInUserIsolation(link, coreName,userId, config);
+    }
+    public SharingLink getLink(long loginId, Boolean isCommunityLink, String id) {
+        String coreName = SelfXCores.SHARING_LINK;
+        return  isCommunityLink ? operator.getDocByIdDirectly(coreName,id, SharingLink.class) :
+                operator.getDocByIdInUserIsolation(coreName,loginId,id, SharingLink.class)
+                ;
+    }
+
+    public void deleteLinkById(long loginId, Boolean isCommunityLink, String id) {
+        String coreName = SelfXCores.SHARING_LINK;
+        if(isCommunityLink){
+            operator.deleteByIDDirectly(coreName,id);
+        } else{
+            operator.deleteByIdInUserIsolation(coreName,loginId,id);
+        }
+    }
+    public void updateLink(String id, Boolean isCommunityLink, Long loginId, Long updaterId, Map<String,Object> updatingFields){
+        String coreName = SelfXCores.SHARING_LINK;
+        if(isCommunityLink){
+            operator.updateDocPartiallyDirectly(coreName,id, updaterId, updatingFields);
+        }else{
+            operator.updateDocPartiallyInUserIsolation(coreName,id,loginId, updaterId, updatingFields);
+        }
+    }
+    public MultipleItemsResult<SharingLink> getLinks(long loginId, String bookId, Boolean isCommunityLink) {
+        String config = SHARING_LINK_CONFIG;
+        String coreName = SelfXCores.SHARING_LINK;
+        SolrQuery query = new SolrQuery();
+        query.setQuery(FULL_BASE_QUERY);
+        query.addFilterQuery(SolrFields.USER_ID+":"+loginId,SolrFields.BOOK_ID+":"+bookId);
+        query.setFields(
+                SolrFields.ID, SolrFields.CREATE_UTC, SolrFields.UPDATE_UTC, SolrFields.NAME_MULTI,
+                SolrFields.STATUS,
+                SolrFields.DESC_MULTI, SolrFields.DEFAULT_LANG
+        );
+        query.set(SolrRequestParam.QUERY_LIMIT, String.valueOf(SelfX.MAX_DB_LINES_IN_ONE_SELECTS));
+        return  isCommunityLink ? operator.queryDirectly(coreName,query, config, SharingLink.class) :
+                operator.queryInUserIsolation(coreName,loginId,query, config, SharingLink.class)
+                ;
     }
 
     public MultipleItemsResult<SharingBook> getBooks(long userId,List<Integer> states) {
@@ -58,7 +107,7 @@ public class BooksSolrOperator {
         );
         query.set(SolrRequestParam.QUERY_SORT, SolrFields.SEQ_WEIGHT + " " + SolrQuery.ORDER.desc);
         query.set(SolrRequestParam.QUERY_LIMIT, String.valueOf(SelfX.MAX_DB_LINES_IN_ONE_SELECTS));
-        return operator.query(SelfXCores.SHARING_BOOK,userId,query,SHARING_BOOK_CONFIG,SharingBook.class);
+        return operator.queryInUserIsolation(SelfXCores.SHARING_BOOK,userId,query,SHARING_BOOK_CONFIG,SharingBook.class);
     }
 
     public List<String> getBookIdsByState(long userId, List<Integer> states) {
@@ -68,21 +117,21 @@ public class BooksSolrOperator {
         query.setFields(SolrUtil.getMultipleFieldParam(
                 SolrFields.ID
         ));
-        return operator.query(SelfXCores.SHARING_BOOK,userId,query,SHARING_BOOK_CONFIG,SharingBook.class)
+        return operator.queryInUserIsolation(SelfXCores.SHARING_BOOK,userId,query,SHARING_BOOK_CONFIG,SharingBook.class)
                 .items.stream().map(SharingBook::getId).toList();
     }
 
     public void updateBook(String id,Long creatorId,Long updaterId,Map<String,Object> updatingFields){
-        operator.updateDocPartially(SelfXCores.SHARING_BOOK,id,creatorId,updaterId,updatingFields);
+        operator.updateDocPartiallyInUserIsolation(SelfXCores.SHARING_BOOK,id,creatorId,updaterId,updatingFields);
     }
 
     public void updatePageNode(String id, Long creatorId, Long updaterId, Map<String,Object> updatingFields){
-        operator.updateDocPartially(SelfXCores.PAGE_NODE,id,creatorId,updaterId,updatingFields);
+        operator.updateDocPartiallyInUserIsolation(SelfXCores.PAGE_NODE,id,creatorId,updaterId,updatingFields);
     }
 
 
     public SharingBook getBook(long loginId, String id) {
-        return operator.getDocById(SelfXCores.SHARING_BOOK,loginId,id,SharingBook.class);
+        return operator.getDocByIdInUserIsolation(SelfXCores.SHARING_BOOK,loginId,id,SharingBook.class);
     }
     public SolrSearchResult<SharingBook> searchBooks(long loginId,SolrSearchRequest searchRequest) {
         Class<SharingBook> cla = SharingBook.class;
@@ -145,7 +194,7 @@ public class BooksSolrOperator {
     }
 
     public PageNode getPageNode(long loginId, String id) {
-        return operator.getDocById(SelfXCores.PAGE_NODE,loginId,id,PageNode.class);
+        return operator.getDocByIdInUserIsolation(SelfXCores.PAGE_NODE,loginId,id,PageNode.class);
     }
 
     private final static String FULL_BASE_QUERY = "*:*";
@@ -158,7 +207,7 @@ public class BooksSolrOperator {
                         SolrFields.UPDATER_ID, SolrFields.IS_HIDDEN),
                 SelfX.MAX_DB_LINES_IN_ONE_SELECTS
         );
-        return operator.query(SelfXCores.PAGE_NODE,loginId,query, PAGE_NODE_CONFIG, PageNode.class);
+        return operator.queryInUserIsolation(SelfXCores.PAGE_NODE,loginId,query, PAGE_NODE_CONFIG, PageNode.class);
     }
 
     public List<PageNode> getPageNodesByParentIdForCopy(long loginId, String bookId, String parentId) {
@@ -181,7 +230,7 @@ public class BooksSolrOperator {
                  */
                 Integer.MAX_VALUE
         );
-        return operator.query(SelfXCores.PAGE_NODE,loginId,query, PAGE_NODE_CONFIG, PageNode.class).items;
+        return operator.queryInUserIsolation(SelfXCores.PAGE_NODE,loginId,query, PAGE_NODE_CONFIG, PageNode.class).items;
     }
     
     public List<PageNode> getPageNodesByParentIdForDelete(long loginId, String bookId, String parentId) {
@@ -193,7 +242,7 @@ public class BooksSolrOperator {
                  */
                 Integer.MAX_VALUE
         );
-        return operator.query(SelfXCores.PAGE_NODE,loginId,query, PAGE_NODE_CONFIG, PageNode.class).items;
+        return operator.queryInUserIsolation(SelfXCores.PAGE_NODE,loginId,query, PAGE_NODE_CONFIG, PageNode.class).items;
     }
 
     public List<PageNode> getPageNodesByBookIdForDelete(long loginId, String bookId) {
@@ -205,7 +254,7 @@ public class BooksSolrOperator {
                  */
                 Integer.MAX_VALUE
         );
-        return operator.query(SelfXCores.PAGE_NODE,loginId,query, PAGE_NODE_CONFIG, PageNode.class).items;
+        return operator.queryInUserIsolation(SelfXCores.PAGE_NODE,loginId,query, PAGE_NODE_CONFIG, PageNode.class).items;
     }
 
 
@@ -238,18 +287,14 @@ public class BooksSolrOperator {
     }
 
     public void deleteBookById(long loginId, String id) {
-        operator.deleteById(SelfXCores.SHARING_BOOK,loginId,id);
+        operator.deleteByIdInUserIsolation(SelfXCores.SHARING_BOOK,loginId,id);
     }
 
     public void deletePageNodeById(long loginId, String id) {
-        operator.deleteById(SelfXCores.PAGE_NODE,loginId,id);
+        operator.deleteByIdInUserIsolation(SelfXCores.PAGE_NODE,loginId,id);
     }
 
-    public void deletePageNodesByBookId(long loginId, String bookId) {
-        Map<String,Object> params = new HashMap<>();
-        params.put(SolrFields.BOOK_ID,bookId);
-        operator.deleteByFields(SelfXCores.PAGE_NODE,loginId,params);
-    }
+
 
 
 

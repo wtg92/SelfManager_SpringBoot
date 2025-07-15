@@ -8,6 +8,7 @@ import manager.entity.general.FileRecord;
 import manager.solr.books.PageNode;
 import manager.solr.books.SharingBook;
 import manager.entity.general.career.WorkSheet;
+import manager.solr.books.SharingLink;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -48,6 +49,9 @@ public class CaffeineCollection {
     @Value("${cache.books.max-num}")
     private Integer BOOKS_MAX_NUM;
 
+    @Value("${cache.links.max-num}")
+    private Integer LINkS_MAX_NUM;
+
     @Value("${cache.page-nodes.max-num}")
     private Integer PAGE_NODES_MAX_NUM;
     @Value("${cache.file-records.max-num}")
@@ -67,6 +71,7 @@ public class CaffeineCollection {
         Worksheet_Cache = generateSpecificEntityCache(WORKSHEETS_MAX_NUM,COMMON_EXPIRATION_OF_MIN);
         Temp_Users_Cache = generateSpecificEntityCache(TEMP_USERS_MAX_NUM, TEMP_EXPIRATION_OF_MIN);
         Books_Cache = generateSpecificEntityCache(BOOKS_MAX_NUM,COMMON_EXPIRATION_OF_MIN);
+        Links_Cache = generateSpecificEntityCache(LINkS_MAX_NUM,COMMON_EXPIRATION_OF_MIN);
         Page_Nodes_Cache = generateSpecificEntityCache(PAGE_NODES_MAX_NUM,COMMON_EXPIRATION_OF_MIN);
         File_Records_Cache = generateSpecificEntityCache(FILE_RECORDS_MAX_NUM,COMMON_EXPIRATION_OF_MIN);
         Closed_Book_Ids_Cache = generateSpecificEntityCache(CLOSED_BOOK_IDS_MAX_NUM,COMMON_EXPIRATION_OF_MIN);
@@ -101,6 +106,8 @@ public class CaffeineCollection {
     public Cache<String, SharingBook> Books_Cache;
 
     public Cache<String, PageNode> Page_Nodes_Cache;
+
+    public Cache<String, SharingLink> Links_Cache;
 
     public Cache<Long, LongRunningTasksMessage> Long_Running_Tasks_Cache;
 

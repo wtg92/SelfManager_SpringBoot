@@ -1,15 +1,10 @@
 package manager.solr;
 
 import com.alibaba.fastjson2.JSON;
-import manager.booster.UserIsolator;
+import manager.booster.CoreNameProducer;
 import manager.entity.SMSolrDoc;
-import manager.exception.DBException;
-import manager.exception.LogicException;
-import manager.solr.constants.SolrRequestParam;
-import manager.system.SelfXErrors;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.impl.BaseHttpSolrClient;
 import org.apache.solr.client.solrj.impl.HttpJdkSolrClient;
 import org.apache.solr.client.solrj.request.CoreAdminRequest;
 import org.apache.solr.client.solrj.request.UpdateRequest;
@@ -148,7 +143,7 @@ public class SolrInvoker{
     }
 
     public void testSolrClient() {
-        try (SolrClient solrClient = new HttpJdkSolrClient.Builder(baseURL+UserIsolator.calculateCoreNamByUser(SelfXCores.SHARING_BOOK,(long)1)).build()) {
+        try (SolrClient solrClient = new HttpJdkSolrClient.Builder(baseURL+ CoreNameProducer.calculateCoreNamByUser(SelfXCores.SHARING_BOOK,(long)1)).build()) {
             SolrQuery query = new SolrQuery();
             query.setQuery("(name_arabic:哈~ OR comment_arabic:Java~)");  // 对 name_* 和 comment_* 进行模糊匹配
             query.setStart(0);

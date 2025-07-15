@@ -3,6 +3,7 @@ package manager.controller;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import manager.data.MultipleItemsResult;
+import manager.solr.books.SharingLink;
 import manager.solr.data.ParentNode;
 import manager.solr.data.SolrSearchRequest;
 import manager.solr.data.SolrSearchResult;
@@ -30,6 +31,8 @@ public class BooksController {
 
     private static final String PAGES_PATH = "/pageNodes";
 
+    private static final String LINKS_PATH = "/links";
+
     @PostMapping(BOOKS_PATH)
     private String postBook( @RequestHeader("Authorization") String authorizationHeader
             , @RequestBody JSONObject param ){
@@ -38,6 +41,52 @@ public class BooksController {
         String defaultLanguage = param.getString(DEFAULT_LANGUAGE);
         String comment = param.getString(COMMENT);
         return service.createBook(loginId,name,defaultLanguage,comment);
+    }
+    @DeleteMapping(LINKS_PATH)
+    private void deleteLink(@RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody JSONObject param ){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        String id = param.getString(ID);
+        Boolean isCommunityLink = param.getBoolean(IS_COMMUNITY_LINK);
+        service.deleteLink(loginId,isCommunityLink,id);
+    }
+    @PostMapping(LINKS_PATH)
+    private String postLink( @RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody JSONObject param ){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        Boolean isCommunityLink = param.getBoolean(IS_COMMUNITY_LINK);
+        String bookId = param.getString(BOOK_ID);
+        String defaultLanguage = param.getString(DEFAULT_LANGUAGE);
+        String name = param.getString(NAME);
+        return service.createLink(loginId,name,defaultLanguage,bookId,isCommunityLink);
+    }
+
+    @PatchMapping(LINKS_PATH)
+    private SharingLink patchLink( @RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody JSONObject param ){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        Boolean isCommunityLink = param.getBoolean(IS_COMMUNITY_LINK);
+        String id = param.getString(ID);
+        Map<String,Object> updatingProps = JSON.parseObject(param.getString(JSON_OBJ));
+        service.updateLinkProps(loginId,isCommunityLink,id,updatingProps);
+        return service.getLink(loginId,isCommunityLink,id);
+    }
+
+    @GetMapping(LINKS_PATH+"/list")
+    private MultipleItemsResult<SharingLink> getLinks(@RequestHeader("Authorization") String authorizationHeader
+            , @RequestParam(BOOK_ID)String bookId
+            , @RequestParam(IS_COMMUNITY_LINK)Boolean isCommunityLink
+    ){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        return service.getLinks(loginId,bookId,isCommunityLink);
+    }
+
+    @GetMapping(LINKS_PATH)
+    private SharingLink getLink(@RequestHeader("Authorization") String authorizationHeader
+            ,@RequestParam(ID)String id
+            , @RequestParam(IS_COMMUNITY_LINK)Boolean isCommunityLink){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        return service.getLink(loginId,isCommunityLink,id);
     }
 
     @PostMapping(PAGES_PATH)
@@ -189,6 +238,8 @@ public class BooksController {
         return service.getBook(loginId,id);
     }
 
+
+
     @PostMapping(BOOKS_PATH+"/emptyBookPages")
     private void emptyBookPages(@RequestHeader("Authorization") String authorizationHeader
             , @RequestBody JSONObject param){
@@ -205,6 +256,7 @@ public class BooksController {
         Map<String,Object> updatingProps = JSON.parseObject(param.getString(JSON_OBJ));
         service.updateBookPropsInSync(loginId,id,updatingProps);
     }
+
 
     @PatchMapping(PAGES_PATH)
     private PageNode patchPageNode( @RequestHeader("Authorization") String authorizationHeader

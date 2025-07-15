@@ -4,7 +4,7 @@ package manager.service.books;
 import com.alibaba.fastjson2.JSON;
 import manager.SelfXManagerSpringbootApplication;
 import manager.booster.MultipleLangHelper;
-import manager.booster.UserIsolator;
+import manager.booster.CoreNameProducer;
 import manager.booster.longRunningTasks.LongRunningTaskType;
 import manager.booster.longRunningTasks.LongRunningTasksScheduler;
 import manager.cache.CacheOperator;
@@ -12,7 +12,9 @@ import manager.data.MultipleItemsResult;
 import manager.data.general.FinalHandler;
 import manager.solr.SelfXCores;
 import manager.solr.SolrFields;
+import manager.solr.books.SharingLink;
 import manager.solr.data.ParentNode;
+import manager.solr.data.SharingLinkExtra;
 import manager.solr.data.SolrSearchRequest;
 import manager.solr.data.SolrSearchResult;
 import manager.solr.books.PageNode;
@@ -23,7 +25,6 @@ import manager.service.FilesService;
 import manager.system.*;
 import manager.system.books.*;
 import manager.system.books.BookStyle;
-import manager.util.CommonUtil;
 import manager.util.ReflectUtil;
 import manager.util.SelfXCollectionUtils;
 import manager.util.locks.UserLockManager;
@@ -108,6 +109,70 @@ public class BooksServiceImpl implements BooksService {
         }
     }
 
+    @Override
+    public String createLink(long loginId, String name, String defaultLanguage, String bookId, Boolean isCommunityLink) {
+        /*
+         * unnecessary but do not harm
+         */
+        if (Language.get(defaultLanguage) == Language.UNKNOWN) {
+            throw new LogicException(SelfXErrors.UNEXPECTED_ERROR, "IMPOSSIBLE lang " + defaultLanguage);
+        }
+        FinalHandler<String> id = new FinalHandler<>();
+        locker.lockByUserAndClass(loginId, () -> {
+            SharingLink link = new SharingLink();
+            link.setDefaultLang(defaultLanguage);
+            /*
+             * 生成对应值
+             */
+            link = MultipleLangHelper.setFiledValue(link, BooksMultipleFields.NAME, defaultLanguage, name);
+
+            /**
+             * 确定一系列初始值
+             */
+            link.setStatus(SharingLinkStatus.EDITING);
+            if(getBook(loginId,bookId) == null){
+                throw new LogicException(SelfXErrors.UNEXPECTED_ERROR);
+            }
+
+            link.setBookId(bookId);
+            link.setUserId(loginId);
+
+            link.setExtra(new SharingLinkExtra().toString());
+
+            id.val = operator.insertLink(link,loginId,isCommunityLink);
+        });
+        return id.val;
+    }
+
+    private void checkLinkOperationsPerm(long loginId, Boolean isCommunityLink, String id){
+        SharingLink link =  getLinkInternal(loginId,isCommunityLink,id);
+        if(link.getUserId() != loginId){
+            throw new LogicException(SelfXErrors.UNEXPECTED_ERROR);
+        }
+    }
+
+    @Override
+    public MultipleItemsResult<SharingLink> getLinks(long loginId, String bookId, Boolean isCommunityLink) {
+        return operator.getLinks(loginId, bookId,isCommunityLink);
+    }
+
+    @Override
+    public void deleteLink(long loginId, Boolean isCommunityLink, String id) {
+        locker.lockByUserAndClass(loginId, () -> {
+            checkLinkOperationsPerm(loginId,isCommunityLink,id);
+            cache.deleteLink(loginId, isCommunityLink,id, () -> operator.deleteLinkById(loginId,isCommunityLink,id));
+        });
+    }
+
+    @Override
+    public SharingLink getLink(long loginId, Boolean isCommunityLink, String id) {
+        checkLinkOperationsPerm(loginId,isCommunityLink,id);
+        return cache.getLink(loginId,isCommunityLink,id, () -> operator.getLink(loginId, isCommunityLink,id));
+    }
+
+    private SharingLink getLinkInternal(long loginId, Boolean isCommunityLink, String id) {
+        return cache.getLink(loginId,isCommunityLink,id, () -> operator.getLink(loginId, isCommunityLink,id));
+    }
 
     @Override
     public String createBook(long loginId, String name, String defaultLanguage, String comment) {
@@ -164,7 +229,7 @@ public class BooksServiceImpl implements BooksService {
         locker.lockByUserAndClass(loginId, () -> {
             cache.saveBook(loginId, bookId, () -> operator.updateBook(bookId, loginId, loginId, updatingAttrs));
             if (updatingAttrs.containsKey(SolrFields.STATUS)) {
-                cache.removeClosedBookIds(loginId);
+                cache.removeClosedBookIdsFromCache(loginId);
             }
         });
     }
@@ -174,7 +239,35 @@ public class BooksServiceImpl implements BooksService {
         updatePageNodePropsInSync(loginId, pageId, updatingAttrs);
     }
 
+    @Override
+    public void updateLinkProps(long loginId, Boolean isCommunityLink, String linkId, Map<String, Object> updatingAttrs) {
+        updateLinkPropsInSync(loginId,isCommunityLink,linkId,updatingAttrs);
+    }
 
+    private void updateLinkPropsInSync(long loginId,Boolean isCommunity, String id, Map<String, Object> updatingAttrs) {
+        locker.lockByUserAndClass(loginId, () -> {
+            Runnable savingNode = () -> cache.saveLink(loginId,isCommunity,id, () -> operator.updateLink(id,isCommunity,loginId, loginId, updatingAttrs));
+
+            if (!updatingAttrs.containsKey(SolrFields.FILE_IDS)) {
+                savingNode.run();
+            } else {
+//                List<String> toUpdate = updatingAttrs.get(SolrFields.FILE_IDS) == null ? null : (List<String>) updatingAttrs.get(SolrFields.FILE_IDS);
+//                List<String> inDB = getPageNode(loginId, pageNodeId).getFileIds();
+//                SelfXCollectionUtils.ComparisonResult<String> fileIdsComparisonResult = SelfXCollectionUtils.compareLists(toUpdate, inDB, String::equals);
+//                /**
+//                 * 对于处理fileRecords 需要在实际更新成功后再处理
+//                 */
+//                savingNode.run();
+//                /**
+//                 * 被更新掉的
+//                 */
+//                fileIdsComparisonResult.onlyInList2.forEach(encodedFileIds -> {
+//                    long fileToDelete = securityBooster.getStableCommonId(encodedFileIds);
+//                    filesService.deleteFileRecord(loginId, fileToDelete);
+//                });
+            }
+        });
+    }
     private void updatePageNodePropsInSync(long loginId, String pageNodeId, Map<String, Object> updatingAttrs) {
         if (updatingAttrs.containsKey(SolrFields.PARENT_IDS) || updatingAttrs.containsKey(SolrFields.INDEXES)) {
             /*
@@ -229,7 +322,7 @@ public class BooksServiceImpl implements BooksService {
         } else {
             param.put(SolrFields.STATUS, SharingBookStatus.CLOSED);
             updateBookPropsInSync(loginId, id, param);
-            cache.removeClosedBookIds(loginId);
+            cache.removeClosedBookIdsFromCache(loginId);
         }
     }
 
@@ -278,8 +371,6 @@ public class BooksServiceImpl implements BooksService {
      * 2.CONTENT
      * 3.WithTODOs
      * 4.variables
-     * 5.type   PAGE
-     * 6.variables
      * 需要修改生成的有什么？
      * 1.filesId
      * 2.EDITOR_STATE   -------> 包含File -----> Replace 非法字符 反射
@@ -475,7 +566,19 @@ public class BooksServiceImpl implements BooksService {
 
     @Override
     public void emptyBookPages(long loginId, String id) {
-        operator.deletePageNodesByBookId(loginId,id);
+        try {
+            bookStatusLocker.startDeletingPage(loginId, id);
+            locker.lockByUserAndClass(loginId, () -> {
+                deleteAllPagesByBookId(loginId,id);
+            });
+        } finally {
+            bookStatusLocker.endDeletingPage(loginId, id);
+        }
+    }
+
+    private void deleteAllPagesByBookId(long loginId, String id){
+        List<PageNode> nodes = operator.getPageNodesByBookIdForDelete(loginId, id);
+        nodes.forEach(one -> deleteSinglePageNodeWithFileIds(loginId, one));
     }
 
     private static Double findIndexByParentId(PageNode node, String generatedParentId) {
@@ -510,6 +613,8 @@ public class BooksServiceImpl implements BooksService {
             updatePageNodeParentIdsAndIndexesInSyncThenRefreshPageChildrenNum(loginId, id, parentIds, indexes,parentId,bookId);
         });
     }
+
+
 
     private void refreshPageChildrenNums(String pageId, String bookId, long loginId) {
         if (pageId.isEmpty()) {
@@ -610,7 +715,7 @@ public class BooksServiceImpl implements BooksService {
 
                     PageNode node = getPageNode(loginId, currentPageId);
                     if (node == null) {
-                        log.error("理论上不该出现的deletePageNode出现损坏的环 ID → " + UserIsolator.calculateCoreNamByUser(SelfXCores.SHARING_BOOK, loginId));
+                        log.error("理论上不该出现的deletePageNode出现损坏的环 ID → " + CoreNameProducer.calculateCoreNamByUser(SelfXCores.SHARING_BOOK, loginId));
                         continue;
                     }
 
@@ -758,14 +863,15 @@ public class BooksServiceImpl implements BooksService {
         try {
             bookStatusLocker.startDeletingBook(loginId, bookId);
             locker.lockByUserAndClass(loginId, () -> {
-                List<PageNode> nodes = operator.getPageNodesByBookIdForDelete(loginId, bookId);
-                nodes.forEach(one -> deleteSinglePageNodeWithFileIds(loginId, one));
+                deleteAllPagesByBookId(loginId,bookId);
                 cache.deleteBook(loginId, bookId, () -> operator.deleteBookById(loginId, bookId));
             });
         } finally {
             bookStatusLocker.endDeletingBook(loginId, bookId);
         }
     }
+
+
 
     @Override
     public SolrSearchResult<SharingBook> searchBooks(long loginId, SolrSearchRequest searchRequest) {

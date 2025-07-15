@@ -87,6 +87,8 @@ public abstract class SelfXParams {
 
 	public final static String IS_ROOT = "is_root";
 
+	public final static String IS_COMMUNITY_LINK = "is_community_link";
+
 	public final static String SRC_IS_ROOT = "src_is_root";
 
 	public final static String START_UTC_FOR_CREATE = "start_utc_for_create";

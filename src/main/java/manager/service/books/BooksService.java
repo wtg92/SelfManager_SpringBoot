@@ -1,6 +1,7 @@
 package manager.service.books;
 
 import manager.data.MultipleItemsResult;
+import manager.solr.books.SharingLink;
 import manager.solr.data.ParentNode;
 import manager.solr.data.SolrSearchRequest;
 import manager.solr.data.SolrSearchResult;
@@ -20,6 +21,7 @@ public interface BooksService {
 
     void updatePageNodeProps(long loginId,String bookId, String pageId, Map<String, Object> updatingAttrs);
 
+    void updateLinkProps(long loginId,Boolean isCommunityLink, String linkId, Map<String, Object> updatingAttrs);
 
 
     void closeBook(long loginId, String id);
@@ -57,4 +59,12 @@ public interface BooksService {
     long getTotalPagesOfOwn(long loginId, String bookId);
 
     void emptyBookPages(long loginId, String id);
+
+    String createLink(long loginId, String name, String defaultLanguage, String bookId, Boolean isCommunityLink);
+
+    MultipleItemsResult<SharingLink> getLinks(long loginId, String bookId, Boolean isCommunityLink);
+
+    void deleteLink(long loginId, Boolean isCommunityLink, String id);
+
+    SharingLink getLink(long loginId, Boolean isCommunityLink, String id);
 }

@@ -11,6 +11,7 @@ import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.NoSuchElement;
 import manager.exception.SMException;
+import manager.solr.books.SharingLink;
 import manager.system.SelfXErrors;
 import manager.util.*;
 import org.slf4j.Logger;
@@ -207,6 +208,39 @@ public class CacheOperator {
 	}
 	/*- FileRecord----end- */
 
+	/*- Links----start- */
+
+	public void saveLink(long loginId,Boolean isCommunityLink, String linkId, Runnable saving ) {
+		try{
+			saving.run();
+		}finally {
+			removeLinkFromCache(loginId,isCommunityLink,linkId);
+		}
+	}
+
+	private static String generateLinkCacheId(long loginId,Boolean isCommunityLink,String linkId){
+		return
+				isCommunityLink ? linkId :
+						generateCacheIdInUserIsolation(loginId,linkId);
+	}
+
+	public SharingLink getLink(long loginId,Boolean isCommunityLink,String linkId, Supplier<SharingLink> generator) {
+		String cacheId =generateLinkCacheId(loginId,isCommunityLink,linkId);
+		return caches.Links_Cache.get(cacheId,(k)->generator.get()).clone();
+	}
+
+	public void deleteLink(long loginId,Boolean isCommunityLink,String linkId,Runnable deleting){
+		deleting.run();
+		removeLinkFromCache(loginId,isCommunityLink,linkId);
+	}
+
+	private void removeLinkFromCache(long loginId,Boolean isCommunityLink,String linkId){
+		String cacheId =generateLinkCacheId(loginId,isCommunityLink,linkId);
+		caches.Links_Cache.invalidate(cacheId);
+	}
+
+	/*- Links----end- */
+
 	/*- BOOK----start- */
 
 	public SharingBook getBook(long loginId, String bookId, Supplier<SharingBook> generator) {
@@ -218,26 +252,26 @@ public class CacheOperator {
 		return caches.Closed_Book_Ids_Cache.get(loginId,(k)->generator.get());
 	}
 
-	public void removeClosedBookIds(long loginId) {
+	public void removeClosedBookIdsFromCache(long loginId) {
 		caches.Closed_Book_Ids_Cache.invalidate(loginId);
 	}
 
-	private void removeBook(long loginId,String id){
+	private void removeBookFromCache(long loginId, String id){
 		String cacheId = generateCacheIdInUserIsolation(loginId,id);
 		caches.Books_Cache.invalidate(cacheId);
 	}
 
 	public void deleteBook(long loginId,String id,Runnable deleting){
 		deleting.run();
-		removeBook(loginId,id);
-		removeClosedBookIds(loginId);
+		removeBookFromCache(loginId,id);
+		removeClosedBookIdsFromCache(loginId);
 	}
 
 	public void saveBook(long loginId, String bookId, Runnable saving ) {
 		try{
 			saving.run();
 		}finally {
-			removeBook(loginId,bookId);
+			removeBookFromCache(loginId,bookId);
 		}
 	}
 
