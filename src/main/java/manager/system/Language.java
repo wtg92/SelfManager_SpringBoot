@@ -43,7 +43,7 @@ public enum Language {
     SWEDISH("swedish"),
     THAI("thai"),
     TURKISH("turkish"),
-//    UKRAINIAN("ukrainian");
+    UKRAINIAN("ukrainian");
     ;
     public final String name;
 

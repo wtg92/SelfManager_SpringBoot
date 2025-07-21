@@ -41,7 +41,70 @@ public class SharingLink extends SMSolrDoc {
     private String defaultLang;
 
     @Field
+    private Integer copyNum;
+
+    @Field
+    private Integer likesNum;
+
+    @Field
+    private Integer dislikesNum;
+
+    @Field List<Long> likeUser;
+
+    @Field List<Long> dislikeUsers;
+
+    /*
+     * 结构性数据 包含点击量
+     */
+    @Field String commentState;
+
+    /*
+     * 为了查看公共链接时 可以分类 不进入搜索
+     */
+    @Field
     private List<String> tags;
+
+    /*
+     * 每次更新 由comments 计算得来
+     */
+    @Field String commentText_arabic;
+
+    @Field String commentText_bengali;
+    @Field String commentText_brazilian_portuguese;
+    @Field String commentText_bulgarian;
+    @Field String commentText_catalan;
+    @Field String commentText_chinese;
+    @Field String commentText_traditional_chinese;
+    @Field String commentText_czech;
+    @Field String commentText_danish;
+    @Field String commentText_dutch;
+    @Field String commentText_estonian;
+    @Field String commentText_finnish;
+    @Field String commentText_french;
+    @Field String commentText_galician;
+    @Field String commentText_german;
+    @Field String commentText_greek;
+    @Field String commentText_hindi;
+    @Field String commentText_indonesian;
+    @Field String commentText_italian;
+    @Field String commentText_irish;
+    @Field String commentText_japanese;
+    @Field String commentText_korean;
+    @Field String commentText_english;
+    @Field String commentText_latvian;
+    @Field String commentText_norwegian;
+    @Field String commentText_persian;
+    @Field String commentText_polish;
+    @Field String commentText_portuguese;
+    @Field String commentText_romanian;
+    @Field String commentText_russian;
+    @Field String commentText_scandinavian;
+    @Field String commentText_serbian;
+    @Field String commentText_spanish;
+    @Field String commentText_swedish;
+    @Field String commentText_thai;
+    @Field String commentText_turkish;
+    @Field String commentText_ukrainian;
 
     @Field private String desc_editorState_arabic;
     @Field private String desc_editorState_bengali;
@@ -189,8 +252,8 @@ public class SharingLink extends SMSolrDoc {
     @Field private String name_turkish;
     @Field private String desc_turkish;
 
-//    @Field private String name_ukrainian;
-//    @Field private String desc_ukrainian;
+    @Field private String name_ukrainian;
+    @Field private String desc_ukrainian;
 
 
     public String getType() {
@@ -1135,6 +1198,366 @@ public class SharingLink extends SMSolrDoc {
 
     public void setDefaultLang(String defaultLang) {
         this.defaultLang = defaultLang;
+    }
+
+    public Integer getCopyNum() {
+        return copyNum;
+    }
+
+    public void setCopyNum(Integer copyNum) {
+        this.copyNum = copyNum;
+    }
+
+    public Integer getLikesNum() {
+        return likesNum;
+    }
+
+    public void setLikesNum(Integer likesNum) {
+        this.likesNum = likesNum;
+    }
+
+    public Integer getDislikesNum() {
+        return dislikesNum;
+    }
+
+    public void setDislikesNum(Integer dislikesNum) {
+        this.dislikesNum = dislikesNum;
+    }
+
+    public List<Long> getLikeUser() {
+        return likeUser;
+    }
+
+    public void setLikeUser(List<Long> likeUser) {
+        this.likeUser = likeUser;
+    }
+
+    public List<Long> getDislikeUsers() {
+        return dislikeUsers;
+    }
+
+    public void setDislikeUsers(List<Long> dislikeUsers) {
+        this.dislikeUsers = dislikeUsers;
+    }
+
+    public String getCommentState() {
+        return commentState;
+    }
+
+    public void setCommentState(String commentState) {
+        this.commentState = commentState;
+    }
+
+    public String getCommentText_arabic() {
+        return commentText_arabic;
+    }
+
+    public void setCommentText_arabic(String commentText_arabic) {
+        this.commentText_arabic = commentText_arabic;
+    }
+
+    public String getCommentText_bengali() {
+        return commentText_bengali;
+    }
+
+    public void setCommentText_bengali(String commentText_bengali) {
+        this.commentText_bengali = commentText_bengali;
+    }
+
+    public String getCommentText_brazilian_portuguese() {
+        return commentText_brazilian_portuguese;
+    }
+
+    public void setCommentText_brazilian_portuguese(String commentText_brazilian_portuguese) {
+        this.commentText_brazilian_portuguese = commentText_brazilian_portuguese;
+    }
+
+    public String getCommentText_bulgarian() {
+        return commentText_bulgarian;
+    }
+
+    public void setCommentText_bulgarian(String commentText_bulgarian) {
+        this.commentText_bulgarian = commentText_bulgarian;
+    }
+
+    public String getCommentText_catalan() {
+        return commentText_catalan;
+    }
+
+    public void setCommentText_catalan(String commentText_catalan) {
+        this.commentText_catalan = commentText_catalan;
+    }
+
+    public String getCommentText_chinese() {
+        return commentText_chinese;
+    }
+
+    public void setCommentText_chinese(String commentText_chinese) {
+        this.commentText_chinese = commentText_chinese;
+    }
+
+    public String getCommentText_traditional_chinese() {
+        return commentText_traditional_chinese;
+    }
+
+    public void setCommentText_traditional_chinese(String commentText_traditional_chinese) {
+        this.commentText_traditional_chinese = commentText_traditional_chinese;
+    }
+
+    public String getCommentText_czech() {
+        return commentText_czech;
+    }
+
+    public void setCommentText_czech(String commentText_czech) {
+        this.commentText_czech = commentText_czech;
+    }
+
+    public String getCommentText_danish() {
+        return commentText_danish;
+    }
+
+    public void setCommentText_danish(String commentText_danish) {
+        this.commentText_danish = commentText_danish;
+    }
+
+    public String getCommentText_dutch() {
+        return commentText_dutch;
+    }
+
+    public void setCommentText_dutch(String commentText_dutch) {
+        this.commentText_dutch = commentText_dutch;
+    }
+
+    public String getCommentText_estonian() {
+        return commentText_estonian;
+    }
+
+    public void setCommentText_estonian(String commentText_estonian) {
+        this.commentText_estonian = commentText_estonian;
+    }
+
+    public String getCommentText_finnish() {
+        return commentText_finnish;
+    }
+
+    public void setCommentText_finnish(String commentText_finnish) {
+        this.commentText_finnish = commentText_finnish;
+    }
+
+    public String getCommentText_french() {
+        return commentText_french;
+    }
+
+    public void setCommentText_french(String commentText_french) {
+        this.commentText_french = commentText_french;
+    }
+
+    public String getCommentText_galician() {
+        return commentText_galician;
+    }
+
+    public void setCommentText_galician(String commentText_galician) {
+        this.commentText_galician = commentText_galician;
+    }
+
+    public String getCommentText_german() {
+        return commentText_german;
+    }
+
+    public void setCommentText_german(String commentText_german) {
+        this.commentText_german = commentText_german;
+    }
+
+    public String getCommentText_greek() {
+        return commentText_greek;
+    }
+
+    public void setCommentText_greek(String commentText_greek) {
+        this.commentText_greek = commentText_greek;
+    }
+
+    public String getCommentText_hindi() {
+        return commentText_hindi;
+    }
+
+    public void setCommentText_hindi(String commentText_hindi) {
+        this.commentText_hindi = commentText_hindi;
+    }
+
+    public String getCommentText_indonesian() {
+        return commentText_indonesian;
+    }
+
+    public void setCommentText_indonesian(String commentText_indonesian) {
+        this.commentText_indonesian = commentText_indonesian;
+    }
+
+    public String getCommentText_italian() {
+        return commentText_italian;
+    }
+
+    public void setCommentText_italian(String commentText_italian) {
+        this.commentText_italian = commentText_italian;
+    }
+
+    public String getCommentText_irish() {
+        return commentText_irish;
+    }
+
+    public void setCommentText_irish(String commentText_irish) {
+        this.commentText_irish = commentText_irish;
+    }
+
+    public String getCommentText_japanese() {
+        return commentText_japanese;
+    }
+
+    public void setCommentText_japanese(String commentText_japanese) {
+        this.commentText_japanese = commentText_japanese;
+    }
+
+    public String getCommentText_korean() {
+        return commentText_korean;
+    }
+
+    public void setCommentText_korean(String commentText_korean) {
+        this.commentText_korean = commentText_korean;
+    }
+
+    public String getCommentText_english() {
+        return commentText_english;
+    }
+
+    public void setCommentText_english(String commentText_english) {
+        this.commentText_english = commentText_english;
+    }
+
+    public String getCommentText_latvian() {
+        return commentText_latvian;
+    }
+
+    public void setCommentText_latvian(String commentText_latvian) {
+        this.commentText_latvian = commentText_latvian;
+    }
+
+    public String getCommentText_norwegian() {
+        return commentText_norwegian;
+    }
+
+    public void setCommentText_norwegian(String commentText_norwegian) {
+        this.commentText_norwegian = commentText_norwegian;
+    }
+
+    public String getCommentText_persian() {
+        return commentText_persian;
+    }
+
+    public void setCommentText_persian(String commentText_persian) {
+        this.commentText_persian = commentText_persian;
+    }
+
+    public String getCommentText_polish() {
+        return commentText_polish;
+    }
+
+    public void setCommentText_polish(String commentText_polish) {
+        this.commentText_polish = commentText_polish;
+    }
+
+    public String getCommentText_portuguese() {
+        return commentText_portuguese;
+    }
+
+    public void setCommentText_portuguese(String commentText_portuguese) {
+        this.commentText_portuguese = commentText_portuguese;
+    }
+
+    public String getCommentText_romanian() {
+        return commentText_romanian;
+    }
+
+    public void setCommentText_romanian(String commentText_romanian) {
+        this.commentText_romanian = commentText_romanian;
+    }
+
+    public String getCommentText_russian() {
+        return commentText_russian;
+    }
+
+    public void setCommentText_russian(String commentText_russian) {
+        this.commentText_russian = commentText_russian;
+    }
+
+    public String getCommentText_scandinavian() {
+        return commentText_scandinavian;
+    }
+
+    public void setCommentText_scandinavian(String commentText_scandinavian) {
+        this.commentText_scandinavian = commentText_scandinavian;
+    }
+
+    public String getCommentText_serbian() {
+        return commentText_serbian;
+    }
+
+    public void setCommentText_serbian(String commentText_serbian) {
+        this.commentText_serbian = commentText_serbian;
+    }
+
+    public String getCommentText_spanish() {
+        return commentText_spanish;
+    }
+
+    public void setCommentText_spanish(String commentText_spanish) {
+        this.commentText_spanish = commentText_spanish;
+    }
+
+    public String getCommentText_swedish() {
+        return commentText_swedish;
+    }
+
+    public void setCommentText_swedish(String commentText_swedish) {
+        this.commentText_swedish = commentText_swedish;
+    }
+
+    public String getCommentText_thai() {
+        return commentText_thai;
+    }
+
+    public void setCommentText_thai(String commentText_thai) {
+        this.commentText_thai = commentText_thai;
+    }
+
+    public String getCommentText_turkish() {
+        return commentText_turkish;
+    }
+
+    public void setCommentText_turkish(String commentText_turkish) {
+        this.commentText_turkish = commentText_turkish;
+    }
+
+    public String getCommentText_ukrainian() {
+        return commentText_ukrainian;
+    }
+
+    public void setCommentText_ukrainian(String commentText_ukrainian) {
+        this.commentText_ukrainian = commentText_ukrainian;
+    }
+
+    public String getName_ukrainian() {
+        return name_ukrainian;
+    }
+
+    public void setName_ukrainian(String name_ukrainian) {
+        this.name_ukrainian = name_ukrainian;
+    }
+
+    public String getDesc_ukrainian() {
+        return desc_ukrainian;
+    }
+
+    public void setDesc_ukrainian(String desc_ukrainian) {
+        this.desc_ukrainian = desc_ukrainian;
     }
 
     public Float getScore() {

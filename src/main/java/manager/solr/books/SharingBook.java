@@ -177,8 +177,8 @@ public class SharingBook extends SMSolrDoc {
     @Field private String name_turkish;
     @Field private String comment_turkish;
 
-//    @Field private String name_ukrainian;
-//    @Field private String comment_ukrainian;
+    @Field private String name_ukrainian;
+    @Field private String comment_ukrainian;
 
     public String getName_traditional_chinese() {
         return name_traditional_chinese;
@@ -764,21 +764,21 @@ public class SharingBook extends SMSolrDoc {
         this.comment_turkish = comment_turkish;
     }
 
-//    public String getName_ukrainian() {
-//        return name_ukrainian;
-//    }
-//
-//    public void setName_ukrainian(String name_ukrainian) {
-//        this.name_ukrainian = name_ukrainian;
-//    }
-//
-//    public String getComment_ukrainian() {
-//        return comment_ukrainian;
-//    }
-//
-//    public void setComment_ukrainian(String comment_ukrainian) {
-//        this.comment_ukrainian = comment_ukrainian;
-//    }
+    public String getName_ukrainian() {
+        return name_ukrainian;
+    }
+
+    public void setName_ukrainian(String name_ukrainian) {
+        this.name_ukrainian = name_ukrainian;
+    }
+
+    public String getComment_ukrainian() {
+        return comment_ukrainian;
+    }
+
+    public void setComment_ukrainian(String comment_ukrainian) {
+        this.comment_ukrainian = comment_ukrainian;
+    }
 
     public Integer getDisplayPattern() {
         return displayPattern;

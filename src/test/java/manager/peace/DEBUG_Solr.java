@@ -106,16 +106,16 @@ public class DEBUG_Solr{
 
     @Test
     public void testBook(){
-        PageNode book = new PageNode();
+        SharingBook book = new SharingBook();
         book.setCreateUtc(System.currentTimeMillis());
         book.set_version_((long)-1);
         List<String> vars = Arrays.asList("TestV1;;;V2","Oh my God");
-        book.setParentIds(Arrays.asList("1184ec93-fbf2-48dc-b506-d9dfa3fd1352","82e7ce4b-6551-4cc5-af8a-7d2e01c62cd4") );
-        book.setIndexes(Arrays.asList(5.0));
-        book.setBookId("ohmygod");
         book.setId("abc");
-        long userId = 666;
-        booksSolrOperator.insertPage(book,userId);
+        book.setDefaultLang("ukrainian");
+        book.setDisplayPattern(1);
+        book.setComment_ukrainian("oh");
+        long userId = 6661;
+        booksSolrOperator.insertBook(book,userId);
     }
 
     @Test

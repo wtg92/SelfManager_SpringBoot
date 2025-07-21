@@ -238,8 +238,8 @@ public class PageNode extends SMSolrDoc {
     @Field private String name_turkish;
     @Field private String content_turkish;
 
-//    @Field private String name_ukrainian;
-//    @Field private String content_ukrainian;
+    @Field private String name_ukrainian;
+    @Field private String content_ukrainian;
 
     @Override
     public PageNode clone(){
@@ -1166,21 +1166,21 @@ public class PageNode extends SMSolrDoc {
         this.content_turkish = content_turkish;
     }
 
-//    public String getName_ukrainian() {
-//        return name_ukrainian;
-//    }
-//
-//    public void setName_ukrainian(String name_ukrainian) {
-//        this.name_ukrainian = name_ukrainian;
-//    }
-//
-//    public String getContent_ukrainian() {
-//        return content_ukrainian;
-//    }
-//
-//    public void setContent_ukrainian(String content_ukrainian) {
-//        this.content_ukrainian = content_ukrainian;
-//    }
+    public String getName_ukrainian() {
+        return name_ukrainian;
+    }
+
+    public void setName_ukrainian(String name_ukrainian) {
+        this.name_ukrainian = name_ukrainian;
+    }
+
+    public String getContent_ukrainian() {
+        return content_ukrainian;
+    }
+
+    public void setContent_ukrainian(String content_ukrainian) {
+        this.content_ukrainian = content_ukrainian;
+    }
 
     public List<String> getParentIds() {
         return parentIds;
