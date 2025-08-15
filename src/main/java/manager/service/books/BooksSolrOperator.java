@@ -86,6 +86,8 @@ public class   BooksSolrOperator {
         query.setQuery(FULL_BASE_QUERY);
         query.addFilterQuery(SolrFields.USER_ID+":"+loginId,SolrFields.BOOK_ID+":"+bookId);
         query.setFields(
+                SolrFields.CONTENT_ID,
+                SolrFields.TYPE,
                 SolrFields.ID, SolrFields.CREATE_UTC, SolrFields.UPDATE_UTC, SolrFields.NAME_MULTI,
                 SolrFields.STATUS,
                 SolrFields.DESC_MULTI, SolrFields.DEFAULT_LANG

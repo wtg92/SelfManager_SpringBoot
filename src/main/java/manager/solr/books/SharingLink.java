@@ -9,12 +9,16 @@ public class SharingLink extends SMSolrDoc {
 
     private Float score;
 
+    private PageNode content;
 
     /*
      * 1.SinglePage 2.FullBook 3.PageNode
      */
     @Field
-    private String type;
+    private Integer type;
+
+    @Field
+    private String contentId;
 
     /*
      * userId + bookId 定位到一个book
@@ -255,13 +259,28 @@ public class SharingLink extends SMSolrDoc {
     @Field private String name_ukrainian;
     @Field private String desc_ukrainian;
 
+    public PageNode getContent() {
+        return content;
+    }
 
-    public String getType() {
+    public void setContent(PageNode content) {
+        this.content = content;
+    }
+
+    public Integer getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(Integer type) {
         this.type = type;
+    }
+
+    public String getContentId() {
+        return contentId;
+    }
+
+    public void setContentId(String contentId) {
+        this.contentId = contentId;
     }
 
     public String getBookId() {
@@ -1573,9 +1592,6 @@ public class SharingLink extends SMSolrDoc {
     public SharingLink clone(){
         return (SharingLink) super.clone();
     }
-
-
-    
 
 
 }

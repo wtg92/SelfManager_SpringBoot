@@ -3,6 +3,7 @@ package manager.controller;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import manager.data.MultipleItemsResult;
+import manager.data.books.SharingLinkPatchReq;
 import manager.solr.books.SharingLink;
 import manager.solr.data.ParentNode;
 import manager.solr.data.SolrSearchRequest;
@@ -10,6 +11,7 @@ import manager.solr.data.SolrSearchResult;
 import manager.solr.books.PageNode;
 import manager.solr.books.SharingBook;
 import manager.service.books.BooksService;
+import manager.system.books.SharingLinkStatus;
 import manager.util.UIUtil;
 import org.springframework.web.bind.annotation.*;
 
@@ -61,15 +63,22 @@ public class BooksController {
         return service.createLink(loginId,name,defaultLanguage,bookId,isCommunityLink);
     }
 
-    @PatchMapping(LINKS_PATH)
-    private SharingLink patchLink( @RequestHeader("Authorization") String authorizationHeader
+    @PostMapping(LINKS_PATH+"/switchLinkStatus")
+    private void switchLinkStatus( @RequestHeader("Authorization") String authorizationHeader
             , @RequestBody JSONObject param ){
         long loginId = UIUtil.getLoginId(authorizationHeader);
-        Boolean isCommunityLink = param.getBoolean(IS_COMMUNITY_LINK);
         String id = param.getString(ID);
-        Map<String,Object> updatingProps = JSON.parseObject(param.getString(JSON_OBJ));
-        service.updateLinkProps(loginId,isCommunityLink,id,updatingProps);
-        return service.getLink(loginId,isCommunityLink,id);
+        Boolean isCommunityLink = param.getBoolean(IS_COMMUNITY_LINK);
+        Integer status = param.getInteger(STATUS);
+        service.switchLinkStatus(loginId,isCommunityLink,id,status);
+    }
+
+    @PatchMapping(LINKS_PATH)
+    private SharingLink patchLink( @RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody SharingLinkPatchReq param ){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        service.updateLink(loginId,param);
+        return service.getLink(loginId,param.isCommunityLink,param.id);
     }
 
     @GetMapping(LINKS_PATH+"/list")

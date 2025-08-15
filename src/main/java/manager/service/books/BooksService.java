@@ -1,6 +1,7 @@
 package manager.service.books;
 
 import manager.data.MultipleItemsResult;
+import manager.data.books.SharingLinkPatchReq;
 import manager.solr.books.SharingLink;
 import manager.solr.data.ParentNode;
 import manager.solr.data.SolrSearchRequest;
@@ -21,7 +22,7 @@ public interface BooksService {
 
     void updatePageNodeProps(long loginId,String bookId, String pageId, Map<String, Object> updatingAttrs);
 
-    void updateLinkProps(long loginId,Boolean isCommunityLink, String linkId, Map<String, Object> updatingAttrs);
+    void updateLink(long loginId, SharingLinkPatchReq param);
 
 
     void closeBook(long loginId, String id);
@@ -67,4 +68,6 @@ public interface BooksService {
     void deleteLink(long loginId, Boolean isCommunityLink, String id);
 
     SharingLink getLink(long loginId, Boolean isCommunityLink, String id);
+
+    void switchLinkStatus(long loginId, Boolean isCommunityLink, String id, Integer status);
 }

@@ -9,14 +9,12 @@ import manager.booster.longRunningTasks.LongRunningTaskType;
 import manager.booster.longRunningTasks.LongRunningTasksScheduler;
 import manager.cache.CacheOperator;
 import manager.data.MultipleItemsResult;
+import manager.data.books.SharingLinkPatchReq;
 import manager.data.general.FinalHandler;
 import manager.solr.SelfXCores;
 import manager.solr.SolrFields;
 import manager.solr.books.SharingLink;
-import manager.solr.data.ParentNode;
-import manager.solr.data.SharingLinkExtra;
-import manager.solr.data.SolrSearchRequest;
-import manager.solr.data.SolrSearchResult;
+import manager.solr.data.*;
 import manager.solr.books.PageNode;
 import manager.solr.books.SharingBook;
 import manager.exception.LogicException;
@@ -99,9 +97,12 @@ public class BooksServiceImpl implements BooksService {
 
     @Override
     public PageNode getPageNode(long loginId, String id) {
-        return cache.getPageNode(loginId, id, () -> operator.getPageNode(loginId, id));
+        return getPageInternal(loginId,id);
     }
 
+    private PageNode getPageInternal(long loginId, String id){
+        return cache.getPageNode(loginId, id, () -> operator.getPageNode(loginId, id));
+    }
     private void checkBookMaxNumOfPage(long loginId,String bookId){
         long maxPageNum = operator.countPagesByBook(loginId,bookId);
         if(maxPageNum > MAX_SIZE_OF_ONE_BOOK) {
@@ -129,7 +130,7 @@ public class BooksServiceImpl implements BooksService {
             /**
              * 确定一系列初始值
              */
-            link.setStatus(SharingLinkStatus.EDITING);
+            link.setStatus(SharingLinkStatus.DRAFT);
             if(getBook(loginId,bookId) == null){
                 throw new LogicException(SelfXErrors.UNEXPECTED_ERROR);
             }
@@ -138,6 +139,14 @@ public class BooksServiceImpl implements BooksService {
             link.setUserId(loginId);
 
             link.setExtra(new SharingLinkExtra().toString());
+            link.setSettings(new SharingLinkSettings().toString());
+            link.setPerms(new SharingLinkPerms().toString());
+            link.setCopyNum(0);
+            link.setLikesNum(0);
+            link.setLikeUser(new ArrayList<>());
+            link.setDislikesNum(0);
+            link.setDislikeUsers(new ArrayList<>());
+            link.setTags(new ArrayList<>());
 
             id.val = operator.insertLink(link,loginId,isCommunityLink);
         });
@@ -145,7 +154,7 @@ public class BooksServiceImpl implements BooksService {
     }
 
     private void checkLinkOperationsPerm(long loginId, Boolean isCommunityLink, String id){
-        SharingLink link =  getLinkInternal(loginId,isCommunityLink,id);
+        SharingLink link =  getLinkInternally(loginId,isCommunityLink,id);
         if(link.getUserId() != loginId){
             throw new LogicException(SelfXErrors.UNEXPECTED_ERROR);
         }
@@ -153,7 +162,15 @@ public class BooksServiceImpl implements BooksService {
 
     @Override
     public MultipleItemsResult<SharingLink> getLinks(long loginId, String bookId, Boolean isCommunityLink) {
-        return operator.getLinks(loginId, bookId,isCommunityLink);
+        MultipleItemsResult<SharingLink> links = operator.getLinks(loginId, bookId, isCommunityLink);
+
+        links.items.forEach(link->{
+            if(link.getContentId() != null){
+                link.setContent(getPageInternal(loginId,link.getContentId()));
+            }
+        });
+
+        return links;
     }
 
     @Override
@@ -167,10 +184,22 @@ public class BooksServiceImpl implements BooksService {
     @Override
     public SharingLink getLink(long loginId, Boolean isCommunityLink, String id) {
         checkLinkOperationsPerm(loginId,isCommunityLink,id);
-        return cache.getLink(loginId,isCommunityLink,id, () -> operator.getLink(loginId, isCommunityLink,id));
+        return getLinkInternally(loginId,isCommunityLink,id);
     }
-
-    private SharingLink getLinkInternal(long loginId, Boolean isCommunityLink, String id) {
+    @Override
+    public void updateLink(long loginId, SharingLinkPatchReq param) {
+        checkLinkOperationsPerm(loginId,param.isCommunityLink,param.id);
+        updateLinkPropsInSync(loginId,param.isCommunityLink,param.id,param.getUpdateObj());
+    }
+    @Override
+    public void switchLinkStatus(long loginId, Boolean isCommunityLink, String id, Integer status) {
+        checkLinkOperationsPerm(loginId,isCommunityLink,id);
+        Map<String,Object> params = new HashMap<>();
+        params.put(SolrFields.STATUS,status);
+        updateLinkPropsInSync(loginId,isCommunityLink,id,params);
+    }
+    /*!!!由于 使用前必须校验权限*/
+    private SharingLink getLinkInternally(long loginId, Boolean isCommunityLink, String id) {
         return cache.getLink(loginId,isCommunityLink,id, () -> operator.getLink(loginId, isCommunityLink,id));
     }
 
@@ -239,10 +268,7 @@ public class BooksServiceImpl implements BooksService {
         updatePageNodePropsInSync(loginId, pageId, updatingAttrs);
     }
 
-    @Override
-    public void updateLinkProps(long loginId, Boolean isCommunityLink, String linkId, Map<String, Object> updatingAttrs) {
-        updateLinkPropsInSync(loginId,isCommunityLink,linkId,updatingAttrs);
-    }
+
 
     private void updateLinkPropsInSync(long loginId,Boolean isCommunity, String id, Map<String, Object> updatingAttrs) {
         locker.lockByUserAndClass(loginId, () -> {
@@ -900,7 +926,7 @@ public class BooksServiceImpl implements BooksService {
     public List<ParentNode<?>> getAllParentNodes(long loginId, String id) {
         PageNode pageNode = getPageNode(loginId, id);
         List<String> parentIds = pageNode.getParentIds();
-        Function<String, ParentNode<?>> mapper = pId -> getOriginalParentId(pId, loginId);
+        Function<String, ParentNode<?>> mapper = pId -> getOriginalParentNodes(pId, loginId);
         return parentIds.stream().map(mapper).toList();
     }
 
@@ -914,7 +940,7 @@ public class BooksServiceImpl implements BooksService {
     }
 
 
-    private ParentNode<?> getOriginalParentId(String pId, long loginId) {
+    private ParentNode<?> getOriginalParentNodes(String pId, long loginId) {
         if (isBookParentId(pId)) {
             ParentNode<SharingBook> parentNode = new ParentNode<>();
             parentNode.isBook = true;

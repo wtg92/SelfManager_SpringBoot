@@ -47,6 +47,9 @@ public abstract class SelfXParams {
 
 	public final static String JSON_OBJ = "json_obj";
 	public final static String ID = "id";
+
+	public final static String STATUS = "status";
+
 	public final static String IDS = "ids";
 	public final static String BOOK_ID = "book_id";
 	public final static String NOTE_ID = "note_id";

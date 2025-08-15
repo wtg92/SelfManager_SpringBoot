@@ -22,6 +22,8 @@ public abstract class SolrFields {
 
     public static final String CONTENT = "content";
 
+    public static final String CONTENT_ID = "contentId";
+
     public static final String STATUS = "status";
     public static final String STYLE = "style";
     public static final String DISPLAY_PATTERN = "displayPattern";
