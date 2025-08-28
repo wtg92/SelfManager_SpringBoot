@@ -7,6 +7,7 @@ import java.util.List;
 
 public class SharingLink extends SMSolrDoc {
 
+    private String sharingLink;
     private Float score;
 
     private PageNode content;
@@ -258,6 +259,14 @@ public class SharingLink extends SMSolrDoc {
 
     @Field private String name_ukrainian;
     @Field private String desc_ukrainian;
+
+    public String getSharingLink() {
+        return sharingLink;
+    }
+
+    public void setSharingLink(String sharingLink) {
+        this.sharingLink = sharingLink;
+    }
 
     public PageNode getContent() {
         return content;

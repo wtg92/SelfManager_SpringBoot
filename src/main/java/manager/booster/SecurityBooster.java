@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
 
+import com.alibaba.fastjson2.JSON;
 import com.auth0.jwt.interfaces.Claim;
 
 import manager.data.LoginInfo;
@@ -22,6 +23,7 @@ import manager.data.proxy.UserProxy;
 import manager.data.proxy.career.PlanProxy;
 import manager.entity.general.User;
 import manager.exception.LogicException;
+import manager.service.books.SharingLinksAgent;
 import manager.system.SelfXErrors;
 import manager.util.SecurityBasis;
 import manager.util.YZMUtil.YZMInfo;
@@ -59,6 +61,22 @@ public class SecurityBooster {
 	private static final String USER_PWD = "user_pwd";
 	
 	private static final Encoder BASE64_ENCODER = Base64.getEncoder();
+
+	public String encodeSharingLinkURLParams(SharingLinksAgent.EncryptionParams params){
+		String jsonString = JSON.toJSONString(params);
+		return basis.encodeStableInfo(jsonString);
+	}
+
+	public SharingLinksAgent.EncryptionParams decodeSharingLinkURLParams(String params){
+		try{
+			String s = basis.decodeStableInfo(params);
+			return JSON.parseObject(s,SharingLinksAgent.EncryptionParams.class);
+		}catch (Exception e){
+			throw new LogicException(SelfXErrors.UNEXPECTED_ERROR);
+		}
+	}
+
+
 
 	public static boolean verifyUserPwd(User user, String pwd){
 		return SecurityBasis.verifyUserPwd(user,pwd);

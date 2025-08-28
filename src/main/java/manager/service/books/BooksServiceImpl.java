@@ -69,6 +69,8 @@ public class BooksServiceImpl implements BooksService {
     FilesService filesService;
 
     @Resource
+    SharingLinksAgent sharingLinksAgent;
+    @Resource
     LongRunningTasksScheduler longRunningTasksScheduler;
 
     @Value("${books.max_size_of_page}")
@@ -97,16 +99,17 @@ public class BooksServiceImpl implements BooksService {
 
     @Override
     public PageNode getPageNode(long loginId, String id) {
-        return getPageInternal(loginId,id);
+        return getPageInternal(loginId, id);
     }
 
-    private PageNode getPageInternal(long loginId, String id){
+    private PageNode getPageInternal(long loginId, String id) {
         return cache.getPageNode(loginId, id, () -> operator.getPageNode(loginId, id));
     }
-    private void checkBookMaxNumOfPage(long loginId,String bookId){
-        long maxPageNum = operator.countPagesByBook(loginId,bookId);
-        if(maxPageNum > MAX_SIZE_OF_ONE_BOOK) {
-            throw new LogicException(SelfXErrors.PAGES_SIZE_REACHED_MAX,maxPageNum,MAX_SIZE_OF_ONE_BOOK);
+
+    private void checkBookMaxNumOfPage(long loginId, String bookId) {
+        long maxPageNum = operator.countPagesByBook(loginId, bookId);
+        if (maxPageNum > MAX_SIZE_OF_ONE_BOOK) {
+            throw new LogicException(SelfXErrors.PAGES_SIZE_REACHED_MAX, maxPageNum, MAX_SIZE_OF_ONE_BOOK);
         }
     }
 
@@ -131,7 +134,7 @@ public class BooksServiceImpl implements BooksService {
              * 确定一系列初始值
              */
             link.setStatus(SharingLinkStatus.DRAFT);
-            if(getBook(loginId,bookId) == null){
+            if (getBook(loginId, bookId) == null) {
                 throw new LogicException(SelfXErrors.UNEXPECTED_ERROR);
             }
 
@@ -148,14 +151,14 @@ public class BooksServiceImpl implements BooksService {
             link.setDislikeUsers(new ArrayList<>());
             link.setTags(new ArrayList<>());
 
-            id.val = operator.insertLink(link,loginId,isCommunityLink);
+            id.val = operator.insertLink(link, loginId, isCommunityLink);
         });
         return id.val;
     }
 
-    private void checkLinkOperationsPerm(long loginId, Boolean isCommunityLink, String id){
-        SharingLink link =  getLinkInternally(loginId,isCommunityLink,id);
-        if(link.getUserId() != loginId){
+    private void checkLinkOperationsPerm(long loginId, Boolean isCommunityLink, String id) {
+        SharingLink link = getLinkInternally(loginId, isCommunityLink, id);
+        if (link.getUserId() != loginId) {
             throw new LogicException(SelfXErrors.UNEXPECTED_ERROR);
         }
     }
@@ -164,10 +167,12 @@ public class BooksServiceImpl implements BooksService {
     public MultipleItemsResult<SharingLink> getLinks(long loginId, String bookId, Boolean isCommunityLink) {
         MultipleItemsResult<SharingLink> links = operator.getLinks(loginId, bookId, isCommunityLink);
 
-        links.items.forEach(link->{
-            if(link.getContentId() != null){
-                link.setContent(getPageInternal(loginId,link.getContentId()));
+        links.items.forEach(link -> {
+            if (link.getContentId() != null) {
+                link.setContent(getPageInternal(loginId, link.getContentId()));
             }
+            String url = sharingLinksAgent.generateURL(link.getId(),loginId,bookId,isCommunityLink);
+            link.setSharingLink(url);
         });
 
         return links;
@@ -176,31 +181,40 @@ public class BooksServiceImpl implements BooksService {
     @Override
     public void deleteLink(long loginId, Boolean isCommunityLink, String id) {
         locker.lockByUserAndClass(loginId, () -> {
-            checkLinkOperationsPerm(loginId,isCommunityLink,id);
-            cache.deleteLink(loginId, isCommunityLink,id, () -> operator.deleteLinkById(loginId,isCommunityLink,id));
+            checkLinkOperationsPerm(loginId, isCommunityLink, id);
+            cache.deleteLink(loginId, isCommunityLink, id, () -> operator.deleteLinkById(loginId, isCommunityLink, id));
         });
     }
 
     @Override
     public SharingLink getLink(long loginId, Boolean isCommunityLink, String id) {
-        checkLinkOperationsPerm(loginId,isCommunityLink,id);
-        return getLinkInternally(loginId,isCommunityLink,id);
+        checkLinkOperationsPerm(loginId, isCommunityLink, id);
+        return getLinkInternally(loginId, isCommunityLink, id);
     }
+
     @Override
     public void updateLink(long loginId, SharingLinkPatchReq param) {
-        checkLinkOperationsPerm(loginId,param.isCommunityLink,param.id);
-        updateLinkPropsInSync(loginId,param.isCommunityLink,param.id,param.getUpdateObj());
+        checkLinkOperationsPerm(loginId, param.isCommunityLink, param.id);
+
+        SharingLink link = getLink(loginId, param.isCommunityLink, param.id);
+        if (!Objects.equals(link.getStatus(), SharingLinkStatus.DRAFT)) {
+            throw new LogicException(SelfXErrors.UNEXPECTED_ERROR, link.getStatus());
+        }
+
+        updateLinkPropsInSync(loginId, param.isCommunityLink, param.id, param.getUpdateObj());
     }
+
     @Override
     public void switchLinkStatus(long loginId, Boolean isCommunityLink, String id, Integer status) {
-        checkLinkOperationsPerm(loginId,isCommunityLink,id);
-        Map<String,Object> params = new HashMap<>();
-        params.put(SolrFields.STATUS,status);
-        updateLinkPropsInSync(loginId,isCommunityLink,id,params);
+        checkLinkOperationsPerm(loginId, isCommunityLink, id);
+        Map<String, Object> params = new HashMap<>();
+        params.put(SolrFields.STATUS, status);
+        updateLinkPropsInSync(loginId, isCommunityLink, id, params);
     }
+
     /*!!!由于 使用前必须校验权限*/
     private SharingLink getLinkInternally(long loginId, Boolean isCommunityLink, String id) {
-        return cache.getLink(loginId,isCommunityLink,id, () -> operator.getLink(loginId, isCommunityLink,id));
+        return cache.getLink(loginId, isCommunityLink, id, () -> operator.getLink(loginId, isCommunityLink, id));
     }
 
     @Override
@@ -269,10 +283,9 @@ public class BooksServiceImpl implements BooksService {
     }
 
 
-
-    private void updateLinkPropsInSync(long loginId,Boolean isCommunity, String id, Map<String, Object> updatingAttrs) {
+    private void updateLinkPropsInSync(long loginId, Boolean isCommunity, String id, Map<String, Object> updatingAttrs) {
         locker.lockByUserAndClass(loginId, () -> {
-            Runnable savingNode = () -> cache.saveLink(loginId,isCommunity,id, () -> operator.updateLink(id,isCommunity,loginId, loginId, updatingAttrs));
+            Runnable savingNode = () -> cache.saveLink(loginId, isCommunity, id, () -> operator.updateLink(id, isCommunity, loginId, loginId, updatingAttrs));
 
             if (!updatingAttrs.containsKey(SolrFields.FILE_IDS)) {
                 savingNode.run();
@@ -294,6 +307,7 @@ public class BooksServiceImpl implements BooksService {
             }
         });
     }
+
     private void updatePageNodePropsInSync(long loginId, String pageNodeId, Map<String, Object> updatingAttrs) {
         if (updatingAttrs.containsKey(SolrFields.PARENT_IDS) || updatingAttrs.containsKey(SolrFields.INDEXES)) {
             /*
@@ -354,9 +368,9 @@ public class BooksServiceImpl implements BooksService {
 
 
     @Override
-    public String createPage(long loginId, String bookId, String name, String lang, String parentId,  Double index) {
-        checkBookMaxNumOfPage(loginId,bookId);
-        FinalHandler<String> id= new FinalHandler<>();
+    public String createPage(long loginId, String bookId, String name, String lang, String parentId, Double index) {
+        checkBookMaxNumOfPage(loginId, bookId);
+        FinalHandler<String> id = new FinalHandler<>();
         locker.lockByUserAndClass(loginId, () -> {
             PageNode page = new PageNode();
             page.setBookId(bookId);
@@ -379,8 +393,8 @@ public class BooksServiceImpl implements BooksService {
             , long loginIdForCopyTarget
             , String copyDestBookId
             , String copyDestParentId
-            , Double copyDestIndex){
-        PageNode clone = copyPureNodeFromOne(loginId,copyTarget,loginIdForCopyTarget);
+            , Double copyDestIndex) {
+        PageNode clone = copyPureNodeFromOne(loginId, copyTarget, loginIdForCopyTarget);
         clone.setBookId(copyDestBookId);
         clone.setParentIds(Collections.singletonList(generatePageParentId(copyDestBookId, copyDestParentId)));
         clone.setIndexes(Collections.singletonList(copyDestIndex));
@@ -409,7 +423,7 @@ public class BooksServiceImpl implements BooksService {
      * 4.id
      * 5.childrenName
      */
-    private PageNode copyPureNodeFromOne(long loginId,PageNode one,long loginIdForCopyTarget) {
+    private PageNode copyPureNodeFromOne(long loginId, PageNode one, long loginIdForCopyTarget) {
         PageNode clone = one.clone();
 
 
@@ -422,9 +436,9 @@ public class BooksServiceImpl implements BooksService {
             for (String fieldName : contentsField) {
                 String stringFieldValue = ReflectUtil.getStringFieldValue(clone, fieldName);
                 if (stringFieldValue != null) {
-                    for(String fieldId : clone.getFileIds()){
-                        if(stringFieldValue.contains(fieldId)){
-                            throw new LogicException(SelfXErrors.ILLEGAL_STR,fieldId);
+                    for (String fieldId : clone.getFileIds()) {
+                        if (stringFieldValue.contains(fieldId)) {
+                            throw new LogicException(SelfXErrors.ILLEGAL_STR, fieldId);
                         }
                     }
                 }
@@ -432,17 +446,17 @@ public class BooksServiceImpl implements BooksService {
             /*
              * 校验成功 正式开始复制了
              */
-            Map<String,String> copyingFileIdsMapper = new HashMap<>();
-            for(String fieldId : clone.getFileIds()){
-                Map<String,Object> srcParams = new HashMap<>();
-                srcParams.put("pageNodeLoginId",loginIdForCopyTarget);
-                srcParams.put("nodeId",one.getId());
+            Map<String, String> copyingFileIdsMapper = new HashMap<>();
+            for (String fieldId : clone.getFileIds()) {
+                Map<String, Object> srcParams = new HashMap<>();
+                srcParams.put("pageNodeLoginId", loginIdForCopyTarget);
+                srcParams.put("nodeId", one.getId());
                 /*
                  * 重新produce一个Field Record
                  * replace state里的file
                  */
                 String copyingId = filesService.copyFileRecord(loginId, fieldId, srcParams);
-                copyingFileIdsMapper.put(fieldId,copyingId);
+                copyingFileIdsMapper.put(fieldId, copyingId);
             }
 
             List<String> editorStatesFields = ReflectUtil.getFiledNamesByPrefix(PageNode.class, SolrFields.EDITOR_STATE);
@@ -450,8 +464,8 @@ public class BooksServiceImpl implements BooksService {
             for (String fieldName : editorStatesFields) {
                 String stringFieldValue = ReflectUtil.getStringFieldValue(clone, fieldName);
                 if (stringFieldValue != null) {
-                    copyingFileIdsMapper.forEach((oldId,copyingId)->{
-                        ReflectUtil.setFiledValue(clone,fieldName,stringFieldValue.replaceAll(oldId,copyingId));
+                    copyingFileIdsMapper.forEach((oldId, copyingId) -> {
+                        ReflectUtil.setFiledValue(clone, fieldName, stringFieldValue.replaceAll(oldId, copyingId));
                     });
                 }
             }
@@ -479,12 +493,12 @@ public class BooksServiceImpl implements BooksService {
 
     @Override
     public void copySinglePageNodeFromTheOwner(long loginId, String srcId, String bookId, String parentId, Double index) {
-        checkBookMaxNumOfPage(loginId,bookId);
+        checkBookMaxNumOfPage(loginId, bookId);
         bookStatusLocker.startCopying(loginId, bookId);
         try {
             locker.lockByUserAndClass(loginId, () -> {
                 PageNode page = getPageNode(loginId, srcId);
-                copyOnePageNodeAndRefreshPageNum(loginId,page,loginId,bookId,parentId,index);
+                copyOnePageNodeAndRefreshPageNum(loginId, page, loginId, bookId, parentId, index);
             });
         } finally {
             bookStatusLocker.endCopying(loginId, bookId);
@@ -492,47 +506,47 @@ public class BooksServiceImpl implements BooksService {
     }
 
     /**
-     *
      * 同一本书
      * 1.移动同层 只相当于增加上级页
      * 2.非同层 相当于先增加上级页 再删除当前连接
-     *
+     * <p>
      * 不同书
      * 1.复制页及子节点
      * 2.删除当前连接
      */
     @Override
     public void movePageNodeAndSub(long loginId, String srcId, String srcBookId, String srcParentId, String targetBookId, String targetParentId, Double targetIndex) {
-        if(srcBookId.equals(targetBookId)){
-            addPageParentNode(loginId,srcId,targetBookId,targetParentId,targetIndex);
-            if(!srcParentId.equals(targetParentId)){
-                deletePageNode(loginId,srcBookId,srcParentId,srcId);
+        if (srcBookId.equals(targetBookId)) {
+            addPageParentNode(loginId, srcId, targetBookId, targetParentId, targetIndex);
+            if (!srcParentId.equals(targetParentId)) {
+                deletePageNode(loginId, srcBookId, srcParentId, srcId);
             }
-        }else{
-            copyPageNodeAndSubFromTheOwner(LongRunningTaskType.MOVE_PAGE_AND_SUB_TO_DIFFERENT_BOOK,loginId,srcId,srcBookId,targetBookId,targetParentId,targetIndex);
-            deletePageNode(loginId,srcBookId,srcParentId,srcId);
+        } else {
+            copyPageNodeAndSubFromTheOwner(LongRunningTaskType.MOVE_PAGE_AND_SUB_TO_DIFFERENT_BOOK, loginId, srcId, srcBookId, targetBookId, targetParentId, targetIndex);
+            deletePageNode(loginId, srcBookId, srcParentId, srcId);
         }
     }
-    private void copyPageNodeAndSubFromTheOwner(Integer longRunningTaskType,long loginId, String srcId, String srcBookId, String targetBookId, String targetParentId, Double targetIndex) {
-        checkBookMaxNumOfPage(loginId,targetBookId);
-        longRunningTasksScheduler.runAsyncTask(loginId,()->{
-            bookStatusLocker.startCopying(loginId,targetBookId);
+
+    private void copyPageNodeAndSubFromTheOwner(Integer longRunningTaskType, long loginId, String srcId, String srcBookId, String targetBookId, String targetParentId, Double targetIndex) {
+        checkBookMaxNumOfPage(loginId, targetBookId);
+        longRunningTasksScheduler.runAsyncTask(loginId, () -> {
+            bookStatusLocker.startCopying(loginId, targetBookId);
             try {
                 /*
                  * 第一个是一切的基础
                  */
                 PageNode page = getPageNode(loginId, srcId);
-                PageNode clone = copyOnePageNodeAndRefreshPageNum(loginId,page,loginId,targetBookId,targetParentId,targetIndex);
+                PageNode clone = copyOnePageNodeAndRefreshPageNum(loginId, page, loginId, targetBookId, targetParentId, targetIndex);
                 //充当visited 功能
-                Map<String,String> parentIdsMapper = new HashMap<>();
-                parentIdsMapper.put(srcId,clone.getId());
+                Map<String, String> parentIdsMapper = new HashMap<>();
+                parentIdsMapper.put(srcId, clone.getId());
                 Deque<String> stack = new ArrayDeque<>();
                 stack.push(srcId);
 
                 int count = 0;
                 while (!stack.isEmpty()) {
                     count++;
-                    if(count > MAX_SIZE_OF_ONE_BOOK * 5){
+                    if (count > MAX_SIZE_OF_ONE_BOOK * 5) {
                         //加一层保险
                         throw new LogicException(SelfXErrors.UNEXPECTED_ERROR);
                     }
@@ -545,33 +559,33 @@ public class BooksServiceImpl implements BooksService {
                     /*
                      * 由于进入循环前处理了第一次 因此该处理处理子节点
                      */
-                    List<PageNode> subNodes = operator.getPageNodesByParentIdForCopy(loginId, srcBookId,generatedSrcPageIdForSub);
-                    for(PageNode copyTarget:subNodes){
+                    List<PageNode> subNodes = operator.getPageNodesByParentIdForCopy(loginId, srcBookId, generatedSrcPageIdForSub);
+                    for (PageNode copyTarget : subNodes) {
                         String copySrcId = copyTarget.getId();
-                        if(parentIdsMapper.containsValue(copySrcId)){
+                        if (parentIdsMapper.containsValue(copySrcId)) {
                             //同一本书 复制自己或自己的子节点下 会出现再取又取到新加的情况 此时跳过
                             continue;
                         }
 
                         //子节点的 Index属性值保留以保存顺序关系
-                        Double srcIndex = findIndexByParentId(copyTarget,generatedSrcPageIdForSub);
+                        Double srcIndex = findIndexByParentId(copyTarget, generatedSrcPageIdForSub);
 
                         if (!parentIdsMapper.containsKey(copySrcId)) {
                             //并未复制过 则进行复制
-                            PageNode cloneSub = copyOnePageNodeAndRefreshPageNum(loginId,copyTarget,loginId,targetBookId,mappedPageIdForSub,srcIndex);
+                            PageNode cloneSub = copyOnePageNodeAndRefreshPageNum(loginId, copyTarget, loginId, targetBookId, mappedPageIdForSub, srcIndex);
                             //增加映射关系
                             //复制成功了 该节点进入下一个循环
                             stack.push(copySrcId);
-                            parentIdsMapper.put(copySrcId,cloneSub.getId());
-                        }else{
+                            parentIdsMapper.put(copySrcId, cloneSub.getId());
+                        } else {
                             String copiedPageIdInThisProcess = parentIdsMapper.get(copySrcId);
                             //已复制过 则增加parentId
                             PageNode pageNode = getPageNode(loginId, copiedPageIdInThisProcess);
                             List<Double> indexes = pageNode.getIndexes();
                             indexes.add(srcIndex);
                             List<String> parentIds = pageNode.getParentIds();
-                            parentIds.add(generatePageParentId(targetBookId,mappedPageIdForSub));
-                            updatePageNodeParentIdsAndIndexesInSyncThenRefreshPageChildrenNum(loginId,pageNode.getId(),parentIds,indexes,mappedPageIdForSub,targetBookId);
+                            parentIds.add(generatePageParentId(targetBookId, mappedPageIdForSub));
+                            updatePageNodeParentIdsAndIndexesInSyncThenRefreshPageChildrenNum(loginId, pageNode.getId(), parentIds, indexes, mappedPageIdForSub, targetBookId);
                         }
                     }
                 }
@@ -580,14 +594,15 @@ public class BooksServiceImpl implements BooksService {
             }
         }, longRunningTaskType, new Object[]{srcBookId, targetBookId});
     }
+
     @Override
     public void copyPageNodeAndSubFromTheOwner(long loginId, String srcId, String srcBookId, String targetBookId, String targetParentId, Double targetIndex) {
-        copyPageNodeAndSubFromTheOwner(LongRunningTaskType.COPY_PAGE_NODE_AND_SUB,loginId,srcId,srcBookId,targetBookId,targetParentId,targetIndex);
+        copyPageNodeAndSubFromTheOwner(LongRunningTaskType.COPY_PAGE_NODE_AND_SUB, loginId, srcId, srcBookId, targetBookId, targetParentId, targetIndex);
     }
 
     @Override
     public long getTotalPagesOfOwn(long loginId, String id) {
-        return operator.countPagesByBook(loginId,id);
+        return operator.countPagesByBook(loginId, id);
     }
 
     @Override
@@ -595,14 +610,14 @@ public class BooksServiceImpl implements BooksService {
         try {
             bookStatusLocker.startDeletingPage(loginId, id);
             locker.lockByUserAndClass(loginId, () -> {
-                deleteAllPagesByBookId(loginId,id);
+                deleteAllPagesByBookId(loginId, id);
             });
         } finally {
             bookStatusLocker.endDeletingPage(loginId, id);
         }
     }
 
-    private void deleteAllPagesByBookId(long loginId, String id){
+    private void deleteAllPagesByBookId(long loginId, String id) {
         List<PageNode> nodes = operator.getPageNodesByBookIdForDelete(loginId, id);
         nodes.forEach(one -> deleteSinglePageNodeWithFileIds(loginId, one));
     }
@@ -636,10 +651,9 @@ public class BooksServiceImpl implements BooksService {
                 indexes.add(index);
             }
 
-            updatePageNodeParentIdsAndIndexesInSyncThenRefreshPageChildrenNum(loginId, id, parentIds, indexes,parentId,bookId);
+            updatePageNodeParentIdsAndIndexesInSyncThenRefreshPageChildrenNum(loginId, id, parentIds, indexes, parentId, bookId);
         });
     }
-
 
 
     private void refreshPageChildrenNums(String pageId, String bookId, long loginId) {
@@ -748,7 +762,7 @@ public class BooksServiceImpl implements BooksService {
                     removeParentId(node, generatePageParentId(bookId, task.parentId));
 
                     if (!node.getParentIds().isEmpty()) {
-                        updatePageNodeParentIdsAndIndexesInSyncThenRefreshPageChildrenNum(loginId, currentPageId, node.getParentIds(), node.getIndexes(),task.parentId,bookId);
+                        updatePageNodeParentIdsAndIndexesInSyncThenRefreshPageChildrenNum(loginId, currentPageId, node.getParentIds(), node.getIndexes(), task.parentId, bookId);
                         continue;
                     }
 
@@ -889,14 +903,13 @@ public class BooksServiceImpl implements BooksService {
         try {
             bookStatusLocker.startDeletingBook(loginId, bookId);
             locker.lockByUserAndClass(loginId, () -> {
-                deleteAllPagesByBookId(loginId,bookId);
+                deleteAllPagesByBookId(loginId, bookId);
                 cache.deleteBook(loginId, bookId, () -> operator.deleteBookById(loginId, bookId));
             });
         } finally {
             bookStatusLocker.endDeletingBook(loginId, bookId);
         }
     }
-
 
 
     @Override

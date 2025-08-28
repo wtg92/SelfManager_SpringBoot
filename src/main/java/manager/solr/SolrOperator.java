@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSON;
 import manager.booster.CoreNameProducer;
 import manager.data.MultipleItemsResult;
 import manager.entity.SMSolrDoc;
+import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.solr.constants.SolrConfig;
 import manager.solr.constants.SolrRequestParam;
@@ -11,6 +12,7 @@ import manager.solr.data.SolrSearchRequest;
 import manager.solr.data.SolrSearchResult;
 import manager.solr.data.StatsResult;
 import manager.system.SelfXErrors;
+import manager.util.CommonUtil;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -37,7 +39,19 @@ public class SolrOperator {
 
     public boolean initCoreIfNotExist(String coreName,String configDir){
         if(!invoker.coreExists(coreName)){
-            invoker.createCore(coreName,configDir);
+            try{
+                invoker.createCore(coreName,configDir);
+            }catch(DBException e){
+                if(e.type == SelfXErrors.CREATE_CORE_SYNC){
+                    /*  前台异步调用接口导致 是一个正常的情况
+                     *  给每一个用户单独的数据库 所以对于一个实体 第一次增删改查的时候 会先检验该数据库存在不存在 不存在的话 就创建 ----  然后当时的页面上有不管联的两个接口 一个是查询页总数 一个是加载根目录下的所有页面  由于异步导致两个接口 一开始都发现没有对应数据库 然后都创建 一个创建成功了 一个由于已经创建了 不能再创建了 因此报错
+                     *  sleep的原因似乎是solr的原因 异步创建时 无法保证同步 因此会出现 a 创建->db操作 b 创建->db操作 a创建成功 b没有创建成功 直接db操作 aDB操作 此时会导致b操作找不到对应的core而报错
+                     * */
+                    CommonUtil.sleep(500);
+                    return  false;
+                }
+                throw e;
+            }
             return true;
         }
         return false;

@@ -115,6 +115,7 @@ public enum SelfXErrors {
 	SEE_PRIVATE_IMG(82),
 
 
+	CREATE_CORE_SYNC(9999)
 	;
 
 

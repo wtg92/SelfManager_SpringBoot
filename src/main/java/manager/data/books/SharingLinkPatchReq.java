@@ -21,7 +21,9 @@ public class SharingLinkPatchReq implements Serializable {
         Map<String, Object> updatingAttrs  = new HashMap<>();
         updatingAttrs.put(SolrFields.TYPE,type);
         updatingAttrs.put(SolrFields.DEFAULT_LANG,defaultLang);
-        updatingAttrs.put(SolrFields.CONTENT_ID,contentId);
+        if(contentId != null){
+            updatingAttrs.put(SolrFields.CONTENT_ID,contentId);
+        }
         return updatingAttrs;
     }
 

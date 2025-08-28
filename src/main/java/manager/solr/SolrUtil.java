@@ -4,9 +4,12 @@ import manager.exception.DBException;
 import manager.solr.constants.CustomProcessors;
 import manager.solr.data.SolrSearchRequest;
 import manager.system.SelfXErrors;
+import manager.util.CommonUtil;
+import manager.util.ReflectUtil;
 import org.apache.solr.client.solrj.beans.DocumentObjectBinder;
+import org.apache.solr.client.solrj.impl.BaseHttpSolrClient;
 
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -55,7 +58,7 @@ public abstract class SolrUtil {
     private static String escapeSpecialChars(String value) {
         return value.replaceAll("([+\\-!(){}\\[\\]^\"~*?:\\\\/])", "\\\\$1");
     }
-    private static void detectDataTooLongExceptionAndThrowIfAny(Exception e) throws DBException {
+    private static void detectSolrDBExceptionAndThrowIfAny(Exception e) throws DBException {
         if(e.getMessage() == null){
             throw new DBException(SelfXErrors.UNEXPECTED_ERROR);
         }
@@ -72,14 +75,16 @@ public abstract class SolrUtil {
         if(e.getMessage().contains("org.apache.solr.search.SyntaxError")){
             throw new DBException(SelfXErrors.SOLR_SEARCH_Syntax_Error);
         }
+        if(e.getMessage().contains("Already creating a core with name")){
+            throw new DBException(SelfXErrors.CREATE_CORE_SYNC);
+        }
     }
     public static DBException processSolrException(Exception e){
         e.printStackTrace();
         try {
-            detectDataTooLongExceptionAndThrowIfAny(e);
-        }catch(DBException dataTooLong) {
-            assert dataTooLong.type == SelfXErrors.DATA_TOO_LONG : dataTooLong.type;
-            return dataTooLong;
+            detectSolrDBExceptionAndThrowIfAny(e);
+        }catch(DBException solrDBError) {
+            return solrDBError;
         }
         return new DBException(SelfXErrors.UNKNOWN_DB_ERROR, e.getMessage());
     }

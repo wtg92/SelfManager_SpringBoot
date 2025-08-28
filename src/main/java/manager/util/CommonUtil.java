@@ -27,12 +27,17 @@ public abstract class CommonUtil {
 	private static final Random random = new SecureRandom();
 
 	public static void block(){
-        try {
-            Thread.sleep(1000000000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+		sleep(1000000000);
     }
+
+	public static void sleep(int milliseconds){
+		try {
+			Thread.sleep(milliseconds);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	private static Logger logger = Logger.getLogger(CommonUtil.class.getName());
 	
 	public static InputStream getFileInResourcesDirectoryBufferedly(String fileName) {
@@ -189,5 +194,14 @@ public abstract class CommonUtil {
 			container.put(k, v);
 		});
 	}
-	
+
+	public static String getRootCauseMessage(Throwable e) {
+		Throwable cause = e;
+		while (cause.getCause() != null) {
+			cause = cause.getCause();
+		}
+		return cause.getMessage();
+	}
+
+
 }

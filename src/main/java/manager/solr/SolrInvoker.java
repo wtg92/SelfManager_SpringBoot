@@ -5,6 +5,7 @@ import manager.booster.CoreNameProducer;
 import manager.entity.SMSolrDoc;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.impl.BaseHttpSolrClient;
 import org.apache.solr.client.solrj.impl.HttpJdkSolrClient;
 import org.apache.solr.client.solrj.request.CoreAdminRequest;
 import org.apache.solr.client.solrj.request.UpdateRequest;
@@ -19,6 +20,7 @@ import org.apache.solr.common.util.NamedList;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -68,7 +70,8 @@ public class SolrInvoker{
             req.setDataDir("data/");
             req.setConfigSet(configSet);
             return (CoreAdminResponse)req.process(solrClient);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw SolrUtil.processSolrException(e);
         }
     }
