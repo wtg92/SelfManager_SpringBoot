@@ -138,8 +138,6 @@ public class SecurityBooster {
 			throw new LogicException(SelfXErrors.ILLEGAL_USER_TOKEN, "无user pwd");
 		}
 		if(!user.user.getPassword().equals(pwd)) {
-			//TODO DELETE
-			info.errMsg = "登录密码失效，请重新登录";
 			return info;
 		}
 		return process(user);

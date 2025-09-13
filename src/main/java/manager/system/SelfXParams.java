@@ -52,7 +52,7 @@ public abstract class SelfXParams {
 
 	public final static String IDS = "ids";
 	public final static String BOOK_ID = "book_id";
-	public final static String NOTE_ID = "note_id";
+	public final static String ENCODING = "encoding";
 	public final static String CONTENT = "content";
 	public final static String WITH_TODOS = "with_todos";
 	public final static String IMPORTANT = "important";

@@ -1,7 +1,8 @@
 package manager.service.books;
 
 import manager.data.MultipleItemsResult;
-import manager.data.books.SharingLinkPatchReq;
+import manager.solr.data.SharingLinkDetail;
+import manager.solr.data.SharingLinkPatchReq;
 import manager.solr.books.SharingLink;
 import manager.solr.data.ParentNode;
 import manager.solr.data.SolrSearchRequest;
@@ -67,7 +68,9 @@ public interface BooksService {
 
     void deleteLink(long loginId, Boolean isCommunityLink, String id);
 
-    SharingLink getLink(long loginId, Boolean isCommunityLink, String id);
+    SharingLink getLinkByOwner(long loginId, Boolean isCommunityLink, String id);
 
     void switchLinkStatus(long loginId, Boolean isCommunityLink, String id, Integer status);
+
+    SharingLinkDetail getLinkDetail(Long loginId, String encoding);
 }

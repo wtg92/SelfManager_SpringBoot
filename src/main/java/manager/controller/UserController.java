@@ -148,8 +148,18 @@ public class UserController {
     @PostMapping("/confirmUserToken")
     private LoginInfo confirmUserToken(@RequestBody JSONObject param){
         String token = param.getString(USER_TOKEN);
-        long userId = SecurityBooster.getUserId(token);
+        Long userId = null;
+        try{
+            userId = SecurityBooster.getUserId(token);
+        }catch (Exception e){
+            LoginInfo info = new LoginInfo();
+            info.success = false;
+            return info;
+        }
+
+        //验证账号
         UserProxy user = userService.loadUser(userId, userId);
+        //验证密码
         return securityBooster.confirmUser(user,token);
     }
 

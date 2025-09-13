@@ -11,6 +11,8 @@ import java.util.List;
 public class SharingBook extends SMSolrDoc {
 
 
+    @Field
+    private String extra;
 
     @Field
     private Integer status;
@@ -179,6 +181,14 @@ public class SharingBook extends SMSolrDoc {
 
     @Field private String name_ukrainian;
     @Field private String comment_ukrainian;
+
+    public String getExtra() {
+        return extra;
+    }
+
+    public void setExtra(String extra) {
+        this.extra = extra;
+    }
 
     public String getName_traditional_chinese() {
         return name_traditional_chinese;

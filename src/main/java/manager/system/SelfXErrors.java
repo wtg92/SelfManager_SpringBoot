@@ -97,9 +97,11 @@ public enum SelfXErrors {
 
 	RUNNING_TASK_ALREADY_EXISTED_FOR_THE_USER(73),
 
-	
 	PAGES_SIZE_REACHED_MAX(74),
-	
+
+	LINK_READ_PERM_ERROR(75),
+
+	LINK_BECAME_NULL(76),
 
 	FILE_UPLOADING_ERROR(999,"文件上传失败"),
 	
@@ -107,6 +109,8 @@ public enum SelfXErrors {
 	ILLEGAL_STR(77,"标签中包含非法字符"),
 	DUP_TAG(78,"标签重复"),
 	COMMON(79),
+
+	LINK_NONE_PUBLIC(83),
 
 
 	MAX_UPLOAD_FILE_FOR_ONE_USER(80),

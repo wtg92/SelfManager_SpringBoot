@@ -3,7 +3,8 @@ package manager.controller;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import manager.data.MultipleItemsResult;
-import manager.data.books.SharingLinkPatchReq;
+import manager.solr.data.SharingLinkDetail;
+import manager.solr.data.SharingLinkPatchReq;
 import manager.solr.books.SharingLink;
 import manager.solr.data.ParentNode;
 import manager.solr.data.SolrSearchRequest;
@@ -11,7 +12,6 @@ import manager.solr.data.SolrSearchResult;
 import manager.solr.books.PageNode;
 import manager.solr.books.SharingBook;
 import manager.service.books.BooksService;
-import manager.system.books.SharingLinkStatus;
 import manager.util.UIUtil;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,6 +34,10 @@ public class BooksController {
     private static final String PAGES_PATH = "/pageNodes";
 
     private static final String LINKS_PATH = "/links";
+
+    private static final String SHARING_PATH = "/sharing";
+
+    private static final String SHARING_LINK_PATH = LINKS_PATH+SHARING_PATH;
 
     @PostMapping(BOOKS_PATH)
     private String postBook( @RequestHeader("Authorization") String authorizationHeader
@@ -74,11 +78,10 @@ public class BooksController {
     }
 
     @PatchMapping(LINKS_PATH)
-    private SharingLink patchLink( @RequestHeader("Authorization") String authorizationHeader
+    private void patchLink( @RequestHeader("Authorization") String authorizationHeader
             , @RequestBody SharingLinkPatchReq param ){
         long loginId = UIUtil.getLoginId(authorizationHeader);
         service.updateLink(loginId,param);
-        return service.getLink(loginId,param.isCommunityLink,param.id);
     }
 
     @GetMapping(LINKS_PATH+"/list")
@@ -95,7 +98,14 @@ public class BooksController {
             ,@RequestParam(ID)String id
             , @RequestParam(IS_COMMUNITY_LINK)Boolean isCommunityLink){
         long loginId = UIUtil.getLoginId(authorizationHeader);
-        return service.getLink(loginId,isCommunityLink,id);
+        return service.getLinkByOwner(loginId,isCommunityLink,id);
+    }
+
+    @GetMapping(SHARING_LINK_PATH+"/detail")
+    private SharingLinkDetail getLinkDetail(@RequestHeader(value = "Authorization",required = false)String authorizationHeader
+            , @RequestParam(ENCODING)String encoding){
+        Long loginId = UIUtil.getOptionalLoginId(authorizationHeader);
+        return service.getLinkDetail(loginId,encoding);
     }
 
     @PostMapping(PAGES_PATH)

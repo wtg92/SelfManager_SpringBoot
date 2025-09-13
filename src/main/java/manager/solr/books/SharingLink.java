@@ -1,11 +1,17 @@
 package manager.solr.books;
 
+import manager.solr.data.SharingLinkPermission;
 import manager.entity.SMSolrDoc;
 import org.apache.solr.client.solrj.beans.Field;
 
 import java.util.List;
 
 public class SharingLink extends SMSolrDoc {
+
+
+    private SharingLinkPermission decodedPerm;
+
+
 
     private String sharingLink;
     private Float score;
@@ -262,6 +268,14 @@ public class SharingLink extends SMSolrDoc {
 
     public String getSharingLink() {
         return sharingLink;
+    }
+
+    public SharingLinkPermission getDecodedPerm() {
+        return decodedPerm;
+    }
+
+    public void setDecodedPerm(SharingLinkPermission decodedPerm) {
+        this.decodedPerm = decodedPerm;
     }
 
     public void setSharingLink(String sharingLink) {

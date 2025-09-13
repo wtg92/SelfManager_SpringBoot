@@ -8,10 +8,6 @@ import java.util.List;
 
 public class SharingLinkSettings implements Serializable {
 
-    public List<String> fileIds = new ArrayList<>();
-
-    public String trace = "";
-
     public static SharingLinkSettings analyze(String str){
         return JSON.parseObject(str, SharingLinkSettings.class);
     }

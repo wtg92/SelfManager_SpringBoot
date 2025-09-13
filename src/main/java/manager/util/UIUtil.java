@@ -45,6 +45,13 @@ public abstract class UIUtil {
 		}
 	}
 
+	public static Long getOptionalLoginId(String auth) throws LogicException {
+		if(auth == null || auth.isEmpty()){
+			return null;
+		}
+		return getLoginId(auth);
+	}
+
 	public static int getParamIntegerOrZeroDefault(JSONObject param, String key){
 		Integer val = param.getInteger(key);
 		if(val == null){

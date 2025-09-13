@@ -12,6 +12,8 @@ public abstract class SolrFields {
     public static final String DESC_EDITOR_STATE_MULTI = "desc_editorState_*";
 
     public static final String SCORE = "score";
+
+    public static final String PERMS = "perms";
     public static final String USER_ID = "userId";
     public static final String TYPE = "type";
 

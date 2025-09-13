@@ -9,7 +9,8 @@ import manager.booster.longRunningTasks.LongRunningTaskType;
 import manager.booster.longRunningTasks.LongRunningTasksScheduler;
 import manager.cache.CacheOperator;
 import manager.data.MultipleItemsResult;
-import manager.data.books.SharingLinkPatchReq;
+import manager.solr.data.SharingLinkDetail;
+import manager.solr.data.SharingLinkPatchReq;
 import manager.data.general.FinalHandler;
 import manager.solr.SelfXCores;
 import manager.solr.SolrFields;
@@ -143,7 +144,11 @@ public class BooksServiceImpl implements BooksService {
 
             link.setExtra(new SharingLinkExtra().toString());
             link.setSettings(new SharingLinkSettings().toString());
-            link.setPerms(new SharingLinkPerms().toString());
+
+            SharingLinkPermission sharingLinkPermission = new SharingLinkPermission();
+            sharingLinkPermission.readPerms.noLimit = true;
+            link.setPerms(sharingLinkPermission.toString());
+
             link.setCopyNum(0);
             link.setLikesNum(0);
             link.setLikeUser(new ArrayList<>());
@@ -171,7 +176,7 @@ public class BooksServiceImpl implements BooksService {
             if (link.getContentId() != null) {
                 link.setContent(getPageInternal(loginId, link.getContentId()));
             }
-            String url = sharingLinksAgent.generateURL(link.getId(),loginId,bookId,isCommunityLink);
+            String url = sharingLinksAgent.generateURL(link.getId(), loginId, bookId, isCommunityLink);
             link.setSharingLink(url);
         });
 
@@ -187,7 +192,7 @@ public class BooksServiceImpl implements BooksService {
     }
 
     @Override
-    public SharingLink getLink(long loginId, Boolean isCommunityLink, String id) {
+    public SharingLink getLinkByOwner(long loginId, Boolean isCommunityLink, String id) {
         checkLinkOperationsPerm(loginId, isCommunityLink, id);
         return getLinkInternally(loginId, isCommunityLink, id);
     }
@@ -195,13 +200,12 @@ public class BooksServiceImpl implements BooksService {
     @Override
     public void updateLink(long loginId, SharingLinkPatchReq param) {
         checkLinkOperationsPerm(loginId, param.isCommunityLink, param.id);
-
-        SharingLink link = getLink(loginId, param.isCommunityLink, param.id);
+        SharingLink link = getLinkByOwner(loginId, param.isCommunityLink, param.id);
         if (!Objects.equals(link.getStatus(), SharingLinkStatus.DRAFT)) {
             throw new LogicException(SelfXErrors.UNEXPECTED_ERROR, link.getStatus());
         }
 
-        updateLinkPropsInSync(loginId, param.isCommunityLink, param.id, param.getUpdateObj());
+        updateLinkPropsInSync(loginId, param.isCommunityLink, param.id, SharingLinksAgent.transferSolrUpdateParams(param));
     }
 
     @Override
@@ -212,9 +216,35 @@ public class BooksServiceImpl implements BooksService {
         updateLinkPropsInSync(loginId, isCommunityLink, id, params);
     }
 
+    @Override
+    public SharingLinkDetail getLinkDetail(Long loginId, String encoding) {
+        SharingLinkDetail detail = new SharingLinkDetail(encoding);
+        //step1 --> get the link
+        SharingLinksAgent.EncryptionParams params = sharingLinksAgent.decode(encoding);
+        SharingLink link = getLinkByURLParams(params);
+        sharingLinksAgent.fill(detail, loginId, link, params);
+
+        return detail;
+    }
+
+    private SharingLink getLinkByURLParams(SharingLinksAgent.EncryptionParams params) {
+        return getLinkInternally(params.loginId, params.isCommunityLink, params.id);
+    }
+
     /*!!!由于 使用前必须校验权限*/
     private SharingLink getLinkInternally(long loginId, Boolean isCommunityLink, String id) {
-        return cache.getLink(loginId, isCommunityLink, id, () -> operator.getLink(loginId, isCommunityLink, id));
+        SharingLink link = cache.getLink(loginId, isCommunityLink, id, () ->
+                {
+                    SharingLink link1 = operator.getLink(loginId, isCommunityLink, id);
+                    if (link1 == null) {
+                        throw new LogicException(SelfXErrors.LINK_BECAME_NULL);
+                    }
+                    return link1;
+                }
+        );
+        link.setDecodedPerm(SharingLinkPermission.analyze(link.getPerms()));
+        link.setPerms(null);
+        return link;
     }
 
     @Override

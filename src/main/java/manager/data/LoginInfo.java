@@ -18,7 +18,9 @@ public class LoginInfo {
 	public boolean seeWorkSheetModule;
 
 	public boolean canDoMigrationOfV1;
-	
+
+	public LoginInfo() {}
+
 	public LoginInfo(UserProxy user) {
 		this.user = user;
 		initPerms();
