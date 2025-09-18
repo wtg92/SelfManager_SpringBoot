@@ -173,14 +173,21 @@ public class BooksServiceImpl implements BooksService {
         MultipleItemsResult<SharingLink> links = operator.getLinks(loginId, bookId, isCommunityLink);
 
         links.items.forEach(link -> {
-            if (link.getContentId() != null) {
-                link.setContent(getPageInternal(loginId, link.getContentId()));
-            }
-            String url = sharingLinksAgent.generateURL(link.getId(), loginId, bookId, isCommunityLink);
-            link.setSharingLink(url);
+            fill(link,loginId,bookId,isCommunityLink);
         });
 
         return links;
+    }
+    private void fill(SharingLink link,long loginId,String bookId,Boolean isCommunityLink){
+        fillContent(link,loginId);
+        String url = sharingLinksAgent.generateURL(link.getId(), loginId, bookId, isCommunityLink);
+        link.setSharingLink(url);
+    }
+
+    private void fillContent(SharingLink link,long loginId){
+        if (link.getContentId() != null) {
+            link.setContent(getPageInternal(loginId, link.getContentId()));
+        }
     }
 
     @Override
@@ -194,7 +201,9 @@ public class BooksServiceImpl implements BooksService {
     @Override
     public SharingLink getLinkByOwner(long loginId, Boolean isCommunityLink, String id) {
         checkLinkOperationsPerm(loginId, isCommunityLink, id);
-        return getLinkInternally(loginId, isCommunityLink, id);
+        SharingLink linkInternally = getLinkInternally(loginId, isCommunityLink, id);
+        fillContent(linkInternally,loginId);
+        return linkInternally;
     }
 
     @Override
