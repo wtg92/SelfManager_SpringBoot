@@ -27,8 +27,7 @@ public class PageNode extends SMSolrDoc {
     @Field
     private List<Double> indexes;
 
-    @Field
-    private Boolean withTODOs;
+
     @Field
     private Boolean isHidden;
 
@@ -51,6 +50,8 @@ public class PageNode extends SMSolrDoc {
 
     @Field
     private List<String> fileIds;
+
+    @Field private String extra;
 
     public Float getScore() {
         return score;
@@ -240,6 +241,14 @@ public class PageNode extends SMSolrDoc {
 
     @Field private String name_ukrainian;
     @Field private String content_ukrainian;
+
+    public String getExtra() {
+        return extra;
+    }
+
+    public void setExtra(String extra) {
+        this.extra = extra;
+    }
 
     @Override
     public PageNode clone(){
@@ -566,13 +575,6 @@ public class PageNode extends SMSolrDoc {
         this.type = type;
     }
 
-    public Boolean getWithTODOs() {
-        return withTODOs;
-    }
-
-    public void setWithTODOs(Boolean withTODOs) {
-        this.withTODOs = withTODOs;
-    }
 
     public Integer getChildrenNum() {
         return childrenNum;

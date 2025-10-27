@@ -108,6 +108,23 @@ public class BooksController {
         return service.getLinkDetail(loginId,encoding);
     }
 
+    @GetMapping(SHARING_LINK_PATH+"/page")
+    private PageNode getSharingLinkPage(@RequestHeader(value = "Authorization",required = false) String authorizationHeader
+            , @RequestParam(ENCODING)String encoding , @RequestParam(value = ID,required = false)String id){
+        Long loginId = UIUtil.getOptionalLoginId(authorizationHeader);
+        return service.getSharingLinkPage(loginId,encoding,id);
+    }
+
+    @GetMapping(SHARING_LINK_PATH+"/list")
+    private MultipleItemsResult<PageNode> getSharingLinkPages(@RequestHeader(value = "Authorization",required = false) String authorizationHeader
+            , @RequestParam(PARENT_ID)String parentId
+            , @RequestParam(ENCODING)String encoding
+    ){
+        Long loginId = UIUtil.getOptionalLoginId(authorizationHeader);
+        return service.getSharingLinkPages(loginId,encoding,parentId);
+    }
+
+
     @PostMapping(PAGES_PATH)
     private String postPage( @RequestHeader("Authorization") String authorizationHeader
             , @RequestBody JSONObject param ){
@@ -149,7 +166,17 @@ public class BooksController {
         String bookId = param.getString(BOOK_ID);
         service.copySinglePageNodeFromTheOwner(loginId,srcId,bookId,parentId,index);
     }
-
+    @PostMapping(SHARING_LINK_PATH+"/copySinglePageNodeFromLink")
+    private void copySinglePageNodeFromLink(@RequestHeader("Authorization") String authorizationHeader
+            , @RequestBody JSONObject param ){
+        long loginId = UIUtil.getLoginId(authorizationHeader);
+        String encoding = param.getString(ENCODING);
+        String srcID = param.getString(SRC_ID);
+        String parentId = param.getString(PARENT_ID);
+        Double index = param.getDouble(INDEX);
+        String bookId = param.getString(BOOK_ID);
+        service.copySinglePageNodeFromLink(loginId,encoding,srcID,bookId,parentId,index);
+    }
     @PostMapping(PAGES_PATH+"/copyPageNodeAndSubFromTheOwner")
     private void copyPageNodeAndSubFromTheOwner(@RequestHeader("Authorization") String authorizationHeader
             , @RequestBody JSONObject param ){
@@ -208,6 +235,8 @@ public class BooksController {
         long loginId = UIUtil.getLoginId(authorizationHeader);
         return service.getPageNode(loginId,id);
     }
+
+
 
     @DeleteMapping(PAGES_PATH)
     private void deletePageNode(@RequestHeader("Authorization") String authorizationHeader

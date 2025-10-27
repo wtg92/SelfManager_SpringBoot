@@ -5,7 +5,6 @@ import manager.booster.CoreNameProducer;
 import manager.entity.SMSolrDoc;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.impl.BaseHttpSolrClient;
 import org.apache.solr.client.solrj.impl.HttpJdkSolrClient;
 import org.apache.solr.client.solrj.request.CoreAdminRequest;
 import org.apache.solr.client.solrj.request.UpdateRequest;
@@ -20,7 +19,6 @@ import org.apache.solr.common.util.NamedList;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -146,7 +144,7 @@ public class SolrInvoker{
     }
 
     public void testSolrClient() {
-        try (SolrClient solrClient = new HttpJdkSolrClient.Builder(baseURL+ CoreNameProducer.calculateCoreNamByUser(SelfXCores.SHARING_BOOK,(long)1)).build()) {
+        try (SolrClient solrClient = new HttpJdkSolrClient.Builder(baseURL+ CoreNameProducer.calculateCoreNameByUser(SelfXCores.SHARING_BOOK,(long)1)).build()) {
             SolrQuery query = new SolrQuery();
             query.setQuery("(name_arabic:哈~ OR comment_arabic:Java~)");  // 对 name_* 和 comment_* 进行模糊匹配
             query.setStart(0);

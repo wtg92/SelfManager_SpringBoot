@@ -7,6 +7,7 @@ public abstract class BooksConstants {
     public static String PAGE_NODE_PURE ="PAGE_NODE";
 
 
+    public static int MAX_SIZE_OF_TAGS_FOR_LINKS = 3;
 
 
 }

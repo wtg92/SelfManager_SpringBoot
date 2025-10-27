@@ -226,7 +226,11 @@ public class CacheOperator {
 
 	public SharingLink getLink(long loginId,Boolean isCommunityLink,String linkId, Supplier<SharingLink> generator) {
 		String cacheId =generateLinkCacheId(loginId,isCommunityLink,linkId);
-		return caches.Links_Cache.get(cacheId,(k)->generator.get()).clone();
+		SharingLink link = caches.Links_Cache.get(cacheId,(k)->generator.get());
+		if(link == null){
+			return null;
+		}
+		return link.clone();
 	}
 
 	public void deleteLink(long loginId,Boolean isCommunityLink,String linkId,Runnable deleting){

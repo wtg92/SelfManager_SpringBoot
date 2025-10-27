@@ -9,6 +9,7 @@ import manager.booster.longRunningTasks.LongRunningTaskType;
 import manager.booster.longRunningTasks.LongRunningTasksScheduler;
 import manager.cache.CacheOperator;
 import manager.data.MultipleItemsResult;
+import manager.solr.constants.SharingLinkType;
 import manager.solr.data.SharingLinkDetail;
 import manager.solr.data.SharingLinkPatchReq;
 import manager.data.general.FinalHandler;
@@ -32,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Nullable;
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.function.Function;
@@ -103,6 +105,7 @@ public class BooksServiceImpl implements BooksService {
         return getPageInternal(loginId, id);
     }
 
+    @Nullable
     private PageNode getPageInternal(long loginId, String id) {
         return cache.getPageNode(loginId, id, () -> operator.getPageNode(loginId, id));
     }
@@ -154,7 +157,6 @@ public class BooksServiceImpl implements BooksService {
             link.setLikeUser(new ArrayList<>());
             link.setDislikesNum(0);
             link.setDislikeUsers(new ArrayList<>());
-            link.setTags(new ArrayList<>());
 
             id.val = operator.insertLink(link, loginId, isCommunityLink);
         });
@@ -220,6 +222,11 @@ public class BooksServiceImpl implements BooksService {
     @Override
     public void switchLinkStatus(long loginId, Boolean isCommunityLink, String id, Integer status) {
         checkLinkOperationsPerm(loginId, isCommunityLink, id);
+        SharingLink linkByOwner = getLinkByOwner(loginId, isCommunityLink, id);
+        if(linkByOwner.getType() == null){
+            throw new LogicException(SelfXErrors.LINK_NOT_COMPLETED);
+        }
+
         Map<String, Object> params = new HashMap<>();
         params.put(SolrFields.STATUS, status);
         updateLinkPropsInSync(loginId, isCommunityLink, id, params);
@@ -236,21 +243,93 @@ public class BooksServiceImpl implements BooksService {
         return detail;
     }
 
+    private PageNode checkPermsAndGetNode(SharingLinksAgent.EncryptionParams params,@Nullable  Long loginId, String id){
+        // 确定该人是否有权限
+        /*
+            权限体系现在是这样的：
+            1.link 决定 该人是否有权限
+            2.由于可以分享一个节点  该页是否能由该页访问到
+
+         */
+        // 该用户是否有权限
+        SharingLink linkByURLParams = getLinkByURLParams(params);
+        sharingLinksAgent.checkPermission(loginId,linkByURLParams,params);
+        // 该页是否存在
+        if(id == null || id.isEmpty()){
+            throw new LogicException(SelfXErrors.LINK_OUT_OF_DATE);
+        }
+        PageNode pageInternal = getPageInternal(params.loginId,  id);
+        if(pageInternal == null){
+            throw new LogicException(SelfXErrors.LINK_OUT_OF_DATE);
+        }
+        checkPageIncludingTheLink(linkByURLParams,pageInternal,params.loginId);
+        return pageInternal;
+    }
+    @Override
+    public MultipleItemsResult<PageNode> getPages(long loginId, String bookId, String parentId) {
+        return operator.getPageNodes(loginId, bookId, generatePageParentId(bookId, parentId));
+    }
+
+    @Override
+    public PageNode getSharingLinkPage(@Nullable  Long loginId, String encoding, String id) {
+        SharingLinksAgent.EncryptionParams params = sharingLinksAgent.decode(encoding);
+        return checkPermsAndGetNode(params,loginId,id);
+    }
+
+    /*
+        如果是根 则parentId == ""
+     */
+    @Override
+    public MultipleItemsResult<PageNode> getSharingLinkPages(Long loginId, String encoding, String parentId) {
+        /*
+         *  本质是ParentId是否有权限 若ParentId有权限 则下面一定有权限
+         */
+        SharingLinksAgent.EncryptionParams params = sharingLinksAgent.decode(encoding);
+        checkPermsAndGetNode(params,loginId,parentId);
+        //有权限ok
+        String bookId = params.bookId;
+        return operator.getPageNodes(loginId, bookId, generatePageParentId(bookId, parentId));
+    }
+
+    // 该页是否在该链接里
+    //由于这些不正常情况都是非预期的  因此本质上 错误原因 只有一个 就是这个Link已经过时
+    private void checkPageIncludingTheLink(SharingLink link, PageNode target, long loginId) {
+        switch (link.getType()) {
+            case SharingLinkType.SINGLE_PAGE:
+                if (!link.getContentId().equals(target.getId())) {
+                    throw new LogicException(SelfXErrors.LINK_OUT_OF_DATE);
+                }
+                break;
+
+            case SharingLinkType.WHOLE_BOOK:
+                if (!target.getBookId().equals(link.getBookId())) {
+                    throw new LogicException(SelfXErrors.LINK_OUT_OF_DATE);
+                }
+                break;
+
+            case SharingLinkType.PAGE_NODE:
+                if (!containsInPathToRoot(target, i -> getPageNode(loginId, i), link.getContentId())) {
+                    throw new LogicException(SelfXErrors.LINK_OUT_OF_DATE);
+                }
+                break;
+
+            default:
+                throw new IllegalStateException("Unexpected value: " + link.getType());
+        }
+    }
+
+
+
     private SharingLink getLinkByURLParams(SharingLinksAgent.EncryptionParams params) {
         return getLinkInternally(params.loginId, params.isCommunityLink, params.id);
     }
 
     /*!!!由于 使用前必须校验权限*/
     private SharingLink getLinkInternally(long loginId, Boolean isCommunityLink, String id) {
-        SharingLink link = cache.getLink(loginId, isCommunityLink, id, () ->
-                {
-                    SharingLink link1 = operator.getLink(loginId, isCommunityLink, id);
-                    if (link1 == null) {
-                        throw new LogicException(SelfXErrors.LINK_BECAME_NULL);
-                    }
-                    return link1;
-                }
-        );
+        SharingLink link = cache.getLink(loginId, isCommunityLink, id, ()->operator.getLink(loginId, isCommunityLink, id));
+        if (link == null) {
+            throw new LogicException(SelfXErrors.LINK_BECAME_NULL);
+        }
         link.setDecodedPerm(SharingLinkPermission.analyze(link.getPerms()));
         link.setPerms(null);
         return link;
@@ -324,26 +403,7 @@ public class BooksServiceImpl implements BooksService {
 
     private void updateLinkPropsInSync(long loginId, Boolean isCommunity, String id, Map<String, Object> updatingAttrs) {
         locker.lockByUserAndClass(loginId, () -> {
-            Runnable savingNode = () -> cache.saveLink(loginId, isCommunity, id, () -> operator.updateLink(id, isCommunity, loginId, loginId, updatingAttrs));
-
-            if (!updatingAttrs.containsKey(SolrFields.FILE_IDS)) {
-                savingNode.run();
-            } else {
-//                List<String> toUpdate = updatingAttrs.get(SolrFields.FILE_IDS) == null ? null : (List<String>) updatingAttrs.get(SolrFields.FILE_IDS);
-//                List<String> inDB = getPageNode(loginId, pageNodeId).getFileIds();
-//                SelfXCollectionUtils.ComparisonResult<String> fileIdsComparisonResult = SelfXCollectionUtils.compareLists(toUpdate, inDB, String::equals);
-//                /**
-//                 * 对于处理fileRecords 需要在实际更新成功后再处理
-//                 */
-//                savingNode.run();
-//                /**
-//                 * 被更新掉的
-//                 */
-//                fileIdsComparisonResult.onlyInList2.forEach(encodedFileIds -> {
-//                    long fileToDelete = securityBooster.getStableCommonId(encodedFileIds);
-//                    filesService.deleteFileRecord(loginId, fileToDelete);
-//                });
-            }
+            cache.saveLink(loginId, isCommunity, id, () -> operator.updateLink(id, isCommunity, loginId, loginId, updatingAttrs));
         });
     }
 
@@ -370,12 +430,21 @@ public class BooksServiceImpl implements BooksService {
                 /**
                  * 被更新掉的
                  */
-                fileIdsComparisonResult.onlyInList2.forEach(encodedFileIds -> {
-                    long fileToDelete = securityBooster.getStableCommonId(encodedFileIds);
+                fileIdsComparisonResult.onlyInList2.forEach(encodedFileId -> {
+                    long fileToDelete = securityBooster.getStableCommonId(extractPureFileIdForPageNode(encodedFileId));
                     filesService.deleteFileRecord(loginId, fileToDelete);
                 });
             }
         });
+    }
+
+
+    private static String extractPureFileIdForPageNode(String fileIdWithLang){
+        if (fileIdWithLang == null || !fileIdWithLang.contains("_")) {
+            return fileIdWithLang;
+        }
+        int lastUnderscore = fileIdWithLang.lastIndexOf("_");
+        return fileIdWithLang.substring(0, lastUnderscore);
     }
 
     private void updatePageNodeParentIdsAndIndexesInSyncThenRefreshPageChildrenNum(long loginId, String nodeId, List<String> parentIds, List<Double> indexes, String refreshParentId, String refreshBookId) {
@@ -416,7 +485,6 @@ public class BooksServiceImpl implements BooksService {
             page.setParentIds(Collections.singletonList(generatePageParentId(bookId, parentId)));
             page.setIndexes(Collections.singletonList(index));
             page = MultipleLangHelper.setFiledValue(page, BooksMultipleFields.NAME, lang, name);
-            page.setWithTODOs(false);
             page.setIsHidden(false);
             page.setChildrenNum(0);
             page.setType(PageNodeType.PAGE);
@@ -532,16 +600,26 @@ public class BooksServiceImpl implements BooksService {
 
     @Override
     public void copySinglePageNodeFromTheOwner(long loginId, String srcId, String bookId, String parentId, Double index) {
+        PageNode page = getPageNode(loginId, srcId);
+        copySinglePageNode(page,loginId,bookId,parentId,index);
+    }
+
+    private void copySinglePageNode(PageNode page,long loginId,String bookId, String parentId, Double index){
         checkBookMaxNumOfPage(loginId, bookId);
         bookStatusLocker.startCopying(loginId, bookId);
         try {
             locker.lockByUserAndClass(loginId, () -> {
-                PageNode page = getPageNode(loginId, srcId);
                 copyOnePageNodeAndRefreshPageNum(loginId, page, loginId, bookId, parentId, index);
             });
         } finally {
             bookStatusLocker.endCopying(loginId, bookId);
         }
+    }
+
+    @Override
+    public void copySinglePageNodeFromLink(long loginId, String encoding,String srcID, String bookId, String parentId, Double index) {
+        PageNode sharingLinkPage = getSharingLinkPage(loginId, encoding, srcID);
+        copySinglePageNode(sharingLinkPage,loginId,bookId,parentId,index);
     }
 
     /**
@@ -737,10 +815,6 @@ public class BooksServiceImpl implements BooksService {
         return PARENT_ID_OF_PAGE_NODE_PREFIX + parentId;
     }
 
-    @Override
-    public MultipleItemsResult<PageNode> getPages(long loginId, String bookId, String parentId) {
-        return operator.getPageNodes(loginId, bookId, generatePageParentId(bookId, parentId));
-    }
 
     private void deleteSinglePageNodeWithFileIds(long loginId, PageNode node) {
         String pageId = node.getId();
@@ -794,7 +868,7 @@ public class BooksServiceImpl implements BooksService {
 
                     PageNode node = getPageNode(loginId, currentPageId);
                     if (node == null) {
-                        log.error("理论上不该出现的deletePageNode出现损坏的环 ID → " + CoreNameProducer.calculateCoreNamByUser(SelfXCores.SHARING_BOOK, loginId));
+                        log.error("理论上不该出现的deletePageNode出现损坏的环 ID → " + CoreNameProducer.calculateCoreNameByUser(SelfXCores.SHARING_BOOK, loginId));
                         continue;
                     }
 
@@ -883,6 +957,38 @@ public class BooksServiceImpl implements BooksService {
         } finally {
             bookStatusLocker.endDeletingPage(loginId, bookId);
         }
+    }
+
+    public boolean containsInPathToRoot(PageNode startNode,
+                                        Function<String, PageNode> idToNodeMap,
+                                        String targetId) {
+        if (startNode == null) return false;
+        if (startNode.getId().equals(targetId)) return true;
+
+        Queue<String> queue = new LinkedList<>();
+        Set<String> visited = new HashSet<>();
+
+        queue.offer(startNode.getId());
+        visited.add(startNode.getId());
+
+        while (!queue.isEmpty()) {
+            String currentId = queue.poll();
+            PageNode currentNode = idToNodeMap.apply(currentId);
+            if (currentNode == null) continue;
+
+            for (String processedId : currentNode.getParentIds()) {
+                String parentId = extractPureParentId(processedId);
+                if (!visited.contains(parentId)) {
+                    if (parentId.equals(targetId)) {
+                        return true;
+                    }
+                    visited.add(parentId);
+                    queue.offer(parentId);
+                }
+            }
+        }
+
+        return false;
     }
 
     public List<PageNode> findShortestPathToRoot(PageNode startNode, Function<String, PageNode> idToNodeMap) {
@@ -981,6 +1087,7 @@ public class BooksServiceImpl implements BooksService {
         Function<String, ParentNode<?>> mapper = pId -> getOriginalParentNodes(pId, loginId);
         return parentIds.stream().map(mapper).toList();
     }
+
 
     @Override
     public List<PageNode> calculatePath(long loginId, String id) {

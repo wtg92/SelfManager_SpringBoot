@@ -118,7 +118,9 @@ public enum SelfXErrors {
 
 	SEE_PRIVATE_IMG(82),
 
+	LINK_OUT_OF_DATE(84),
 
+	LINK_NOT_COMPLETED(85),
 	CREATE_CORE_SYNC(9999)
 	;
 

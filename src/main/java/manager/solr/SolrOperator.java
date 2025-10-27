@@ -58,7 +58,7 @@ public class SolrOperator {
     }
 
     public String insertDocInUserIsolation(SMSolrDoc doc, String core, long userId, String configDir) {
-        String coreName = CoreNameProducer.calculateCoreNamByUser(core,userId) ;
+        String coreName = CoreNameProducer.calculateCoreNameByUser(core,userId) ;
         return insertDocDirectly(doc,coreName,userId,configDir);
     }
 
@@ -74,7 +74,7 @@ public class SolrOperator {
     }
 
     public void updateDocPartiallyInUserIsolation(String core, String id, long userId, long updaterId, Map<String,Object> updatingFields){
-        String coreName = CoreNameProducer.calculateCoreNamByUser(core,userId) ;
+        String coreName = CoreNameProducer.calculateCoreNameByUser(core,userId) ;
         updateDocPartiallyDirectly(coreName,id,updaterId,updatingFields);
     }
 
@@ -93,7 +93,7 @@ public class SolrOperator {
     }
 
     public <T> T getDocByIdInUserIsolation(String core, long userId, String id, Class<T> cls) {
-        String coreName = CoreNameProducer.calculateCoreNamByUser(core,userId) ;
+        String coreName = CoreNameProducer.calculateCoreNameByUser(core,userId) ;
         return getDocByIdDirectly(coreName,id,cls);
     }
 

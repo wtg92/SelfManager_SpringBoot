@@ -53,10 +53,13 @@ public interface BooksService {
     List<PageNode> calculatePath(long loginId, String id);
 
     void copySinglePageNodeFromTheOwner(long loginId, String srcId, String bookId, String parentId, Double index);
+    void copySinglePageNodeFromLink(long loginId, String encoding,String srcId, String bookId, String parentId, Double index);
 
     void movePageNodeAndSub(long loginId, String srcId, String srcBookId, String srcParentId, String targetBookId, String targetParentId, Double targetIndex);
 
     void copyPageNodeAndSubFromTheOwner(long loginId, String srcId, String srcBookId, String targetBookId, String targetParentId, Double targetIndex);
+
+
 
     long getTotalPagesOfOwn(long loginId, String bookId);
 
@@ -73,4 +76,10 @@ public interface BooksService {
     void switchLinkStatus(long loginId, Boolean isCommunityLink, String id, Integer status);
 
     SharingLinkDetail getLinkDetail(Long loginId, String encoding);
+
+    PageNode getSharingLinkPage(Long loginId, String encoding, String id);
+
+    MultipleItemsResult<PageNode> getSharingLinkPages(Long loginId, String encoding, String parentId);
+
+
 }

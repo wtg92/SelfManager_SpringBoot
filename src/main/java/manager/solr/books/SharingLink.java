@@ -64,96 +64,90 @@ public class SharingLink extends SMSolrDoc {
 
     @Field List<Long> dislikeUsers;
 
-    /*
-     * 结构性数据 包含点击量
-     */
-    @Field String commentState;
 
     /*
-     * 为了查看公共链接时 可以分类 不进入搜索
+     * Tags_
+     * 1.为了查看公共链接时 可以分类
+     * 2.进入搜索 完全匹配 同样影响评分
+     * 3.有上限
      */
-    @Field
-    private List<String> tags;
+    @Field List<String> tags_arabic;
+    @Field List<String> tags_bengali;
+    @Field List<String> tags_brazilian_portuguese;
+    @Field List<String> tags_bulgarian;
+    @Field List<String> tags_catalan;
+    @Field List<String> tags_chinese;
+    @Field List<String> tags_traditional_chinese;
+    @Field List<String> tags_czech;
+    @Field List<String> tags_danish;
+    @Field List<String> tags_dutch;
+    @Field List<String> tags_estonian;
+    @Field List<String> tags_finnish;
+    @Field List<String> tags_french;
+    @Field List<String> tags_galician;
+    @Field List<String> tags_german;
+    @Field List<String> tags_greek;
+    @Field List<String> tags_hindi;
+    @Field List<String> tags_indonesian;
+    @Field List<String> tags_italian;
+    @Field List<String> tags_irish;
+    @Field List<String> tags_japanese;
+    @Field List<String> tags_korean;
+    @Field List<String> tags_english;
+    @Field List<String> tags_latvian;
+    @Field List<String> tags_norwegian;
+    @Field List<String> tags_persian;
+    @Field List<String> tags_polish;
+    @Field List<String> tags_portuguese;
+    @Field List<String> tags_romanian;
+    @Field List<String> tags_russian;
+    @Field List<String> tags_scandinavian;
+    @Field List<String> tags_serbian;
+    @Field List<String> tags_spanish;
+    @Field List<String> tags_swedish;
+    @Field List<String> tags_thai;
+    @Field List<String> tags_turkish;
+    @Field List<String> tags_ukrainian;
 
-    /*
-     * 每次更新 由comments 计算得来
-     */
-    @Field String commentText_arabic;
 
-    @Field String commentText_bengali;
-    @Field String commentText_brazilian_portuguese;
-    @Field String commentText_bulgarian;
-    @Field String commentText_catalan;
-    @Field String commentText_chinese;
-    @Field String commentText_traditional_chinese;
-    @Field String commentText_czech;
-    @Field String commentText_danish;
-    @Field String commentText_dutch;
-    @Field String commentText_estonian;
-    @Field String commentText_finnish;
-    @Field String commentText_french;
-    @Field String commentText_galician;
-    @Field String commentText_german;
-    @Field String commentText_greek;
-    @Field String commentText_hindi;
-    @Field String commentText_indonesian;
-    @Field String commentText_italian;
-    @Field String commentText_irish;
-    @Field String commentText_japanese;
-    @Field String commentText_korean;
-    @Field String commentText_english;
-    @Field String commentText_latvian;
-    @Field String commentText_norwegian;
-    @Field String commentText_persian;
-    @Field String commentText_polish;
-    @Field String commentText_portuguese;
-    @Field String commentText_romanian;
-    @Field String commentText_russian;
-    @Field String commentText_scandinavian;
-    @Field String commentText_serbian;
-    @Field String commentText_spanish;
-    @Field String commentText_swedish;
-    @Field String commentText_thai;
-    @Field String commentText_turkish;
-    @Field String commentText_ukrainian;
 
-    @Field private String desc_editorState_arabic;
-    @Field private String desc_editorState_bengali;
-    @Field private String desc_editorState_brazilian_portuguese;
-    @Field private String desc_editorState_bulgarian;
-    @Field private String desc_editorState_catalan;
-    @Field private String desc_editorState_chinese;
-    @Field private String desc_editorState_traditional_chinese;
-    @Field private String desc_editorState_czech;
-    @Field private String desc_editorState_danish;
-    @Field private String desc_editorState_dutch;
-    @Field private String desc_editorState_estonian;
-    @Field private String desc_editorState_finnish;
-    @Field private String desc_editorState_french;
-    @Field private String desc_editorState_galician;
-    @Field private String desc_editorState_german;
-    @Field private String desc_editorState_greek;
-    @Field private String desc_editorState_hindi;
-    @Field private String desc_editorState_indonesian;
-    @Field private String desc_editorState_italian;
-    @Field private String desc_editorState_irish;
-    @Field private String desc_editorState_japanese;
-    @Field private String desc_editorState_korean;
-    @Field private String desc_editorState_english;
-    @Field private String desc_editorState_latvian;
-    @Field private String desc_editorState_norwegian;
-    @Field private String desc_editorState_persian;
-    @Field private String desc_editorState_polish;
-    @Field private String desc_editorState_portuguese;
-    @Field private String desc_editorState_romanian;
-    @Field private String desc_editorState_russian;
-    @Field private String desc_editorState_scandinavian;
-    @Field private String desc_editorState_serbian;
-    @Field private String desc_editorState_spanish;
-    @Field private String desc_editorState_swedish;
-    @Field private String desc_editorState_thai;
-    @Field private String desc_editorState_turkish;
-    @Field private String desc_editorState_ukrainian;
+    @Field private String desc_extra_arabic;
+    @Field private String desc_extra_bengali;
+    @Field private String desc_extra_brazilian_portuguese;
+    @Field private String desc_extra_bulgarian;
+    @Field private String desc_extra_catalan;
+    @Field private String desc_extra_chinese;
+    @Field private String desc_extra_traditional_chinese;
+    @Field private String desc_extra_czech;
+    @Field private String desc_extra_danish;
+    @Field private String desc_extra_dutch;
+    @Field private String desc_extra_estonian;
+    @Field private String desc_extra_finnish;
+    @Field private String desc_extra_french;
+    @Field private String desc_extra_galician;
+    @Field private String desc_extra_german;
+    @Field private String desc_extra_greek;
+    @Field private String desc_extra_hindi;
+    @Field private String desc_extra_indonesian;
+    @Field private String desc_extra_italian;
+    @Field private String desc_extra_irish;
+    @Field private String desc_extra_japanese;
+    @Field private String desc_extra_korean;
+    @Field private String desc_extra_english;
+    @Field private String desc_extra_latvian;
+    @Field private String desc_extra_norwegian;
+    @Field private String desc_extra_persian;
+    @Field private String desc_extra_polish;
+    @Field private String desc_extra_portuguese;
+    @Field private String desc_extra_romanian;
+    @Field private String desc_extra_russian;
+    @Field private String desc_extra_scandinavian;
+    @Field private String desc_extra_serbian;
+    @Field private String desc_extra_spanish;
+    @Field private String desc_extra_swedish;
+    @Field private String desc_extra_thai;
+    @Field private String desc_extra_turkish;
+    @Field private String desc_extra_ukrainian;
 
     @Field private String name_arabic;
     @Field private String desc_arabic;
@@ -314,308 +308,596 @@ public class SharingLink extends SMSolrDoc {
         this.bookId = bookId;
     }
 
-    public List<String> getTags() {
-        return tags;
+    public List<String> getTags_arabic() {
+        return tags_arabic;
     }
 
-    public void setTags(List<String> tags) {
-        this.tags = tags;
+    public void setTags_arabic(List<String> tags_arabic) {
+        this.tags_arabic = tags_arabic;
     }
 
-    public String getDesc_editorState_arabic() {
-        return desc_editorState_arabic;
+    public List<String> getTags_bengali() {
+        return tags_bengali;
     }
 
-    public void setDesc_editorState_arabic(String desc_editorState_arabic) {
-        this.desc_editorState_arabic = desc_editorState_arabic;
+    public void setTags_bengali(List<String> tags_bengali) {
+        this.tags_bengali = tags_bengali;
     }
 
-    public String getDesc_editorState_bengali() {
-        return desc_editorState_bengali;
+    public List<String> getTags_brazilian_portuguese() {
+        return tags_brazilian_portuguese;
     }
 
-    public void setDesc_editorState_bengali(String desc_editorState_bengali) {
-        this.desc_editorState_bengali = desc_editorState_bengali;
+    public void setTags_brazilian_portuguese(List<String> tags_brazilian_portuguese) {
+        this.tags_brazilian_portuguese = tags_brazilian_portuguese;
     }
 
-    public String getDesc_editorState_brazilian_portuguese() {
-        return desc_editorState_brazilian_portuguese;
+    public List<String> getTags_bulgarian() {
+        return tags_bulgarian;
     }
 
-    public void setDesc_editorState_brazilian_portuguese(String desc_editorState_brazilian_portuguese) {
-        this.desc_editorState_brazilian_portuguese = desc_editorState_brazilian_portuguese;
+    public void setTags_bulgarian(List<String> tags_bulgarian) {
+        this.tags_bulgarian = tags_bulgarian;
     }
 
-    public String getDesc_editorState_bulgarian() {
-        return desc_editorState_bulgarian;
+    public List<String> getTags_catalan() {
+        return tags_catalan;
     }
 
-    public void setDesc_editorState_bulgarian(String desc_editorState_bulgarian) {
-        this.desc_editorState_bulgarian = desc_editorState_bulgarian;
+    public void setTags_catalan(List<String> tags_catalan) {
+        this.tags_catalan = tags_catalan;
     }
 
-    public String getDesc_editorState_catalan() {
-        return desc_editorState_catalan;
+    public List<String> getTags_chinese() {
+        return tags_chinese;
     }
 
-    public void setDesc_editorState_catalan(String desc_editorState_catalan) {
-        this.desc_editorState_catalan = desc_editorState_catalan;
+    public void setTags_chinese(List<String> tags_chinese) {
+        this.tags_chinese = tags_chinese;
     }
 
-    public String getDesc_editorState_chinese() {
-        return desc_editorState_chinese;
+    public List<String> getTags_traditional_chinese() {
+        return tags_traditional_chinese;
     }
 
-    public void setDesc_editorState_chinese(String desc_editorState_chinese) {
-        this.desc_editorState_chinese = desc_editorState_chinese;
+    public void setTags_traditional_chinese(List<String> tags_traditional_chinese) {
+        this.tags_traditional_chinese = tags_traditional_chinese;
     }
 
-    public String getDesc_editorState_traditional_chinese() {
-        return desc_editorState_traditional_chinese;
+    public List<String> getTags_czech() {
+        return tags_czech;
     }
 
-    public void setDesc_editorState_traditional_chinese(String desc_editorState_traditional_chinese) {
-        this.desc_editorState_traditional_chinese = desc_editorState_traditional_chinese;
+    public void setTags_czech(List<String> tags_czech) {
+        this.tags_czech = tags_czech;
     }
 
-    public String getDesc_editorState_czech() {
-        return desc_editorState_czech;
+    public List<String> getTags_danish() {
+        return tags_danish;
     }
 
-    public void setDesc_editorState_czech(String desc_editorState_czech) {
-        this.desc_editorState_czech = desc_editorState_czech;
+    public void setTags_danish(List<String> tags_danish) {
+        this.tags_danish = tags_danish;
     }
 
-    public String getDesc_editorState_danish() {
-        return desc_editorState_danish;
+    public List<String> getTags_dutch() {
+        return tags_dutch;
     }
 
-    public void setDesc_editorState_danish(String desc_editorState_danish) {
-        this.desc_editorState_danish = desc_editorState_danish;
+    public void setTags_dutch(List<String> tags_dutch) {
+        this.tags_dutch = tags_dutch;
     }
 
-    public String getDesc_editorState_dutch() {
-        return desc_editorState_dutch;
+    public List<String> getTags_estonian() {
+        return tags_estonian;
     }
 
-    public void setDesc_editorState_dutch(String desc_editorState_dutch) {
-        this.desc_editorState_dutch = desc_editorState_dutch;
+    public void setTags_estonian(List<String> tags_estonian) {
+        this.tags_estonian = tags_estonian;
     }
 
-    public String getDesc_editorState_estonian() {
-        return desc_editorState_estonian;
+    public List<String> getTags_finnish() {
+        return tags_finnish;
     }
 
-    public void setDesc_editorState_estonian(String desc_editorState_estonian) {
-        this.desc_editorState_estonian = desc_editorState_estonian;
+    public void setTags_finnish(List<String> tags_finnish) {
+        this.tags_finnish = tags_finnish;
     }
 
-    public String getDesc_editorState_finnish() {
-        return desc_editorState_finnish;
+    public List<String> getTags_french() {
+        return tags_french;
     }
 
-    public void setDesc_editorState_finnish(String desc_editorState_finnish) {
-        this.desc_editorState_finnish = desc_editorState_finnish;
+    public void setTags_french(List<String> tags_french) {
+        this.tags_french = tags_french;
     }
 
-    public String getDesc_editorState_french() {
-        return desc_editorState_french;
+    public List<String> getTags_galician() {
+        return tags_galician;
     }
 
-    public void setDesc_editorState_french(String desc_editorState_french) {
-        this.desc_editorState_french = desc_editorState_french;
+    public void setTags_galician(List<String> tags_galician) {
+        this.tags_galician = tags_galician;
     }
 
-    public String getDesc_editorState_galician() {
-        return desc_editorState_galician;
+    public List<String> getTags_german() {
+        return tags_german;
     }
 
-    public void setDesc_editorState_galician(String desc_editorState_galician) {
-        this.desc_editorState_galician = desc_editorState_galician;
+    public void setTags_german(List<String> tags_german) {
+        this.tags_german = tags_german;
     }
 
-    public String getDesc_editorState_german() {
-        return desc_editorState_german;
+    public List<String> getTags_greek() {
+        return tags_greek;
     }
 
-    public void setDesc_editorState_german(String desc_editorState_german) {
-        this.desc_editorState_german = desc_editorState_german;
+    public void setTags_greek(List<String> tags_greek) {
+        this.tags_greek = tags_greek;
     }
 
-    public String getDesc_editorState_greek() {
-        return desc_editorState_greek;
+    public List<String> getTags_hindi() {
+        return tags_hindi;
     }
 
-    public void setDesc_editorState_greek(String desc_editorState_greek) {
-        this.desc_editorState_greek = desc_editorState_greek;
+    public void setTags_hindi(List<String> tags_hindi) {
+        this.tags_hindi = tags_hindi;
     }
 
-    public String getDesc_editorState_hindi() {
-        return desc_editorState_hindi;
+    public List<String> getTags_indonesian() {
+        return tags_indonesian;
     }
 
-    public void setDesc_editorState_hindi(String desc_editorState_hindi) {
-        this.desc_editorState_hindi = desc_editorState_hindi;
+    public void setTags_indonesian(List<String> tags_indonesian) {
+        this.tags_indonesian = tags_indonesian;
     }
 
-    public String getDesc_editorState_indonesian() {
-        return desc_editorState_indonesian;
+    public List<String> getTags_italian() {
+        return tags_italian;
     }
 
-    public void setDesc_editorState_indonesian(String desc_editorState_indonesian) {
-        this.desc_editorState_indonesian = desc_editorState_indonesian;
+    public void setTags_italian(List<String> tags_italian) {
+        this.tags_italian = tags_italian;
     }
 
-    public String getDesc_editorState_italian() {
-        return desc_editorState_italian;
+    public List<String> getTags_irish() {
+        return tags_irish;
     }
 
-    public void setDesc_editorState_italian(String desc_editorState_italian) {
-        this.desc_editorState_italian = desc_editorState_italian;
+    public void setTags_irish(List<String> tags_irish) {
+        this.tags_irish = tags_irish;
     }
 
-    public String getDesc_editorState_irish() {
-        return desc_editorState_irish;
+    public List<String> getTags_japanese() {
+        return tags_japanese;
     }
 
-    public void setDesc_editorState_irish(String desc_editorState_irish) {
-        this.desc_editorState_irish = desc_editorState_irish;
+    public void setTags_japanese(List<String> tags_japanese) {
+        this.tags_japanese = tags_japanese;
     }
 
-    public String getDesc_editorState_japanese() {
-        return desc_editorState_japanese;
+    public List<String> getTags_korean() {
+        return tags_korean;
     }
 
-    public void setDesc_editorState_japanese(String desc_editorState_japanese) {
-        this.desc_editorState_japanese = desc_editorState_japanese;
+    public void setTags_korean(List<String> tags_korean) {
+        this.tags_korean = tags_korean;
     }
 
-    public String getDesc_editorState_korean() {
-        return desc_editorState_korean;
+    public List<String> getTags_english() {
+        return tags_english;
     }
 
-    public void setDesc_editorState_korean(String desc_editorState_korean) {
-        this.desc_editorState_korean = desc_editorState_korean;
+    public void setTags_english(List<String> tags_english) {
+        this.tags_english = tags_english;
     }
 
-    public String getDesc_editorState_english() {
-        return desc_editorState_english;
+    public List<String> getTags_latvian() {
+        return tags_latvian;
     }
 
-    public void setDesc_editorState_english(String desc_editorState_english) {
-        this.desc_editorState_english = desc_editorState_english;
+    public void setTags_latvian(List<String> tags_latvian) {
+        this.tags_latvian = tags_latvian;
     }
 
-    public String getDesc_editorState_latvian() {
-        return desc_editorState_latvian;
+    public List<String> getTags_norwegian() {
+        return tags_norwegian;
     }
 
-    public void setDesc_editorState_latvian(String desc_editorState_latvian) {
-        this.desc_editorState_latvian = desc_editorState_latvian;
+    public void setTags_norwegian(List<String> tags_norwegian) {
+        this.tags_norwegian = tags_norwegian;
     }
 
-    public String getDesc_editorState_norwegian() {
-        return desc_editorState_norwegian;
+    public List<String> getTags_persian() {
+        return tags_persian;
     }
 
-    public void setDesc_editorState_norwegian(String desc_editorState_norwegian) {
-        this.desc_editorState_norwegian = desc_editorState_norwegian;
+    public void setTags_persian(List<String> tags_persian) {
+        this.tags_persian = tags_persian;
     }
 
-    public String getDesc_editorState_persian() {
-        return desc_editorState_persian;
+    public List<String> getTags_polish() {
+        return tags_polish;
     }
 
-    public void setDesc_editorState_persian(String desc_editorState_persian) {
-        this.desc_editorState_persian = desc_editorState_persian;
+    public void setTags_polish(List<String> tags_polish) {
+        this.tags_polish = tags_polish;
     }
 
-    public String getDesc_editorState_polish() {
-        return desc_editorState_polish;
+    public List<String> getTags_portuguese() {
+        return tags_portuguese;
     }
 
-    public void setDesc_editorState_polish(String desc_editorState_polish) {
-        this.desc_editorState_polish = desc_editorState_polish;
+    public void setTags_portuguese(List<String> tags_portuguese) {
+        this.tags_portuguese = tags_portuguese;
     }
 
-    public String getDesc_editorState_portuguese() {
-        return desc_editorState_portuguese;
+    public List<String> getTags_romanian() {
+        return tags_romanian;
     }
 
-    public void setDesc_editorState_portuguese(String desc_editorState_portuguese) {
-        this.desc_editorState_portuguese = desc_editorState_portuguese;
+    public void setTags_romanian(List<String> tags_romanian) {
+        this.tags_romanian = tags_romanian;
     }
 
-    public String getDesc_editorState_romanian() {
-        return desc_editorState_romanian;
+    public List<String> getTags_russian() {
+        return tags_russian;
     }
 
-    public void setDesc_editorState_romanian(String desc_editorState_romanian) {
-        this.desc_editorState_romanian = desc_editorState_romanian;
+    public void setTags_russian(List<String> tags_russian) {
+        this.tags_russian = tags_russian;
     }
 
-    public String getDesc_editorState_russian() {
-        return desc_editorState_russian;
+    public List<String> getTags_scandinavian() {
+        return tags_scandinavian;
     }
 
-    public void setDesc_editorState_russian(String desc_editorState_russian) {
-        this.desc_editorState_russian = desc_editorState_russian;
+    public void setTags_scandinavian(List<String> tags_scandinavian) {
+        this.tags_scandinavian = tags_scandinavian;
     }
 
-    public String getDesc_editorState_scandinavian() {
-        return desc_editorState_scandinavian;
+    public List<String> getTags_serbian() {
+        return tags_serbian;
     }
 
-    public void setDesc_editorState_scandinavian(String desc_editorState_scandinavian) {
-        this.desc_editorState_scandinavian = desc_editorState_scandinavian;
+    public void setTags_serbian(List<String> tags_serbian) {
+        this.tags_serbian = tags_serbian;
     }
 
-    public String getDesc_editorState_serbian() {
-        return desc_editorState_serbian;
+    public List<String> getTags_spanish() {
+        return tags_spanish;
     }
 
-    public void setDesc_editorState_serbian(String desc_editorState_serbian) {
-        this.desc_editorState_serbian = desc_editorState_serbian;
+    public void setTags_spanish(List<String> tags_spanish) {
+        this.tags_spanish = tags_spanish;
     }
 
-    public String getDesc_editorState_spanish() {
-        return desc_editorState_spanish;
+    public List<String> getTags_swedish() {
+        return tags_swedish;
     }
 
-    public void setDesc_editorState_spanish(String desc_editorState_spanish) {
-        this.desc_editorState_spanish = desc_editorState_spanish;
+    public void setTags_swedish(List<String> tags_swedish) {
+        this.tags_swedish = tags_swedish;
     }
 
-    public String getDesc_editorState_swedish() {
-        return desc_editorState_swedish;
+    public List<String> getTags_thai() {
+        return tags_thai;
     }
 
-    public void setDesc_editorState_swedish(String desc_editorState_swedish) {
-        this.desc_editorState_swedish = desc_editorState_swedish;
+    public void setTags_thai(List<String> tags_thai) {
+        this.tags_thai = tags_thai;
     }
 
-    public String getDesc_editorState_thai() {
-        return desc_editorState_thai;
+    public List<String> getTags_turkish() {
+        return tags_turkish;
     }
 
-    public void setDesc_editorState_thai(String desc_editorState_thai) {
-        this.desc_editorState_thai = desc_editorState_thai;
+    public void setTags_turkish(List<String> tags_turkish) {
+        this.tags_turkish = tags_turkish;
     }
 
-    public String getDesc_editorState_turkish() {
-        return desc_editorState_turkish;
+    public List<String> getTags_ukrainian() {
+        return tags_ukrainian;
     }
 
-    public void setDesc_editorState_turkish(String desc_editorState_turkish) {
-        this.desc_editorState_turkish = desc_editorState_turkish;
+    public void setTags_ukrainian(List<String> tags_ukrainian) {
+        this.tags_ukrainian = tags_ukrainian;
     }
 
-    public String getDesc_editorState_ukrainian() {
-        return desc_editorState_ukrainian;
+    public String getDesc_extra_arabic() {
+        return desc_extra_arabic;
     }
 
-    public void setDesc_editorState_ukrainian(String desc_editorState_ukrainian) {
-        this.desc_editorState_ukrainian = desc_editorState_ukrainian;
+    public void setDesc_extra_arabic(String desc_extra_arabic) {
+        this.desc_extra_arabic = desc_extra_arabic;
+    }
+
+    public String getDesc_extra_bengali() {
+        return desc_extra_bengali;
+    }
+
+    public void setDesc_extra_bengali(String desc_extra_bengali) {
+        this.desc_extra_bengali = desc_extra_bengali;
+    }
+
+    public String getDesc_extra_brazilian_portuguese() {
+        return desc_extra_brazilian_portuguese;
+    }
+
+    public void setDesc_extra_brazilian_portuguese(String desc_extra_brazilian_portuguese) {
+        this.desc_extra_brazilian_portuguese = desc_extra_brazilian_portuguese;
+    }
+
+    public String getDesc_extra_bulgarian() {
+        return desc_extra_bulgarian;
+    }
+
+    public void setDesc_extra_bulgarian(String desc_extra_bulgarian) {
+        this.desc_extra_bulgarian = desc_extra_bulgarian;
+    }
+
+    public String getDesc_extra_catalan() {
+        return desc_extra_catalan;
+    }
+
+    public void setDesc_extra_catalan(String desc_extra_catalan) {
+        this.desc_extra_catalan = desc_extra_catalan;
+    }
+
+    public String getDesc_extra_chinese() {
+        return desc_extra_chinese;
+    }
+
+    public void setDesc_extra_chinese(String desc_extra_chinese) {
+        this.desc_extra_chinese = desc_extra_chinese;
+    }
+
+    public String getDesc_extra_traditional_chinese() {
+        return desc_extra_traditional_chinese;
+    }
+
+    public void setDesc_extra_traditional_chinese(String desc_extra_traditional_chinese) {
+        this.desc_extra_traditional_chinese = desc_extra_traditional_chinese;
+    }
+
+    public String getDesc_extra_czech() {
+        return desc_extra_czech;
+    }
+
+    public void setDesc_extra_czech(String desc_extra_czech) {
+        this.desc_extra_czech = desc_extra_czech;
+    }
+
+    public String getDesc_extra_danish() {
+        return desc_extra_danish;
+    }
+
+    public void setDesc_extra_danish(String desc_extra_danish) {
+        this.desc_extra_danish = desc_extra_danish;
+    }
+
+    public String getDesc_extra_dutch() {
+        return desc_extra_dutch;
+    }
+
+    public void setDesc_extra_dutch(String desc_extra_dutch) {
+        this.desc_extra_dutch = desc_extra_dutch;
+    }
+
+    public String getDesc_extra_estonian() {
+        return desc_extra_estonian;
+    }
+
+    public void setDesc_extra_estonian(String desc_extra_estonian) {
+        this.desc_extra_estonian = desc_extra_estonian;
+    }
+
+    public String getDesc_extra_finnish() {
+        return desc_extra_finnish;
+    }
+
+    public void setDesc_extra_finnish(String desc_extra_finnish) {
+        this.desc_extra_finnish = desc_extra_finnish;
+    }
+
+    public String getDesc_extra_french() {
+        return desc_extra_french;
+    }
+
+    public void setDesc_extra_french(String desc_extra_french) {
+        this.desc_extra_french = desc_extra_french;
+    }
+
+    public String getDesc_extra_galician() {
+        return desc_extra_galician;
+    }
+
+    public void setDesc_extra_galician(String desc_extra_galician) {
+        this.desc_extra_galician = desc_extra_galician;
+    }
+
+    public String getDesc_extra_german() {
+        return desc_extra_german;
+    }
+
+    public void setDesc_extra_german(String desc_extra_german) {
+        this.desc_extra_german = desc_extra_german;
+    }
+
+    public String getDesc_extra_greek() {
+        return desc_extra_greek;
+    }
+
+    public void setDesc_extra_greek(String desc_extra_greek) {
+        this.desc_extra_greek = desc_extra_greek;
+    }
+
+    public String getDesc_extra_hindi() {
+        return desc_extra_hindi;
+    }
+
+    public void setDesc_extra_hindi(String desc_extra_hindi) {
+        this.desc_extra_hindi = desc_extra_hindi;
+    }
+
+    public String getDesc_extra_indonesian() {
+        return desc_extra_indonesian;
+    }
+
+    public void setDesc_extra_indonesian(String desc_extra_indonesian) {
+        this.desc_extra_indonesian = desc_extra_indonesian;
+    }
+
+    public String getDesc_extra_italian() {
+        return desc_extra_italian;
+    }
+
+    public void setDesc_extra_italian(String desc_extra_italian) {
+        this.desc_extra_italian = desc_extra_italian;
+    }
+
+    public String getDesc_extra_irish() {
+        return desc_extra_irish;
+    }
+
+    public void setDesc_extra_irish(String desc_extra_irish) {
+        this.desc_extra_irish = desc_extra_irish;
+    }
+
+    public String getDesc_extra_japanese() {
+        return desc_extra_japanese;
+    }
+
+    public void setDesc_extra_japanese(String desc_extra_japanese) {
+        this.desc_extra_japanese = desc_extra_japanese;
+    }
+
+    public String getDesc_extra_korean() {
+        return desc_extra_korean;
+    }
+
+    public void setDesc_extra_korean(String desc_extra_korean) {
+        this.desc_extra_korean = desc_extra_korean;
+    }
+
+    public String getDesc_extra_english() {
+        return desc_extra_english;
+    }
+
+    public void setDesc_extra_english(String desc_extra_english) {
+        this.desc_extra_english = desc_extra_english;
+    }
+
+    public String getDesc_extra_latvian() {
+        return desc_extra_latvian;
+    }
+
+    public void setDesc_extra_latvian(String desc_extra_latvian) {
+        this.desc_extra_latvian = desc_extra_latvian;
+    }
+
+    public String getDesc_extra_norwegian() {
+        return desc_extra_norwegian;
+    }
+
+    public void setDesc_extra_norwegian(String desc_extra_norwegian) {
+        this.desc_extra_norwegian = desc_extra_norwegian;
+    }
+
+    public String getDesc_extra_persian() {
+        return desc_extra_persian;
+    }
+
+    public void setDesc_extra_persian(String desc_extra_persian) {
+        this.desc_extra_persian = desc_extra_persian;
+    }
+
+    public String getDesc_extra_polish() {
+        return desc_extra_polish;
+    }
+
+    public void setDesc_extra_polish(String desc_extra_polish) {
+        this.desc_extra_polish = desc_extra_polish;
+    }
+
+    public String getDesc_extra_portuguese() {
+        return desc_extra_portuguese;
+    }
+
+    public void setDesc_extra_portuguese(String desc_extra_portuguese) {
+        this.desc_extra_portuguese = desc_extra_portuguese;
+    }
+
+    public String getDesc_extra_romanian() {
+        return desc_extra_romanian;
+    }
+
+    public void setDesc_extra_romanian(String desc_extra_romanian) {
+        this.desc_extra_romanian = desc_extra_romanian;
+    }
+
+    public String getDesc_extra_russian() {
+        return desc_extra_russian;
+    }
+
+    public void setDesc_extra_russian(String desc_extra_russian) {
+        this.desc_extra_russian = desc_extra_russian;
+    }
+
+    public String getDesc_extra_scandinavian() {
+        return desc_extra_scandinavian;
+    }
+
+    public void setDesc_extra_scandinavian(String desc_extra_scandinavian) {
+        this.desc_extra_scandinavian = desc_extra_scandinavian;
+    }
+
+    public String getDesc_extra_serbian() {
+        return desc_extra_serbian;
+    }
+
+    public void setDesc_extra_serbian(String desc_extra_serbian) {
+        this.desc_extra_serbian = desc_extra_serbian;
+    }
+
+    public String getDesc_extra_spanish() {
+        return desc_extra_spanish;
+    }
+
+    public void setDesc_extra_spanish(String desc_extra_spanish) {
+        this.desc_extra_spanish = desc_extra_spanish;
+    }
+
+    public String getDesc_extra_swedish() {
+        return desc_extra_swedish;
+    }
+
+    public void setDesc_extra_swedish(String desc_extra_swedish) {
+        this.desc_extra_swedish = desc_extra_swedish;
+    }
+
+    public String getDesc_extra_thai() {
+        return desc_extra_thai;
+    }
+
+    public void setDesc_extra_thai(String desc_extra_thai) {
+        this.desc_extra_thai = desc_extra_thai;
+    }
+
+    public String getDesc_extra_turkish() {
+        return desc_extra_turkish;
+    }
+
+    public void setDesc_extra_turkish(String desc_extra_turkish) {
+        this.desc_extra_turkish = desc_extra_turkish;
+    }
+
+    public String getDesc_extra_ukrainian() {
+        return desc_extra_ukrainian;
+    }
+
+    public void setDesc_extra_ukrainian(String desc_extra_ukrainian) {
+        this.desc_extra_ukrainian = desc_extra_ukrainian;
     }
 
     public String getName_arabic() {
@@ -1280,310 +1562,6 @@ public class SharingLink extends SMSolrDoc {
 
     public void setDislikeUsers(List<Long> dislikeUsers) {
         this.dislikeUsers = dislikeUsers;
-    }
-
-    public String getCommentState() {
-        return commentState;
-    }
-
-    public void setCommentState(String commentState) {
-        this.commentState = commentState;
-    }
-
-    public String getCommentText_arabic() {
-        return commentText_arabic;
-    }
-
-    public void setCommentText_arabic(String commentText_arabic) {
-        this.commentText_arabic = commentText_arabic;
-    }
-
-    public String getCommentText_bengali() {
-        return commentText_bengali;
-    }
-
-    public void setCommentText_bengali(String commentText_bengali) {
-        this.commentText_bengali = commentText_bengali;
-    }
-
-    public String getCommentText_brazilian_portuguese() {
-        return commentText_brazilian_portuguese;
-    }
-
-    public void setCommentText_brazilian_portuguese(String commentText_brazilian_portuguese) {
-        this.commentText_brazilian_portuguese = commentText_brazilian_portuguese;
-    }
-
-    public String getCommentText_bulgarian() {
-        return commentText_bulgarian;
-    }
-
-    public void setCommentText_bulgarian(String commentText_bulgarian) {
-        this.commentText_bulgarian = commentText_bulgarian;
-    }
-
-    public String getCommentText_catalan() {
-        return commentText_catalan;
-    }
-
-    public void setCommentText_catalan(String commentText_catalan) {
-        this.commentText_catalan = commentText_catalan;
-    }
-
-    public String getCommentText_chinese() {
-        return commentText_chinese;
-    }
-
-    public void setCommentText_chinese(String commentText_chinese) {
-        this.commentText_chinese = commentText_chinese;
-    }
-
-    public String getCommentText_traditional_chinese() {
-        return commentText_traditional_chinese;
-    }
-
-    public void setCommentText_traditional_chinese(String commentText_traditional_chinese) {
-        this.commentText_traditional_chinese = commentText_traditional_chinese;
-    }
-
-    public String getCommentText_czech() {
-        return commentText_czech;
-    }
-
-    public void setCommentText_czech(String commentText_czech) {
-        this.commentText_czech = commentText_czech;
-    }
-
-    public String getCommentText_danish() {
-        return commentText_danish;
-    }
-
-    public void setCommentText_danish(String commentText_danish) {
-        this.commentText_danish = commentText_danish;
-    }
-
-    public String getCommentText_dutch() {
-        return commentText_dutch;
-    }
-
-    public void setCommentText_dutch(String commentText_dutch) {
-        this.commentText_dutch = commentText_dutch;
-    }
-
-    public String getCommentText_estonian() {
-        return commentText_estonian;
-    }
-
-    public void setCommentText_estonian(String commentText_estonian) {
-        this.commentText_estonian = commentText_estonian;
-    }
-
-    public String getCommentText_finnish() {
-        return commentText_finnish;
-    }
-
-    public void setCommentText_finnish(String commentText_finnish) {
-        this.commentText_finnish = commentText_finnish;
-    }
-
-    public String getCommentText_french() {
-        return commentText_french;
-    }
-
-    public void setCommentText_french(String commentText_french) {
-        this.commentText_french = commentText_french;
-    }
-
-    public String getCommentText_galician() {
-        return commentText_galician;
-    }
-
-    public void setCommentText_galician(String commentText_galician) {
-        this.commentText_galician = commentText_galician;
-    }
-
-    public String getCommentText_german() {
-        return commentText_german;
-    }
-
-    public void setCommentText_german(String commentText_german) {
-        this.commentText_german = commentText_german;
-    }
-
-    public String getCommentText_greek() {
-        return commentText_greek;
-    }
-
-    public void setCommentText_greek(String commentText_greek) {
-        this.commentText_greek = commentText_greek;
-    }
-
-    public String getCommentText_hindi() {
-        return commentText_hindi;
-    }
-
-    public void setCommentText_hindi(String commentText_hindi) {
-        this.commentText_hindi = commentText_hindi;
-    }
-
-    public String getCommentText_indonesian() {
-        return commentText_indonesian;
-    }
-
-    public void setCommentText_indonesian(String commentText_indonesian) {
-        this.commentText_indonesian = commentText_indonesian;
-    }
-
-    public String getCommentText_italian() {
-        return commentText_italian;
-    }
-
-    public void setCommentText_italian(String commentText_italian) {
-        this.commentText_italian = commentText_italian;
-    }
-
-    public String getCommentText_irish() {
-        return commentText_irish;
-    }
-
-    public void setCommentText_irish(String commentText_irish) {
-        this.commentText_irish = commentText_irish;
-    }
-
-    public String getCommentText_japanese() {
-        return commentText_japanese;
-    }
-
-    public void setCommentText_japanese(String commentText_japanese) {
-        this.commentText_japanese = commentText_japanese;
-    }
-
-    public String getCommentText_korean() {
-        return commentText_korean;
-    }
-
-    public void setCommentText_korean(String commentText_korean) {
-        this.commentText_korean = commentText_korean;
-    }
-
-    public String getCommentText_english() {
-        return commentText_english;
-    }
-
-    public void setCommentText_english(String commentText_english) {
-        this.commentText_english = commentText_english;
-    }
-
-    public String getCommentText_latvian() {
-        return commentText_latvian;
-    }
-
-    public void setCommentText_latvian(String commentText_latvian) {
-        this.commentText_latvian = commentText_latvian;
-    }
-
-    public String getCommentText_norwegian() {
-        return commentText_norwegian;
-    }
-
-    public void setCommentText_norwegian(String commentText_norwegian) {
-        this.commentText_norwegian = commentText_norwegian;
-    }
-
-    public String getCommentText_persian() {
-        return commentText_persian;
-    }
-
-    public void setCommentText_persian(String commentText_persian) {
-        this.commentText_persian = commentText_persian;
-    }
-
-    public String getCommentText_polish() {
-        return commentText_polish;
-    }
-
-    public void setCommentText_polish(String commentText_polish) {
-        this.commentText_polish = commentText_polish;
-    }
-
-    public String getCommentText_portuguese() {
-        return commentText_portuguese;
-    }
-
-    public void setCommentText_portuguese(String commentText_portuguese) {
-        this.commentText_portuguese = commentText_portuguese;
-    }
-
-    public String getCommentText_romanian() {
-        return commentText_romanian;
-    }
-
-    public void setCommentText_romanian(String commentText_romanian) {
-        this.commentText_romanian = commentText_romanian;
-    }
-
-    public String getCommentText_russian() {
-        return commentText_russian;
-    }
-
-    public void setCommentText_russian(String commentText_russian) {
-        this.commentText_russian = commentText_russian;
-    }
-
-    public String getCommentText_scandinavian() {
-        return commentText_scandinavian;
-    }
-
-    public void setCommentText_scandinavian(String commentText_scandinavian) {
-        this.commentText_scandinavian = commentText_scandinavian;
-    }
-
-    public String getCommentText_serbian() {
-        return commentText_serbian;
-    }
-
-    public void setCommentText_serbian(String commentText_serbian) {
-        this.commentText_serbian = commentText_serbian;
-    }
-
-    public String getCommentText_spanish() {
-        return commentText_spanish;
-    }
-
-    public void setCommentText_spanish(String commentText_spanish) {
-        this.commentText_spanish = commentText_spanish;
-    }
-
-    public String getCommentText_swedish() {
-        return commentText_swedish;
-    }
-
-    public void setCommentText_swedish(String commentText_swedish) {
-        this.commentText_swedish = commentText_swedish;
-    }
-
-    public String getCommentText_thai() {
-        return commentText_thai;
-    }
-
-    public void setCommentText_thai(String commentText_thai) {
-        this.commentText_thai = commentText_thai;
-    }
-
-    public String getCommentText_turkish() {
-        return commentText_turkish;
-    }
-
-    public void setCommentText_turkish(String commentText_turkish) {
-        this.commentText_turkish = commentText_turkish;
-    }
-
-    public String getCommentText_ukrainian() {
-        return commentText_ukrainian;
-    }
-
-    public void setCommentText_ukrainian(String commentText_ukrainian) {
-        this.commentText_ukrainian = commentText_ukrainian;
     }
 
     public String getName_ukrainian() {

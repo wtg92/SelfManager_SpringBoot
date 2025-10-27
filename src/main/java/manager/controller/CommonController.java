@@ -12,6 +12,7 @@ import manager.solr.constants.SolrConfig;
 import manager.system.Gender;
 import manager.system.Language;
 import manager.system.VerifyUserMethod;
+import manager.system.books.BooksConstants;
 import manager.system.career.PlanItemType;
 import manager.system.career.PlanSetting;
 import manager.system.career.PlanState;
@@ -43,6 +44,7 @@ public class CommonController {
         rlt.put("searchPageSize", SolrConfig.SEARCH_PAGE_SIZE);
         rlt.put("searchHighlightingTag",SolrConfig.HIGHLIGHT_TAG);
         rlt.put("searchHighlightingFragSize",SolrConfig.HIGHLIGHT_FRAGMENT_SIZE);
+        rlt.put("maxSizeOfTagsForLinks", BooksConstants.MAX_SIZE_OF_TAGS_FOR_LINKS);
         return AjaxResult.success(rlt);
     }
 

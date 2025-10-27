@@ -10,7 +10,6 @@ import manager.solr.SolrFields;
 import manager.solr.books.SharingLink;
 import manager.system.SelfXErrors;
 import manager.system.books.SharingLinkStatus;
-import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
@@ -36,12 +35,24 @@ public class SharingLinksAgent {
 
     public static Map<String, Object> transferSolrUpdateParams(SharingLinkPatchReq req) {
         Map<String, Object> updatingAttrs = new HashMap<>();
+
         updatingAttrs.put(SolrFields.TYPE, req.type);
         updatingAttrs.put(SolrFields.DEFAULT_LANG, req.defaultLang);
+
         if (req.contentId != null) {
             updatingAttrs.put(SolrFields.CONTENT_ID, req.contentId);
         }
+
         updatingAttrs.put(SolrFields.PERMS, JSON.toJSONString(req.perms));
+
+        if (req.multiLangFields != null && !req.multiLangFields.isEmpty()) {
+            updatingAttrs.putAll(req.multiLangFields);
+        }
+
+        if(req.settings != null && !req.settings.isEmpty()){
+            updatingAttrs.put(SolrFields.SETTINGS, req.settings);
+        }
+
         return updatingAttrs;
     }
 
@@ -52,6 +63,11 @@ public class SharingLinksAgent {
        2.
      */
     public void fill(SharingLinkDetail detail, @Nullable Long loginId, SharingLink link, SharingLinksAgent.EncryptionParams params) {
+        checkPermission(loginId,link,params);
+        detail.link = link;
+    }
+
+    public void checkPermission(@Nullable Long loginId, SharingLink link, SharingLinksAgent.EncryptionParams params){
         // 检查Status unexpected.
         if (!Objects.equals(link.getStatus(), SharingLinkStatus.PUBLIC)) {
             throw new LogicException(SelfXErrors.LINK_NONE_PUBLIC,link.getStatus());
