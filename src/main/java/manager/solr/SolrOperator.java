@@ -106,7 +106,7 @@ public class SolrOperator {
     }
 
     public void deleteByIdInUserIsolation(String core, long userId, String id) {
-        String coreName = CoreNameProducer.calculateCoreNamByUser(core,userId) ;
+        String coreName = CoreNameProducer.calculateCoreNameByUser(core,userId) ;
         deleteByIDDirectly(coreName,id);
     }
 
@@ -115,7 +115,7 @@ public class SolrOperator {
     }
 
     public void deleteByFieldsInUserIsolation(String core, long userId, Map<String, Object> params) {
-        String coreName = CoreNameProducer.calculateCoreNamByUser(core,userId) ;
+        String coreName = CoreNameProducer.calculateCoreNameByUser(core,userId) ;
         deleteByFieldsDirectly(coreName,params);
     }
     public void deleteByFieldsDirectly(String coreName, Map<String, Object> params) {
@@ -123,7 +123,7 @@ public class SolrOperator {
     }
 
     public <T> MultipleItemsResult<T> queryInUserIsolation(String core, Long userId, SolrQuery query, String configDir, Class<T> cls) {
-        String coreName = CoreNameProducer.calculateCoreNamByUser(core,userId) ;
+        String coreName = CoreNameProducer.calculateCoreNameByUser(core,userId) ;
         return queryDirectly(coreName,query,configDir,cls);
     }
 
@@ -145,7 +145,7 @@ public class SolrOperator {
             , BiConsumer<T,Float> scoreSetter
             , SolrSearchRequest searchRequest
     ) {
-        String coreName = CoreNameProducer.calculateCoreNamByUser(core,userId) ;
+        String coreName = CoreNameProducer.calculateCoreNameByUser(core,userId) ;
         initCoreIfNotExist(coreName,configDir);
 
         SolrQuery query = new SolrQuery();
