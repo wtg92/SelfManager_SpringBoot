@@ -243,7 +243,7 @@ public class SolrOperator {
      * 假设数值 还可以求出最大值 最小值
      */
     public StatsResult queryStatus(String core, Long userId, SolrQuery query, String configDir) {
-        String coreName = CoreNameProducer.calculateCoreNamByUser(core,userId) ;
+        String coreName = CoreNameProducer.calculateCoreNameByUser(core,userId) ;
         initCoreIfNotExist(coreName,configDir);
         query.set(SolrRequestParam.STATS, SolrRequestParam.TRUE);
         query.set(SolrRequestParam.QUERY_LIMIT, "0");
