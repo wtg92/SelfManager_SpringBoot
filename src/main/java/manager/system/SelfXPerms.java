@@ -27,7 +27,6 @@ public enum SelfXPerms {
 
 	DO_MIGRATION_OF_VER1(13,"可以触发数据迁移"),
 
-
 	;
     private final int dbCode;
 	private final String name;

@@ -17,8 +17,6 @@ public class LoginInfo {
 	public boolean seeToolsModule;
 	public boolean seeWorkSheetModule;
 
-	public boolean canDoMigrationOfV1;
-
 	public LoginInfo() {}
 
 	public LoginInfo(UserProxy user) {
@@ -31,7 +29,6 @@ public class LoginInfo {
 		seeBooksModule = hasPerm(SelfXPerms.SEE_BOOKS_MODULE);
 		seeToolsModule = hasPerm(SelfXPerms.SEE_TOOLS_MODULE);
 		seeWorkSheetModule = hasPerm(SelfXPerms.SEE_WORKSHEET_MODULE);
-		canDoMigrationOfV1 = hasPerm(SelfXPerms.DO_MIGRATION_OF_VER1);
 	}
 	
 	
