@@ -1,6 +1,7 @@
 package manager.solr.books;
 
 import manager.entity.SMSolrDoc;
+import manager.util.CommonUtil;
 import org.apache.solr.client.solrj.beans.Field;
 
 import java.util.List;
@@ -45,7 +46,7 @@ public class SharingBook extends SMSolrDoc {
 
     @Override
     public SharingBook clone(){
-        return (SharingBook) super.clone();
+        return CommonUtil.deepClone(this);
     }
 
     /**

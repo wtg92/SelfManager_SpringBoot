@@ -1,10 +1,14 @@
 package manager.cache;
 
 
+import com.alibaba.fastjson2.JSON;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import manager.booster.longRunningTasks.LongRunningTasksMessage;
 import manager.entity.general.FileRecord;
+import manager.entity.general.User;
+import manager.entity.general.career.Plan;
+import manager.entity.general.career.PlanBalance;
 import manager.solr.books.PageNode;
 import manager.solr.books.SharingBook;
 import manager.entity.general.career.WorkSheet;
@@ -32,6 +36,13 @@ public class CaffeineCollection {
     @Value("${cache.perms.max-num}")
     private Integer PERMS_MAX_NUM;
 
+    @Value("${cache.users.max-num}")
+    private Integer USERS_MAX_NUM;
+
+    @Value("${cache.plans.max-num}")
+    private Integer PLANS_MAX_NUM;
+    @Value("${cache.plan-balance.max-num}")
+    private Integer PLAN_BALANCE_MAX_NUM;
     @Value("${cache.common.expiration-of-min}")
     public Integer COMMON_EXPIRATION_OF_MIN;
     @Value("${cache.long-running-tasks.expiration-of-min}")
@@ -40,20 +51,20 @@ public class CaffeineCollection {
     @Value("${cache.temp-users.max-num}")
     private Integer TEMP_USERS_MAX_NUM;
 
-    @Value("${cache.worksheets.max-num}")
-    private Integer WORKSHEETS_MAX_NUM;
+    @Value("${cache.worksheets.max-size-in-m}")
+    private Long WORKSHEETS_MAX_SIZE_IN_M;
 
     @Value("${cache.temp.expiration-of-min}")
     private Integer TEMP_EXPIRATION_OF_MIN;
 
-    @Value("${cache.books.max-num}")
-    private Integer BOOKS_MAX_NUM;
+    @Value("${cache.books.max-size-in-m}")
+    private Long BOOKS_MAX_SIZE_IN_M;
 
-    @Value("${cache.links.max-num}")
-    private Integer LINkS_MAX_NUM;
+    @Value("${cache.links.max-size-in-m}")
+    private Long LINkS_MAX_SIZE_IN_M;
 
-    @Value("${cache.page-nodes.max-num}")
-    private Integer PAGE_NODES_MAX_NUM;
+    @Value("${cache.page-nodes.max-size-in-m}")
+    private Long PAGE_NODES_MAX_SIZE_IN_M;
     @Value("${cache.file-records.max-num}")
     private Integer FILE_RECORDS_MAX_NUM;
 
@@ -68,11 +79,14 @@ public class CaffeineCollection {
         Common_Temp_Cache = generateCommonTempCache();
 
         Perms_Cache = generateEnumCache(PERMS_MAX_NUM);
-        Worksheet_Cache = generateSpecificEntityCache(WORKSHEETS_MAX_NUM,COMMON_EXPIRATION_OF_MIN);
+        Users_Cache = generateSpecificEntityCache(USERS_MAX_NUM,COMMON_EXPIRATION_OF_MIN);
+        Plans_Cache = generateSpecificEntityCache(PLANS_MAX_NUM,COMMON_EXPIRATION_OF_MIN);
+        PlanBalance_Cache = generateSpecificEntityCache(PLAN_BALANCE_MAX_NUM,COMMON_EXPIRATION_OF_MIN);
+        Worksheet_Cache = createCacheByMaxSizeInM(WORKSHEETS_MAX_SIZE_IN_M,COMMON_EXPIRATION_OF_MIN);
         Temp_Users_Cache = generateSpecificEntityCache(TEMP_USERS_MAX_NUM, TEMP_EXPIRATION_OF_MIN);
-        Books_Cache = generateSpecificEntityCache(BOOKS_MAX_NUM,COMMON_EXPIRATION_OF_MIN);
-        Links_Cache = generateSpecificEntityCache(LINkS_MAX_NUM,COMMON_EXPIRATION_OF_MIN);
-        Page_Nodes_Cache = generateSpecificEntityCache(PAGE_NODES_MAX_NUM,COMMON_EXPIRATION_OF_MIN);
+        Books_Cache = createCacheByMaxSizeInM(BOOKS_MAX_SIZE_IN_M,COMMON_EXPIRATION_OF_MIN);
+        Links_Cache = createCacheByMaxSizeInM(LINkS_MAX_SIZE_IN_M,COMMON_EXPIRATION_OF_MIN);
+        Page_Nodes_Cache = createCacheByMaxSizeInM(PAGE_NODES_MAX_SIZE_IN_M,COMMON_EXPIRATION_OF_MIN);
         File_Records_Cache = generateSpecificEntityCache(FILE_RECORDS_MAX_NUM,COMMON_EXPIRATION_OF_MIN);
         Closed_Book_Ids_Cache = generateSpecificEntityCache(CLOSED_BOOK_IDS_MAX_NUM,COMMON_EXPIRATION_OF_MIN);
         Long_Running_Tasks_Cache = generateSpecificEntityCache(LONG_RUNNING_TASKS_MAX_NUM,LONG_RUNNING_TASKS_EXPIRATION_OF_MIN);
@@ -85,7 +99,6 @@ public class CaffeineCollection {
                     // 计算每个条目的权重，假设每个条目的权重是其占用的内存大小（字节）
                     return estimateStringMemoryUsage(value);
                 })
-                .expireAfterWrite(Duration.ofMinutes(TEMP_EXPIRATION_OF_MIN))
                 .expireAfterAccess(Duration.ofMinutes(TEMP_EXPIRATION_OF_MIN))
                 .build();
     }
@@ -98,7 +111,15 @@ public class CaffeineCollection {
 
     public Cache<String, Map<String,String>> Temp_Users_Cache;
 
+    public Cache<Long, User> Users_Cache;
+
+    public Cache<Long, Plan> Plans_Cache;
+
     public Cache<Long, WorkSheet> Worksheet_Cache;
+
+    //KEY : USER_ID
+    public Cache<Long, PlanBalance> PlanBalance_Cache;
+
     public Cache<Long, FileRecord> File_Records_Cache;
 
     public Cache<Long, List<String>> Closed_Book_Ids_Cache;
@@ -111,10 +132,11 @@ public class CaffeineCollection {
 
     public Cache<Long, LongRunningTasksMessage> Long_Running_Tasks_Cache;
 
+
+
     private <T,V> Cache<V, T> generateSpecificEntityCache(int maxSize,int expirationMin) {
         return Caffeine.newBuilder()
                 .maximumSize(maxSize)
-                .expireAfterWrite(Duration.ofMinutes(expirationMin))
                 .expireAfterAccess(Duration.ofMinutes(expirationMin))
                 .build();
     }
@@ -125,12 +147,20 @@ public class CaffeineCollection {
     private<T> Cache<Long, Set<T>> generateEnumCache(int maxSize) {
         return Caffeine.newBuilder()
                 .maximumSize(maxSize)
-                .expireAfterWrite(Duration.ofMinutes(COMMON_EXPIRATION_OF_MIN))
                 .expireAfterAccess(Duration.ofMinutes(COMMON_EXPIRATION_OF_MIN))
                 .build();
     }
 
-
+    private <T,V> Cache<V, T> createCacheByMaxSizeInM(long maxSizeInM,int expirationMin) {
+        return Caffeine.newBuilder()
+                .maximumWeight(maxSizeInM * 1024 * 1024)
+                .weigher((V key, T value) -> {
+                    // 计算每个条目的权重，假设每个条目的权重是其占用的内存大小（字节）
+                    return estimateStringMemoryUsage(value);
+                })
+                .expireAfterAccess(Duration.ofMinutes(expirationMin))
+                .build();
+    }
 
     private Cache<String, String>  generateCommonCache() {
         return Caffeine.newBuilder()
@@ -139,12 +169,13 @@ public class CaffeineCollection {
                     // 计算每个条目的权重，假设每个条目的权重是其占用的内存大小（字节）
                     return estimateStringMemoryUsage(value);
                 })
-                .expireAfterWrite(Duration.ofMinutes(COMMON_EXPIRATION_OF_MIN))
                 .expireAfterAccess(Duration.ofMinutes(COMMON_EXPIRATION_OF_MIN))
                 .build();
     }
 
-
+    public static int estimateStringMemoryUsage(Object obj) {
+        return estimateStringMemoryUsage(JSON.toJSONString(obj));
+    }
 
     /**
      * 估算字符串占用的内存大小
@@ -152,18 +183,22 @@ public class CaffeineCollection {
      * @return 估算的内存大小（字节）
      */
     public static int estimateStringMemoryUsage(String str) {
-        if (str == null) {
-            return 0;
-        }
+        if (str == null) return 0;
 
         final int STRING_OBJECT_OVERHEAD = 24;
         final int ARRAY_OBJECT_OVERHEAD = 16;
-        final int CHAR_SIZE = 2;
 
-        int length = str.length();
+        boolean isAscii = true;
+        for (int i = 0; i < str.length(); i++) {
+            if (str.charAt(i) > 255) {
+                isAscii = false;
+                break;
+            }
+        }
 
+        int perChar = isAscii ? 1 : 2;
 
-        return STRING_OBJECT_OVERHEAD + ARRAY_OBJECT_OVERHEAD + (CHAR_SIZE * length);
+        return STRING_OBJECT_OVERHEAD + ARRAY_OBJECT_OVERHEAD + (perChar * str.length());
     }
 
 

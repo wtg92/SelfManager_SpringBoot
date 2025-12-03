@@ -5,6 +5,7 @@ import java.util.List;
 
 import jakarta.persistence.*;
 
+import manager.util.CommonUtil;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -61,11 +62,7 @@ public class Plan extends SMGeneralEntity {
 
 	@Override
 	public Plan clone(){
-		try {
-			return (Plan) super.clone();
-		} catch (CloneNotSupportedException e) {
-			throw new RuntimeException(e);
-		}
+		return CommonUtil.deepClone(this);
 	}
 
 	public Plan() {}

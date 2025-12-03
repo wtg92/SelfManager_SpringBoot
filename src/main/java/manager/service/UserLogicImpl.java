@@ -23,6 +23,7 @@ import manager.data.proxy.UserGroupProxy;
 import manager.data.proxy.UserProxy;
 import manager.entity.general.User;
 import manager.entity.general.UserGroup;
+import manager.entity.general.career.PlanBalance;
 import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.NoSuchElement;
@@ -72,7 +73,7 @@ public class UserLogicImpl extends UserService {
 
 	public User getUser(long userId){
 		ThrowableSupplier<User, DBException> generator = ()-> uDAO.selectExistedUser(userId);
-		return cache.getEntity(CacheMode.E_ID,userId,User.class,generator);
+		return cache.getUser(userId,generator);
 	}
 
 
@@ -596,7 +597,11 @@ public class UserLogicImpl extends UserService {
 			throw new RuntimeException("未配置的找回类型 "+method.getName());
 		}
 	}
-
+	private void updateUserSynchronously(User user, long loginId){
+		locker.lockByUserAndClass(loginId,()->{
+			cache.saveUser(user, one -> uDAO.updateExistedUser(user));
+		});
+	}
 	@Override
 	public synchronized void resetPWD(String account, String val, VerifyUserMethod method, String verifyCode, String resetPWD) throws LogicException, DBException  {
 		User user;
@@ -623,7 +628,8 @@ public class UserLogicImpl extends UserService {
 			
 			user.setPassword(resetPWD);
 			SecurityBooster.encodeUserPwd(user);
-			cache.saveEntity(user, one -> uDAO.updateExistedUser(user));
+			//既然已经明确了该user就是所属用户 则直接用该userId 当loginId
+			updateUserSynchronously(user,user.getId());
 			return;
 		}
 		case TEL_VERIFY_CODE:{
@@ -643,7 +649,8 @@ public class UserLogicImpl extends UserService {
 			
 			user.setPassword(resetPWD);
 			SecurityBooster.encodeUserPwd(user);
-			cache.saveEntity(user, one -> uDAO.updateExistedUser(user));
+			//既然已经明确了该user就是所属用户 则直接用该userId 当loginId
+			updateUserSynchronously(user,user.getId());
 			return;
 		}
 		default:
@@ -677,7 +684,7 @@ public class UserLogicImpl extends UserService {
 				filesService.deleteFileRecord(loginId,originalPortraitId);
 			}
 			user.setPortraitId(portraitId);
-			cache.saveEntity(user, one -> uDAO.updateExistedUser(user));
+			updateUserSynchronously(user,loginId);
 		});
 	}
 

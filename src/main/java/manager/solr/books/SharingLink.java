@@ -2,6 +2,7 @@ package manager.solr.books;
 
 import manager.solr.data.SharingLinkPermission;
 import manager.entity.SMSolrDoc;
+import manager.util.CommonUtil;
 import org.apache.solr.client.solrj.beans.Field;
 
 import java.util.List;
@@ -1591,7 +1592,7 @@ public class SharingLink extends SMSolrDoc {
 
     @Override
     public SharingLink clone(){
-        return (SharingLink) super.clone();
+        return CommonUtil.deepClone(this);
     }
 
 

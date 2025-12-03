@@ -6,6 +6,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import manager.util.CommonUtil;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -59,12 +60,7 @@ public class User extends SMGeneralEntity{
 
 	@Override
 	public User clone() {
-		try {
-			return (User) super.clone();
-		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
-			throw new RuntimeException("fatal error for clone");
-		}
+		return CommonUtil.deepClone(this);
 	}
 	
 	/*======================== Auto-Genrated Code==================================*/

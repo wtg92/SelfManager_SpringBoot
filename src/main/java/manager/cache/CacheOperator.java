@@ -4,6 +4,9 @@ import com.alibaba.fastjson2.JSON;
 import manager.booster.longRunningTasks.LongRunningTasksMessage;
 import manager.entity.SMEntity;
 import manager.entity.general.FileRecord;
+import manager.entity.general.User;
+import manager.entity.general.career.Plan;
+import manager.entity.general.career.PlanBalance;
 import manager.solr.books.PageNode;
 import manager.solr.books.SharingBook;
 import manager.entity.general.career.WorkSheet;
@@ -19,10 +22,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static java.util.stream.Collectors.toList;
@@ -48,31 +50,33 @@ public class CacheOperator {
 
 
 
+	private <T> void saveWithCacheEvict(long key, T obj,
+										ThrowableConsumer<T, DBException> updater,
+										Consumer<Long> evictor) {
+		try {
+			updater.accept(obj);
+		} finally {
+			evictor.accept(key);
+		}
+	}
 
+
+	// 验证码过期时间 check ok
 	public Integer getExpirationSeconds(){
 		return caches.COMMON_EXPIRATION_OF_MIN;
 	}
-
+	// 验证码信息记录 check ok
 	public void set(String key, String value) {
 		caches.Common_Cache.put(key,value);
 	}
-
+	// 验证码信息记录 check ok
 	public String get(String key)  {
 		return caches.Common_Cache.getIfPresent(key);
 	}
-
+	// 验证码信息记录 check ok
 	public void remove(String key){
 		caches.Common_Cache.invalidate(key);
 	}
-
-	public  <T extends SMEntity> T getEntity(CacheMode mode, long identifier, Class<T> cla,
-											 ThrowableSupplier<T, DBException> generator) throws LogicException, DBException {
-		String key = createEntityKey(mode,identifier,getEntityTableName(cla));
-		String val = caches.Common_Cache.get(key,(k)->JSON.toJSONString(generator.get()));
-		return JSON.parseObject(val, cla);
-	}
-
-
 
 
 	public Set<Integer> getPermsByUser(Long userId, Supplier<Set<Integer>> generator) {
@@ -88,44 +92,74 @@ public class CacheOperator {
 
 
 	/*initor 使用ThrowableSupplier 的原因是 由于该函数 通常应当是dao.insert 要返回一个id  */
-	public <T extends SMEntity> T getOneOrInitIfNotExists(CacheMode mode, long identifier, Class<T> cla,
-                                                                 BiThrowableSupplier<T, DBException,NoSuchElement> generator, ThrowableSupplier<Long,DBException> initor) throws LogicException, DBException {
+	public PlanBalance getOneOrInitBalanceIfNotExistsByUserId(long userId,
+											   BiThrowableSupplier<PlanBalance, DBException,NoSuchElement> generator, ThrowableSupplier<Long,DBException> initor){
 		
-		String key = createEntityKey(mode,identifier,getEntityTableName(cla));
-
-		String val = caches.Common_Cache.getIfPresent(key);
+		PlanBalance val = caches.PlanBalance_Cache.getIfPresent(userId);
 		if(val != null){
-			return JSON.parseObject(val, cla);
+			return val;
 		}
 
 		try {
-			return JSON.parseObject(caches.Common_Cache.get(key,(k)->JSON.toJSONString(generator.get())), cla);
+			val = generator.get();
+			caches.PlanBalance_Cache.put(userId, val);
+			return val;
 		} catch (NoSuchElement e1) {
 			initor.get();
 			try {
-				return JSON.parseObject(caches.Common_Cache.get(key,(k)->JSON.toJSONString(generator.get())), cla);
+				val = generator.get();
+				caches.PlanBalance_Cache.put(userId,val);
+				return val;
 			} catch (NoSuchElement e2) {
 				e2.printStackTrace();
 				assert false;
-				throw new LogicException(SelfXErrors.WRONG_INITIATOR,identifier);
+				throw new LogicException(SelfXErrors.WRONG_INITIATOR,userId);
 			}
 		}
 	}
 
-	private void deleteFromKeys(List<String> keys){
-		keys.forEach(this::deleteFromKey);
+	public void saveBalanceByOwnerId(PlanBalance one,ThrowableConsumer<PlanBalance, DBException> updater){
+		long key = one.getOwnerId();
+		try {
+			updater.accept(one);
+		}catch(DBException e) {
+			if(e.type == SelfXErrors.DB_SYNC_ERROR) {
+				removeBalance(key);
+			}
+			throw e;
+		}
+		removeBalance(key);
+	}
+	private void removeBalance(long id){
+		caches.PlanBalance_Cache.invalidate(id);
 	}
 
-	private void deleteFromKey(String key){
-		caches.Common_Cache.invalidate(key);
+	public void savePlans(List<Plan> ones, ThrowableConsumer<Plan, DBException> updater){
+		try {
+			for(Plan one: ones) {
+				updater.accept(one);
+			}
+		}finally {
+			if(!ones.isEmpty()) {
+				ones.forEach(plan -> removePlan(plan.getId()));
+			}
+		}
 	}
 
-	private void putKeyVal(String key,String val){
-		caches.Common_Cache.put(key,val);
+	public void saveWorksheets(List<WorkSheet> ones, ThrowableConsumer<WorkSheet, DBException> updater){
+		try {
+			for(WorkSheet one: ones) {
+				updater.accept(one);
+			}
+		}finally {
+			if(!ones.isEmpty()) {
+				ones.forEach(workSheet -> removeWorksheet(workSheet.getId()));
+			}
+		}
 	}
 
-
-	public String getGeneralValOrInit(CacheMode mode, ThrowableSupplier<String, SMException> generator, Object ...identifiers) throws DBException {
+	// worksheet count   --- check ok
+	public String getGeneralValOrInit(CacheMode mode, ThrowableSupplier<String, SMException> generator, Object ...identifiers) {
 		String key = createGeneralKey(mode, identifiers);
 		String val = caches.Common_Cache.getIfPresent(key);
 		if(val != null){
@@ -135,58 +169,54 @@ public class CacheOperator {
 	}
 
 
-	/**
-	 * 必须要delete的原因是
-	 * hbVersion
-	 */
-	public <T extends SMEntity> void saveEntity(T one,ThrowableConsumer<T, DBException> updater) throws DBException, LogicException {
-		String key = createEntityKey(CacheMode.E_ID,one.getId(),getEntityTableName(one.getClass()));
-		try {
-			updater.accept(one);
-		}catch(DBException e) {
-			if(e.type == SelfXErrors.DB_SYNC_ERROR) {
-				deleteFromKey(key);
-			}
-			throw e;
-		}
-		deleteFromKey(key);
+	public void saveUser(User one,ThrowableConsumer<User, DBException> updater){
+		saveWithCacheEvict(one.getId(), one, updater, this::removeUser);
+	}
+	private void removeUser(long id){
+		caches.Users_Cache.invalidate(id);
+	}
+	public User getUser(Long id, ThrowableSupplier<User, DBException> generator){
+		return caches.Users_Cache.get(id,(k)->generator.get()).clone();
 	}
 
+	public Plan getPlan(Long id, ThrowableSupplier<Plan, DBException> generator){
+		return caches.Plans_Cache.get(id,(k)->generator.get()).clone();
+	}
 
+	public void savePlan(Plan one,ThrowableConsumer<Plan, DBException> updater){
+		saveWithCacheEvict(one.getId(), one, updater, this::removePlan);
+	}
+	public void removePlan(long id){
+		caches.Plans_Cache.invalidate(id);
+	}
 	/*- Worksheet----start- */
-	public WorkSheet getWorksheet(Long wsId,ThrowableSupplier<WorkSheet, DBException> generator) throws LogicException, DBException {
+	public WorkSheet getWorksheet(Long wsId,ThrowableSupplier<WorkSheet, DBException> generator){
 		return caches.Worksheet_Cache.get(wsId,(k)->generator.get()).clone();
 	}
-	private void removeWorksheet(long id){
+	public void removeWorksheet(long id){
 		caches.Worksheet_Cache.invalidate(id);
 	}
 
-	public void deleteWorksheet(long id,Runnable deleting){
-		deleting.run();
-		removeWorksheet(id);
+	public void deleteEntity(long id,Runnable deleting,Consumer<Long> remover){
+		try{
+			deleting.run();
+		} finally {
+			remover.accept(id);
+		}
 	}
 
 	public void saveWorksheet(WorkSheet one,ThrowableConsumer<WorkSheet, DBException> updater){
-		long key = one.getId();
-		try {
-			updater.accept(one);
-		}catch(DBException e) {
-			if(e.type == SelfXErrors.DB_SYNC_ERROR) {
-				removeWorksheet(key);
-			}
-			throw e;
-		}
-		removeWorksheet(key);
+		saveWithCacheEvict(one.getId(), one, updater, this::removeWorksheet);
 	}
 
 	/*- Worksheet----end- */
 
 	/*- FileRecord----start- */
 
-	public FileRecord getFileRecord(Long id,ThrowableSupplier<FileRecord, DBException> generator) throws LogicException, DBException {
+	public FileRecord getFileRecord(Long id,ThrowableSupplier<FileRecord, DBException> generator){
 		return caches.File_Records_Cache.get(id,(k)->generator.get()).clone();
 	}
-	public void saveFileRecord(FileRecord one, ThrowableConsumer<FileRecord, DBException> updater) throws DBException, LogicException {
+	public void saveFileRecord(FileRecord one, ThrowableConsumer<FileRecord, DBException> updater) {
 		long key = one.getId();
 		try {
 			updater.accept(one);
@@ -198,14 +228,10 @@ public class CacheOperator {
 		}
 		removeFileRecord(key);
 	}
-	private void removeFileRecord(long id){
+	public void removeFileRecord(long id){
 		caches.File_Records_Cache.invalidate(id);
 	}
 
-	public void deleteFileRecord(long id,Runnable deleting){
-		deleting.run();
-		removeFileRecord(id);
-	}
 	/*- FileRecord----end- */
 
 	/*- Links----start- */
@@ -234,11 +260,14 @@ public class CacheOperator {
 	}
 
 	public void deleteLink(long loginId,Boolean isCommunityLink,String linkId,Runnable deleting){
-		deleting.run();
-		removeLinkFromCache(loginId,isCommunityLink,linkId);
+		try{
+			deleting.run();
+		}finally {
+			removeLinkFromCache(loginId,isCommunityLink,linkId);
+		}
 	}
 
-	private void removeLinkFromCache(long loginId,Boolean isCommunityLink,String linkId){
+	public void removeLinkFromCache(long loginId,Boolean isCommunityLink,String linkId){
 		String cacheId =generateLinkCacheId(loginId,isCommunityLink,linkId);
 		caches.Links_Cache.invalidate(cacheId);
 	}
@@ -253,7 +282,8 @@ public class CacheOperator {
 	}
 
 	public List<String> getClosedBookIds(long loginId, Supplier<List<String>> generator) {
-		return caches.Closed_Book_Ids_Cache.get(loginId,(k)->generator.get());
+		List<String> list = caches.Closed_Book_Ids_Cache.get(loginId, (k) -> generator.get());
+		return list == null ? null : new ArrayList<>(list);
 	}
 
 	public void removeClosedBookIdsFromCache(long loginId) {
@@ -266,9 +296,12 @@ public class CacheOperator {
 	}
 
 	public void deleteBook(long loginId,String id,Runnable deleting){
-		deleting.run();
-		removeBookFromCache(loginId,id);
-		removeClosedBookIdsFromCache(loginId);
+		try{
+			deleting.run();
+		}finally {
+			removeBookFromCache(loginId,id);
+			removeClosedBookIdsFromCache(loginId);
+		}
 	}
 
 	public void saveBook(long loginId, String bookId, Runnable saving ) {
@@ -297,8 +330,11 @@ public class CacheOperator {
 	}
 
 	public void deletePageNode(long loginId,String id,Runnable deleting){
-		deleting.run();
-		removePageNode(loginId,id);
+		try {
+			deleting.run();
+		}finally {
+			removePageNode(loginId,id);
+		}
 	}
 	public void savePageNode(long loginId, String nodeId, Runnable saving ) {
 		try{
@@ -326,41 +362,11 @@ public class CacheOperator {
 		return keys.stream().filter(one->one.startsWith(prefix)).count();
 	}
 
-	/**
-	 * 这个需要全删除掉Cache
-	 */
-	public <T extends SMEntity> void saveEntities(List<T> ones, ThrowableConsumer<T, DBException> updater) throws DBException, LogicException {
-		try {
-			for(T one: ones) {
-				updater.accept(one);
-			}
-		}finally {
-			if(!ones.isEmpty()) {
-				deleteFromKeys(ones.stream().map(one-> createEntityKey(CacheMode.E_ID,one.getId(),getEntityTableName(one.getClass()))).collect(toList()));
-			}
-		}
-	}
-
-	public <T extends SMEntity> void deleteEntityByIdOnlyForCache(T entity) throws DBException {
-		deleteEntityByIdOnlyForCache(entity.getId(), getEntityTableName(entity.getClass()));
-	}
-
-	public void deleteEntityByIdOnlyForCache(long id,String tableName) throws DBException {
-		String key = CacheConverter.createEntityKey(CacheMode.E_ID, id, tableName);
-		deleteFromKey(key);
-	}
-
-	public <T extends SMEntity> void deleteEntityById(T entity,ThrowableConsumer<Long, DBException> deleter) throws DBException {
-		assert entity.getId() != 0;
-		deleter.accept(entity.getId());
-		deleteEntityByIdOnlyForCache(entity);
-	}
 
 	public void deleteGeneralKey(CacheMode mode, Object ...identifier) {
 		String key = createGeneralKey(mode, identifier);
-		deleteFromKey(key);
+		caches.Common_Cache.invalidate(key);
 	}
-
 
 	public boolean setTempUser(String uuId) {
 		if(caches.Temp_Users_Cache.getIfPresent(uuId) != null){
@@ -370,7 +376,7 @@ public class CacheOperator {
 			return false;
 		}
 
-		caches.Temp_Users_Cache.put(uuId,new HashMap<>());
+		caches.Temp_Users_Cache.put(uuId,new ConcurrentHashMap<>());
 		return true;
 	}
 
@@ -412,7 +418,7 @@ public class CacheOperator {
 	}
 
 	private static String generateCacheIdInUserIsolation(long loginId, String id){
-		return loginId+"__"+id;
+		return loginId+"#"+id;
 	}
 
 

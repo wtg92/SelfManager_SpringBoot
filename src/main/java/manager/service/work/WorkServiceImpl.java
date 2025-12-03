@@ -71,7 +71,7 @@ public class WorkServiceImpl extends WorkService {
 	CacheOperator cache;
 
 	private Plan getPlan(long planId){
-		return cache.getEntity(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
+		return cache.getPlan(planId, ()->wDAO.selectExistedPlan(planId));
 	}
 
 	/**
@@ -83,7 +83,7 @@ public class WorkServiceImpl extends WorkService {
 	}
 
 	private PlanBalance getPlanBalance(long loginId){
-		return cache.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginId, PlanBalance.class,
+		return cache.getOneOrInitBalanceIfNotExistsByUserId(loginId,
 				()->wDAO.selectBalanceByOwner(loginId), ()->initPlanDept(loginId));
 	}
 
@@ -93,15 +93,15 @@ public class WorkServiceImpl extends WorkService {
 		});
 	}
 
-	private void updatePlanDeptSynchronously(PlanBalance dept, long loginId){
+	private void updatePlanBalanceSynchronously(PlanBalance dept, long loginId){
 		locker.lockByUserAndClass(loginId,()->{
-			cache.saveEntity(dept, d->wDAO.updateExistedBalance(d));
+			cache.saveBalanceByOwnerId(dept, d->wDAO.updateExistedBalance(d));
 		});
 	}
 
 	private void updatePlanSynchronously(Plan plan, long loginId){
 		locker.lockByUserAndClass(loginId,()->{
-			cache.saveEntity(plan, p->wDAO.updateExistedPlan(p));
+			cache.savePlan(plan, p->wDAO.updateExistedPlan(p));
 		});
 	}
 
@@ -332,7 +332,7 @@ public class WorkServiceImpl extends WorkService {
 	
 	@Override
 	public void savePlanItemFold(long loginId, long planId, int itemId, boolean fold) throws LogicException, DBException {
-		Plan plan = cache.getEntity(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
+		Plan plan = getPlan(planId);
 		if(plan.getOwnerId() != loginId) {
 			throw new LogicException(SelfXErrors.CANNOT_EDIT_OTHERS_PLAN);
 		}
@@ -370,7 +370,7 @@ public class WorkServiceImpl extends WorkService {
 	public void patchBalanceItem(long loginId, int itemId, String name, double val){
 		PlanBalance dept = getPlanBalance(loginId);
 		WorkContentConverter.updatePlanDeptItem(dept, loginId, itemId, name, val);
-		updatePlanDeptSynchronously(dept,loginId);
+		updatePlanBalanceSynchronously(dept,loginId);
 	}
 
 	@Override
@@ -383,7 +383,7 @@ public class WorkServiceImpl extends WorkService {
 		assert plan.getState() != PlanState.ABANDONED;
 		boolean existsWSBaseThisPlan = wDAO.includeWorkSheetByPlanId(plan.getId());
 		if(!existsWSBaseThisPlan) {
-			cache.deleteEntityById(plan, (id)->wDAO.deleteExistedPlan(id));
+			cache.deleteEntity(plan.getId(), ()->wDAO.deleteExistedPlan(plan.getId()),cache::removePlan);
 			return;
 		}
 
@@ -440,7 +440,7 @@ public class WorkServiceImpl extends WorkService {
 				one.setState(stateByNow);
 			});
 
-			cache.saveEntities(toUpdate, (p)->wDAO.updateExistedWorkSheet(p));
+			cache.saveWorksheets(toUpdate, (p)->wDAO.updateExistedWorkSheet(p));
 		});
 	}
 
@@ -530,7 +530,7 @@ public class WorkServiceImpl extends WorkService {
 				one.setState(stateByNow);
 			});
 
-			cache.saveEntities(toUpdate, (p)->wDAO.updateExistedPlan(p));
+			cache.savePlans(toUpdate, (p)->wDAO.updateExistedPlan(p));
 		});
 	}
 
@@ -704,7 +704,7 @@ public class WorkServiceImpl extends WorkService {
 	
 	@Override
 	public List<String> getPlanBalanceItemNames(long loginId){
-		PlanBalance dept = cache.getOneOrInitIfNotExists(CacheMode.E_UNIQUE_FIELD_ID, loginId, PlanBalance.class,
+		PlanBalance dept = cache.getOneOrInitBalanceIfNotExistsByUserId( loginId,
 				 ()->wDAO.selectBalanceByOwner(loginId), ()->initPlanDept(loginId));
 		BalanceContent content = WorkContentConverter.convertPlanDept(dept);
 		return content.items.stream().map(BalanceItem::getName).collect(toList());
@@ -786,7 +786,7 @@ public class WorkServiceImpl extends WorkService {
 			throw new LogicException(SelfXErrors.CANNOT_MODIFY_OTHERS_WS,loginId+" vs "+ws.getOwnerId());
 		}
 		locker.lockByUserAndClass(loginId,()->{
-			cache.deleteWorksheet(wsId,()->wDAO.deleteExistedWorkSheet(wsId));
+			cache.deleteEntity(wsId,()->wDAO.deleteExistedWorkSheet(wsId),cache::removeWorksheet);
 			deleteCountRecord(ws.getDateUtc(),ws.getTimezone());
 		});
 	}
@@ -889,7 +889,7 @@ public class WorkServiceImpl extends WorkService {
 			refreshStateAfterItemModified(ws);
 
 			updateWorksheetSynchronously(ws,loginId);
-			updatePlanDeptSynchronously(dept,loginId);
+			updatePlanBalanceSynchronously(dept,loginId);
 		});
 	}
 	
@@ -922,7 +922,7 @@ public class WorkServiceImpl extends WorkService {
 			refreshStateAfterItemModified(ws);
 
 			updateWorksheetSynchronously(ws,loginId);
-			updatePlanDeptSynchronously(dept,loginId);
+			updatePlanBalanceSynchronously(dept,loginId);
 		});
 	}
 	
@@ -940,7 +940,7 @@ public class WorkServiceImpl extends WorkService {
 	 */
 	@Override
 	public void syncPlanTagsToWorkSheet(long loginId, long planId) throws SMException {
-		Plan target = cache.getEntity(CacheMode.E_ID, planId, Plan.class, ()->wDAO.selectExistedPlan(planId));
+		Plan target = getPlan(planId);
 		if(target.getOwnerId() != loginId) {
 			throw new LogicException(SelfXErrors.CANNOT_SYNC_OTHERS_PLAN_TAGS);
 		}
@@ -966,7 +966,7 @@ public class WorkServiceImpl extends WorkService {
 				workSheet.setTags(tagsForNew);
 			}
 
-			cache.saveEntities(toSave, p->wDAO.updateExistedWorkSheet(p));
+			cache.saveWorksheets(toSave, p->wDAO.updateExistedWorkSheet(p));
 		});
 	}
 	

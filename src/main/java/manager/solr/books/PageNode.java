@@ -1,6 +1,7 @@
 package manager.solr.books;
 
 import manager.entity.SMSolrDoc;
+import manager.util.CommonUtil;
 import org.apache.solr.client.solrj.beans.Field;
 
 import java.util.List;
@@ -252,7 +253,7 @@ public class PageNode extends SMSolrDoc {
 
     @Override
     public PageNode clone(){
-        return (PageNode) super.clone();
+        return CommonUtil.deepClone(this);
     }
 
     public SharingBook getBook() {

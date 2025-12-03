@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import manager.system.DBConstants;
+import manager.util.CommonUtil;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -72,11 +73,7 @@ public class FileRecord extends SMGeneralEntity{
 
     @Override
     public FileRecord clone(){
-        try {
-            return (FileRecord) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
+        return CommonUtil.deepClone(this);
     }
 
     public void setSizeKb(Long sizeKb) {

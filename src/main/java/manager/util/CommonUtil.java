@@ -20,6 +20,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
+import com.alibaba.fastjson2.JSON;
 import jakarta.persistence.Table;
 import manager.system.SelfX;
 
@@ -29,6 +30,9 @@ public abstract class CommonUtil {
 	public static void block(){
 		sleep(1000000000);
     }
+	public static  <T> T deepClone(T src) {
+		return JSON.parseObject(JSON.toJSONString(src), (Class<T>) src.getClass());
+	}
 
 	public static void sleep(int milliseconds){
 		try {

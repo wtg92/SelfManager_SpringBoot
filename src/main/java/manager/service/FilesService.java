@@ -137,7 +137,7 @@ public class FilesService {
         }
         // 这个删除S3上的 和单个用户无关 和所有用户有关
         locker.lockByClass(()->{
-            cache.deleteFileRecord(id,()->dao.deleteFileRecord(id));
+            cache.deleteEntity(id,()->dao.deleteFileRecord(id),cache::removeFileRecord);
             long num = dao.countFileRecordsByBucketNameAndFileName(fileRecord.getBucketName(),fileRecord.getFileName());
             if(num == 0){
                 s3Service.deleteObject(fileRecord);

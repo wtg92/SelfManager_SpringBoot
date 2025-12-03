@@ -8,6 +8,7 @@ import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
+import manager.util.CommonUtil;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -66,11 +67,7 @@ public class WorkSheet extends SMGeneralEntity {
 
 	@Override
 	public WorkSheet clone(){
-        try {
-            return (WorkSheet) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
+		return CommonUtil.deepClone(this);
     }
 
 	public String getDataVersion() {
