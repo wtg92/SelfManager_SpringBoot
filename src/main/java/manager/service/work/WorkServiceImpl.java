@@ -13,6 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import com.alibaba.fastjson2.JSON;
 import manager.cache.CacheOperator;
 import manager.dao.career.WorkDAO;
 import manager.data.EntityTag;
@@ -71,7 +72,7 @@ public class WorkServiceImpl extends WorkService {
 	CacheOperator cache;
 
 	private Plan getPlan(long planId){
-		return cache.getPlan(planId, ()->wDAO.selectExistedPlan(planId));
+		return cache.getPlan(planId, () -> wDAO.selectExistedPlan(planId));
 	}
 
 	/**
