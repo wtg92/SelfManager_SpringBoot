@@ -8,6 +8,8 @@ The URL is selfx.io
 これは稼働中のオンラインアプリケーションで、多言語対応・グローバルタイムゾーン対応、そして PC・タブレット・スマートフォンなど複数のデバイスで利用できます。
 URL は selfx.io です。
 
+------------------------------------
+
 I can speak these three languages now, so the README is written in all of them. If I learn more languages in the future, I will add new versions.
 
 我目前会这三种语言，所以 README 以这三种语言编写。
