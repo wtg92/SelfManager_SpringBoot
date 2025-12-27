@@ -2,10 +2,14 @@ package manager;
 
 import com.alibaba.fastjson2.JSON;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import manager.dao.DAOFactory;
 import manager.dao.UserDAO;
+import manager.dao.career.NoteDAO;
 import manager.dao.career.WorkDAO;
 import manager.data.MultipleItemsResult;
 import manager.data.proxy.career.PlanProxy;
+import manager.entity.general.career.Note;
+import manager.entity.general.career.NoteBook;
 import manager.solr.books.SharingBook;
 import manager.entity.general.career.Plan;
 import manager.service.AuthService;
@@ -50,8 +54,22 @@ class ApplicationTests {
 	@Resource
 	AuthService authService;
 
+	@Autowired
+	NoteDAO noteDAO;
+
 	@Test
-	public void testBook(){
+	public void testBooks(){
+		List<NoteBook> noteBooks = noteDAO.selectBooksByOwner(1);
+		System.out.println(JSON.toJSONString(noteBooks));
+	}
+
+	@Test
+	public void testNotes(){
+		List<Note> notes = noteDAO.selectNoteInfosByBook(5);
+		notes.forEach(note->{
+			note.setContent(note.getContent().replaceAll("\\n",""));
+		});
+		System.out.println(JSON.toJSONString(notes));
 	}
 
 
