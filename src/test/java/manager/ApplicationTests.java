@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes =  SelfXManagerSpringbootApplication.class)
@@ -60,12 +61,12 @@ class ApplicationTests {
 	@Test
 	public void testBooks(){
 		List<NoteBook> noteBooks = noteDAO.selectBooksByOwner(1);
-		System.out.println(JSON.toJSONString(noteBooks));
+		System.out.println(JSON.toJSONString(noteBooks.stream().map(one->one.getName()+one.getId()).collect(Collectors.joining(","))));
 	}
 
 	@Test
 	public void testNotes(){
-		List<Note> notes = noteDAO.selectNoteInfosByBook(5);
+		List<Note> notes = noteDAO.selectNoteInfosByBook(17);
 		notes.forEach(note->{
 			note.setContent(note.getContent().replaceAll("\\n",""));
 		});
