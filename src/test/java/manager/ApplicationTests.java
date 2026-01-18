@@ -66,7 +66,7 @@ class ApplicationTests {
 
 	@Test
 	public void testNotes(){
-		List<Note> notes = noteDAO.selectNoteInfosByBook(17);
+		List<Note> notes = noteDAO.selectNoteInfosByBook(23);
 		notes.forEach(note->{
 			note.setContent(note.getContent().replaceAll("\\n",""));
 		});
@@ -78,6 +78,7 @@ class ApplicationTests {
 	public void authTest(){
 //		AlipayClient alipayClient = authService.getAlipayClient();
 //		System.out.println(JSON.toJSONString(alipayClient));
+
 	}
 
 

@@ -138,11 +138,11 @@ public class BooksController {
     }
 
     @PostMapping(PAGES_PATH+"/calculatePath")
-    private List<PageNode> calculatePath(@RequestHeader("Authorization") String authorizationHeader
+    private List<String> calculatePath(@RequestHeader("Authorization") String authorizationHeader
             , @RequestBody JSONObject param ){
         long loginId = UIUtil.getLoginId(authorizationHeader);
         String id = param.getString(ID);
-        return service.calculatePath(loginId,id);
+        return service.calculatePath(loginId,id).stream().map(PageNode::getId).toList();
     }
 
     @PostMapping(PAGES_PATH+"/parentNode")
