@@ -7,74 +7,72 @@ import manager.entity.general.UserGroup;
 import manager.entity.general.career.*;
 import manager.entity.general.tool.ToolRecord;
 import manager.util.HibernateNamingStrategy;
-import org.hibernate.SessionFactory;
-import static org.hibernate.cfg.AvailableSettings.*;
 
+import jakarta.annotation.PreDestroy;
+import javax.sql.DataSource;
+
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * TODO 还没有使用数据库连接池 ？？ 之前使用的是Druid
- */
+import java.util.Properties;
+
+import static org.hibernate.cfg.AvailableSettings.*;
+
 @Configuration
 public class HibernateConfig {
 
-    @Value("${spring.datasource.url}")
-    private String url;
-
-    @Value("${spring.datasource.username}")
-    private String username;
-
-    @Value("${spring.datasource.password}")
-    private String password;
-
-    @Value("${spring.datasource.driver-class-name}")
-    private String driver;
-
-
+    private final DataSource dataSource;
+    private SessionFactory sessionFactory;
     @Value("${hibernate.showSQL}")
     private Boolean showSQL;
 
+    public HibernateConfig(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
     @Bean
     public SessionFactory sessionFactory() {
-        try {
-            return new org.hibernate.cfg.Configuration()
 
-                    .addAnnotatedClass(User.class)
-                    .addAnnotatedClass(UserGroup.class)
-                    .addAnnotatedClass(Plan.class)
-                    .addAnnotatedClass(WorkSheet.class)
-                    .addAnnotatedClass(PlanBalance.class)
-                    .addAnnotatedClass(NoteBook.class)
-                    .addAnnotatedClass(Note.class)
-                    .addAnnotatedClass(Memo.class)
-                    .addAnnotatedClass(ToolRecord.class)
-                    .addAnnotatedClass(FileRecord.class)
-                    .addAnnotatedClass(SystemMapping.class)
+        Properties props = new Properties();
 
-                    .setProperty(JAKARTA_JDBC_URL, url)
-                    .setProperty(JAKARTA_JDBC_USER, username)
-                    .setProperty(JAKARTA_JDBC_PASSWORD, password)
-                    .setProperty(JAKARTA_JDBC_DRIVER,driver)
+        // ===== Hibernate 基础配置 =====
+        props.put(DIALECT, "org.hibernate.dialect.MySQLDialect");
+        props.put(SHOW_SQL, showSQL.toString());
+        props.put(FORMAT_SQL, showSQL.toString());
+        props.put(HIGHLIGHT_SQL, showSQL.toString());
 
-                    .setPhysicalNamingStrategy(new HibernateNamingStrategy())
-                    .setProperty("hibernate.c3p0.min_size", "1")
-                    .setProperty("hibernate.c3p0.max_size", "100")
-                    .setProperty("hibernate.c3p0.timeout","200")
-                    .setProperty("hibernate.c3p0.max_statements", "100")
-                    .setProperty("hibernate.c3p0.idle_test_period","5000")
 
-                    .setProperty(DIALECT,"org.hibernate.dialect.MySQLDialect")
-                    .setProperty(SHOW_SQL, showSQL.toString())
-                    .setProperty(FORMAT_SQL, showSQL.toString())
-                    .setProperty(HIGHLIGHT_SQL, showSQL.toString())
-                    .buildSessionFactory();
-        } catch (Exception e) {
-            e.printStackTrace();
-            assert false;
-            throw new RuntimeException("There was an error building the factory...!");
+        props.put("hibernate.connection.datasource", dataSource);
+
+        org.hibernate.cfg.Configuration cfg =
+                new org.hibernate.cfg.Configuration();
+
+        cfg.setProperties(props);
+        cfg.setPhysicalNamingStrategy(new HibernateNamingStrategy());
+
+        cfg.addAnnotatedClass(User.class);
+        cfg.addAnnotatedClass(UserGroup.class);
+        cfg.addAnnotatedClass(Plan.class);
+        cfg.addAnnotatedClass(WorkSheet.class);
+        cfg.addAnnotatedClass(PlanBalance.class);
+        cfg.addAnnotatedClass(NoteBook.class);
+        cfg.addAnnotatedClass(Note.class);
+        cfg.addAnnotatedClass(Memo.class);
+        cfg.addAnnotatedClass(ToolRecord.class);
+        cfg.addAnnotatedClass(FileRecord.class);
+        cfg.addAnnotatedClass(SystemMapping.class);
+
+        this.sessionFactory = cfg.buildSessionFactory();
+        return this.sessionFactory;
+    }
+
+    // 🧹 应用关闭时正确释放
+    @PreDestroy
+    public void close() {
+        if (sessionFactory != null) {
+            sessionFactory.close();
         }
-
     }
 }
