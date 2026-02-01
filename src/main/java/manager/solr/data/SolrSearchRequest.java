@@ -1,5 +1,7 @@
 package manager.solr.data;
 
+import manager.system.DeviceType;
+
 import java.util.List;
 
 public class SolrSearchRequest {
@@ -54,6 +56,7 @@ public class SolrSearchRequest {
 
     public Boolean mergeContiguous;
 
+    public DeviceType deviceType;
 
     public boolean isUnifiedHL(){
         return hlMethod.equalsIgnoreCase("unified");
