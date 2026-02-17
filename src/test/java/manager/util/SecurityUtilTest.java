@@ -5,12 +5,22 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
-
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import java.util.Base64;
 import org.junit.Test;
 
 import manager.entity.general.User;
 
 public class SecurityUtilTest {
+
+    public static void main(String[] args) throws Exception {
+        KeyGenerator keyGen = KeyGenerator.getInstance("HmacSHA256");
+        SecretKey key = keyGen.generateKey();
+        String secret = Base64.getEncoder().encodeToString(key.getEncoded());
+        System.out.println(secret);
+    }
+
 
 	@Test
 	public void testEncodeAndDecodePwd() throws Exception {

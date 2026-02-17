@@ -1,26 +1,28 @@
 package manager.util;
 
+import manager.entity.general.User;
+import manager.exception.LogicException;
+import manager.system.SelfXErrors;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
+import javax.crypto.Mac;
 import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
+import javax.xml.bind.DatatypeConverter;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.Base64;
-
-import javax.crypto.Cipher;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.PBEKeySpec;
-import javax.crypto.spec.SecretKeySpec;
-import javax.xml.bind.DatatypeConverter;
-
-import manager.entity.general.User;
-import manager.exception.LogicException;
-import manager.system.SelfXErrors;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 /**
   *  敏感的数据id再加密，要不然太麻烦了
@@ -29,8 +31,82 @@ import org.springframework.stereotype.Component;
 @Component
 public class SecurityBasis {
 
-	@Value("${security.stable-common-id-key}")
-	private String STABLE_KEY;
+    @Value("${security.stable-common-id-key}")
+    private String STABLE_KEY;
+
+    @Value("${security.hmac-secret}")
+    private String HMAC_SECRET;
+
+    private static final String HMAC_ALGO = "HmacSHA256";
+
+    /**
+     * 生成 token：payloadBase64.signatureBase64
+     */
+    public String signPayload(String payloadJson) {
+        try {
+            byte[] payloadBytes = payloadJson.getBytes(StandardCharsets.UTF_8);
+            String payloadBase64 = Base64.getUrlEncoder()
+                    .withoutPadding()
+                    .encodeToString(payloadBytes);
+
+            byte[] sign = hmac(payloadBytes);
+            String signBase64 = Base64.getUrlEncoder()
+                    .withoutPadding()
+                    .encodeToString(sign);
+
+            return payloadBase64 + "." + signBase64;
+        } catch (Exception e) {
+            throw new LogicException(SelfXErrors.UNEXPECTED_ERROR,e.getMessage());
+        }
+    }
+
+    /**
+     * 校验并解析 payload
+     */
+    public String verifyAndGetPayload(String token) throws LogicException {
+        if (token == null || token.isEmpty()) {
+            throw new LogicException(SelfXErrors.ILLEGAL_USER_TOKEN);
+        }
+
+        String[] parts = token.split("\\.", 2);
+        if (parts.length != 2) {
+            throw new LogicException(SelfXErrors.ILLEGAL_USER_TOKEN);
+        }
+
+        byte[] payloadBytes;
+        byte[] signBytes;
+        try {
+            payloadBytes = Base64.getUrlDecoder().decode(parts[0]);
+            signBytes = Base64.getUrlDecoder().decode(parts[1]);
+        } catch (IllegalArgumentException e) {
+            // Base64 decode 失败
+            throw new LogicException(SelfXErrors.ILLEGAL_USER_TOKEN);
+        }
+
+        byte[] expected;
+        try {
+            expected = hmac(payloadBytes);
+        } catch (Exception e) {
+            // 这是服务器内部错误，不是客户端问题
+            throw new LogicException(SelfXErrors.UNEXPECTED_ERROR, e.getMessage());
+        }
+
+        if (!MessageDigest.isEqual(signBytes, expected)) {
+            throw new LogicException(SelfXErrors.ILLEGAL_USER_TOKEN);
+        }
+
+        return new String(payloadBytes, StandardCharsets.UTF_8);
+    }
+
+    private byte[] hmac(byte[] data) throws Exception {
+        Mac mac = Mac.getInstance(HMAC_ALGO);
+        SecretKeySpec keySpec = new SecretKeySpec(
+                Base64.getDecoder().decode(HMAC_SECRET),
+                HMAC_ALGO
+        );
+        mac.init(keySpec);
+        return mac.doFinal(data);
+    }
 
 	final private static int MIN_LENGTH_FOR_PWD = 8;
 

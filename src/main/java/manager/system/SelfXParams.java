@@ -22,7 +22,7 @@ public abstract class SelfXParams {
 	public final static String TOKEN = "token";
 	public final static String TEMP_USER_ID = "temp_user_id";
 	public final static String FOR_EMAIL = "for_email";
-	public final static String OLD_YZM = "old_yzm";
+	public final static String REMEMBER_ME = "remember_me";
 	public final static String X = "x";
 	public final static String IMG_SRC = "img_src";
 	public final static String VAL = "val";

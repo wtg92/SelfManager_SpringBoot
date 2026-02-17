@@ -1,21 +1,9 @@
 package manager.service;
 
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
-import static manager.cache.CacheConverter.createGeneralKey;
-import static manager.cache.CacheConverter.createTempKeyByBiIdentifiers;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import jakarta.transaction.Transactional;
-import manager.cache.*;
+import manager.booster.SecurityBooster;
+import manager.cache.CacheMode;
+import manager.cache.CacheOperator;
 import manager.dao.UserDAO;
 import manager.data.UserBasicInfo;
 import manager.data.UserSummary;
@@ -23,15 +11,13 @@ import manager.data.proxy.UserGroupProxy;
 import manager.data.proxy.UserProxy;
 import manager.entity.general.User;
 import manager.entity.general.UserGroup;
-import manager.entity.general.career.PlanBalance;
 import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.NoSuchElement;
-import manager.booster.SecurityBooster;
+import manager.system.DBConstants;
 import manager.system.Gender;
 import manager.system.NoSuchElementType;
 import manager.system.SelfX;
-import manager.system.DBConstants;
 import manager.system.SelfXErrors;
 import manager.system.SelfXPerms;
 import manager.system.UserUniqueField;
@@ -46,6 +32,19 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+import static manager.cache.CacheConverter.createGeneralKey;
+import static manager.cache.CacheConverter.createTempKeyByBiIdentifiers;
 
 /**
  * 2023.9.19 Review了一次 主要修改的是 在验证验证码时 如果验证失效 应当删除验证码缓存 使其验证码失效
@@ -70,15 +69,15 @@ public class UserLogicImpl extends UserService {
 
 	@Resource
 	SecurityBooster securityBooster;
-
-	public User getUser(long userId){
+    @Override
+	public User getUserInternally(long userId){
 		ThrowableSupplier<User, DBException> generator = ()-> uDAO.selectExistedUser(userId);
 		return cache.getUser(userId,generator);
 	}
 
 
 	private boolean isAdmin(long userId) throws LogicException, DBException {
-		return getUser(userId).getAccount().equals(SelfX.ADMIN_ACCOUNT);
+		return getUserInternally(userId).getAccount().equals(SelfX.ADMIN_ACCOUNT);
 	}
 	@Override
 	public boolean hasPerm(long userId, SelfXPerms perm) {
@@ -164,7 +163,7 @@ public class UserLogicImpl extends UserService {
 		if(!isAdmin(loginId) && userId != loginId){
 			throw new LogicException(SelfXErrors.COMMON,"Unexpected");
 		}
-		User user=  getUser(userId);
+		User user=  getUserInternally(userId);
 		UserProxy proxy = new UserProxy();
 		proxy.user = user;
 		proxy.perms = getUserAllPerms(userId);
@@ -663,7 +662,7 @@ public class UserLogicImpl extends UserService {
 	public UserBasicInfo getUserBasicInfo(Long loginId,Long targetId) {
 		boolean isSameUser = loginId.equals(targetId);
 		UserBasicInfo info = new UserBasicInfo();
-		User user = getUser(targetId);
+		User user = getUserInternally(targetId);
 		info.nickName = user.getNickName();
 		info.motto = user.getMotto();
 		info.gender = user.getGender().getDbCode();

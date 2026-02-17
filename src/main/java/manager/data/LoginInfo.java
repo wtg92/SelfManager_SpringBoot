@@ -4,7 +4,6 @@ import manager.data.proxy.UserProxy;
 import manager.system.SelfXPerms;
 
 public class LoginInfo {
-	public String token = "";
 	public String errMsg = "";
 	public boolean success = false;
 	public UserProxy user;

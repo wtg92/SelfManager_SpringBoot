@@ -1,20 +1,16 @@
 package manager.entity.general;
 
 
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import manager.system.DBConstants;
+import manager.system.Gender;
+import manager.system.converter.GenderConverter;
 import manager.util.CommonUtil;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-
-import manager.system.Gender;
-import manager.system.DBConstants;
-import manager.system.converter.GenderConverter;
-
-import java.util.Calendar;
 
 
 @Entity
@@ -58,6 +54,8 @@ public class User extends SMGeneralEntity{
 	@Column
 	private Long portraitId;
 
+    @Column Long sessionVersion;
+
 	@Override
 	public User clone() {
 		return CommonUtil.deepClone(this);
@@ -65,7 +63,15 @@ public class User extends SMGeneralEntity{
 	
 	/*======================== Auto-Genrated Code==================================*/
 
-	public String getAlipayOpenId() {
+    public Long getSessionVersion() {
+        return sessionVersion;
+    }
+
+    public void setSessionVersion(Long sessionVersion) {
+        this.sessionVersion = sessionVersion;
+    }
+
+    public String getAlipayOpenId() {
 		return alipayOpenId;
 	}
 

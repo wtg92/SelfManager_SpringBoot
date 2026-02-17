@@ -1,33 +1,31 @@
 package manager.booster;
 
-import static manager.util.TokenUtil.getData;
-import static manager.util.TokenUtil.setData;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Base64;
-import java.util.Base64.Encoder;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.annotation.Resource;
-import javax.imageio.ImageIO;
-
 import com.alibaba.fastjson2.JSON;
-import com.auth0.jwt.interfaces.Claim;
-
+import com.google.api.client.util.Value;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import manager.data.LoginInfo;
 import manager.data.proxy.UserProxy;
 import manager.data.proxy.career.PlanProxy;
 import manager.entity.general.User;
 import manager.exception.LogicException;
+import manager.service.UserService;
 import manager.service.books.SharingLinksAgent;
 import manager.system.SelfXErrors;
 import manager.util.SecurityBasis;
 import manager.util.YZMUtil.YZMInfo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.Nullable;
+import javax.annotation.Resource;
+import javax.imageio.ImageIO;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Base64;
+import java.util.Base64.Encoder;
+import java.util.logging.Logger;
 
 
 /**
@@ -40,7 +38,7 @@ import org.springframework.stereotype.Component;
  *  stable相对unstable 开发上更不容易出错
  *
  * 这里列举所有CommonId stable/unstable 理由
- * 1. getLoginId -- Unstable  -- 由于我希望每次重启都使得用户重新登录
+ * 1. getLoginId -- Stable  -- 更改了鉴权机制后这个一直有就可以了
  * 2. FileRecord -- Stable -- 1.用户头像 直接存id 因此两者都行  2.共享页 需要直接存在state里 因此必须stable
  * 3. UserBasicInfo.ID -- Stable -- 1.由于用户看见，变化不好 2.共享Link 存储的是加密后的userId 因此必须stable
  * 4. UserBasicInfo.头像ID -- Stable -- 1.本质是fileId file是Stable 因此这里是stable
@@ -54,12 +52,21 @@ public class SecurityBooster {
 	@Resource
 	SecurityBasis basis;
 
+    @Value("${auth.cookie.alive-days}")
+    private Integer COOKIE_ALIVE_DAYS ;
+
+    @Value("${auth.cookie.secure}")
+    private Boolean COOKIE_SECURE;
+
+    @Autowired
+    private UserService userService;
+
+
 
 	final private static Logger logger = Logger.getLogger(SecurityBooster.class.getName());
 
-	private static final String USER_ID = "user_id";
-	private static final String USER_PWD = "user_pwd";
-	
+    private static final String COOKIE_TOKEN_KEY = "access_token";
+
 	private static final Encoder BASE64_ENCODER = Base64.getEncoder();
 
 	public String encodeSharingLinkURLParams(SharingLinksAgent.EncryptionParams params){
@@ -86,20 +93,7 @@ public class SecurityBooster {
 		SecurityBasis.encodeUserPwd(user);
 	}
 
-	public static long getUserId(String token) throws LogicException {
-		Claim rlt = getData(token, USER_ID);
-		if (rlt.asString() == null) {
-			logger.log(Level.SEVERE,"token 无 user_id\n" + token);
-			throw new LogicException(SelfXErrors.ILLEGAL_USER_TOKEN, "无user id");
-		}
-		try {
-			return getUnstableCommonId(rlt.asString());
-		} catch (NumberFormatException e) {
-			throw new LogicException(SelfXErrors.ILLEGAL_USER_TOKEN);
-		} catch (Exception e){
-			throw new LogicException(SelfXErrors.LOGIN_FAILED,e.getMessage());
-		}
-	}
+
 
 	public static long getUnstableCommonId(String code) throws LogicException {
 		try {
@@ -126,22 +120,12 @@ public class SecurityBooster {
 		return basis.encodeStableInfo(code);
 	}
 
-	/**
-	  *   需要验证密码，不对给提示信息 而不是抛异常
-	 * @throws LogicException 
-	 */
-	public LoginInfo confirmUser(UserProxy user,String token) throws LogicException {
-		LoginInfo info = new LoginInfo(user);
-		info.success = false;
-		String pwd = getData(token, USER_PWD).asString();
-		if (pwd == null) {
-			throw new LogicException(SelfXErrors.ILLEGAL_USER_TOKEN, "无user pwd");
-		}
-		if(!user.user.getPassword().equals(pwd)) {
-			return info;
-		}
-		return process(user);
-	}
+    private static class LoginPayload {
+        public String userId;
+        public Long sv;
+        public long iat;
+        public boolean rememberMe;
+    }
 
 	public static YZMInfo process(YZMInfo createEmailYZM) throws LogicException {
 		if(createEmailYZM.checkSuccess) {
@@ -163,30 +147,96 @@ public class SecurityBooster {
 		
 		return createEmailYZM;
 	}
-	/**
-	 * 生成前台需要的token信息
-	 * 现在是UserId(加密) pwd
-	 * @throws LogicException 
-	 */
-	public LoginInfo process(UserProxy proxy) throws LogicException {
-		assert proxy.user.getId() != 0;
-		LoginInfo info = new LoginInfo(proxy);
-		info.success = true;
-		Map<String, String> data = new HashMap<String, String>();
-		//这个是前台的登录token 因此unstable
-		String encodedId = encodeUnstableCommonId(proxy.user.getId());
-		data.put(USER_ID, encodedId);
-		data.put(USER_PWD, proxy.user.getPassword());
-		info.token = setData(data);
-		info.userId = encodedId;
-		//其实是所谓的fileId fileId是stable 因此这里是stable
-		info.portraitId = encodeStableCommonId(proxy.user.getPortraitId());
-		proxy.user.setPassword("");
-		proxy.user.setPwdSalt("");
-		proxy.user.setId((long)0);
 
-		return info;
+    public LoginRecord requireUser(HttpServletRequest request) throws LogicException {
+        LoginRecord loginPayloadFromCookie = getLoginRecordFromCookie(request);
+        if (loginPayloadFromCookie == null) {
+            throw new LogicException(SelfXErrors.ILLEGAL_USER_TOKEN);
+        }
+        return loginPayloadFromCookie;
+    }
+
+    public long requireUserId(HttpServletRequest request) throws LogicException {
+        return requireUser(request).userId;
 	}
+
+    public record LoginRecord(
+            long userId,
+            boolean rememberMe
+    ) {}
+
+    @Nullable
+    public LoginRecord getLoginRecordFromCookie(HttpServletRequest request) {
+        if (request == null) return null;
+
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) return null;
+
+        for (Cookie cookie : cookies) {
+            if (!COOKIE_TOKEN_KEY.equals(cookie.getName())) continue;
+            String payloadJson;
+            String token = cookie.getValue();
+            try{
+                payloadJson = basis.verifyAndGetPayload(token);
+            }catch (LogicException e){
+                return null;
+            }
+            LoginPayload payload = JSON.parseObject(payloadJson, LoginPayload.class);
+            long userId = getStableCommonId(payload.userId);
+
+            User userInternally = userService.getUserInternally(userId);
+
+            if (!payload.sv.equals(userInternally.getSessionVersion())) {
+                return null;
+            }
+
+            return new LoginRecord(userId, payload.rememberMe);
+        }
+        return null;
+    }
+
+    private void setCookieForLoginInfo(HttpServletResponse response,String token,boolean rememberMe){
+        Cookie cookie = new Cookie(COOKIE_TOKEN_KEY, token);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(COOKIE_SECURE);
+        cookie.setPath("/");
+        if (rememberMe) {
+            cookie.setMaxAge(60 * 60 * 24 * COOKIE_ALIVE_DAYS);
+        } else {
+            cookie.setMaxAge(-1);
+        }
+
+        response.addCookie(cookie);
+    }
+
+    public LoginInfo process(HttpServletResponse response, UserProxy proxy, boolean rememberMe) {
+        assert proxy.user.getId() != 0;
+
+        LoginInfo info = new LoginInfo(proxy);
+        info.success = true;
+
+        String encodedUserId = encodeStableCommonId(proxy.user.getId());
+        info.userId = encodedUserId;
+        info.portraitId = encodeStableCommonId(proxy.user.getPortraitId());
+
+        LoginPayload payload = new LoginPayload();
+        payload.userId = encodedUserId;
+        payload.sv = proxy.user.getSessionVersion();
+        payload.iat = System.currentTimeMillis();
+        payload.rememberMe = rememberMe;
+
+        String payloadJson = JSON.toJSONString(payload);
+        String token = basis.signPayload(payloadJson);
+
+        setCookieForLoginInfo(response,token,rememberMe);
+
+        // 清理敏感信息
+        proxy.user.setPassword("");
+        proxy.user.setPwdSalt("");
+        proxy.user.setId(0L);
+
+        return info;
+    }
 	
 	
 	public PlanProxy process(PlanProxy plan) throws LogicException {
