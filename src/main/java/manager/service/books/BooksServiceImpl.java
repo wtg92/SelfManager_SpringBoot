@@ -3,39 +3,65 @@ package manager.service.books;
 
 import com.alibaba.fastjson2.JSON;
 import manager.SelfXManagerSpringbootApplication;
-import manager.booster.MultipleLangHelper;
+import manager.booster.CommonCipher;
 import manager.booster.CoreNameProducer;
+import manager.booster.MultipleLangHelper;
 import manager.booster.longRunningTasks.LongRunningTaskType;
 import manager.booster.longRunningTasks.LongRunningTasksScheduler;
 import manager.cache.CacheOperator;
 import manager.data.MultipleItemsResult;
-import manager.solr.constants.SharingLinkType;
-import manager.solr.data.SharingLinkDetail;
-import manager.solr.data.SharingLinkPatchReq;
 import manager.data.general.FinalHandler;
+import manager.exception.LogicException;
+import manager.service.FilesService;
 import manager.solr.SelfXCores;
 import manager.solr.SolrFields;
-import manager.solr.books.SharingLink;
-import manager.solr.data.*;
 import manager.solr.books.PageNode;
 import manager.solr.books.SharingBook;
-import manager.exception.LogicException;
-import manager.booster.SecurityBooster;
-import manager.service.FilesService;
-import manager.system.*;
-import manager.system.books.*;
+import manager.solr.books.SharingLink;
+import manager.solr.constants.SharingLinkType;
+import manager.solr.data.ParentNode;
+import manager.solr.data.SharingLinkDetail;
+import manager.solr.data.SharingLinkExtra;
+import manager.solr.data.SharingLinkPatchReq;
+import manager.solr.data.SharingLinkPermission;
+import manager.solr.data.SharingLinkSettings;
+import manager.solr.data.SolrSearchRequest;
+import manager.solr.data.SolrSearchResult;
+import manager.system.Language;
+import manager.system.SelfX;
+import manager.system.SelfXDataSrcTypes;
+import manager.system.SelfXErrors;
 import manager.system.books.BookStyle;
+import manager.system.books.BooksConstants;
+import manager.system.books.BooksMultipleFields;
+import manager.system.books.PageNodeType;
+import manager.system.books.SharingBookDisplayPatterns;
+import manager.system.books.SharingBookStatus;
+import manager.system.books.SharingLinkStatus;
 import manager.util.ReflectUtil;
 import manager.util.SelfXCollectionUtils;
 import manager.util.locks.UserLockManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Queue;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -62,8 +88,8 @@ public class BooksServiceImpl implements BooksService {
     @Resource
     CacheOperator cache;
 
-    @Resource
-    SecurityBooster securityBooster;
+    @Autowired
+    CommonCipher commonCipher;
 
     @Resource
     BookStatusLocker bookStatusLocker;
@@ -379,7 +405,7 @@ public class BooksServiceImpl implements BooksService {
 
 
     private SharingBook fill(long loginId, SharingBook item) {
-        item.setUpdaterEncodedId(SecurityBooster.encodeUnstableCommonId(item.getUpdaterId()));
+        item.setUpdaterEncodedId(CommonCipher.encodeUnstableCommonId(item.getUpdaterId()));
         item.setUpdaterId(null);
         bookStatusLocker.fill(loginId, item);
         return item;
@@ -431,7 +457,7 @@ public class BooksServiceImpl implements BooksService {
                  * 被更新掉的
                  */
                 fileIdsComparisonResult.onlyInList2.forEach(encodedFileId -> {
-                    long fileToDelete = securityBooster.getStableCommonId(extractPureFileIdForPageNode(encodedFileId));
+                    long fileToDelete = commonCipher.getStableCommonId(extractPureFileIdForPageNode(encodedFileId));
                     filesService.deleteFileRecord(loginId, fileToDelete);
                 });
             }
@@ -822,7 +848,7 @@ public class BooksServiceImpl implements BooksService {
             cache.deletePageNode(loginId, pageId, () -> operator.deletePageNodeById(loginId, pageId));
             if (node.getFileIds() != null) {
                 node.getFileIds().forEach(encodedFileIds -> {
-                    long fileToDelete = securityBooster.getStableCommonId(encodedFileIds);
+                    long fileToDelete = commonCipher.getStableCommonId(encodedFileIds);
                     filesService.deleteFileRecord(loginId, fileToDelete);
                 });
             }

@@ -1,6 +1,7 @@
 package manager.service;
 
 import jakarta.transaction.Transactional;
+import manager.booster.CommonCipher;
 import manager.booster.SecurityBooster;
 import manager.cache.CacheMode;
 import manager.cache.CacheOperator;
@@ -28,10 +29,10 @@ import manager.util.ThrowableSupplier;
 import manager.util.YZMUtil;
 import manager.util.YZMUtil.YZMInfo;
 import manager.util.locks.UserLockManager;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -53,22 +54,23 @@ import static manager.cache.CacheConverter.createTempKeyByBiIdentifiers;
 public class UserLogicImpl extends UserService {
 	final private static Logger logger = Logger.getLogger(UserLogicImpl.class.getName());
 
-	@Resource
+	@Autowired
 	private UserDAO uDAO;
-	@Resource
+	@Autowired
 	private YZMUtil yzmUtil;
 
-	@Resource
+	@Autowired
 	private UserLockManager locker;
 
-	@Resource
+	@Autowired
 	CacheOperator cache;
 
-	@Resource
+	@Autowired
 	FilesService filesService;
 
-	@Resource
-	SecurityBooster securityBooster;
+    @Autowired
+    CommonCipher commonCipher;
+
     @Override
 	public User getUserInternally(long userId){
 		ThrowableSupplier<User, DBException> generator = ()-> uDAO.selectExistedUser(userId);
@@ -662,7 +664,7 @@ public class UserLogicImpl extends UserService {
      * @param loginId nullable
      */
 	@Override
-	public UserBasicInfo getUserBasicInfo(Long loginId,Long targetId) {
+	public UserBasicInfo getUserBasicInfo(Long loginId, Long targetId) {
 		boolean isSameUser =  targetId.equals(loginId);
 		UserBasicInfo info = new UserBasicInfo();
 		User user = getUserInternally(targetId);
@@ -670,7 +672,7 @@ public class UserLogicImpl extends UserService {
 		info.motto = user.getMotto();
 		info.gender = user.getGender().getDbCode();
 		info.isSelf = isSameUser;
-		info.portraitId = securityBooster.encodeStableCommonId(user.getPortraitId());
+		info.portraitId = commonCipher.encodeStableCommonId(user.getPortraitId());
 		return info;
 	}
 

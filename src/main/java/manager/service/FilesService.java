@@ -1,7 +1,7 @@
 package manager.service;
 
 import com.alibaba.fastjson2.JSON;
-import manager.booster.SecurityBooster;
+import manager.booster.CommonCipher;
 import manager.cache.CacheOperator;
 import manager.dao.FilesDAO;
 import manager.entity.general.FileRecord;
@@ -10,11 +10,11 @@ import manager.system.SelfXDataSrcTypes;
 import manager.system.SelfXErrors;
 import manager.util.FileUtil;
 import manager.util.locks.UserLockManager;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
-import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -31,17 +31,17 @@ public class FilesService {
     @Value("${s3.folder}")
     private String s3Folder;
 
-    @Resource
+    @Autowired
     private UserLockManager locker;
-    @Resource
+    @Autowired
     private S3Service s3Service;
-    @Resource
+    @Autowired
     CacheOperator cache;
-    @Resource
+    @Autowired
     private FilesDAO dao;
 
-    @Resource
-    private SecurityBooster securityBooster;
+    @Autowired
+    private CommonCipher commonCipher;
 
     private String generateFullFileName(String suffix){
         return s3Folder+ "/" +UUID.randomUUID().toString()+"."+suffix;
@@ -72,13 +72,13 @@ public class FilesService {
             record.setSrcParams(srcParams);
             long id = dao.insertFileRecord(record);
             rlt.put("url",s3Service.generateUploadURL(fileName));
-            rlt.put("id", securityBooster.encodeStableCommonId(id));
+            rlt.put("id", commonCipher.encodeStableCommonId(id));
         });
         return rlt;
     }
 
     public String copyFileRecord(long loginId,String encodedID,Map<String,Object> srcParams){
-        long id = securityBooster.getStableCommonId(encodedID);
+        long id = commonCipher.getStableCommonId(encodedID);
         FileRecord fileRecord = cache.getFileRecord(id,()->dao.selectFileRecord(id));
         checkRecordPerms(fileRecord,loginId);
         //和create保持一致
@@ -91,7 +91,7 @@ public class FilesService {
         fileRecord.setId(null);
 
         long copyingId = dao.insertFileRecord(fileRecord);
-        return securityBooster.encodeStableCommonId(copyingId);
+        return commonCipher.encodeStableCommonId(copyingId);
     }
 
     public void uploadDoneNotify(long loginId, Long id) {

@@ -3,6 +3,7 @@ package manager.controller;
 import com.alibaba.fastjson2.JSONObject;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import manager.booster.CommonCipher;
 import manager.booster.SecurityBooster;
 import manager.data.LoginInfo;
 import manager.data.UserBasicInfo;
@@ -14,6 +15,7 @@ import manager.system.VerifyUserMethod;
 import manager.util.YZMUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,8 +23,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.annotation.Resource;
 
 import static manager.system.SelfXParams.ACCOUNT;
 import static manager.system.SelfXParams.ACCOUNT_PWD;
@@ -54,10 +54,13 @@ public class UserController {
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-    @Resource
+    @Autowired
     private SecurityBooster securityBooster;
 
-    @Resource
+    @Autowired
+    private CommonCipher commonCipher;
+
+    @Autowired
     private UserService userService;
     private static final String USER_PATH = "/user";
     @PatchMapping(USER_PATH)
@@ -67,7 +70,7 @@ public class UserController {
         String nickName = param.getString(NICK_NAME);
         Gender gender = Gender.valueOfDBCode(param.getInteger(GENDER));
         String motto = param.getString(MOTTO);
-        Long portraitId = securityBooster.getStableCommonId(param.getString(PORTRAIT_ID));
+        Long portraitId = commonCipher.getStableCommonId(param.getString(PORTRAIT_ID));
         userService.updateUser(loginId,nickName,gender,motto,portraitId);
     }
 
@@ -231,7 +234,7 @@ public class UserController {
     @GetMapping("/getUserBasicInfo")
     private UserBasicInfo getUserBasicInfo(@RequestParam(ID)String id,HttpServletRequest request)  {
         Long loginId = securityBooster.requireOptionalUserId(request);
-        Long decodedId = securityBooster.getStableCommonId(id);
+        Long decodedId = commonCipher.getStableCommonId(id);
         return userService.getUserBasicInfo(loginId,decodedId);
     }
 }

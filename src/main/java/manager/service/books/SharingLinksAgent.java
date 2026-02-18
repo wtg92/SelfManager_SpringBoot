@@ -1,19 +1,19 @@
 package manager.service.books;
 
 import com.alibaba.fastjson2.JSON;
-import manager.booster.SecurityBooster;
+import manager.booster.CommonCipher;
 import manager.exception.LogicException;
+import manager.solr.SolrFields;
+import manager.solr.books.SharingLink;
 import manager.solr.data.SharingLinkDetail;
 import manager.solr.data.SharingLinkPatchReq;
 import manager.solr.data.SharingLinkPermission;
-import manager.solr.SolrFields;
-import manager.solr.books.SharingLink;
 import manager.system.SelfXErrors;
 import manager.system.books.SharingLinkStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
-import javax.annotation.Resource;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,8 +30,8 @@ import java.util.Objects;
 @Component
 public class SharingLinksAgent {
 
-    @Resource
-    private SecurityBooster securityBooster;
+    @Autowired
+    private CommonCipher commonCipher;
 
     public static Map<String, Object> transferSolrUpdateParams(SharingLinkPatchReq req) {
         Map<String, Object> updatingAttrs = new HashMap<>();
@@ -101,7 +101,7 @@ public class SharingLinksAgent {
             }
         }
         if (perms.readPerms.personal) {
-            if (loginId != null && perms.readPerms.personalIds.stream().anyMatch(id -> id.id.equals(securityBooster.encodeStableCommonId(loginId)))) {
+            if (loginId != null && perms.readPerms.personalIds.stream().anyMatch(id -> id.id.equals(commonCipher.encodeStableCommonId(loginId)))) {
                 return;
             } else {
                 throw new LogicException(SelfXErrors.LINK_READ_PERM_ERROR);
@@ -125,10 +125,10 @@ public class SharingLinksAgent {
         params.loginId = loginId;
         params.bookId = bookId;
         params.isCommunityLink = isCommunityLink;
-        return securityBooster.encodeSharingLinkURLParams(params);
+        return commonCipher.encodeSharingLinkURLParams(params);
     }
 
     public EncryptionParams decode(String encoding) {
-        return securityBooster.decodeSharingLinkURLParams(encoding);
+        return commonCipher.decodeSharingLinkURLParams(encoding);
     }
 }

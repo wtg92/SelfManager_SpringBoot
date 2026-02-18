@@ -2,6 +2,7 @@ package manager.controller;
 
 import com.alibaba.fastjson2.JSONObject;
 import jakarta.servlet.http.HttpServletRequest;
+import manager.booster.CommonCipher;
 import manager.booster.SecurityBooster;
 import manager.data.MultipleItemsResult;
 import manager.data.proxy.career.PlanBalanceProxy;
@@ -12,6 +13,7 @@ import manager.entity.general.career.WorkSheet;
 import manager.service.work.WorkService;
 import manager.system.career.PlanItemType;
 import manager.system.career.PlanSetting;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -22,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 
@@ -73,10 +74,13 @@ import static manager.util.UIUtil.transferToIntList;
 @RequestMapping("/ws")
 public class WorkSheetController {
 
-    @Resource
+    @Autowired
     private SecurityBooster securityBooster;
 
-    @Resource
+    @Autowired
+    private CommonCipher commonCipher;
+
+    @Autowired
     private WorkService wL;
 
     private static final String PLAN_PATH = "/plan";
@@ -123,7 +127,7 @@ public class WorkSheetController {
             , @RequestBody JSONObject param ) {
         long loginId = securityBooster.requireUserId(request);
         long wsId = param.getLong(WS_ID);
-        long planId = securityBooster.getStableCommonId(param.getString(PLAN_ID));
+        long planId = commonCipher.getStableCommonId(param.getString(PLAN_ID));
         wL.saveWorkSheetPlanId(loginId, wsId, planId);
     }
 
@@ -377,7 +381,7 @@ public class WorkSheetController {
             @RequestParam(TIMEZONE)String timezone
     ) {
         long loginId = securityBooster.requireUserId(request);
-        long planId = planDecodedId.trim().isEmpty() ? 0 : securityBooster.getStableCommonId(planDecodedId);
+        long planId = planDecodedId.trim().isEmpty() ? 0 : commonCipher.getStableCommonId(planDecodedId);
             return wL.loadWorksheetsByTerms(loginId,state,startUtcForDate,endUtcForDate
                 ,startUtcForUpdate,endUtcForUpdate,timezone,planId);
     }
@@ -441,7 +445,7 @@ public class WorkSheetController {
         long loginId = securityBooster.requireUserId(request);
         long targetPlanId = param.getLong(TARGET_PLAN_ID);
         String templePlanId = param.getString(TEMPLATE_ID);
-        long templateId = securityBooster.getStableCommonId(templePlanId);
+        long templateId = commonCipher.getStableCommonId(templePlanId);
         wL.copyPlanItemsFrom(loginId, targetPlanId, templateId);
     }
 

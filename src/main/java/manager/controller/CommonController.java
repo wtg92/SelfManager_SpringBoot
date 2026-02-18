@@ -1,6 +1,7 @@
 package manager.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import manager.booster.CommonCipher;
 import manager.booster.SecurityBooster;
 import manager.booster.longRunningTasks.LongRunningTasksMessage;
 import manager.booster.longRunningTasks.LongRunningTasksScheduler;
@@ -15,11 +16,11 @@ import manager.system.books.BooksConstants;
 import manager.system.career.PlanItemType;
 import manager.system.career.PlanSetting;
 import manager.system.career.PlanState;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -30,10 +31,13 @@ import java.util.stream.Collectors;
 @RequestMapping("/common")
 public class CommonController {
 
-    @Resource
+    @Autowired
     SecurityBooster securityBooster;
 
-    @Resource
+    @Autowired
+    CommonCipher commonCipher;
+
+    @Autowired
     LongRunningTasksScheduler longRunningTasksScheduler;
 
     @GetMapping("/getBasicInfo")
@@ -92,7 +96,7 @@ public class CommonController {
     @GetMapping("/getStableLoginId")
     public String getLoginId(HttpServletRequest request){
         long loginId = securityBooster.requireUserId(request);
-        return securityBooster.encodeStableCommonId(loginId);
+        return commonCipher.encodeStableCommonId(loginId);
     }
 
     @GetMapping("/getLongRunningTasksMessage")

@@ -2,9 +2,11 @@ package manager.controller;
 
 import com.alibaba.fastjson2.JSONObject;
 import jakarta.servlet.http.HttpServletRequest;
+import manager.booster.CommonCipher;
 import manager.booster.SecurityBooster;
 import manager.entity.general.FileRecord;
 import manager.service.FilesService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
 import java.util.Map;
 
 import static manager.system.SelfXParams.ID;
@@ -25,11 +26,14 @@ import static manager.system.SelfXParams.SUFFIX;
 @RequestMapping("/files")
 public class FilesController {
 
-    @Resource
+    @Autowired
     private FilesService service;
 
-    @Resource
+    @Autowired
     private SecurityBooster securityBooster;
+
+    @Autowired
+    private CommonCipher commonCipher;
 
     @PostMapping("/retrieveUploadURL")
     private Map<String,Object> retrieveUploadURL(HttpServletRequest request
@@ -45,7 +49,7 @@ public class FilesController {
     private void uploadDoneNotify( HttpServletRequest request
             , @RequestBody JSONObject param ){
         long loginId = securityBooster.requireUserId(request);
-        Long id = securityBooster.getStableCommonId(param.getString(ID)) ;
+        Long id = commonCipher.getStableCommonId(param.getString(ID)) ;
         service.uploadDoneNotify(loginId,id);
     }
 
@@ -53,7 +57,7 @@ public class FilesController {
     private Map<String,Object> retrieveGetURL(HttpServletRequest request
             , @RequestParam(ID)String decodedID){
         Long loginId = securityBooster.requireOptionalUserId(request);
-        Long id = securityBooster.getStableCommonId(decodedID) ;
+        Long id = commonCipher.getStableCommonId(decodedID) ;
         return service.retrieveGetURL(loginId,id);
     }
 
@@ -61,7 +65,7 @@ public class FilesController {
     private void deleteFileRecord(HttpServletRequest request
             , @RequestBody JSONObject param ){
         long loginId = securityBooster.requireUserId(request);
-        Long id = securityBooster.getStableCommonId(param.getString(ID));
+        Long id = commonCipher.getStableCommonId(param.getString(ID));
         service.deleteFileRecord(loginId,id);
     }
 
@@ -69,7 +73,7 @@ public class FilesController {
     private FileRecord getRecord(HttpServletRequest request
             , @RequestParam(ID)String encodedID){
         Long loginId = securityBooster.requireOptionalUserId(request);
-        Long id = securityBooster.getStableCommonId(encodedID) ;
+        Long id = commonCipher.getStableCommonId(encodedID) ;
         return service.getRecord(loginId,id);
     }
 
