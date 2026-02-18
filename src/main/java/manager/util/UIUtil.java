@@ -1,28 +1,14 @@
 package manager.util;
 
-import static java.util.stream.Collectors.toList;
-import static manager.system.SelfXParams.USER_TOKEN;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-
-
+import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import jakarta.servlet.http.HttpServletRequest;
-
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONArray;
-
 import manager.exception.LogicException;
 import manager.exception.NoSuchElement;
-import manager.booster.SecurityBooster;
 import manager.system.SelfXErrors;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class UIUtil {
 
@@ -34,22 +20,6 @@ public abstract class UIUtil {
 		}
 
 		return rlt;
-	}
-
-
-	public static long getLoginId(String auth) throws LogicException {
-		try{
-			return SecurityBooster.getUserId(auth.replace("Bearer ",""));
-		}catch(Exception e){
-			throw new LogicException(SelfXErrors.LOGIN_FAILED);
-		}
-	}
-
-	public static Long getOptionalLoginId(String auth) throws LogicException {
-		if(auth == null || auth.isEmpty()){
-			return null;
-		}
-		return getLoginId(auth);
 	}
 
 	public static int getParamIntegerOrZeroDefault(JSONObject param, String key){

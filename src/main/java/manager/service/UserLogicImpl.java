@@ -654,13 +654,16 @@ public class UserLogicImpl extends UserService {
 		}
 		default:
 			assert false;
-			throw new RuntimeException("未配置的找回类型"+method.getName());
+			throw new IllegalStateException("未配置的找回类型"+method.getName());
 		}
 	}
 
+    /**
+     * @param loginId nullable
+     */
 	@Override
 	public UserBasicInfo getUserBasicInfo(Long loginId,Long targetId) {
-		boolean isSameUser = loginId.equals(targetId);
+		boolean isSameUser =  targetId.equals(loginId);
 		UserBasicInfo info = new UserBasicInfo();
 		User user = getUserInternally(targetId);
 		info.nickName = user.getNickName();

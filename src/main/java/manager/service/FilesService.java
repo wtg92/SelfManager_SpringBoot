@@ -1,11 +1,11 @@
 package manager.service;
 
 import com.alibaba.fastjson2.JSON;
+import manager.booster.SecurityBooster;
 import manager.cache.CacheOperator;
 import manager.dao.FilesDAO;
 import manager.entity.general.FileRecord;
 import manager.exception.LogicException;
-import manager.booster.SecurityBooster;
 import manager.system.SelfXDataSrcTypes;
 import manager.system.SelfXErrors;
 import manager.util.FileUtil;
@@ -13,8 +13,8 @@ import manager.util.locks.UserLockManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Nullable;
 import javax.annotation.Resource;
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -102,20 +102,20 @@ public class FilesService {
             cache.saveFileRecord(fileRecord,(one)->dao.updateExistedFileRecord(one));
         });
     }
-    private static boolean isNotOwner(long loginId, FileRecord fileRecord){
-        if(loginId == 0){
+    private static boolean isNotOwner(@Nullable  Long loginId, FileRecord fileRecord){
+        if(loginId == null){
             return true;
         }
-        return loginId != fileRecord.getOwnerId();
+        return !loginId.equals(fileRecord.getOwnerId());
     }
 
-    private static void checkRecordPerms(FileRecord fileRecord,long loginId){
+    private static void checkRecordPerms(FileRecord fileRecord,@Nullable  Long loginId){
         if((!fileRecord.getPublic()) && isNotOwner(loginId, fileRecord)){
             throw new LogicException(SelfXErrors.SEE_PRIVATE_IMG);
         }
     }
 
-    public Map<String,Object> retrieveGetURL(long loginId, Long id) {
+    public Map<String,Object> retrieveGetURL(@Nullable  Long loginId, Long id) {
         FileRecord fileRecord = cache.getFileRecord(id,()->dao.selectFileRecord(id));
         checkRecordPerms(fileRecord,loginId);
         Map<String,Object> rlt = new HashMap<>();
@@ -145,7 +145,7 @@ public class FilesService {
         });
     }
 
-    public FileRecord getRecord(long loginId, Long id) {
+    public FileRecord getRecord(@Nullable Long loginId, Long id) {
         FileRecord fileRecord = cache.getFileRecord(id,()->dao.selectFileRecord(id));
         checkRecordPerms(fileRecord,loginId);
         // 不暴露实际ID

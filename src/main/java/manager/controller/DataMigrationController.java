@@ -1,30 +1,35 @@
 package manager.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import manager.booster.SecurityBooster;
 import manager.service.DataMigrationService;
-import manager.util.UIUtil;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/migration")
 public class DataMigrationController {
 
-    @Resource
+    @Autowired
     private DataMigrationService migrationService;
 
+    @Autowired
+    private SecurityBooster securityBooster;
 
     @PostMapping("/doFullMigrateOfV1")
     public void doFullMigrateOfV1(
-            @RequestHeader("Authorization") String authorizationHeader) {
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+            HttpServletRequest request) {
+        long loginId = securityBooster.requireUserId(request);
         migrationService.doFullMigrateOfV1(loginId);
     }
 
     @PostMapping("/checkLatestMigration")
-    public Map<String,Object> checkLatestMigration(@RequestHeader("Authorization") String authorizationHeader){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+    public Map<String,Object> checkLatestMigration(HttpServletRequest request){
+        long loginId = securityBooster.requireUserId(request);
         return migrationService.checkLatestMigration(loginId);
     }
 }

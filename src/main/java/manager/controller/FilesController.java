@@ -1,17 +1,25 @@
 package manager.controller;
 
 import com.alibaba.fastjson2.JSONObject;
+import jakarta.servlet.http.HttpServletRequest;
+import manager.booster.SecurityBooster;
 import manager.entity.general.FileRecord;
 import manager.service.FilesService;
-import manager.booster.SecurityBooster;
-import manager.util.UIUtil;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-
 import java.util.Map;
 
-import static manager.system.SelfXParams.*;
+import static manager.system.SelfXParams.ID;
+import static manager.system.SelfXParams.SIZE_KB;
+import static manager.system.SelfXParams.SRC_PARAMS;
+import static manager.system.SelfXParams.SUFFIX;
 
 @RestController
 @RequestMapping("/files")
@@ -24,9 +32,9 @@ public class FilesController {
     private SecurityBooster securityBooster;
 
     @PostMapping("/retrieveUploadURL")
-    private Map<String,Object> retrieveUploadURL(@RequestHeader("Authorization") String authorizationHeader
+    private Map<String,Object> retrieveUploadURL(HttpServletRequest request
             , @RequestBody JSONObject param ){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long loginId = securityBooster.requireUserId(request);
         Long sizeKB = param.getLong(SIZE_KB);
         String suffix = param.getString(SUFFIX);
         String srcParams = param.getString(SRC_PARAMS);
@@ -34,33 +42,33 @@ public class FilesController {
     }
 
     @PostMapping("/uploadDoneNotify")
-    private void uploadDoneNotify( @RequestHeader("Authorization") String authorizationHeader
+    private void uploadDoneNotify( HttpServletRequest request
             , @RequestBody JSONObject param ){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long loginId = securityBooster.requireUserId(request);
         Long id = securityBooster.getStableCommonId(param.getString(ID)) ;
         service.uploadDoneNotify(loginId,id);
     }
 
     @GetMapping("/retrieveGetURL")
-    private Map<String,Object> retrieveGetURL(@RequestHeader(name="Authorization", required = false) String authorizationHeader
+    private Map<String,Object> retrieveGetURL(HttpServletRequest request
             , @RequestParam(ID)String decodedID){
-        long loginId = authorizationHeader == null ? 0 : UIUtil.getLoginId(authorizationHeader);
+        Long loginId = securityBooster.requireOptionalUserId(request);
         Long id = securityBooster.getStableCommonId(decodedID) ;
         return service.retrieveGetURL(loginId,id);
     }
 
     @DeleteMapping("/fileRecord")
-    private void deleteFileRecord(@RequestHeader("Authorization") String authorizationHeader
+    private void deleteFileRecord(HttpServletRequest request
             , @RequestBody JSONObject param ){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long loginId = securityBooster.requireUserId(request);
         Long id = securityBooster.getStableCommonId(param.getString(ID));
         service.deleteFileRecord(loginId,id);
     }
 
     @GetMapping("/record")
-    private FileRecord getRecord(@RequestHeader(name="Authorization", required = false) String authorizationHeader
+    private FileRecord getRecord(HttpServletRequest request
             , @RequestParam(ID)String encodedID){
-        long loginId = authorizationHeader == null ? 0 : UIUtil.getLoginId(authorizationHeader);
+        Long loginId = securityBooster.requireOptionalUserId(request);
         Long id = securityBooster.getStableCommonId(encodedID) ;
         return service.getRecord(loginId,id);
     }

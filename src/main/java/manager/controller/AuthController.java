@@ -1,5 +1,6 @@
 package manager.controller;
 import com.alibaba.fastjson2.JSONObject;
+import jakarta.servlet.http.HttpServletResponse;
 import manager.booster.SecurityBooster;
 import manager.data.LoginInfo;
 import manager.service.AuthService;
@@ -12,7 +13,6 @@ import static manager.system.SelfXParams.*;
 @RequestMapping("/auth")
 public class AuthController {
 
-
     @Resource
     private SecurityBooster securityBooster;
 
@@ -20,18 +20,19 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/google")
-    public LoginInfo googleAuth(@RequestBody JSONObject param) {
+    public LoginInfo googleAuth(HttpServletResponse response, @RequestBody JSONObject param) {
         String token = param.getString(TOKEN);
         String tempUserId = param.getString(TEMP_USER_ID);
-        return securityBooster.process(authService.googleAuth(token,tempUserId));
+        Boolean rememberMe = param.getBoolean(REMEMBER_ME);
+        return securityBooster.process(response,authService.googleAuth(token,tempUserId),rememberMe);
     }
 
-
     @PostMapping("/alipay")
-    public LoginInfo alipayAuth(@RequestBody JSONObject param) {
+    public LoginInfo alipayAuth(HttpServletResponse response,@RequestBody JSONObject param) {
         String token = param.getString(TOKEN);
         String tempUserId = param.getString(TEMP_USER_ID);
-        return securityBooster.process(authService.alipayAuth(token,tempUserId));
+        Boolean rememberMe = param.getBoolean(REMEMBER_ME);
+        return securityBooster.process(response,authService.alipayAuth(token,tempUserId),rememberMe);
     }
 
 }

@@ -2,33 +2,57 @@ package manager.controller;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import jakarta.servlet.http.HttpServletRequest;
+import manager.booster.SecurityBooster;
 import manager.data.MultipleItemsResult;
-import manager.solr.data.SharingLinkDetail;
-import manager.solr.data.SharingLinkPatchReq;
-import manager.solr.books.SharingLink;
-import manager.solr.data.ParentNode;
-import manager.solr.data.SolrSearchRequest;
-import manager.solr.data.SolrSearchResult;
+import manager.service.books.BooksService;
 import manager.solr.books.PageNode;
 import manager.solr.books.SharingBook;
-import manager.service.books.BooksService;
-import manager.util.UIUtil;
-import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
+import manager.solr.books.SharingLink;
+import manager.solr.data.ParentNode;
+import manager.solr.data.SharingLinkDetail;
+import manager.solr.data.SharingLinkPatchReq;
+import manager.solr.data.SolrSearchRequest;
+import manager.solr.data.SolrSearchResult;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
 
-import static manager.system.SelfXParams.*;
+import static manager.system.SelfXParams.BOOK_ID;
+import static manager.system.SelfXParams.COMMENT;
+import static manager.system.SelfXParams.DEFAULT_LANGUAGE;
+import static manager.system.SelfXParams.ENCODING;
+import static manager.system.SelfXParams.ID;
+import static manager.system.SelfXParams.INDEX;
+import static manager.system.SelfXParams.IS_COMMUNITY_LINK;
+import static manager.system.SelfXParams.JSON_OBJ;
+import static manager.system.SelfXParams.LANGUAGE;
+import static manager.system.SelfXParams.NAME;
+import static manager.system.SelfXParams.PARENT_ID;
+import static manager.system.SelfXParams.SRC_BOOK_ID;
+import static manager.system.SelfXParams.SRC_ID;
+import static manager.system.SelfXParams.SRC_PARENT_ID;
+import static manager.system.SelfXParams.STATES;
+import static manager.system.SelfXParams.STATUS;
 
 @RestController
 @RequestMapping("/books")
 public class BooksController {
 
-    @Resource
+    @Autowired
     private BooksService service;
 
+    @Autowired private SecurityBooster securityBooster;
+    
     private static final String BOOKS_PATH = "/books";
 
     private static final String PAGES_PATH = "/pageNodes";
@@ -38,28 +62,27 @@ public class BooksController {
     private static final String SHARING_PATH = "/sharing";
 
     private static final String SHARING_LINK_PATH = LINKS_PATH+SHARING_PATH;
-
+    
     @PostMapping(BOOKS_PATH)
-    private String postBook( @RequestHeader("Authorization") String authorizationHeader
-            , @RequestBody JSONObject param ){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+    private String postBook(HttpServletRequest request, @RequestBody JSONObject param ){
+        long loginId = securityBooster.requireUserId(request);
         String name = param.getString(NAME);
         String defaultLanguage = param.getString(DEFAULT_LANGUAGE);
         String comment = param.getString(COMMENT);
         return service.createBook(loginId,name,defaultLanguage,comment);
     }
     @DeleteMapping(LINKS_PATH)
-    private void deleteLink(@RequestHeader("Authorization") String authorizationHeader
+    private void deleteLink(HttpServletRequest request
             , @RequestBody JSONObject param ){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long loginId = securityBooster.requireUserId(request);
         String id = param.getString(ID);
         Boolean isCommunityLink = param.getBoolean(IS_COMMUNITY_LINK);
         service.deleteLink(loginId,isCommunityLink,id);
     }
     @PostMapping(LINKS_PATH)
-    private String postLink( @RequestHeader("Authorization") String authorizationHeader
+    private String postLink( HttpServletRequest request
             , @RequestBody JSONObject param ){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long loginId = securityBooster.requireUserId(request);
         Boolean isCommunityLink = param.getBoolean(IS_COMMUNITY_LINK);
         String bookId = param.getString(BOOK_ID);
         String defaultLanguage = param.getString(DEFAULT_LANGUAGE);
@@ -68,9 +91,9 @@ public class BooksController {
     }
 
     @PostMapping(LINKS_PATH+"/switchLinkStatus")
-    private void switchLinkStatus( @RequestHeader("Authorization") String authorizationHeader
+    private void switchLinkStatus( HttpServletRequest request
             , @RequestBody JSONObject param ){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long loginId = securityBooster.requireUserId(request);
         String id = param.getString(ID);
         Boolean isCommunityLink = param.getBoolean(IS_COMMUNITY_LINK);
         Integer status = param.getInteger(STATUS);
@@ -78,57 +101,51 @@ public class BooksController {
     }
 
     @PatchMapping(LINKS_PATH)
-    private void patchLink( @RequestHeader("Authorization") String authorizationHeader
+    private void patchLink( HttpServletRequest request
             , @RequestBody SharingLinkPatchReq param ){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long loginId = securityBooster.requireUserId(request);
         service.updateLink(loginId,param);
     }
 
     @GetMapping(LINKS_PATH+"/list")
-    private MultipleItemsResult<SharingLink> getLinks(@RequestHeader("Authorization") String authorizationHeader
+    private MultipleItemsResult<SharingLink> getLinks(HttpServletRequest request
             , @RequestParam(BOOK_ID)String bookId
             , @RequestParam(IS_COMMUNITY_LINK)Boolean isCommunityLink
     ){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long loginId = securityBooster.requireUserId(request);
         return service.getLinks(loginId,bookId,isCommunityLink);
     }
 
     @GetMapping(LINKS_PATH)
-    private SharingLink getLink(@RequestHeader("Authorization") String authorizationHeader
+    private SharingLink getLink(HttpServletRequest request
             ,@RequestParam(ID)String id
             , @RequestParam(IS_COMMUNITY_LINK)Boolean isCommunityLink){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long loginId = securityBooster.requireUserId(request);
         return service.getLinkByOwner(loginId,isCommunityLink,id);
     }
 
     @GetMapping(SHARING_LINK_PATH+"/detail")
-    private SharingLinkDetail getLinkDetail(@RequestHeader(value = "Authorization",required = false)String authorizationHeader
-            , @RequestParam(ENCODING)String encoding){
-        Long loginId = UIUtil.getOptionalLoginId(authorizationHeader);
-        return service.getLinkDetail(loginId,encoding);
+    private SharingLinkDetail getLinkDetail(HttpServletRequest request, @RequestParam(ENCODING)String encoding){
+        return service.getLinkDetail(securityBooster.requireOptionalUserId(request),encoding);
     }
 
     @GetMapping(SHARING_LINK_PATH+"/page")
-    private PageNode getSharingLinkPage(@RequestHeader(value = "Authorization",required = false) String authorizationHeader
-            , @RequestParam(ENCODING)String encoding , @RequestParam(value = ID,required = false)String id){
-        Long loginId = UIUtil.getOptionalLoginId(authorizationHeader);
-        return service.getSharingLinkPage(loginId,encoding,id);
+    private PageNode getSharingLinkPage(HttpServletRequest request,@RequestParam(ENCODING)String encoding , @RequestParam(value = ID,required = false)String id){
+        return service.getSharingLinkPage(securityBooster.requireOptionalUserId(request),encoding,id);
     }
 
     @GetMapping(SHARING_LINK_PATH+"/list")
-    private MultipleItemsResult<PageNode> getSharingLinkPages(@RequestHeader(value = "Authorization",required = false) String authorizationHeader
-            , @RequestParam(PARENT_ID)String parentId
+    private MultipleItemsResult<PageNode> getSharingLinkPages(HttpServletRequest request, @RequestParam(PARENT_ID)String parentId
             , @RequestParam(ENCODING)String encoding
     ){
-        Long loginId = UIUtil.getOptionalLoginId(authorizationHeader);
-        return service.getSharingLinkPages(loginId,encoding,parentId);
+        return service.getSharingLinkPages(securityBooster.requireOptionalUserId(request),encoding,parentId);
     }
 
 
     @PostMapping(PAGES_PATH)
-    private String postPage( @RequestHeader("Authorization") String authorizationHeader
+    private String postPage( HttpServletRequest request
             , @RequestBody JSONObject param ){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long loginId = securityBooster.requireUserId(request);
         String name = param.getString(NAME);
         String lang = param.getString(LANGUAGE);
         String parentId = param.getString(PARENT_ID);
@@ -138,17 +155,17 @@ public class BooksController {
     }
 
     @PostMapping(PAGES_PATH+"/calculatePath")
-    private List<String> calculatePath(@RequestHeader("Authorization") String authorizationHeader
+    private List<String> calculatePath(HttpServletRequest request
             , @RequestBody JSONObject param ){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long loginId = securityBooster.requireUserId(request);
         String id = param.getString(ID);
         return service.calculatePath(loginId,id).stream().map(PageNode::getId).toList();
     }
 
     @PostMapping(PAGES_PATH+"/parentNode")
-    private void addPageParentNode(@RequestHeader("Authorization") String authorizationHeader
+    private void addPageParentNode(HttpServletRequest request
             , @RequestBody JSONObject param ){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long loginId = securityBooster.requireUserId(request);
         String parentId = param.getString(PARENT_ID);
         Double index = param.getDouble(INDEX);
         String id = param.getString(ID);
@@ -157,9 +174,9 @@ public class BooksController {
     }
 
     @PostMapping(PAGES_PATH+"/copySinglePageNodeFromTheOwner")
-    private void copySinglePageNodeFromTheOwner(@RequestHeader("Authorization") String authorizationHeader
+    private void copySinglePageNodeFromTheOwner(HttpServletRequest request
             , @RequestBody JSONObject param ){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long loginId = securityBooster.requireUserId(request);
         String srcId = param.getString(SRC_ID);
         String parentId = param.getString(PARENT_ID);
         Double index = param.getDouble(INDEX);
@@ -167,9 +184,9 @@ public class BooksController {
         service.copySinglePageNodeFromTheOwner(loginId,srcId,bookId,parentId,index);
     }
     @PostMapping(SHARING_LINK_PATH+"/copySinglePageNodeFromLink")
-    private void copySinglePageNodeFromLink(@RequestHeader("Authorization") String authorizationHeader
+    private void copySinglePageNodeFromLink(HttpServletRequest request
             , @RequestBody JSONObject param ){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long loginId = securityBooster.requireUserId(request);
         String encoding = param.getString(ENCODING);
         String srcID = param.getString(SRC_ID);
         String parentId = param.getString(PARENT_ID);
@@ -178,9 +195,9 @@ public class BooksController {
         service.copySinglePageNodeFromLink(loginId,encoding,srcID,bookId,parentId,index);
     }
     @PostMapping(PAGES_PATH+"/copyPageNodeAndSubFromTheOwner")
-    private void copyPageNodeAndSubFromTheOwner(@RequestHeader("Authorization") String authorizationHeader
+    private void copyPageNodeAndSubFromTheOwner(HttpServletRequest request
             , @RequestBody JSONObject param ){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long loginId = securityBooster.requireUserId(request);
         String srcId = param.getString(SRC_ID);
         String srcBookId = param.getString(SRC_BOOK_ID);
         String targetBookId = param.getString(BOOK_ID);
@@ -191,9 +208,9 @@ public class BooksController {
 
 
     @PostMapping(PAGES_PATH+"/movePageNodeAndSub")
-    private void movePageNodeAndSub(@RequestHeader("Authorization") String authorizationHeader
+    private void movePageNodeAndSub(HttpServletRequest request
             , @RequestBody JSONObject param ){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long loginId = securityBooster.requireUserId(request);
         String srcId = param.getString(SRC_ID);
         String srcParentId = param.getString(SRC_PARENT_ID);
         String srcBookId = param.getString(SRC_BOOK_ID);
@@ -207,41 +224,41 @@ public class BooksController {
 
 
     @GetMapping(PAGES_PATH+"/parentNodes")
-    private List<ParentNode<?>> getAllParentNodes(@RequestHeader("Authorization") String authorizationHeader
+    private List<ParentNode<?>> getAllParentNodes(HttpServletRequest request
             , @RequestParam(ID)String id){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long loginId = securityBooster.requireUserId(request);
         return service.getAllParentNodes(loginId,id);
     }
 
     @GetMapping(PAGES_PATH+"/totalPagesOfOwn")
-    private long getTotalPagesOfOwn(@RequestHeader("Authorization") String authorizationHeader
+    private long getTotalPagesOfOwn(HttpServletRequest request
             , @RequestParam(ID)String id){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long loginId = securityBooster.requireUserId(request);
         return service.getTotalPagesOfOwn(loginId,id);
     }
 
     @GetMapping(PAGES_PATH+"/list")
-    private MultipleItemsResult<PageNode> getPages(@RequestHeader("Authorization") String authorizationHeader
+    private MultipleItemsResult<PageNode> getPages(HttpServletRequest request
             , @RequestParam(PARENT_ID)String parentId
             , @RequestParam(BOOK_ID)String bookId
             ){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long loginId = securityBooster.requireUserId(request);
         return service.getPages(loginId,bookId,parentId);
     }
 
     @GetMapping(PAGES_PATH)
-    private PageNode getPageNode(@RequestHeader("Authorization") String authorizationHeader
+    private PageNode getPageNode(HttpServletRequest request
             , @RequestParam(ID)String id){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long loginId = securityBooster.requireUserId(request);
         return service.getPageNode(loginId,id);
     }
 
 
 
     @DeleteMapping(PAGES_PATH)
-    private void deletePageNode(@RequestHeader("Authorization") String authorizationHeader
+    private void deletePageNode(HttpServletRequest request
             , @RequestBody JSONObject param ){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long loginId = securityBooster.requireUserId(request);
         String id = param.getString(ID);
         String parentId = param.getString(PARENT_ID);
         String bookId = param.getString(BOOK_ID);
@@ -249,57 +266,57 @@ public class BooksController {
     }
 
     @DeleteMapping(BOOKS_PATH)
-    private void deleteBook(@RequestHeader("Authorization") String authorizationHeader
+    private void deleteBook(HttpServletRequest request
             , @RequestBody JSONObject param ){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long loginId = securityBooster.requireUserId(request);
         String id = param.getString(ID);
         service.deleteBook(loginId,id);
     }
 
     @GetMapping(BOOKS_PATH+"/list")
-    private MultipleItemsResult<SharingBook> getBooks(@RequestHeader("Authorization") String authorizationHeader
+    private MultipleItemsResult<SharingBook> getBooks(HttpServletRequest request
     ,@RequestParam(STATES)List<Integer> states){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long loginId = securityBooster.requireUserId(request);
         return service.getBooks(loginId,states);
     }
 
     @PostMapping(BOOKS_PATH+"/search")
-    private SolrSearchResult<SharingBook> searchBooks(@RequestHeader("Authorization") String authorizationHeader
+    private SolrSearchResult<SharingBook> searchBooks(HttpServletRequest request
             , @RequestBody SolrSearchRequest searchRequest
     ){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long loginId = securityBooster.requireUserId(request);
         return service.searchBooks(loginId,searchRequest);
     }
 
     @PostMapping(PAGES_PATH+"/search")
-    private SolrSearchResult<PageNode> searchPageNodes(@RequestHeader("Authorization") String authorizationHeader
+    private SolrSearchResult<PageNode> searchPageNodes(HttpServletRequest request
             , @RequestBody SolrSearchRequest searchRequest
     ){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long loginId = securityBooster.requireUserId(request);
         return service.searchPageNodes(loginId,searchRequest);
     }
 
     @GetMapping(BOOKS_PATH)
-    private SharingBook getBook(@RequestHeader("Authorization") String authorizationHeader
+    private SharingBook getBook(HttpServletRequest request
             ,@RequestParam(ID)String id){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long loginId = securityBooster.requireUserId(request);
         return service.getBook(loginId,id);
     }
 
 
 
     @PostMapping(BOOKS_PATH+"/emptyBookPages")
-    private void emptyBookPages(@RequestHeader("Authorization") String authorizationHeader
+    private void emptyBookPages(HttpServletRequest request
             , @RequestBody JSONObject param){
         String id = param.getString(ID);
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long loginId = securityBooster.requireUserId(request);
         service.emptyBookPages(loginId,id);
     }
 
     @PatchMapping(BOOKS_PATH)
-    private void patchBook( @RequestHeader("Authorization") String authorizationHeader
+    private void patchBook( HttpServletRequest request
             , @RequestBody JSONObject param ){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long loginId = securityBooster.requireUserId(request);
         String id = param.getString(ID);
         Map<String,Object> updatingProps = JSON.parseObject(param.getString(JSON_OBJ));
         service.updateBookPropsInSync(loginId,id,updatingProps);
@@ -307,9 +324,9 @@ public class BooksController {
 
 
     @PatchMapping(PAGES_PATH)
-    private PageNode patchPageNode( @RequestHeader("Authorization") String authorizationHeader
+    private PageNode patchPageNode( HttpServletRequest request
             , @RequestBody JSONObject param ){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long loginId = securityBooster.requireUserId(request);
         String id = param.getString(ID);
         String bookId = param.getString(BOOK_ID);
         Map<String,Object> updatingProps = JSON.parseObject(param.getString(JSON_OBJ));
@@ -317,9 +334,9 @@ public class BooksController {
         return service.getPageNode(loginId,id);
     }
     @PatchMapping(BOOKS_PATH+"/close")
-    private void closeBook( @RequestHeader("Authorization") String authorizationHeader
+    private void closeBook( HttpServletRequest request
             , @RequestBody JSONObject param ){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long loginId = securityBooster.requireUserId(request);
         String id = param.getString(ID);
         service.closeBook(loginId,id);
     }

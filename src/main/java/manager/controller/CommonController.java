@@ -1,29 +1,30 @@
 package manager.controller;
 
-import java.time.ZoneId;
-import java.util.*;
-import java.util.stream.Collectors;
-
+import jakarta.servlet.http.HttpServletRequest;
+import manager.booster.SecurityBooster;
 import manager.booster.longRunningTasks.LongRunningTasksMessage;
 import manager.booster.longRunningTasks.LongRunningTasksScheduler;
+import manager.data.AjaxResult;
 import manager.service.work.WorkService;
-import manager.booster.SecurityBooster;
 import manager.solr.constants.SolrConfig;
 import manager.system.Gender;
 import manager.system.Language;
+import manager.system.SelfX;
 import manager.system.VerifyUserMethod;
 import manager.system.books.BooksConstants;
 import manager.system.career.PlanItemType;
 import manager.system.career.PlanSetting;
 import manager.system.career.PlanState;
-import manager.util.UIUtil;
-import manager.util.ZonedTimeUtils;
-import org.springframework.web.bind.annotation.*;
-
-import manager.data.AjaxResult;
-import manager.system.SelfX;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/common")
@@ -89,14 +90,14 @@ public class CommonController {
     }
 
     @GetMapping("/getStableLoginId")
-    public String getLoginId(@RequestHeader("Authorization") String authorizationHeader){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+    public String getLoginId(HttpServletRequest request){
+        long loginId = securityBooster.requireUserId(request);
         return securityBooster.encodeStableCommonId(loginId);
     }
 
     @GetMapping("/getLongRunningTasksMessage")
-    public LongRunningTasksMessage getLongRunningTasksMessage(@RequestHeader("Authorization") String authorizationHeader) {
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+    public LongRunningTasksMessage getLongRunningTasksMessage(HttpServletRequest request) {
+        long loginId = securityBooster.requireUserId(request);
         return longRunningTasksScheduler.getRunningMsg(loginId);
     }
 

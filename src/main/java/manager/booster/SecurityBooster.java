@@ -157,13 +157,20 @@ public class SecurityBooster {
     }
 
     public long requireUserId(HttpServletRequest request) throws LogicException {
-        return requireUser(request).userId;
+        return requireUser(request).userId();
 	}
+
+    public Long requireOptionalUserId(HttpServletRequest request) throws LogicException {
+        LoginRecord loginRecordFromCookie = getLoginRecordFromCookie(request);
+        return loginRecordFromCookie == null ? null : loginRecordFromCookie.userId();
+    }
 
     public record LoginRecord(
             long userId,
             boolean rememberMe
     ) {}
+
+
 
     @Nullable
     public LoginRecord getLoginRecordFromCookie(HttpServletRequest request) {

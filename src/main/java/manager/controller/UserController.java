@@ -1,25 +1,52 @@
 package manager.controller;
 
 import com.alibaba.fastjson2.JSONObject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import manager.booster.SecurityBooster;
 import manager.data.LoginInfo;
 import manager.data.UserBasicInfo;
 import manager.data.proxy.UserProxy;
 import manager.service.UserService;
-import manager.booster.SecurityBooster;
 import manager.system.Gender;
 import manager.system.UserUniqueField;
 import manager.system.VerifyUserMethod;
-import manager.util.UIUtil;
 import manager.util.YZMUtil;
-import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 
-import static manager.system.SelfXParams.*;
+import static manager.system.SelfXParams.ACCOUNT;
+import static manager.system.SelfXParams.ACCOUNT_PWD;
+import static manager.system.SelfXParams.EMAIL;
+import static manager.system.SelfXParams.EMAIL_VERIFY_CODE;
+import static manager.system.SelfXParams.FIELD;
+import static manager.system.SelfXParams.FOR_EMAIL;
+import static manager.system.SelfXParams.GENDER;
+import static manager.system.SelfXParams.ID;
+import static manager.system.SelfXParams.IMG_SRC;
+import static manager.system.SelfXParams.MOTTO;
+import static manager.system.SelfXParams.NICK_NAME;
+import static manager.system.SelfXParams.PORTRAIT_ID;
+import static manager.system.SelfXParams.PWD;
+import static manager.system.SelfXParams.REMEMBER_ME;
+import static manager.system.SelfXParams.RESET_PWD_VAL;
+import static manager.system.SelfXParams.SIGN_IN_METHOD;
+import static manager.system.SelfXParams.TEL;
+import static manager.system.SelfXParams.TEL_VERIFY_CODE;
 import static manager.system.SelfXParams.TEMP_USER_ID;
+import static manager.system.SelfXParams.VAL;
+import static manager.system.SelfXParams.VERIFY_CODE;
+import static manager.system.SelfXParams.VERIFY_SRC;
+import static manager.system.SelfXParams.X;
 
 @RestController
 @RequestMapping("/user")
@@ -34,9 +61,9 @@ public class UserController {
     private UserService userService;
     private static final String USER_PATH = "/user";
     @PatchMapping(USER_PATH)
-    private void patchUser( @RequestHeader("Authorization") String authorizationHeader
+    private void patchUser( HttpServletRequest request
             , @RequestBody JSONObject param ){
-        long loginId = UIUtil.getLoginId(authorizationHeader);
+        long loginId = securityBooster.requireUserId(request);
         String nickName = param.getString(NICK_NAME);
         Gender gender = Gender.valueOfDBCode(param.getInteger(GENDER));
         String motto = param.getString(MOTTO);
@@ -44,9 +71,8 @@ public class UserController {
         userService.updateUser(loginId,nickName,gender,motto,portraitId);
     }
 
-
     @PostMapping("/signIn")
-    public LoginInfo signIn(@RequestBody JSONObject param) {
+    public LoginInfo signIn(HttpServletResponse response,@RequestBody JSONObject param) {
         VerifyUserMethod method = VerifyUserMethod.valueOfDBCode(
                 param.getInteger(SIGN_IN_METHOD));
         String account = param.getString(ACCOUNT);
@@ -56,7 +82,8 @@ public class UserController {
         String tel = param.getString(TEL);
         String telVerifyCode = param.getString(TEL_VERIFY_CODE);
         String tempUserId = param.getString(TEMP_USER_ID);
-        return securityBooster.process(userService.signIn(tempUserId,method,account,accountPwd,email,emailVerifyCode,tel,telVerifyCode)) ;
+        Boolean rememberMe = param.getBoolean(REMEMBER_ME);
+        return securityBooster.process(response,userService.signIn(tempUserId,method,account,accountPwd,email,emailVerifyCode,tel,telVerifyCode),rememberMe);
     }
 
     @PostMapping("/sendEmailVerifyCodeForSignIn")
@@ -144,24 +171,35 @@ public class UserController {
             return SecurityBooster.process(userService.createTelYZM(tempUserId, ""));
         }
     }
+//
+//    @PostMapping("/confirmUserToken")
+//    @Deprecated
+//    private LoginInfo confirmUserToken(@RequestBody JSONObject param){
+//        String token = param.getString(USER_TOKEN);
+//        Long userId = null;
+//        try{
+////            userId = SecurityBooster.getUserId(token);
+//        }catch (Exception e){
+//            LoginInfo info = new LoginInfo();
+//            info.success = false;
+//            return info;
+//        }
+//
+//        //验证账号
+//        UserProxy user = userService.loadUser(userId, userId);
+//        //验证密码
+//        return securityBooster.confirmUser(user,token);
+//    }
 
-    @PostMapping("/confirmUserToken")
-    private LoginInfo confirmUserToken(@RequestBody JSONObject param){
-        String token = param.getString(USER_TOKEN);
-        Long userId = null;
-        try{
-            userId = SecurityBooster.getUserId(token);
-        }catch (Exception e){
-            LoginInfo info = new LoginInfo();
-            info.success = false;
-            return info;
+        @GetMapping("/me")
+        public LoginInfo me(HttpServletRequest request, HttpServletResponse response) {
+            SecurityBooster.LoginRecord loginRecord = securityBooster.requireUser(request);
+            long userId = loginRecord.userId();
+            UserProxy user = userService.loadUser(userId, userId);
+            return securityBooster.process(response,user,loginRecord.rememberMe());
         }
 
-        //验证账号
-        UserProxy user = userService.loadUser(userId, userId);
-        //验证密码
-        return securityBooster.confirmUser(user,token);
-    }
+
 
     @PostMapping("/confirmTempUser")
     private boolean confirmTempUser(@RequestBody JSONObject param)  {
@@ -191,9 +229,8 @@ public class UserController {
 
 
     @GetMapping("/getUserBasicInfo")
-    private UserBasicInfo getUserBasicInfo(@RequestParam(ID)String id,@RequestHeader(value = "Authorization",required = false)
-        String authorizationHeader)  {
-        long loginId = authorizationHeader == null ? 0 : UIUtil.getLoginId(authorizationHeader);
+    private UserBasicInfo getUserBasicInfo(@RequestParam(ID)String id,HttpServletRequest request)  {
+        Long loginId = securityBooster.requireOptionalUserId(request);
         Long decodedId = securityBooster.getStableCommonId(id);
         return userService.getUserBasicInfo(loginId,decodedId);
     }
