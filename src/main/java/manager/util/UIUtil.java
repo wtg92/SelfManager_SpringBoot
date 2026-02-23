@@ -65,8 +65,28 @@ public abstract class UIUtil {
 			throw new LogicException(SelfXErrors.REQUEST_ARG_NULL,key);
 		}
 	}
-	
+
+    public static String getClientIp(HttpServletRequest request) {
+        String ip = request.getHeader("X-Forwarded-For");
+        if (isValidIp(ip)) {
+            return ip.split(",")[0].trim();
+        }
+
+        ip = request.getHeader("X-Real-IP");
+        if (isValidIp(ip)) {
+            return ip;
+        }
+
+        return request.getRemoteAddr();
+    }
 
 
+    private static boolean isValidIp(String ip) {
+        return ip != null
+                && !ip.isBlank()
+                && !"unknown".equalsIgnoreCase(ip)
+                && !"127.0.0.1".equals(ip)
+                && !"::1".equals(ip);
+    }
 
 }

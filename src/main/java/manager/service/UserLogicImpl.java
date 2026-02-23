@@ -2,6 +2,7 @@ package manager.service;
 
 import jakarta.transaction.Transactional;
 import manager.booster.CommonCipher;
+import manager.booster.LoginAttemptGuard;
 import manager.booster.SecurityBooster;
 import manager.cache.CacheMode;
 import manager.cache.CacheOperator;
@@ -71,6 +72,9 @@ public class UserLogicImpl extends UserService {
     @Autowired
     CommonCipher commonCipher;
 
+    @Autowired
+    LoginAttemptGuard loginAttemptGuard;
+
     @Override
 	public User getUserInternally(long userId){
 		ThrowableSupplier<User, DBException> generator = ()-> uDAO.selectExistedUser(userId);
@@ -102,56 +106,79 @@ public class UserLogicImpl extends UserService {
 	
 
 	@Override
-	public UserProxy signIn(String uuId,VerifyUserMethod method, String account,String accountPwd, String email, String emailVerifyCode, String tel, String telVerifyCode){
+	public UserProxy signIn(String ip,String uuId,VerifyUserMethod method, String account,String accountPwd, String email, String emailVerifyCode, String tel, String telVerifyCode){
 		switch (method) {
-		case ACCOUNT_PWD: {
-			try {
-				User user = uDAO.selectUniqueUserByField(DBConstants.F_ACCOUNT, account);
+            case ACCOUNT_PWD: {
+                loginAttemptGuard.checkAllowed(account, ip);
 
-				if (!SecurityBooster.verifyUserPwd(user, accountPwd)) {
-					//TODO 未来做点处理  防止连续登录
-					throw new LogicException(SelfXErrors.PWD_WRONG);
-				}
+                try {
+                    User user = uDAO.selectUniqueUserByField(DBConstants.F_ACCOUNT, account);
 
-				cache.removeTempUser(uuId);
-				return loadUser(user.getId(), user.getId());
-			} catch (NoSuchElement e) {
-				throw new LogicException(SelfXErrors.ACCOUNT_NULL, account);
-			}
-		}
-		case EMAIL_VERIFY_CODE:{
-			CacheMode mode = CacheMode.T_EMAIL_FOR_SIGN_IN;
-			String key = createGeneralKey(mode, email);
-			String ans = cache.get(key);
-			if(ans == null)
-				throw new LogicException(SelfXErrors.EMAIL_VERIFY_TIMEOUT, email);
+                    if (!SecurityBooster.verifyUserPwd(user, accountPwd)) {
+                        loginAttemptGuard.recordFail(account, ip);
+                        throw new LogicException(SelfXErrors.LOGIN_FAIL);
+                    }
 
-			if(!ans.equals(emailVerifyCode)) {
-				cache.remove(key);
-				throw new LogicException(SelfXErrors.CHECK_VERIFY_CODE_FAIL,emailVerifyCode);
-			}
+                    loginAttemptGuard.clear(account, ip);
 
-			User user = uDAO.selectUniqueUserByField(DBConstants.F_EMAIL, email);
-			cache.removeTempUser(uuId);
-			return loadUser(user.getId(), user.getId());
-		}
+                    cache.removeTempUser(uuId);
+                    return loadUser(user.getId(), user.getId());
+                } catch (NoSuchElement e) {
+                    loginAttemptGuard.recordFail(account, ip);
+                    throw new LogicException(SelfXErrors.LOGIN_FAIL, account);
+                }
+            }
+            case EMAIL_VERIFY_CODE: {
+                loginAttemptGuard.checkAllowed(email, ip);
 
-		case TEL_VERIFY_CODE:{
-			CacheMode mode = CacheMode.T_TEL_FOR_SIGN_IN;
-			String key = createGeneralKey(mode, email);
-			String ans = cache.get(key);
-			if(ans == null)
-				throw new LogicException(SelfXErrors.TEL_VERIFY_TIMEOUT, tel);
+                CacheMode mode = CacheMode.T_EMAIL_FOR_SIGN_IN;
+                String key = createGeneralKey(mode, email);
+                String ans = cache.get(key);
 
-			if(!ans.equals(telVerifyCode)) {
-				cache.remove(key);
-				throw new LogicException(SelfXErrors.CHECK_VERIFY_CODE_FAIL,telVerifyCode);
-			}
+                if (ans == null) {
+                    // 验证码过期 ≠ 登录失败
+                    throw new LogicException(SelfXErrors.EMAIL_VERIFY_TIMEOUT, email);
+                }
 
-			User user = uDAO.selectUniqueUserByField(DBConstants.F_TEL_NUM, tel);
-			cache.removeTempUser(uuId);
-			return loadUser(user.getId(), user.getId());
-		}
+                if (!ans.equals(emailVerifyCode)) {
+                    cache.remove(key);
+
+                    loginAttemptGuard.recordFail(email, ip);
+                    throw new LogicException(SelfXErrors.CHECK_VERIFY_CODE_FAIL, emailVerifyCode);
+                }
+
+                User user = uDAO.selectUniqueUserByField(DBConstants.F_EMAIL, email);
+
+                loginAttemptGuard.clear(email, ip);
+
+                cache.removeTempUser(uuId);
+                return loadUser(user.getId(), user.getId());
+            }
+            case TEL_VERIFY_CODE: {
+                loginAttemptGuard.checkAllowed(tel, ip);
+
+                CacheMode mode = CacheMode.T_TEL_FOR_SIGN_IN;
+                String key = createGeneralKey(mode, tel);
+                String ans = cache.get(key);
+
+                if (ans == null) {
+                    throw new LogicException(SelfXErrors.TEL_VERIFY_TIMEOUT, tel);
+                }
+
+                if (!ans.equals(telVerifyCode)) {
+                    cache.remove(key);
+
+                    loginAttemptGuard.recordFail(tel, ip);
+                    throw new LogicException(SelfXErrors.CHECK_VERIFY_CODE_FAIL, telVerifyCode);
+                }
+
+                User user = uDAO.selectUniqueUserByField(DBConstants.F_TEL_NUM, tel);
+
+                loginAttemptGuard.clear(tel, ip);
+
+                cache.removeTempUser(uuId);
+                return loadUser(user.getId(), user.getId());
+            }
 		default:
 			assert false : method;
 			throw new RuntimeException("未配置的登录方式验证 " + method);
@@ -626,7 +653,7 @@ public class UserLogicImpl extends UserService {
 				cache.remove(key);
 				throw new LogicException(SelfXErrors.CHECK_VERIFY_CODE_FAIL);
 			}
-			
+			user.setSessionVersion(user.getSessionVersion()+1);
 			user.setPassword(resetPWD);
 			SecurityBooster.encodeUserPwd(user);
 			//既然已经明确了该user就是所属用户 则直接用该userId 当loginId

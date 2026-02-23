@@ -41,7 +41,6 @@ public class DEBUG_FastJSON {
 	@Test
 	public void testLogger() {
 		LoginInfo info = new LoginInfo(new UserProxy());
-		info.success = false;
 		System.out.println(JSON.toJSONString(info));
 	}
 	

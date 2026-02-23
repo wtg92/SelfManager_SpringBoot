@@ -103,7 +103,7 @@ public enum SelfXErrors {
 
 	LINK_BECAME_NULL(76),
 
-	FILE_UPLOADING_ERROR(999,"文件上传失败"),
+
 	
 	MODIFY_DPI_ERROR(666,"修改图片DPI失败"),
 	ILLEGAL_STR(77,"标签中包含非法字符"),
@@ -121,6 +121,11 @@ public enum SelfXErrors {
 	LINK_OUT_OF_DATE(84),
 
 	LINK_NOT_COMPLETED(85),
+
+    LOGIN_TOO_MANY_FAILED(86),
+
+    LOGIN_FAIL(87),
+
 	CREATE_CORE_SYNC(9999)
 	;
 

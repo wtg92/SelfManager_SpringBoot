@@ -1,36 +1,40 @@
 package manager.cache;
 
-import com.alibaba.fastjson2.JSON;
+import com.github.benmanes.caffeine.cache.Cache;
 import manager.booster.longRunningTasks.LongRunningTasksMessage;
 import manager.entity.SMEntity;
 import manager.entity.general.FileRecord;
 import manager.entity.general.User;
 import manager.entity.general.career.Plan;
 import manager.entity.general.career.PlanBalance;
-import manager.solr.books.PageNode;
-import manager.solr.books.SharingBook;
 import manager.entity.general.career.WorkSheet;
 import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.NoSuchElement;
 import manager.exception.SMException;
+import manager.solr.books.PageNode;
+import manager.solr.books.SharingBook;
 import manager.solr.books.SharingLink;
 import manager.system.SelfXErrors;
-import manager.util.*;
+import manager.util.BiThrowableSupplier;
+import manager.util.ThrowableConsumer;
+import manager.util.ThrowableSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-import static manager.cache.CacheConverter.*;
-import static manager.util.CommonUtil.*;
+import static manager.cache.CacheConverter.createGeneralKey;
+import static manager.cache.CacheConverter.getPrefixEntity;
+import static manager.util.CommonUtil.getEntityTableName;
 
 
 /**
@@ -43,13 +47,54 @@ import static manager.util.CommonUtil.*;
 public class CacheOperator {
 	
 	
-	@Resource CaffeineCollection caches;
+	@Autowired
+    CaffeineCollection caches;
 	
 
 	private static final Logger logger = LoggerFactory.getLogger(CacheOperator.class);
 
+    private Cache<String, Integer> loginAttemptCache() {
+        return caches.Login_Attempt_Cache;
+    }
+    public int getLoginFailCountByAccount(String account) {
+        Integer val = loginAttemptCache().getIfPresent(accountFailKey(account));
+        return val == null ? 0 : val;
+    }
 
+    public void incrLoginFailByAccount(String account) {
+        loginAttemptCache().asMap().merge(
+                accountFailKey(account),
+                1,
+                Integer::sum
+        );
+    }
 
+    public void clearLoginFailByAccount(String account) {
+        loginAttemptCache().invalidate(accountFailKey(account));
+    }
+    public int getLoginFailCountByIp(String ip) {
+        Integer val = loginAttemptCache().getIfPresent(ipFailKey(ip));
+        return val == null ? 0 : val;
+    }
+
+    public void incrLoginFailByIp(String ip) {
+        loginAttemptCache().asMap().merge(
+                ipFailKey(ip),
+                1,
+                Integer::sum
+        );
+    }
+
+    public void clearLoginFailByIp(String ip) {
+        loginAttemptCache().invalidate(ipFailKey(ip));
+    }
+    private String accountFailKey(String account) {
+        return "LOGIN_FAIL:ACCOUNT:" + account;
+    }
+
+    private String ipFailKey(String ip) {
+        return "LOGIN_FAIL:IP:" + ip;
+    }
 	private <T> void saveWithCacheEvict(long key, T obj,
 										ThrowableConsumer<T, DBException> updater,
 										Consumer<Long> evictor) {

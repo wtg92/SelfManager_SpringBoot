@@ -12,6 +12,7 @@ import manager.service.UserService;
 import manager.system.Gender;
 import manager.system.UserUniqueField;
 import manager.system.VerifyUserMethod;
+import manager.util.UIUtil;
 import manager.util.YZMUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,8 +75,14 @@ public class UserController {
         userService.updateUser(loginId,nickName,gender,motto,portraitId);
     }
 
+    @PostMapping("/signOut")
+    public void signOut(HttpServletResponse response,@RequestBody JSONObject param) {
+        securityBooster.signOut(response);
+    }
+
+
     @PostMapping("/signIn")
-    public LoginInfo signIn(HttpServletResponse response,@RequestBody JSONObject param) {
+    public LoginInfo signIn(HttpServletRequest request, HttpServletResponse response,@RequestBody JSONObject param) {
         VerifyUserMethod method = VerifyUserMethod.valueOfDBCode(
                 param.getInteger(SIGN_IN_METHOD));
         String account = param.getString(ACCOUNT);
@@ -86,7 +93,8 @@ public class UserController {
         String telVerifyCode = param.getString(TEL_VERIFY_CODE);
         String tempUserId = param.getString(TEMP_USER_ID);
         Boolean rememberMe = param.getBoolean(REMEMBER_ME);
-        return securityBooster.process(response,userService.signIn(tempUserId,method,account,accountPwd,email,emailVerifyCode,tel,telVerifyCode),rememberMe);
+        String ip = UIUtil.getClientIp(request);
+        return securityBooster.process(response,userService.signIn(ip,tempUserId,method,account,accountPwd,email,emailVerifyCode,tel,telVerifyCode),rememberMe);
     }
 
     @PostMapping("/sendEmailVerifyCodeForSignIn")

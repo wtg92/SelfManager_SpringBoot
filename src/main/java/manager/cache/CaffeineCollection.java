@@ -48,6 +48,12 @@ public class CaffeineCollection {
     @Value("${cache.long-running-tasks.expiration-of-min}")
     public Integer LONG_RUNNING_TASKS_EXPIRATION_OF_MIN;
 
+    @Value("${cache.login-attempt.expiration-of-min}")
+    private Integer LOGIN_ATTEMPT_EXPIRATION_OF_MIN;
+    @Value("${cache.login-attempt.max-num}")
+    private Integer LOGIN_ATTEMPT_MAX_NUM;
+
+
     @Value("${cache.temp-users.max-num}")
     private Integer TEMP_USERS_MAX_NUM;
 
@@ -73,6 +79,10 @@ public class CaffeineCollection {
 
     @Value("${cache.long-running-tasks.max-num}")
     private Integer LONG_RUNNING_TASKS_MAX_NUM;
+
+
+
+
     @PostConstruct
     public void init() {
         Common_Cache = generateCommonCache();
@@ -90,6 +100,12 @@ public class CaffeineCollection {
         File_Records_Cache = generateSpecificEntityCache(FILE_RECORDS_MAX_NUM,COMMON_EXPIRATION_OF_MIN);
         Closed_Book_Ids_Cache = generateSpecificEntityCache(CLOSED_BOOK_IDS_MAX_NUM,COMMON_EXPIRATION_OF_MIN);
         Long_Running_Tasks_Cache = generateSpecificEntityCache(LONG_RUNNING_TASKS_MAX_NUM,LONG_RUNNING_TASKS_EXPIRATION_OF_MIN);
+
+        Login_Attempt_Cache = Caffeine.newBuilder()
+                .maximumSize(LOGIN_ATTEMPT_MAX_NUM)
+                .expireAfterWrite(Duration.ofMinutes(LOGIN_ATTEMPT_EXPIRATION_OF_MIN))
+                .build();
+
     }
 
     private Cache<String, String> generateCommonTempCache() {
@@ -132,7 +148,7 @@ public class CaffeineCollection {
 
     public Cache<Long, LongRunningTasksMessage> Long_Running_Tasks_Cache;
 
-
+    public Cache<String, Integer> Login_Attempt_Cache;
 
     private <T,V> Cache<V, T> generateSpecificEntityCache(int maxSize,int expirationMin) {
         return Caffeine.newBuilder()

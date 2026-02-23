@@ -1,7 +1,6 @@
 package manager.booster;
 
 import com.alibaba.fastjson2.JSON;
-import com.google.api.client.util.Value;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,6 +14,7 @@ import manager.system.SelfXErrors;
 import manager.util.SecurityBasis;
 import manager.util.YZMUtil.YZMInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
@@ -156,12 +156,23 @@ public class SecurityBooster {
         response.addCookie(cookie);
     }
 
+    public void signOut(HttpServletResponse response) {
+        clearLoginCookie(response);
+    }
+
+    private void clearLoginCookie(HttpServletResponse response) {
+        Cookie cookie = new Cookie(COOKIE_TOKEN_KEY, "");
+        cookie.setHttpOnly(true);
+        cookie.setSecure(COOKIE_SECURE);
+        cookie.setPath("/");
+        cookie.setMaxAge(0); // 关键：立即删除
+        response.addCookie(cookie);
+    }
+
     public LoginInfo process(HttpServletResponse response, UserProxy proxy, boolean rememberMe) {
         assert proxy.user.getId() != 0;
 
         LoginInfo info = new LoginInfo(proxy);
-        info.success = true;
-
         String encodedUserId = commonCipher.encodeStableCommonId(proxy.user.getId());
         info.userId = encodedUserId;
         info.portraitId = commonCipher.encodeStableCommonId(proxy.user.getPortraitId());

@@ -127,13 +127,8 @@ public abstract class UserService {
 
 	public abstract void retrieveAccount(VerifyUserMethod method,String val) throws LogicException, DBException;
 
-	/**
-	  *  正常情况下，根据不同场景，有可能会抛如下异常：ACCOUNT_NULL EMAIL_NULL PWD_WRONG
-	 *  TODO 手机还没处理
-	 *   既然是登录，就默认缓存里不存在，不用从缓存里取了，没必要。同时，直接加入缓存。
-	 *  登录成功 清理temp缓存
-	 */
-	public abstract UserProxy signIn(String uuId,VerifyUserMethod method, String account,String accountPwd, String email, String emailPwd, String tel, String telVerifyCode) throws LogicException, DBException;
+
+	public abstract UserProxy signIn(String ip,String uuId,VerifyUserMethod method, String account,String accountPwd, String email, String emailPwd, String tel, String telVerifyCode) throws LogicException, DBException;
 
 	public abstract boolean exists(UserUniqueField field,String val) throws DBException, LogicException;
 
