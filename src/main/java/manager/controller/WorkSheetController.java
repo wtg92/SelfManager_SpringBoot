@@ -57,6 +57,7 @@ import static manager.system.SelfXParams.START_UTC_FOR_CREATE;
 import static manager.system.SelfXParams.START_UTC_FOR_DATE;
 import static manager.system.SelfXParams.START_UTC_FOR_UPDATE;
 import static manager.system.SelfXParams.STATE;
+import static manager.system.SelfXParams.TAG;
 import static manager.system.SelfXParams.TAGS;
 import static manager.system.SelfXParams.TARGET_PLAN_ID;
 import static manager.system.SelfXParams.TEMPLATE_ID;
@@ -470,6 +471,16 @@ public class WorkSheetController {
         int planId = param.getInteger(ID);
         wL.syncPlanTagsToWorkSheet(loginId, planId);
     }
+
+    @PostMapping(PLAN_PATH+"/deletePlanTagsFromWorkSheet")
+    private void deletePlanTagsFromWorkSheet( HttpServletRequest request
+            , @RequestBody JSONObject param ){
+        long loginId = securityBooster.requireUserId(request);
+        int planId = param.getInteger(ID);
+        String tag = param.getString(TAG);
+        wL.deletePlanTagsFromWorkSheet(loginId, planId,tag);
+    }
+
 
     @PostMapping(PLAN_PATH+"/tags/reset")
     private void resetPlanTags( HttpServletRequest request

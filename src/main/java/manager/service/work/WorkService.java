@@ -1,29 +1,14 @@
 package manager.service.work;
 
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import manager.data.MultipleItemsResult;
-import manager.data.worksheet.WorkSheetContent;
-import manager.data.worksheet.WorkSheetContent.PlanItemNode;
 import manager.data.proxy.career.CareerLogProxy;
 import manager.data.proxy.career.PlanBalanceProxy;
 import manager.data.proxy.career.PlanItemProxy;
 import manager.data.proxy.career.PlanProxy;
 import manager.data.proxy.career.WorkItemProxy;
 import manager.data.proxy.career.WorkSheetProxy;
+import manager.data.worksheet.WorkSheetContent;
+import manager.data.worksheet.WorkSheetContent.PlanItemNode;
 import manager.entity.general.User;
 import manager.entity.general.career.Plan;
 import manager.entity.general.career.WorkSheet;
@@ -42,6 +27,20 @@ import manager.system.career.WorkSheetState;
 import manager.util.ZonedTimeUtils;
 
 import javax.annotation.Resource;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 public abstract class WorkService {
 
@@ -164,7 +163,10 @@ public abstract class WorkService {
 	public abstract void syncAllToBalance(long loginId, long wsId) throws DBException, LogicException;
 	public abstract void syncAllToBalanceInBatch(long loginId, List<Integer> wsIds) throws SMException;
 	public abstract void syncPlanTagsToWorkSheet(long loginId,long planId) throws SMException;
-	public abstract void copyPlanItemsFrom(long loginId,long targetPlanId,long templatePlanId) throws DBException, LogicException;
+    public abstract void deletePlanTagsFromWorkSheet(long loginId,long planId,String tag);
+
+
+    public abstract void copyPlanItemsFrom(long loginId,long targetPlanId,long templatePlanId) throws DBException, LogicException;
 
 	public abstract long getCountWSBasedOfPlan(Integer planId, long loginId);
 

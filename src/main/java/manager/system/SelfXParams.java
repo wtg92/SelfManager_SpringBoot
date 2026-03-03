@@ -17,7 +17,7 @@ public abstract class SelfXParams {
 	public final static String METHOD = "method";
 	public final static String TEL = "tel";
 	public final static String TEL_VERIFY_CODE = "tel_verify_code";
-	public final static String USER_TOKEN = "user_token";
+	public final static String TAG = "tag";
 
 	public final static String TOKEN = "token";
 	public final static String TEMP_USER_ID = "temp_user_id";

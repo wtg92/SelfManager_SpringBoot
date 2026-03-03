@@ -1,31 +1,19 @@
 package manager.service.work;
 
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-
-import com.alibaba.fastjson2.JSON;
+import manager.booster.TagCalculator;
+import manager.cache.CacheMode;
 import manager.cache.CacheOperator;
 import manager.dao.career.WorkDAO;
 import manager.data.EntityTag;
-import manager.data.worksheet.BalanceContent;
 import manager.data.MultipleItemsResult;
-import manager.data.worksheet.WorkSheetContent;
-import manager.data.worksheet.WorkSheetContent.PlanItemNode;
 import manager.data.proxy.career.PlanBalanceProxy;
 import manager.data.proxy.career.PlanItemProxy;
 import manager.data.proxy.career.PlanProxy;
 import manager.data.proxy.career.WorkItemProxy;
 import manager.data.proxy.career.WorkSheetProxy;
+import manager.data.worksheet.BalanceContent;
+import manager.data.worksheet.WorkSheetContent;
+import manager.data.worksheet.WorkSheetContent.PlanItemNode;
 import manager.entity.general.career.Plan;
 import manager.entity.general.career.PlanBalance;
 import manager.entity.general.career.WorkSheet;
@@ -33,10 +21,8 @@ import manager.entity.virtual.worksheet.BalanceItem;
 import manager.exception.DBException;
 import manager.exception.LogicException;
 import manager.exception.SMException;
-import manager.booster.TagCalculator;
-import manager.cache.CacheMode;
-import manager.system.SelfX;
 import manager.system.DBConstants;
+import manager.system.SelfX;
 import manager.system.SelfXErrors;
 import manager.system.SelfXPerms;
 import manager.system.career.CareerLogAction;
@@ -46,13 +32,25 @@ import manager.system.career.PlanState;
 import manager.system.career.WorkItemType;
 import manager.system.career.WorkSheetState;
 import manager.util.CommonUtil;
-
 import manager.util.ZonedTimeUtils;
 import manager.util.locks.LockHandler;
 import manager.util.locks.UserLockManager;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 /**
  * 关于缓存的clone getEntity 其实不必clone
@@ -933,7 +931,34 @@ public class WorkServiceImpl extends WorkService {
 			syncAllToBalance(loginId, wsId);
 		}
 	}
-	
+
+    private void actionOnTagsOfRelevantWorksheet(long loginId, long planId, BiConsumer<WorkSheet,Plan> action){
+        Plan target = getPlan(planId);
+        if(target.getOwnerId() != loginId) {
+            throw new LogicException(SelfXErrors.CANNOT_SYNC_OTHERS_PLAN_TAGS);
+        }
+        locker.lockByUserAndClass(loginId,()->{
+            List<WorkSheet> toSave = wDAO.selectWorkSheetByField(DBConstants.F_PLAN_ID, planId);
+
+            for(WorkSheet workSheet : toSave) {
+                action.accept(workSheet,target);
+                TagCalculator.checkTagsForReset(workSheet.getTags());
+            }
+
+            cache.saveWorksheets(toSave, p->wDAO.updateExistedWorkSheet(p));
+        });
+    }
+
+    @Override
+    public void deletePlanTagsFromWorkSheet(long loginId, long planId,String tag) throws SMException {
+        actionOnTagsOfRelevantWorksheet(loginId,planId,(workSheet,target)->{
+            List<EntityTag> newTags = workSheet.getTags().stream()
+                    .filter(t->!t.name.equals(tag))
+                    .toList();
+            workSheet.setTags(newTags);
+        });
+    }
+
 	/**
 	 * 为了尽量保留用户手动修改的工作表痕迹，计划标签的同步逻辑为：
 	 * 只删除工作表中,由系统生成的Tag，替换成计划的标签
@@ -941,34 +966,22 @@ public class WorkServiceImpl extends WorkService {
 	 */
 	@Override
 	public void syncPlanTagsToWorkSheet(long loginId, long planId) throws SMException {
-		Plan target = getPlan(planId);
-		if(target.getOwnerId() != loginId) {
-			throw new LogicException(SelfXErrors.CANNOT_SYNC_OTHERS_PLAN_TAGS);
-		}
-		locker.lockByUserAndClass(loginId,()->{
-			List<WorkSheet> toSave = wDAO.selectWorkSheetByField(DBConstants.F_PLAN_ID, planId);
+        actionOnTagsOfRelevantWorksheet(loginId,planId,(workSheet,target)->{
+            List<EntityTag> tagsByPlan =  CommonUtil.cloneList(target.getTags(),tag->{
+                tag.createdBySystem = true;
+                return tag;
+            });
+            /*万一有重复 认为该标签该是tagsFromPlan，即当同步之后，认为该标签是由系统创立的*/
+            List<EntityTag> tagsByUser = workSheet.getTags().stream()
+                    .filter(tag->!tag.createdBySystem)
+                    .filter(tag->tagsByPlan.stream().noneMatch(tagByPlan->tag.name.equals(tagByPlan.name)))
+                    .toList();
 
-			for(WorkSheet workSheet : toSave) {
-				List<EntityTag> tagsByPlan =  CommonUtil.cloneList(target.getTags(),tag->{
-                    tag.createdBySystem = true;
-					return tag;
-				});
-				/*万一有重复 认为该标签该是tagsFromPlan，即当同步之后，认为该标签是由系统创立的*/
-				List<EntityTag> tagsByUser = workSheet.getTags().stream()
-						.filter(tag->!tag.createdBySystem)
-						.filter(tag->tagsByPlan.stream().noneMatch(tagByPlan->tag.name.equals(tagByPlan.name)))
-						.toList();
-
-				List<EntityTag> tagsForNew = new ArrayList<EntityTag>();
-				tagsForNew.addAll(tagsByUser);
-				tagsForNew.addAll(tagsByPlan);
-
-				TagCalculator.checkTagsForReset(tagsForNew);
-				workSheet.setTags(tagsForNew);
-			}
-
-			cache.saveWorksheets(toSave, p->wDAO.updateExistedWorkSheet(p));
-		});
+            List<EntityTag> tagsForNew = new ArrayList<EntityTag>();
+            tagsForNew.addAll(tagsByUser);
+            tagsForNew.addAll(tagsByPlan);
+            workSheet.setTags(tagsForNew);
+        });
 	}
 	
 	private List<WorkSheetProxy> fillPlanInfos(List<WorkSheet> src) throws DBException{
