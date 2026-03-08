@@ -2,7 +2,6 @@ package manager.service.books;
 
 
 import com.alibaba.fastjson2.JSON;
-import manager.SelfXManagerSpringbootApplication;
 import manager.booster.CommonCipher;
 import manager.booster.CoreNameProducer;
 import manager.booster.MultipleLangHelper;
@@ -102,11 +101,14 @@ public class BooksServiceImpl implements BooksService {
     @Resource
     LongRunningTasksScheduler longRunningTasksScheduler;
 
+
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Value("${books.max_size_of_page}")
     private Integer MAX_SIZE_OF_ONE_BOOK;
 
 
-    private static final Logger log = LoggerFactory.getLogger(SelfXManagerSpringbootApplication.class);
+    private static final Logger log = LoggerFactory.getLogger(BooksServiceImpl.class);
 
 
     private static final Integer BOOK_DEFAULT_STATUS = SharingBookStatus.OPENED;
@@ -569,9 +571,9 @@ public class BooksServiceImpl implements BooksService {
             for (String fieldName : contentsField) {
                 String stringFieldValue = ReflectUtil.getStringFieldValue(clone, fieldName);
                 if (stringFieldValue != null) {
-                    for (String fieldId : clone.getFileIds()) {
-                        if (stringFieldValue.contains(fieldId)) {
-                            throw new LogicException(SelfXErrors.ILLEGAL_STR, fieldId);
+                    for (String fileId : clone.getFileIds()) {
+                        if (stringFieldValue.contains(fileId)) {
+                            throw new LogicException(SelfXErrors.ILLEGAL_STR, fileId);
                         }
                     }
                 }
@@ -580,7 +582,8 @@ public class BooksServiceImpl implements BooksService {
              * 校验成功 正式开始复制了
              */
             Map<String, String> copyingFileIdsMapper = new HashMap<>();
-            for (String fieldId : clone.getFileIds()) {
+            List<String> newFileIds = new ArrayList<>();
+            for (String fileId : clone.getFileIds()) {
                 Map<String, Object> srcParams = new HashMap<>();
                 srcParams.put("pageNodeLoginId", loginIdForCopyTarget);
                 srcParams.put("nodeId", one.getId());
@@ -588,18 +591,48 @@ public class BooksServiceImpl implements BooksService {
                  * 重新produce一个Field Record
                  * replace state里的file
                  */
-                String copyingId = filesService.copyFileRecord(loginId, fieldId, srcParams);
-                copyingFileIdsMapper.put(fieldId, copyingId);
+                String pureOldFileId = extractPureFileIdWithoutLang(fileId);
+                String lang = extractFileIdLang(fileId);
+                String copyingId = filesService.copyFileRecord(loginId,pureOldFileId, srcParams);
+                copyingFileIdsMapper.put(pureOldFileId,copyingId);
+                newFileIds.add(rebuildFileIdWithLang(copyingId,lang));
             }
+            clone.setFileIds(newFileIds);
 
             List<String> editorStatesFields = ReflectUtil.getFiledNamesByPrefix(PageNode.class, SolrFields.EDITOR_STATE);
+            List<Map.Entry<String,String>> replaceEntries =
+                    new ArrayList<>(copyingFileIdsMapper.entrySet());
+            //防止前缀重合的情况
+            replaceEntries.sort((a,b) ->
+                    Integer.compare(b.getKey().length(), a.getKey().length())
+            );
 
             for (String fieldName : editorStatesFields) {
-                String stringFieldValue = ReflectUtil.getStringFieldValue(clone, fieldName);
-                if (stringFieldValue != null) {
-                    copyingFileIdsMapper.forEach((oldId, copyingId) -> {
-                        ReflectUtil.setFiledValue(clone, fieldName, stringFieldValue.replaceAll(oldId, copyingId));
-                    });
+                String value = ReflectUtil.getStringFieldValue(clone, fieldName);
+                log.debug("Before replace fieldName={}, value={}", fieldName, value);
+                if (value != null) {
+                    String newValue = value;
+
+                    for (Map.Entry<String, String> entry : replaceEntries) {
+                        String oldId = entry.getKey();
+                        String newId = entry.getValue();
+
+                        if (newValue.contains(oldId)) {
+                            log.debug("Replacing fileId in field={} oldId={} newId={}", fieldName, oldId, newId);
+                        } else {
+                            log.debug("Skip replace (not found) field={} oldId={}", fieldName, oldId);
+                        }
+
+                        String replaced = newValue.replace(oldId, newId);
+
+                        if (!replaced.equals(newValue)) {
+                            log.debug("Replace success oldId={} newId={}", oldId, newId);
+                        }
+
+                        newValue = replaced;
+                    }
+                    log.debug("After replace fieldName={}, newValue={}", fieldName, newValue);
+                    ReflectUtil.setFiledValue(clone, fieldName, newValue);
                 }
             }
 
@@ -665,12 +698,19 @@ public class BooksServiceImpl implements BooksService {
                 deletePageNode(loginId, srcBookId, srcParentId, srcId);
             }
         } else {
-            copyPageNodeAndSubFromTheOwner(LongRunningTaskType.MOVE_PAGE_AND_SUB_TO_DIFFERENT_BOOK, loginId, srcId, srcBookId, targetBookId, targetParentId, targetIndex);
-            deletePageNode(loginId, srcBookId, srcParentId, srcId);
+            copyPageNodeAndSubFromTheOwner(LongRunningTaskType.MOVE_PAGE_AND_SUB_TO_DIFFERENT_BOOK, loginId, srcId, srcBookId, targetBookId, targetParentId, targetIndex
+            ,()->{
+                            deletePageNode(loginId, srcBookId, srcParentId, srcId);
+                    });
+
         }
     }
 
-    private void copyPageNodeAndSubFromTheOwner(Integer longRunningTaskType, long loginId, String srcId, String srcBookId, String targetBookId, String targetParentId, Double targetIndex) {
+    private void copyPageNodeAndSubFromTheOwner(Integer longRunningTaskType, long loginId, String srcId, String srcBookId, String targetBookId, String targetParentId, Double targetIndex,Runnable callback) {
+        logger.debug(
+                "Start copyPageNodeAndSubFromTheOwner: loginId={}, srcId={}, srcBookId={}, targetBookId={}, targetParentId={}, targetIndex={}",
+                loginId, srcId, srcBookId, targetBookId, targetParentId, targetIndex
+        );
         checkBookMaxNumOfPage(loginId, targetBookId);
         longRunningTasksScheduler.runAsyncTask(loginId, () -> {
             bookStatusLocker.startCopying(loginId, targetBookId);
@@ -703,7 +743,24 @@ public class BooksServiceImpl implements BooksService {
                      * 由于进入循环前处理了第一次 因此该处理处理子节点
                      */
                     List<PageNode> subNodes = operator.getPageNodesByParentIdForCopy(loginId, srcBookId, generatedSrcPageIdForSub);
+
+                    logger.debug(
+                            "Fetched subNodes: parentSrcId={}, generatedParentId={}, count={}, subNodeIds={}",
+                            curSrcPageIdForSub,
+                            generatedSrcPageIdForSub,
+                            subNodes.size(),
+                            subNodes.stream().map(PageNode::getId).toList()
+                    );
+
                     for (PageNode copyTarget : subNodes) {
+
+                        logger.debug(
+                                "Traversal loop start: stackSize={}, visitedSize={}, stack={}",
+                                stack.size(),
+                                parentIdsMapper.size(),
+                                stack
+                        );
+
                         String copySrcId = copyTarget.getId();
                         if (parentIdsMapper.containsValue(copySrcId)) {
                             //同一本书 复制自己或自己的子节点下 会出现再取又取到新加的情况 此时跳过
@@ -712,16 +769,35 @@ public class BooksServiceImpl implements BooksService {
 
                         //子节点的 Index属性值保留以保存顺序关系
                         Double srcIndex = findIndexByParentId(copyTarget, generatedSrcPageIdForSub);
-
+                        logger.debug(
+                                "Cloning sub node: srcId={}, mappedParentId={}, srcIndex={}",
+                                copySrcId,
+                                mappedPageIdForSub,
+                                srcIndex
+                        );
                         if (!parentIdsMapper.containsKey(copySrcId)) {
                             //并未复制过 则进行复制
                             PageNode cloneSub = copyOnePageNodeAndRefreshPageNum(loginId, copyTarget, loginId, targetBookId, mappedPageIdForSub, srcIndex);
+                            logger.debug(
+                                    "Sub node cloned: srcId={}, clonedId={}",
+                                    copySrcId,
+                                    cloneSub.getId()
+                            );
+
                             //增加映射关系
                             //复制成功了 该节点进入下一个循环
                             stack.push(copySrcId);
                             parentIdsMapper.put(copySrcId, cloneSub.getId());
+                            logger.debug("Push cloned node to stack for further traversal: {}", copySrcId);
                         } else {
                             String copiedPageIdInThisProcess = parentIdsMapper.get(copySrcId);
+
+                            logger.debug(
+                                    "Node already copied. Adding new parent mapping: srcId={}, mappedCloneId={}, newParent={}",
+                                    copySrcId,
+                                    copiedPageIdInThisProcess,
+                                    mappedPageIdForSub
+                            );
                             //已复制过 则增加parentId
                             PageNode pageNode = getPageNode(loginId, copiedPageIdInThisProcess);
                             List<Double> indexes = pageNode.getIndexes();
@@ -729,18 +805,30 @@ public class BooksServiceImpl implements BooksService {
                             List<String> parentIds = pageNode.getParentIds();
                             parentIds.add(generatePageParentId(targetBookId, mappedPageIdForSub));
                             updatePageNodeParentIdsAndIndexesInSyncThenRefreshPageChildrenNum(loginId, pageNode.getId(), parentIds, indexes, mappedPageIdForSub, targetBookId);
+                            logger.debug(
+                                    "Updating parentIds and indexes for cloned node: nodeId={}, parentIds={}, indexes={}",
+                                    pageNode.getId(),
+                                    parentIds,
+                                    indexes
+                            );
                         }
                     }
+                    logger.debug("Copy process finished for srcId={} to targetBookId={}", srcId, targetBookId);
+                }
+                if(callback != null){
+                    callback.run();
                 }
             } finally {
                 bookStatusLocker.endCopying(loginId, targetBookId);
+                logger.debug("End copying and release lock: loginId={}, targetBookId={}",
+                        loginId, targetBookId);
             }
         }, longRunningTaskType, new Object[]{srcBookId, targetBookId});
     }
 
     @Override
     public void copyPageNodeAndSubFromTheOwner(long loginId, String srcId, String srcBookId, String targetBookId, String targetParentId, Double targetIndex) {
-        copyPageNodeAndSubFromTheOwner(LongRunningTaskType.COPY_PAGE_NODE_AND_SUB, loginId, srcId, srcBookId, targetBookId, targetParentId, targetIndex);
+        copyPageNodeAndSubFromTheOwner(LongRunningTaskType.COPY_PAGE_NODE_AND_SUB, loginId, srcId, srcBookId, targetBookId, targetParentId, targetIndex,null);
     }
 
     @Override
@@ -841,14 +929,35 @@ public class BooksServiceImpl implements BooksService {
         return PARENT_ID_OF_PAGE_NODE_PREFIX + parentId;
     }
 
+    private static final String FILE_ID_SEPARATOR = "_";
+
+    private static String extractPureFileIdWithoutLang(String fileIdWithLang) {
+        int index = fileIdWithLang.lastIndexOf(FILE_ID_SEPARATOR);
+        if (index == -1) {
+            log.error("wrong!!!!extractPurefileIdWithoutLang {}", fileIdWithLang);
+            throw new LogicException(SelfXErrors.UNEXPECTED_ERROR,"extractPurefileIdWithoutLang" + fileIdWithLang);
+        }
+        return fileIdWithLang.substring(0, index);
+    }
+    private static String extractFileIdLang(String fileIdWithLang) {
+        int index = fileIdWithLang.lastIndexOf(FILE_ID_SEPARATOR);
+        if (index == -1) {
+            throw new LogicException(SelfXErrors.UNEXPECTED_ERROR,"extractPurefileIdWithoutLang" + fileIdWithLang);
+        }
+        return fileIdWithLang.substring(index + 1);
+    }
+
+    private static String rebuildFileIdWithLang(String baseId, String lang) {
+        return baseId + FILE_ID_SEPARATOR + lang;
+    }
 
     private void deleteSinglePageNodeWithFileIds(long loginId, PageNode node) {
         String pageId = node.getId();
         locker.lockByUserAndClass(loginId, () -> {
             cache.deletePageNode(loginId, pageId, () -> operator.deletePageNodeById(loginId, pageId));
             if (node.getFileIds() != null) {
-                node.getFileIds().forEach(encodedFileIds -> {
-                    long fileToDelete = commonCipher.getStableCommonId(encodedFileIds);
+                node.getFileIds().forEach(encodedFileId -> {
+                    long fileToDelete = commonCipher.getStableCommonId(extractPureFileIdWithoutLang(encodedFileId));
                     filesService.deleteFileRecord(loginId, fileToDelete);
                 });
             }
